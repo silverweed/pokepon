@@ -1,0 +1,354 @@
+//: battle/BattleTurn.java
+
+package pokepon.battle;
+
+import pokepon.pony.*;
+import pokepon.enums.*;
+import pokepon.player.*;
+import pokepon.util.*;
+import pokepon.move.*;
+import static pokepon.util.MessageManager.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+/** The class that manage one turn in a battle between 2 players; should
+ * only be called by Battle.java.
+ *
+ * @author silverweed
+ */
+// TODO: acually, is a placeholder class. This will be handled by the client.
+class BattleTurn {
+
+	/////////////// PUBLIC METHODS / FIELDS ///////////////
+
+	public BattleTurn(Player player1, Player player2, WeatherHolder weather) {
+		this.player1 = player1;
+		this.player2 = player2;
+		team1 = player1.getTeam();
+		team2 = player2.getTeam();
+		engine = new BattleEngine(team1,team2);
+		this.weather = weather;
+	}
+
+	/** This method concurrently prompts players waiting for their decisions, which are translated into Events;
+	 * choices are: USE_MOVE, USE_ITEM, SWITCH_PONY and RUN; the Events priorities are compared and the Events
+	 * are carried on in highest priority order; if an event is USE_MOVE, it spawns a new BattleEngine which
+	 * manages the move usage and effects.
+	 * @return ID of winning player, or 0 if no player won this turn.
+	 */
+	public int performTurn() throws NoActivePonyException {
+	
+		consoleHeader(" TURN "+(++turnCounter)+" ",'\'');
+		// list of active ponies
+		Pony pony1 = team1.getActivePony();
+		Pony pony2 = team2.getActivePony();
+
+		if(pony1 == null || pony2 == null)
+			throw new NoActivePonyException();
+		
+		pony1.inBattle = true;
+		pony2.inBattle = true;
+		// Prompters which concurrently prompt players (TODO: this must be fixed: prompters should be
+		// able to prompt even when a pony faints, so they probably should continue running during all
+		// the turn -- or maybe even during all battle -- instead of terminating early.)
+		Prompter prompt1 = new Prompter(player1);
+		Prompter prompt2 = new Prompter(player2);
+		
+		ExecutorService exec = Executors.newFixedThreadPool(2);
+		
+		Future<?> future1 = exec.submit(prompt1);
+		Future<?> future2 = exec.submit(prompt2);
+
+		exec.shutdown();
+
+		/* Wait for players' decisions */
+		if(Debug.on) printDebug("Waiting for players' decisions...");
+		try {
+			Object result1 = future1.get();
+			if(Debug.on) {
+				if(result1 == null) printDebug("Task1 successfully joined.");
+				else printDebug("Task1 returned future: "+result1);
+			}
+		} catch(CancellationException e) {
+			printDebug("Task1 was canceled.");
+		} catch(InterruptedException e) {
+			printDebug("Task1 was interrupted early: " + e);
+		} catch(ExecutionException e) {
+			printDebug("Caught ExecutionException in task1.");
+			e.printStackTrace();
+		}
+
+		try {
+			Object result2 = future2.get();
+			if(Debug.on) {
+				if(result2 == null) printDebug("Task2 successfully joined.");
+				else printDebug("Task2 returned future: "+result2);
+			}
+		} catch(CancellationException e) {
+			printDebug("Task2 was canceled.");
+		} catch(InterruptedException e) {
+			printDebug("Task2 was interrupted early: " + e);
+		} catch(ExecutionException e) {
+			printDebug("Caught ExecutionException in task2.");
+			e.printStackTrace();
+		}
+
+		/* Now read the players' decisions and set priorities */
+		// List of priorities associated to players
+		int priority1 = 0, priority2 = 0;
+	
+		if(prompt1.getEvent() != Event.USE_MOVE) {
+			priority1 = EventPriorityDealer.getPriority(prompt1.getEvent());
+		} else {
+			if(prompt1.getMove() == -1) priority1 = 0;
+			else {
+				try {
+					priority1 = pony1.getMove(prompt1.getMove()).getPriority();
+				} catch(NullPointerException e) {
+					printDebug("Error: selected move is null in prompt 1: "+e);
+				}
+			}
+		}
+		if(prompt2.getEvent() != Event.USE_MOVE) {
+			priority2 = EventPriorityDealer.getPriority(prompt2.getEvent());
+		} else {
+			if(prompt2.getMove() == -1) priority2 = 0;
+			else {
+				try {
+					priority2 = pony2.getMove(prompt2.getMove()).getPriority();
+				} catch(NullPointerException e) {
+					printDebug("Error: selected move is null in prompt 2: "+e);
+				}
+			}
+		}
+
+		/* Establish priorities by reordering the player list and the respective prompter list */
+		boolean p1First = true;
+		if(priority1 < priority2) p1First = false;
+		else if(priority1 == priority2) p1First = (new Random()).nextFloat() > 0.5f;
+
+		// TODO: fill player list in order etc.
+		List<Trio<Player,Prompter,Integer>> trio = new ArrayList<Trio<Player,Prompter,Integer>>(2);
+		if(p1First) {
+			trio.add(new Trio<Player,Prompter,Integer>(player1,prompt1,priority1));
+			trio.add(new Trio<Player,Prompter,Integer>(player2,prompt2,priority2));
+		} else {
+			trio.add(new Trio<Player,Prompter,Integer>(player2,prompt2,priority2));
+			trio.add(new Trio<Player,Prompter,Integer>(player1,prompt1,priority1));
+		}
+
+		/* Process events and trigger respective methods */
+		for(int i = 0; i < 2; ++i) {
+			printMsg("> "+trio.get(i).getFirst().getName()+"'s turn:");
+			if(Debug.on) {
+				printDebug("Now dealing with player: "+trio.get(i).getFirst()+";\nAP: "+trio.get(i).getFirst().getActivePony());
+				printDebug("Associated prompt: "+trio.get(i).getSecond());
+			}
+			// decrement weather count here.
+			if(weather != null && !weather.get().equals(Weather.CLEAR)) {
+				if(i == 0) {
+					if(Debug.on) printDebug("Decrementing weather count.");
+					--weather.count;
+				}
+				if(weather.count == 0) {
+					printMsg("Weather is back to normal.");
+					weather.set(Weather.CLEAR);	
+				}
+			}
+			if(Debug.pedantic) printDebug("trio.get("+i+").getSecond().getEvent() = "+trio.get(i).getSecond().getEvent());
+			switch(trio.get(i).getSecond().getEvent()) {
+
+				case USE_MOVE:
+					/* Set correct attacker / defender in BattleEngine.
+					 * Note that this routine only works for 1 vs 1!!! 
+					 */
+					if(trio.get(i).getFirst().getID() == 0) engine.setAttacker(1);
+					else engine.setAttacker(2);
+					try {
+						if(trio.get(i).getSecond().getMove() == -1)
+							engine.ponyUseMove(new Struggle(trio.get(i).getFirst().getActivePony()));
+						else
+							engine.ponyUseMove(trio.get(i).getFirst().getActivePony().getMove(trio.get(i).getSecond().getMove()));
+					} catch(NoActivePonyException e) {
+						printDebug("NoActivePonyException caught: "+e);
+					} catch(Exception e) {
+						printDebug("Caught exception while calling ponyUseMove: "+e);
+						e.printStackTrace();
+					}
+					break;
+				case USE_ITEM:
+					// use item routine TODO (or not)
+					break;
+				case SWITCH_PONY:
+					// switch pony routine TODO
+					// for now, simply:
+					if(!trio.get(i).getFirst().canSwitch()) break;
+					trio.get(i).getFirst().getTeam().getActivePony().inBattle = false;
+					trio.get(i).getFirst().getTeam().setActivePony(trio.get(i).getSecond().getPony());
+					printMsg(trio.get(i).getFirst()+" switched to "+trio.get(i).getFirst().getActivePony());
+					break;
+				case RUN:
+					//this is easy (maybe will be removed)
+					printMsg("You cannot run from a battle with a trainer.");
+					break;
+			}
+
+			// Check fainted ponies
+			if(pony1.isKO() || pony2.isKO()) {
+				int winner = checkWinner();
+				if(winner == 0) {
+					if(pony1.isKO()) {
+						printMsg(pony1.getNickname()+" fainted!");
+						//pony1.inBattle = false;
+						// TODO: prompt (concurrently) player to switch pony
+						while(!player1.switchPony((new Random()).nextInt(team1.members()),engine)) {}
+						engine.setAttacker(1);
+					} 
+					if(pony2.isKO()) {
+						printMsg(pony2.getNickname()+" fainted!");
+						//pony2.inBattle = false;
+						while(!player2.switchPony((new Random()).nextInt(team2.members()),engine)) {}
+						engine.setAttacker(1);
+					}
+				} else {
+					if(Debug.on) printDebug("checkWinner returned "+winner);
+					return winner; 
+				}
+				break;
+			}
+		}
+
+		// this is a great TODO.
+		/*if(checkWinner() == 0) {
+			if(pony1.isKO()) {
+				// TODO: prompt (concurrently) player to switch pony
+			}
+			if(pony2.isKO()) {
+			}
+		}*/
+	
+		printMsg("\n[P"+(player1.getID()+1)+"'s "+pony1+"]: "+(int)(100*(float)pony1.hp()/pony1.maxhp())+"% HP");
+		printMsg("[P"+(player2.getID()+1)+"'s "+pony2+"]: "+(int)(100*(float)pony2.hp()/pony2.maxhp())+"% HP");
+		if(Debug.on) printDebug("Weather is now "+weather+" (count: "+(weather != null ? weather.count : null)+")");
+		if(Debug.on) printDebug("=========== Turn "+(turnCounter)+" ending. ===========");
+
+
+		return 0;
+	}
+	
+
+	///////////// PRIVATE METHODS / FIELDS ////////////////
+
+	/** @return ID of winning player, -1 if even, or 0 if no player won. */
+	protected int checkWinner() {
+		boolean allKO1 = team1.allKO();
+		boolean allKO2 = team2.allKO();
+		if(!(allKO1 || allKO2)) return 0; // no winner
+		if(allKO1) return (allKO2 ? -1 : 2);
+		else return 1;
+	}
+
+	/** This class is used as interface to prompt players; 
+	 * their decisions are stored in the internal field 'event', which can be
+	 * read later via getEvent(); the prompting process happens concurrently.
+	 */
+	private class Prompter implements Runnable {
+
+		Prompter(Player player) {
+			this.player = player;
+		}
+		
+		/** Runnable concurrent method */
+		public void run() {
+
+			event = promptAtTurnStart();
+			switch(event) {
+				case USE_MOVE:
+					move = promptAtUseMove();
+					break;
+				case USE_ITEM:
+					//item = promptAtUseItem();	//TODO (or not, since players cannot use items)
+					break;
+				case SWITCH_PONY:
+					pony = promptAtSwitchPony();
+					break;
+			}
+			return;
+		}
+
+		public String toString() {
+			return "Event: "+event+"; Move: "+move+"; Pony: "+pony;
+		}
+
+		private Event getEvent() { return event; }
+		private int getMove() { return move; }
+		private int getPony() { return pony; }
+		//private Item getItem() { return item; }	//TODO
+		
+		/** @return Player's decision */
+		private Event promptAtTurnStart() {
+			//TODO	
+			Event decision = Event.USE_MOVE; 
+			if(Math.random() > 0.99 && player.canSwitch()) {
+				decision = Event.SWITCH_PONY;
+				pony = promptAtSwitchPony();
+			}
+			// prompt routine
+			// ... TODO
+			return decision;
+		}
+
+		/** @return Number of move (in Pony.move) to use */
+		private int promptAtUseMove() {
+			int chosenMove = 0;
+			if(player.getActivePony().finishedPP()) return -1;
+			while(player.getActivePony().getMove(chosenMove) == null || player.getActivePony().getMove(chosenMove).getPP() == 0)
+				chosenMove = (new Random()).nextInt(Pony.MOVES_PER_PONY);
+			// prompt routine
+			// ... TODO
+			return chosenMove;
+		}
+
+		//private Item promptAtUseItem() {} // TODO
+
+		/** @return Number of pony (in Team.pony) to switch */
+		private int promptAtSwitchPony() {
+			int chosenPony = 0;
+			// prompt routine
+			// ... TODO
+			return chosenPony;
+		}
+
+		private Player player;		
+		private Event event;
+		private int move;
+		//private Item item;
+		private int pony;
+	}
+
+	protected Player player1,player2;
+	protected Team team1,team2;
+	protected WeatherHolder weather;
+	protected BattleEngine engine;
+	protected int turnCounter;
+
+	private enum Event { USE_MOVE, USE_ITEM, SWITCH_PONY, RUN };
+
+	/** Private inner static class that associates Events with their priorities. */
+	private static class EventPriorityDealer {
+		
+		private static int getPriority(Event e) {
+			return eventPriority.get(e);
+		}
+
+		private static EnumMap<Event,Integer> eventPriority = new EnumMap<Event,Integer>(Event.class);
+		
+		static {
+			eventPriority.put(Event.USE_MOVE,0);
+			eventPriority.put(Event.USE_ITEM,6);
+			eventPriority.put(Event.SWITCH_PONY,5);
+			eventPriority.put(Event.RUN,7);
+		}
+	}
+
+}

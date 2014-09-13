@@ -1,0 +1,140 @@
+//: player/GUITeamBuilder.java
+
+package pokepon.player;
+
+//import org.imgscalr.Scalr;
+import pokepon.player.*;
+import pokepon.pony.*;
+import pokepon.move.*;
+import pokepon.enums.*;
+import pokepon.util.*;
+import static pokepon.util.Meta.*;
+import static pokepon.util.MessageManager.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.imageio.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.util.List;
+import java.net.*;
+import java.io.*;
+
+public class GUITeamBuilder extends TeamBuilder {
+
+	GUITBFrame frame = new GUITBFrame();
+
+	public GUITeamBuilder(Player player) {
+		super(player);
+	}
+
+	public void buildTeam() {}
+
+	public static void main(String[] args) {
+		pokepon.net.jack.SwingConsole.run(new GUITBFrame(),800,600);
+	}
+}
+
+class GUITBFrame extends JFrame {
+
+	private DefaultListModel<String> lPonies = new DefaultListModel<>();
+	private JList<String> ponies = new JList<String>(lPonies);
+	private PonyPanel ponyStats = new PonyPanel();
+
+	private ListSelectionListener poniesSelectionListener = new ListSelectionListener() {
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			if(e.getValueIsAdjusting()) return;		
+			String selected = ponies.getSelectedValue();
+			try {
+				Pony pony = PonyCreator.create(selected);
+				if(pony.getSprite() != null) {
+					printDebug("Sprite: "+pony.getSprite().getPath());
+					ponyStats.setImage(pony.getSprite());
+				} else {
+					ponyStats.setImage(null);
+				}
+				ponyStats.setName(pony.getName());
+				validate();
+			} catch(Exception ex) {
+				printDebug("Caught exception: ");
+				ex.printStackTrace();
+			}
+		}
+	};
+
+	@SuppressWarnings("unchecked")
+	public GUITBFrame() {
+		setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		ponies.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		List<Class<?>> lc = ClassFinder.findSubclasses(Meta.complete(PONY_DIR),POKEPON_ROOTDIR+"."+PONY_DIR+".Pony");
+		for(Class<?> c : lc) {
+			lPonies.addElement(c.getSimpleName());
+		}
+		ponies.addListSelectionListener(poniesSelectionListener);
+		c.gridx = 0;
+		c.gridx = 0;
+		c.gridheight = 2;
+		add(new JScrollPane(ponies),c);
+		//ponyStats.add(ponyName);
+		ponyStats.setSize(new Dimension(100,100));
+		ponyStats.setVisible(true);
+		c.gridx = 1;
+		c.gridheight = 1;
+		add(ponyStats,c);
+	}
+}
+
+// this class displays properties of a pony.
+class PonyPanel extends JPanel {
+
+	// FIXME: BufferedImages don't support animation!
+	//private BufferedImage img; 
+	private JLabel img = new JLabel();
+	private JTextField name = new JTextField(15);
+
+	public PonyPanel() {
+		super(new BorderLayout());
+		add(name,BorderLayout.NORTH);
+		add(img);
+	}
+
+	public PonyPanel(LayoutManager lm) {
+		super(lm);
+		add(name);
+		add(img);
+	}
+
+	public void setImage(URL url) throws IOException,URISyntaxException {
+		if(url == null) {
+			//img = null;
+			
+			return;
+		}
+		img.setIcon(new ImageIcon(url));
+		//img = Scalr.resize(ImageIO.read(new File(url.toURI())),200);
+		paintComponent(getGraphics());
+		revalidate();
+		repaint();
+	}
+
+	public void setName(String name) {
+		this.name.setText(name);
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(150,150);
+		/*if(img != null)
+			return new Dimension(img.getWidth(),img.getHeight()+30);
+		else return super.getPreferredSize();
+		*/
+	}
+
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		//if(img != null) g.drawImage(img,0,0,null);
+	}
+}

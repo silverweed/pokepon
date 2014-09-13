@@ -1,0 +1,203 @@
+//: util/DataDealer.java
+
+package pokepon.util;
+
+import pokepon.pony.*;
+import pokepon.move.*;
+import pokepon.ability.*;
+import pokepon.item.*;
+import pokepon.enums.*;
+import pokepon.battle.TypeDealer;
+import static pokepon.util.Meta.*;
+import static pokepon.util.MessageManager.*;
+import java.util.*;
+
+/** This class handles queries for in-game data and responds with HTML strings.
+ *
+ * @author silverweed
+ */
+public class DataDealer {
+
+	private List<String> knownClasses;
+	private List<String> knownTypeNames;
+
+	/** Constructing the DataDealer allows to load stuff only once */
+	public DataDealer() {
+		knownClasses = ClassFinder.findSubclassesNames(Meta.complete(PONY_DIR),Pony.class);
+		knownClasses.addAll(ClassFinder.findSubclassesNames(Meta.complete(MOVE_DIR),Move.class));
+		knownClasses.addAll(ClassFinder.findSubclassesNames(Meta.complete(ABILITY_DIR),Ability.class));
+		knownClasses.addAll(ClassFinder.findSubclassesNames(Meta.complete(ITEM_DIR),Item.class));
+		knownTypeNames = new ArrayList<>();
+		for(Type t : Type.values())
+			knownTypeNames.add(t.toString());
+	}
+	
+	public synchronized String getData(String query) {
+		
+		String name = Saner.sane(query,knownClasses);
+		String _package = Meta.getPackage(name);
+	
+		if(_package == null) 
+			return null;
+
+		StringBuilder sb = new StringBuilder("");
+		if(_package.equals("pony")) {
+			try {
+				Pony pony = PonyCreator.create(name);
+
+				// FIXME: sprite URL is valid only on the same machine, if protocol is file:// 
+				// Should either export sprites via HTML, or convert the URL into the client's local one.
+				// ATM we use the syntax [sprite: Name Of Pony] to tell the client to convert it to the
+				// local sprite URL.
+				sb.append("<br><img src=\"[sprite: "+pony.getName()+"]\" height=25px width=30px />");
+				sb.append("&nbsp;<b>"+pony.getName()+"</b>&nbsp;&nbsp;"+pony.getTypingHTMLSpecialTags()+"<br>");
+				sb.append("<table>");
+				for(int i = 0; i < pony.getPossibleAbilities().size(); ++i)
+					if(pony.getPossibleAbilities().get(i) != null)
+						sb.append("<td>"+pony.getPossibleAbilities().get(i)+"</td>");
+				sb.append("</table><br>");
+				sb.append("<table><tr><th>HP</th><th>Atk</th><th>Def</th><th>SpA</th><th>SpD</th><th>Spe</th></tr><br>");
+				sb.append("<tr><td>"+pony.getBaseHp()+"</td><td>"+pony.getBaseAtk()+"</td><td>"+pony.getBaseDef()+"</td>");
+				sb.append("<td>"+pony.getBaseSpatk()+"</td><td>"+pony.getBaseSpdef()+"</td><td>"+pony.getBaseSpeed()+"</td><br>");
+				sb.append("</table>");
+			} catch(ReflectiveOperationException e) {
+				printDebug("[BT.processCommand(data)] Error creating pony "+query);
+				return "|error|Couldn't create pony "+query;
+			}
+		} else if(_package.equals("move")) {
+			try {
+				Move move = MoveCreator.create(name);
+
+				sb.append("<br><font size=3 color=\"gray\">Move:</font>&nbsp;<b>"+move.getName()+"</b>");
+				sb.append("<img src=\"[type: "+move.getType()+"]\"/>&nbsp;");
+				sb.append("<img src=\"[movetype: "+move.getMoveType()+"]\"/></font>&nbsp;&nbsp;");
+				sb.append("<table><tr><th><small>Pow.</small></th><th><small>Acc.</small></th><th><small>PP</small></th></tr><br>");
+				sb.append("<tr><td><small>"+(move.getBaseDamage() != 0 ? move.getBaseDamage() : "-")+"</small></td>");
+				sb.append("<td><small>"+(move.getAccuracy() < 0 ? "-" : move.getAccuracy())+"</small></td>");
+				sb.append("<td><small>"+(move.getMaxPP() < 0 ? "-" : move.getMaxPP())+"</small></td></tr></table><br>");
+				sb.append("<font color=\"gray\">"+move.getBriefDescription()+"</font><br>");
+			} catch(ReflectiveOperationException e) {
+				printDebug("[BT.processCommand(data)] Error creating move "+query);
+				return "|error|Couldn't create move "+query;
+			}
+		} else if(_package.equals("ability")) {
+			try {
+				Ability ability = AbilityCreator.create(name);
+
+				sb.append("<br><font size=3 color=\"gray\">Ability:</font>&nbsp;<b>"+ability.getName()+"</b><br>");
+				sb.append("<font color=\"gray\">"+ability.getBriefDescription()+"</font><br>");
+			} catch(ReflectiveOperationException e) {
+				printDebug("[BT.processCommand(data)] Error creating ability "+query);
+				return "|error|Couldn't create ability "+query;
+			}
+		} else if(_package.equals("item")) {
+			try {
+				Item item = ItemCreator.create(name);
+
+				sb.append("<br><font size=3 color=\"gray\">Item:</font>&nbsp;<b>"+item.getName()+"</b><br>");
+				sb.append("<font color=\"gray\">"+item.getBriefDescription()+"</font><br>");
+			} catch(ReflectiveOperationException e) {
+				printDebug("[BT.processCommand(data)] Error creating item "+query);
+				return "|error|Couldn't create item "+query;
+			}
+		}
+
+		return sb.toString();
+	}
+
+	/** @param query type1[,type2] - OR - type1 -&gt; type2[,type3] */
+	public synchronized String getEffectiveness(String query) {
+		String[] token = query.split("->",2);
+
+		if(token.length == 1) {
+			// query type 1: /eff type1[,type2]
+			// prints all effectiveness table for given typing.
+			String[] tmp = token[0].trim().split("\\s*,\\s*");
+			Type t1 = Type.forName(Saner.sane(tmp[0].trim(),knownTypeNames));
+			if(t1 == null) {
+				return "|error|Type "+tmp[0]+" not found.";
+			}
+			Type t2 = null;
+			if(tmp.length > 1) {
+				t2 = Type.forName(Saner.sane(tmp[1].trim(),knownTypeNames));
+				if(t2 == null) {
+					return "|error|Type "+tmp[1]+" not found.";
+				}
+			}
+			return getEffectiveness(new Type[] { t1, t2 });
+
+		} else {
+			// query type 2: /eff type1 -> type2[,type3]
+			// prints effectiveness of attacking type1 vs defending typing 2[,3].
+			Type t1 = Type.forName(Saner.sane(token[0].trim(),knownTypeNames));
+			if(t1 == null) {
+				return "|error|Type "+token[0]+" not found.";
+			}
+			String[] tmp = token[1].trim().split("\\s*,\\s*");
+			Type t3 = Type.forName(Saner.sane(tmp[0].trim(),knownTypeNames));
+			if(t3 == null) {
+				return "|error|Type "+tmp[0]+" not found.";
+			}
+			Type t4 = null;
+			if(tmp.length > 1) {
+				t4 = Type.forName(Saner.sane(tmp[1].trim(),knownTypeNames));
+				if(t4 == null) {
+					return "|error|Type "+tmp[1]+" not found.";
+				}
+			}
+			return getEffectiveness(t1, new Type[] { t3, t4 });
+		}
+	}
+
+	public synchronized String getEffectiveness(Type[] type) {
+		StringBuilder sb = new StringBuilder("");
+		if(type.length == 1 || type[1] == null) {
+			// if only 1 type is given, print both offensive and defensive table
+			sb.append("<b>Offensive</b><br>");
+			for(Type t : Type.values()) {
+				float eff = TypeDealer.getEffectiveness(type[0], t);
+				String[] effS = TypeDealer.toEffString(eff);
+				if(eff != 1f) {
+					sb.append("<img src=\"[type: "+type[0]+"]\"/> "+
+						"<b><font color=\""+effS[1]+"\">"+effS[0]+"</font></b>"+
+						" =&gt; <img src=\"[type: " + t + "]\"/><br>");
+				}
+			}
+			sb.append("<b>Defensive</b><br>");
+			for(Type t : Type.values()) {
+				float eff = TypeDealer.getEffectiveness(t, type[0]);
+				String[] effS = TypeDealer.toEffString(eff);
+				if(eff != 1f) {
+					sb.append("<img src=\"[type: "+ t +"]\"/> "+
+						"<b><font color=\""+effS[1]+"\">"+effS[0]+"</font></b>"+
+						" =&gt; <img src=\"[type: " + type[0] + "]\"/><br>");
+				}
+			}
+
+		} else {
+			// if dual type, print only defensive table
+			sb.append("<b>Defensive</b><br>");
+			for(Type t : Type.values()) {
+				float eff = TypeDealer.getEffectiveness(t, type);
+				String[] effS = TypeDealer.toEffString(eff);
+				if(eff != 1f) {
+					sb.append("<img src=\"[type: "+ t +"]\"/> "+
+						"<b><font color=\""+effS[1]+"\">"+effS[0]+"</font></b>"+
+						" =&gt; <img src=\"[type: " + type[0] + "]\"/>"+
+						"<img src=\"[type: " + type[1] + "]\" /><br>");
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	/** @return An HTML string describing the effectiveness of type1 vs type2. */
+	public synchronized String getEffectiveness(Type typeAtk, Type[] typeDef) {
+		float eff = TypeDealer.getEffectiveness(typeAtk, typeDef);
+		String[] effS = TypeDealer.toEffString(eff);
+		
+		return "<img src=\"[type: " + typeAtk + "]\"/> <b><font color=\"" + effS[1] + "\">" + effS[0] + 
+			"</font></b> =&gt; <img src=\"[type: " + typeDef[0] + "]\"/>" + (typeDef[1] != null ? 
+			"<img src=\"[type: " + typeDef[1] + "]\"/>" : "");
+	}
+}

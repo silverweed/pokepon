@@ -1,0 +1,11 @@
+BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131);
+BattleSound.loadBgm('audio/hgss-kanto-trainer.mp3', 13003, 94656);
+BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 15503, 110984);
+BattleSound.loadBgm('audio/bw-trainer.mp3', 14629, 110109);
+BattleSound.loadBgm('audio/bw-rival.mp3', 19180, 57373);
+BattleSound.loadBgm('audio/dpp-trainer.mp3', 13440, 96959);
+BattleSound.loadBgm('audio/hgss-johto-trainer.mp3', 23731, 125086);
+BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352);
+BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986);
+BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708);
+BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469);

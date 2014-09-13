@@ -1,0 +1,20 @@
+- Fix HPBar: the labels are sometimes misaligned depending on the length
+  of the pony's name
+
+- Implement more animations and give animations to moves which haven't one
+  yet
+
+- Labels under the HPBar are often too small, so their text becomes '...'
+
+- Teleport Blast bug? Sometimes allows infinite attacks
+
+- Test in depth Relay Race
+
+- Fix 'avoid' animations
+
+- 'Repeat' bug: sometimes locks the wrong move / allows using blocking
+  moves like Love Burst several times in a row
+
+- Add drain animation to Wild Weed
+
+- Implement multiple (simultaneous or consecutive) animations

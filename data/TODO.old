@@ -1,0 +1,127 @@
+﻿- In ClassFinder (e forse anche altre classi) rimpiazzare
+"/" con "." per ottenere il classname non funziona su Windows. -> FIXED
+
+- il server può essere rifatto in modo più intelligente (togliere
+la list<Socket> clients per esempio) -> FATTO
+
+- sistemare BattleTurn!! -> verrà sostituito totalmente
+
+- sistemare Ponydex -> fatto, più o meno
+
+- aggiungere una BlockingQueue a Connection, in modo che i messaggi ricevuti
+  vengano processati con un meccanismo di coda. Implementare un thread che
+  ascolta e basta sulla socket (e aggiunge tutti i messaggi alla coda) e uno
+  che processa e basta (con i vari ConnectionExecutor) pescando i messaggi
+  dalla coda. Volendo quest'ultima cosa può essere fatta in parallelo. -> meh, anche no
+
+
+- Fixare il client: il nome colorato non viene riconosciuto come il proprio --> FIXED
+
+- Finire GUITeamBuilder: in particolare, aggiungere a Pony una sprite piccola
+  e non animata da mostrare come token. -> NO, usiamo la stessa sprite resizzata.
+
+- Finire BattlePanel e implementarlo in Battle --> implementazione fatta, va finito.
+ 
+-Fixare HPBar: la percentuale è sfasata a seconda della lunghezza del nome
+
+- sistemare EXIT_ON_CLOSE per il battlepanel. --> FATTO
+
+- fixare il bug che dopo tot battle di fila non se ne possono fare altre -> FIXED (forse)
+
+- SCOPRIRE PERCHÈ DOPO UN PO' IL CLIENT SI FREEZA!!!!! -> problemi di concurrency?
+  Rivedere tutto il GUI; usare SwingWorker?
+  |
+  |--> HPBar.boost() sembra essere uno dei colpevoli.
+
+
+- si direbbe che c'è un deadlock tra la riga 654 e 1275 di BattlePanel.
+  |
+  |--> Al 99% il problema è dell'EventPanel, e più precisamente appendEvent.
+  |
+  |--> il problema sembra essere che validate() NON VA CHIAMATO fuori dall'EDT!
+
+
+--> FORSE fixato problema del freeze. Il dump dei thread (Ctrl+\) si e` rivelato
+    straforte.
+
+- Sistemare la ripulitura della battleSchedule quando un client si disconnette. --> FATTO
+
+- la mossa selezionata deve essere evidenziata -> FATTO
+- messaggio "waiting for XXX to move?"
+- check team.members() > 0 ! -> FATTO
+
+- sistemare il bug che dopo aver pulito gli hazard su un campo, non se ne possono più mettere
+  fino al numero massimo ma solo fino a 1. --> FATTO
+
+- sostituendo un pony del team senza fare 'delete pony' il pony non viene sovrascritto! -> FIXED
+- fare in modo che, durante la scelta del team, premere 'ESC' cancelli la richiesta di battle. -> FATTO
+
+- Riguardare HPBar! Solo chi fa direttamente modifiche deve invocare SwingUtilities.invokeLater!!! -> FORSE fixed
+
+- aggiungere la selezione abilita` e mosse Zarel-style nel GUITeamBuilder. -> FATTO, mancano gli item
+
+- se due pony hanno lo stesso nome succedono cose strane -> Fixed, da testare per bene
+
+- callback finished PP
+
+- migliorare output di uptime (dividere in minuti e ore) -> FATTO
+
+- fare in modo che se la cartella teams non esiste venga creata -> FATTO
+
+- sistemare per bene i previewer --> in particolare, riguardare la faccenda degli index e dei value non
+  selezionabili; capita quasi sempre che il valore selezionato risulti null invece che quello corretto. -> fixato (workaround? boh, comunque va)
+
+- Battle: sistemare i delayed effect! -> FATTO, debuggare
+- finire le resultAnim 
+
+- Capire perche` a volte fieldP.add(labl,PONY_LAYER) in switchInAnim da` eccezione
+
+- sistemare il previewstatspanel (1: fissare le barre a sx, 2: controllare la larghezza max) -> FATTO
+
+- fixare la trasformazione nel BP. -> FATTO
+
+- sistemare gli status sotto la barra degli HP!!! (non fare apparire i "...")
+
+- controllo del learnset nel teambuilder o nel validator? -> FATTO (spostato nel validator)
+
+- finire il Meta.toLocalURL e il comando /data -> FATTO
+
+- fixare il bug di Toxic --> probabilmente fatto
+
+- buggozzo di teleport blast! Se rimane solo 1 pony vivo, infinite attacks! (profit)
+
+- aggiungere meccanismo di locked-on-move (encore etc) -> FATTO, da testare
+
+- speed-uppare la gif di LittleStrongheart (su mac non si capisce come fare) -> FATTO
+
+- FIxare bug di Substitute: KO per effetti tipo veleno ecc.  -> FATTO
+
+- FARE IN MODO CHE IL GIOCO FUNZIONI ANCHE SE LANCIATO CON UN JAR. -> FATTO!!
+
+- Phazing vs Sub -> in teoria FIXED
+
+- Prio errata leftover -> FATTO
+
+- Protect vs Dimension Twist -> FIXED
+
+- Snuggle si attiva anche fuori dal primo turno se invocato da Chaos Burst (probabilmente lo stesso per altre mosse con condizioni d'attivazione) -> FIXED
+
+- A quanto pare Rampage causa il crash del Battle Task!! -> FIXED
+
+- Relay Race è buggata: non passa il substitute e in certi casi non funziona proprio!
+
+- Sembra che il Substitute si rompa troppo facilmente
+
+- DamageCalculator.java:234-235: è giusto che sia così? -> FIXED
+
+- correggere /eff (4x mostrato come 2x) -> FATTO
+
+- modificare source -> pony in BattleEvent?
+
+- sprite di Entrench e Sonic Barrier -> FATTE (fanno cagare, ma vabbé)
+
+- Fixare le animazioni di avoid
+
+- bug di Repeat: locka la mossa errata e permette di usare LoveBurst a ripetizione
+
+- aggiungere la drain animation a WildWeed

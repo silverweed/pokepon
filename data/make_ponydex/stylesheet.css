@@ -1,0 +1,163 @@
+@font-face { 
+	font-family: CelestiaMediumRedux;
+	src: url('CelestiaMediumRedux1.55.ttf'); 
+}
+body {
+	background-image: url("wall.jpg");
+}
+.title {
+	font-size: 90pt;
+	font-family: CelestiaMediumRedux, serif;
+	color: yellow;
+	margin: 5px 20px 20px 20px;
+	text-shadow: -4px 0 blue, 0 4px blue, 4px 0 blue, 0 -4px blue;
+}
+.author {
+	color: #000033;
+	margin: 0; 
+	font-weight: bold;
+	font-family: CelestiaMediumRedux, serif;
+	text-align: right;
+}
+a.author {
+	text-decoration: none;
+	color: #000033;
+	display: block;
+}
+.index {
+	text-align: center;
+}
+.indexentry {
+	font-weight: bold;
+	font-size: 170%;
+	padding: 0 30px;
+	font-family: CelestiaMediumRedux, serif;
+	border: 1px solid blue;
+	border-radius: 4px;
+}
+a.indexentry {
+	text-decoration: none;
+}
+a.indexentry:hover {
+	background-color: yellow;
+}
+.main {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	font-size: 110%;
+	margin: 10pt 50pt;
+}
+.text {
+	background-color: white;
+	opacity: 0.7;
+	margin: 4px;
+	padding: 4px;
+}
+.typechart {
+	margin-left: auto;
+	margin-right: auto;
+	border: 2px solid blue;
+	border-radius: 4px;
+	text-align: center;
+}
+.typechart th {
+	vertical-align: middle;
+	width: 50px;
+	height: 40px;
+	font-size: 80%;
+	text-align: center;
+	border: 1px solid;
+	border-radius: 4px;
+	font-weight: bold;
+}
+.chaos {
+	color: #522900;
+	border-color: #522900;
+	background-color: #94704D;
+}
+.generosity {
+	color: #6B008F;
+	border-color: #9900CC;
+	background-color: #B84DDB;
+}
+.honesty {
+	color: #CC5200;
+	border-color: #FF6600;
+	background-color: #FF944D;
+}
+.kindness {
+	color: #CCCC52;
+	border-color: #FFFF66;
+	background-color: #FFFFA3;
+}
+.laughter {
+	color: #FF0099;
+	border-color: #FF0099;
+	background-color: #FF80CC;
+}
+.light {
+	color: #999900;
+	border-color: #999900;
+	background-color: #FFFF00;
+}
+.love {
+	color: #CC52CC;
+	border-color: #FF66FF;
+	background-color: #FFA2FF;
+}
+.loyalty {
+	color: #0000FF;
+	border-color: #0000FF;
+	background-color: #9999FF;
+}
+.magic {
+	color: #7A007A;
+	border-color: #990099;
+	background-color: #C266C2;
+}
+.music {
+	color: #00B26B;
+	border-color: #00FF99;
+	background-color: #99FFD6;
+}
+.night {
+	color: #000055;
+	border-color: #000055;
+	background-color: #4D4D88;
+}
+.passion {
+	color: #9B0000;
+	border-color: #9B0000;
+	background-color: #EB6666;
+}
+.shadow {
+	color: #000000;
+	border-color: #111111;
+	background-color: #444444;
+}
+.spirit {
+	color: #666666;
+	border-color: #666666;
+	background-color: #BBBBBB;
+}
+.good {
+	color: green;
+	border-color: green;
+	background-color: lightgreen;
+}
+.normal {
+	color: white;
+	border-color: black;
+	background-color: white;
+}
+.bad {
+	color: red;
+	border-color: red;
+	background-color: #FF8888;
+}
+.immune {
+	color: #FFFF66;
+	border-color: #FFFF66;
+	background-color: #222222;
+}

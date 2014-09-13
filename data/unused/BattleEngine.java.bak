@@ -1,0 +1,695 @@
+//: battle/BattleEngine.java
+
+package pokepon.battle;
+
+import pokepon.pony.*;
+import pokepon.move.*;
+import pokepon.move.hazard.*;
+import pokepon.enums.*;
+import pokepon.util.*;
+import pokepon.player.*;
+import pokepon.battle.*;
+import static pokepon.util.MessageManager.*;	
+import java.util.*;
+
+/** Manages the events occurring when a pony attacks another one;
+ * should only be invoked by BattleTurn.
+ *
+ * @author Giacomo Parolini
+ */
+ 
+//TODO: this will become a package-access when Battle class is completed.
+public class BattleEngine {
+
+	/** Default constructor: only constructs rng and damage calculator */
+	public BattleEngine() {
+		rng = new Random();
+		dc = new DamageCalculator(rng);
+		for(int i = 0; i < 2; ++i)
+			hazards.add(new HashSet<Hazard>());
+	}
+		
+	public BattleEngine(Team teamAttacker, Team teamDefender, WeatherHolder weather) throws NoActivePonyException {
+		this();
+		set(teamAttacker,teamDefender,weather);
+	}
+
+	/** This method sets teams, active ponies and weather; it can be called after the BE is constructed
+	 * in order to reset it without creating a new one.
+	 */
+	public void set(Team teamAttacker, Team teamDefender, WeatherHolder weather) throws NoActivePonyException {
+		if(Debug.pedantic) printDebug("Called BattleEngine.set(\nteamAttacker= "+teamAttacker+",\nteamDefender= "+teamDefender+",\nweather= "+weather+")");
+		this.teamAttacker = teamAttacker;
+		this.teamDefender = teamDefender;
+		attacker = teamAttacker.getActivePony();
+		defender = teamDefender.getActivePony();
+		this.weather = weather;
+		checkActivePony();
+	}
+
+	/** Swaps the attacking and the defending sides, including hazards, teams and ponies references. */
+	public void swapSides() throws NoActivePonyException {
+		Team tmpT = teamAttacker;
+		teamAttacker = teamDefender;
+		teamDefender = tmpT;
+		attacker = teamAttacker.getActivePony();
+		defender = teamDefender.getActivePony();
+		checkActivePony();
+		Set<Hazard> tmpH = new HashSet<Hazard>(hazards.get(0));
+		hazards.set(0,hazards.get(1));
+		hazards.set(1,tmpH);
+	}
+	
+	/** Method that manages subsequent events that happen when a pony attacks another with a move; 
+	 * (Following the documentation of Pok&#233mon Showdown)
+	 */
+	public void ponyUseMove(Move move) throws NoActivePonyException, MoveNotFoundException {
+	
+		if(Debug.pedantic) {
+			printDebug("[BE] PONY1: "+attacker.hashCode());
+			printDebug("[BE] PONY2: "+defender.hashCode());
+		}
+
+		checkActivePony();
+		if(move == null) {
+			//throw new MoveNotFoundException("Selected move is null for pony: "+attacker.getFullName());
+			if(Debug.on) printDebug("Move is null for attacker: "+attacker.getFullName()+".");
+			move = new Struggle(attacker);
+		}
+
+		/// CHECK PP
+		if(move.getPP() < 1 && move.getMaxPP() != -1 && move.countDelay < 1) {
+			printMsg("You have not enough PP for this move.");
+			return;
+		}
+		
+		/// MOVE PRE-USAGE
+		if(fullParalysis(attacker)) {
+			printMsg(attacker.getNickname()+" is paralyzed and can't move!");
+			attacker.setBlocked(false);
+			move.reset();
+			return;
+		} else if(staysPetrified(attacker)) {
+			printMsg(attacker.getNickname()+" is petrified and can't move!");
+			attacker.setBlocked(false);
+			move.reset();
+			return;
+		} else if(attacker.isFlinched()) {
+			printMsg(attacker.getNickname()+" is flinched and can't move!");
+			attacker.setFlinched(false);
+			attacker.setBlocked(false);
+			move.reset();
+			return;
+		} else if(staysAsleep(attacker)) {
+			printMsg(attacker.getNickname()+" is fast asleep.");
+			attacker.setBlocked(false);
+			move.reset();
+			return;
+		} //...
+		
+		// else:
+		
+		/* Detract 1 from confusionCounter if attacker was confused. */
+		if(attacker.isConfused()) 
+			if(--attacker.confusionCounter == 0) attacker.setConfused(false);
+		
+		/* If still confused, throw coin to see if attacks itself */
+		if(attacker.isConfused()) {
+			printMsg(attacker.getNickname()+" is confused.");
+			if(rng.nextFloat() < Battle.CHANCE_SELF_DAMAGE_FOR_CONFUSION) {
+				attacker.damage(dc.calculateBattleDamage(
+				new Move("Confusion self damage") {
+					int baseDamage = 40;
+					int maxpp = 1;
+					int pp = maxpp;
+					int accuracy = -1;
+					Type type = Type.HONESTY;
+					Move.MoveType moveType = Move.MoveType.PHYSICAL; 
+					boolean typeless = true;
+				},this,true));
+				printMsg("It hurt itself in its confusion!");
+				attacker.setBlocked(false);
+				move.reset();
+				return;
+			}
+		}			
+		
+		printMsg(attacker.getFullName()+" used "+move.getName()+"!");
+		attacker.setLastMoveUsed(move);
+
+		/* Deduct PP */
+		if(!(move.isDelayed() && move.countDelay != 0)) {
+			if(Debug.pedantic) printDebug("Deducting 1 PP from "+attacker.getNickname());
+			move.deductPP();
+		}
+		
+		/* Check for valid internal conditions */
+		if(!move.validConditions(this)) {
+			printMsg("But it failed...");
+			return;
+		}
+
+		/// MOVE USAGE
+		if(manageTurnDelay(move) < 0) return;
+		
+		/* check if move spawns a sub-move and, in this case, do it */
+		if(move.startsSubMove()) {
+			printMsgnb(move.getName()+" becomes ");
+			move = move.spawnSubMove(this);	//simply re-reference move from now on
+			printMsg(move.getName()+"!");
+			attacker.setLastMoveUsed(move);
+			if(manageTurnDelay(move) != 0) return;		//re-check the turn delay
+		}
+
+		if(move.isSelfKO()) {
+			attacker.scheduleDeath(move.getSelfKODelay());
+		}
+		
+		/// MOVE EXECUTION
+		/* Check for valid target */
+		if(move.getMoveType() != Move.MoveType.STATUS && defender == null) {	//FIXME: this will never happen, since now checkActivePony won't allow a null defender.
+			printMsg("There is no target...");
+			return;
+		} 
+
+		/* If status move, apply effects now */
+		if(move.getMoveType() == Move.MoveType.STATUS) {
+			if(!missed(move)) 
+				applyAdditionalEffects(move);
+			else
+				printMsg(defender.getNickname()+" avoids the attack!");
+			return;
+		}
+
+		/// MOVE HIT
+		/* If move is OHKO, set accuracy */
+		if(move.isOHKO()) {
+			move.setAccuracy(attacker.getLevel() - defender.getLevel() + 30);
+		}
+
+		/* Hit or miss? */
+		if(missed(move)) {
+			printMsg(defender.getNickname()+" avoids the attack!");
+			return;
+		} else {
+			int i = 0;
+			/* Multiple hits move? */
+			for(; i < move.getHits(); ++i) {
+				if(move.getHits() > 1)
+					if(rng.nextFloat() > move.getHitsProbability().get(i)) break;
+
+				if(defender.isProtected()) {
+					printMsg(defender.getNickname()+" is protected from the attack!");
+					return;
+				}
+				
+				int inflictedDamage = 0;
+
+				/* (Finally) calculate the damage! */
+				if(move.isOHKO()) {
+					defender.damage(defender.hp()); //If successful OHKO, just KO the opponent.
+					printMsg("It's a one hit KO!");
+				} else {
+					inflictedDamage = dc.calculateBattleDamage(move,this);
+					defender.damage(inflictedDamage);
+					if(Battle.SHOW_HP_PERC) printMsg(defender.getNickname()+" lost "+(int)(100.*inflictedDamage/defender.maxhp())+"% of its HP!");
+				}
+
+				/* Apply recoil */
+				applyRecoilDamage(move,inflictedDamage);
+
+				/* After move hit successfully, apply additional effects */
+				applyAdditionalEffects(move);
+			}
+
+			if(move.getHits() > 1) 
+				printMsg(i+" hits!");
+		}
+
+		if(defender.isKO()) 
+			printMsg(defender.getNickname()+" fainted!");
+		if(attacker.isKO()) 
+			printMsg(attacker.getNickname()+" fainted!");
+
+		return;
+	}
+
+	/** Overloaded method that accepts a String as the used move name, and 
+	 * throws a MoveNotFoundException if the attacker doesn't have that move. */
+	public void ponyUseMove(String moveName) throws MoveNotFoundException {
+		for(Move m : attacker.getMoves()) {
+			if(m.getName() == moveName) {
+				ponyUseMove(m);
+				return;
+			}
+		}
+		
+		throw new MoveNotFoundException(moveName);
+	}
+
+	// GET METHODS //
+	public Team getTeamAttacker() { return teamAttacker; }
+	public Team getTeamDefender() { return teamDefender; }
+	public Pony getAttacker() { return attacker; }
+	public Pony getDefender() { return defender; }
+	public WeatherHolder getWeather() { return weather; }
+	public List<Set<Hazard>> getHazards() { return hazards; }
+
+	@Override
+	public String toString() {
+		return "BattleEngine: " + this.hashCode() + 
+			"\nattacker= " + attacker +
+			"\ndefender= " + defender + 
+			"\nteamAttacker= " + teamAttacker +
+			"\nteamDefender= " + teamDefender +
+			"\nweather= " + weather +
+			"\nweatherDuration= "+ (weather == null ? 0 : weather.count); 
+	}
+	////////////////// PRIVATE METHODS / FIELDS /////////////////
+	
+	private boolean fullParalysis(final Pony pony) {
+		if(!pony.isParalyzed()) return false;
+		
+		/** Full Paralysis: 25% of chance to happen. */
+		return rng.nextFloat() < Battle.CHANCE_FULL_PARALYSIS;
+	}
+	
+	private boolean staysPetrified(Pony pony) {
+		if(!pony.isPetrified()) return false;
+		
+		/** Chance of 10% to heal from Petrification */
+		if(rng.nextFloat() < Battle.CHANCE_DEPETRIFICATE) {
+			pony.setPetrified(false);
+			return false;
+		} else return true;
+	}
+	
+	private boolean staysAsleep(Pony pony) {
+		/* Detract 1 from sleepCounter if attacker is asleep */
+		if(attacker.isAsleep())
+			if(--attacker.sleepCounter == 0) attacker.setAsleep(false);
+			
+		return attacker.isAsleep();
+	}
+	
+	/** This method manages moves which has a delay before resolving;
+	 * when count reaches 0, effects may be applied via move.delayEffects,
+	 * which returns an EffectDealer.
+	 * @return # of remaining turns
+	 */
+	private int manageTurnDelay(Move move) {
+		if(!move.isDelayed()) return 0;
+	
+		if(Debug.pedantic) {
+			printDebug("Move "+move.getName()+" has delayed effects.");
+			printDebug("turnDelay: "+move.getTurnDelay());
+			printDebug("countDelay: "+move.countDelay);
+		}
+
+		if(move.getTurnDelay() == 0) { //prepare delay effects and start counting
+			if(Debug.on) printDebug("Move: "+move.getName()+"; preparing delay effects.");
+			move.prepareDelayEffects(this);	//this is supposed to set turnDelay != 0
+			if(Debug.on) printDebug("turnDelay: "+move.getTurnDelay());
+			if(move.isBlockingDelayed()) {
+				if(Debug.on) printDebug("Move is blocking delayed. Attacker is blocked");
+				attacker.setBlocked(true);
+				return -move.countDelay;
+			} else {
+				return move.countDelay;
+			}
+		}
+
+		if(--move.countDelay > 0) { // we were already counting: move was already active 
+			if(move.isBlockingDelayed()) {
+				if(Debug.on) printDebug("Move is blocking delayed. Attacker is blocked");
+				attacker.setBlocked(true);
+				return -move.countDelay;
+			} else
+				return move.countDelay;
+		} else {
+			if(Debug.on) printDebug("Now applying delayed effects of "+move.getName());
+			applyAdditionalEffects(move.delayEffects());
+			move.reset();
+			attacker.setBlocked(false);
+			return 0;
+		}
+	}
+	
+	private boolean missed(Move move) {
+		// Sure-fire move
+		if(move.getAccuracy() == -1) return false;
+		
+		int tmpAccMod = 0;
+		int tmpEvaMod = 0;
+
+		if(weather != null && weather.get() != null) {
+			switch(weather.get()) {
+				case CLEAR:
+				case SUNNY:
+					break;
+				case DARK:
+					if(attacker.getTypes().indexOf(Type.NIGHT) == -1 && attacker.getTypes().indexOf(Type.SHADOW) == -1) {
+						tmpAccMod -= 1;
+					}
+					break;
+				case CHAOTIC:
+					break;
+				case STORMY:
+					if(attacker.getRace() != Pony.Race.PEGASUS && 
+					   attacker.getRace() != Pony.Race.ALICORN &&
+					   attacker.getRace() != Pony.Race.GRYPHON) {
+						tmpAccMod -= 1;
+					}
+					break;
+			}
+		}
+
+		// check all precision/evasion modifiers
+		float probability = move.getAccuracy() * Pony.getSpecialStatMod(attacker.accuracyMod() + tmpAccMod) / Pony.getSpecialStatMod(defender.evasionMod() + tmpEvaMod);
+		
+		if(!Debug.on) return (100*rng.nextFloat() > probability);
+		else {
+			float random = 100*rng.nextFloat();
+			if(Debug.on) printDebug("RandomGeneratedNumber: "+random+" vs probability: "+probability);
+			return (random > probability);
+		}
+	}
+	
+	private void printBoostMsg(String side,Pony pony,String stat,int value) {
+		String name = side + pony.getNickname();
+		if(value > 2) {
+			printMsg("Hey, "+name+"'s "+stat+" rose drastically!");
+		} else if(value > 1) {
+			printMsg("Hey, "+name+"'s "+stat+" sharply rose!");
+		} else if (value > 0) {
+			printMsg("Hey, "+name+"'s "+stat+" rose!");
+		} else if (value == 0) {
+			return;
+		} else if(value > -2) {
+			printMsg("Hey, "+name+"'s "+stat+" fell!");
+		} else if(value > -1) {
+			printMsg("Hey, "+name+"'s "+stat+" harshly fell!");
+		} else {
+			printMsg("Hey, "+name+"'s "+stat+" fell drastically!");
+		}
+	}
+	
+	private void printEffectMsg(String side,Pony pony,String effect) {
+		boolean alreadyWas;
+		if(effect == "paralyzed") {
+			alreadyWas = pony.isParalyzed();
+		} else if(effect == "confused") {
+			alreadyWas = pony.isConfused();
+		} else if(effect == "asleep") {
+			alreadyWas = pony.isAsleep();
+		} else if(effect == "burned") {
+			alreadyWas = pony.isBurned();
+		} else if(effect == "petrified") {
+			alreadyWas = pony.isPetrified();
+		} else if(effect == "poisoned") {
+			alreadyWas = pony.isPoisoned();
+		} else if(effect == "badly poisoned") {
+			alreadyWas = pony.isIntoxicated();
+		} else alreadyWas = false;
+		
+		if(effect == "flinched") return;
+		
+		if(alreadyWas) {
+			printMsg(side+pony.getNickname()+" is already "+effect+"!");
+		} else {
+			printMsg(side+pony.getNickname()+" is now "+effect+"!");
+		}
+	}
+		
+	/** Checks if additional effects apply and, if so, apply them;
+	 * Note: add 'checkProtect(dealer)' to condition if that condition is prevented
+	 * by protection.
+	 */
+	private void applyAdditionalEffects(EffectDealer dealer) {
+		// if transform move, transform now (note that it is the Team class to manage transformations)
+		if(dealer.transformsUser()) {
+			printMsgnb(attacker.getFullName() + " transformed into ");
+			if(dealer.transformUserInto(this) != null)
+				teamAttacker.transformActivePonyInto(dealer.transformUserInto(this));
+			else
+				teamAttacker.transformActivePonyInto(dealer.transformInto(this));
+			attacker = teamAttacker.getActivePony();
+			printMsg(attacker.getName() + "!");
+		} 
+		if(dealer.transformsTarget() && checkProtect(dealer)) {
+			printMsgnb(defender.getFullName() + " transformed into ");
+			if(dealer.transformTargetInto(this) != null)
+				teamDefender.transformActivePonyInto(dealer.transformInto(this));
+			else
+				teamDefender.transformActivePonyInto(dealer.transformTargetInto(this));
+			defender = teamDefender.getActivePony();
+			printMsg(defender.getName() + "!");
+		}
+		// Stats Modifiers
+		if(rng.nextFloat() < dealer.boostUserAtk().getValue()) {
+			attacker.boostAtk(dealer.boostUserAtk().getKey());
+			printBoostMsg("",attacker,"Attack",dealer.boostUserAtk().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostUserDef().getValue()) {
+			attacker.boostDef(dealer.boostUserDef().getKey());
+			printBoostMsg("",attacker,"Defense",dealer.boostUserDef().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostUserSpatk().getValue()) {
+			attacker.boostSpatk(dealer.boostUserSpatk().getKey());
+			printBoostMsg("",attacker,"Special Attack",dealer.boostUserSpatk().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostUserSpdef().getValue()) {
+			attacker.boostSpdef(dealer.boostUserSpdef().getKey());
+			printBoostMsg("",attacker,"Special Defense",dealer.boostUserSpdef().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostUserSpeed().getValue()) {
+			attacker.boostSpeed(dealer.boostUserSpeed().getKey());
+			printBoostMsg("",attacker,"Speed",dealer.boostUserSpeed().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostUserAccuracy().getValue()) {
+			attacker.boostAccuracy(dealer.boostUserAccuracy().getKey());
+			printBoostMsg("",attacker,"Accuracy",dealer.boostUserAccuracy().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostUserEvasion().getValue()) {
+			attacker.boostEvasion(dealer.boostUserEvasion().getKey());
+			printBoostMsg("",attacker,"Evasion",dealer.boostUserEvasion().getKey());
+		}
+		// effects to defender apply only if it isn't protected.
+		if(rng.nextFloat() < dealer.boostTargetAtk().getValue() && checkProtect(dealer)) {
+			defender.boostAtk(dealer.boostTargetAtk().getKey());
+			printBoostMsg("enemy ",defender,"Attack",dealer.boostTargetAtk().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostTargetDef().getValue() && checkProtect(dealer)) {
+			defender.boostDef(dealer.boostTargetDef().getKey());
+			printBoostMsg("enemy ",defender,"Defense",dealer.boostTargetDef().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostTargetSpatk().getValue() && checkProtect(dealer)) {
+			defender.boostSpatk(dealer.boostTargetSpatk().getKey());
+			printBoostMsg("enemy ",defender,"Special Attack",dealer.boostTargetSpatk().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostTargetSpdef().getValue() && checkProtect(dealer)) {
+			defender.boostSpdef(dealer.boostTargetSpdef().getKey());
+			printBoostMsg("enemy ",defender,"Special Defense",dealer.boostTargetSpdef().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostTargetSpeed().getValue() && checkProtect(dealer)) {
+			defender.boostSpeed(dealer.boostTargetSpeed().getKey());
+			printBoostMsg("enemy ",defender,"Speed",dealer.boostTargetSpeed().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostTargetAccuracy().getValue() && checkProtect(dealer)) {
+			defender.boostAccuracy(dealer.boostTargetAccuracy().getKey());
+			printBoostMsg("enemy ",defender,"Accuracy",dealer.boostTargetAccuracy().getKey());
+		}
+		if(rng.nextFloat() < dealer.boostTargetEvasion().getValue() && checkProtect(dealer)) {
+			defender.boostEvasion(dealer.boostTargetEvasion().getKey());
+			printBoostMsg("enemy ",defender,"Evasion",dealer.boostTargetEvasion().getKey());
+		}
+	
+		// Side effects (special conditions etc)
+		// defender
+		if(!defender.hasNegativeCondition()) {
+			if(rng.nextFloat() < dealer.getTargetParalysis() && checkProtect(dealer)) {
+				printEffectMsg("enemy ",defender,"paralyzed");
+				defender.setParalyzed(true);
+			}
+			if(rng.nextFloat() < dealer.getTargetPoison() && checkProtect(dealer)) {
+				printEffectMsg("enemy ",defender,"poisoned");
+				defender.setPoisoned(true);
+			}
+			if(rng.nextFloat() < dealer.getTargetToxic() && checkProtect(dealer)) {
+				printEffectMsg("enemy ",defender,"badly poisoned");
+				defender.setIntoxicated(true);
+			}
+			if(rng.nextFloat() < dealer.getTargetBurn() && checkProtect(dealer)) {
+				printEffectMsg("enemy ",defender,"burned");
+				defender.setBurned(true);
+			}
+			if(rng.nextFloat() < dealer.getTargetSleep() && checkProtect(dealer)) {
+				printEffectMsg("enemy ",defender,"asleep");
+				defender.setAsleep(true);
+				defender.sleepCounter = rng.nextInt(Battle.MAX_SLEEP_DURATION);	//sleep lasts 1-X turns.
+			}
+			if(rng.nextFloat() < dealer.getTargetPetrify() && checkProtect(dealer)) {
+				printEffectMsg("enemy ",defender,"petrified");
+				defender.setPetrified(true);
+			}
+		}
+		if(rng.nextFloat() < dealer.getTargetConfusion() && checkProtect(dealer)) {
+			printEffectMsg("enemy ",defender,"confused");
+			defender.setConfused(true);
+			defender.confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);	//confusion lasts 1-Y turns.
+		}
+		if(rng.nextFloat() < dealer.getTargetFlinch() && checkProtect(dealer)) {
+			printEffectMsg("enemy ",defender,"flinched");
+			defender.setFlinched(true);
+		}
+		// attacker
+		if(!attacker.hasNegativeCondition()) {
+			if(rng.nextFloat() < dealer.getUserParalysis()) {
+				printEffectMsg("",attacker,"paralyzed");
+				attacker.setParalyzed(true);
+			}
+			if(rng.nextFloat() < dealer.getUserPoison()) {
+				printEffectMsg("",attacker,"poisoned");
+				attacker.setPoisoned(true);
+			}
+			if(rng.nextFloat() < dealer.getUserToxic()) {
+				printEffectMsg("",attacker,"badly poisoned");
+				attacker.setIntoxicated(true);
+			}
+			if(rng.nextFloat() < dealer.getUserBurn()) {
+				printEffectMsg("",attacker,"burned");
+				attacker.setBurned(true);
+			}
+			if(rng.nextFloat() < dealer.getUserSleep()) {
+				printEffectMsg("",attacker,"asleep");
+				attacker.setAsleep(true);
+			}
+			if(rng.nextFloat() < dealer.getUserPetrify()) {
+				printEffectMsg("",attacker,"petrified");
+				attacker.setPetrified(true);
+			}
+		}
+		if(rng.nextFloat() < dealer.getUserConfusion()) {
+			printEffectMsg("",attacker,"confused");
+			attacker.setConfused(true);
+			attacker.confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);
+		}
+		if(rng.nextFloat() < dealer.getUserFlinch()) {
+			printEffectMsg("",attacker,"flinched");
+			attacker.setFlinched(true);
+		}
+		
+		/* Healing Effects */
+		if(dealer.healUser() > 0) {
+			attacker.setHp((int)(attacker.hp()+(attacker.maxhp()*dealer.healUser())));
+		}
+		/*if(rng.nextFloat() < dealer.healAllTeamStatus()) {	//TODO
+			healTeamStatus();
+		}*/
+		if(rng.nextFloat() < dealer.removeUserNegativeStatModifiers()) {
+			attacker.removeNegativeStatModifiers();
+		}
+		if(rng.nextFloat() < dealer.removeUserPositiveStatModifiers()) {
+			attacker.removePositiveStatModifiers();
+		}
+		if(rng.nextFloat() < dealer.removeTargetNegativeStatModifiers()) {
+			defender.removeNegativeStatModifiers();
+		}
+		if(rng.nextFloat() < dealer.removeTargetPositiveStatModifiers()) {
+			defender.removePositiveStatModifiers();
+		}
+		
+		/* Weather Effects */
+		if(dealer.changeWeather() != null) {
+			if(weather == null) weather = new WeatherHolder(dealer.changeWeather());
+			else weather.set(dealer.changeWeather());
+			printMsgnb("Weather changed to "+weather+"!");
+			if(Debug.on) printMsg(" (count: "+weather.count+")");
+			else printMsg("");
+		}
+
+		/* Hazard Effects */
+		if(dealer instanceof Move) {
+			Hazard hazard = ((Move)dealer).getHazard();
+			if(hazard != null) {
+				// check if hazard is already present and, if layerable, add layer
+				boolean found = false;
+				for(Hazard h : hazards.get(1)) {
+					if(h.getName().equals(hazard.getName())) {
+						found = true;
+						if(h.getLayers() < h.getMaxLayers()) {
+							h.addLayer();
+							printMsg(hazard.getSetupPhrase());
+						}
+						break;
+					}
+				}
+				// else, if hazard was not present, just add it.
+				if(!found) {
+					hazards.get(1).add(hazard);
+					printMsg(hazard.getSetupPhrase());
+				}
+			}
+		}
+		if(dealer.removesAllyHazards()) {
+			hazards.get(0).clear();
+			for(Hazard h : hazards.get(0)) {
+				printMsg(h.getName()+" disappeared from the attacker's field!");
+			}
+		}
+		if(dealer.removesEnemyHazards()) {
+			hazards.get(1).clear();
+			for(Hazard h : hazards.get(1)) {
+				printMsg(h.getName()+" disappeared from the opponent's field!");
+			}
+		}
+		if(dealer.removesAllyHazards() && dealer.removesEnemyHazards()) {
+			printMsg("All the hazards were cleared from the field!");
+		}
+
+	}
+
+	/** Checks if defender is protected; if it is, prints a message and returns False, else returns True */
+	private boolean checkProtect(EffectDealer dealer) {
+		if(defender.isProtected() && !dealer.ignoreProtection()) {
+			printMsg(defender.getName() + " is protected!");
+			return false;
+		} else return true;
+	}
+
+	/** Inflicts recoil damage equal to dealer.getRecoil() * inflictedDamage */
+	private void applyRecoilDamage(EffectDealer dealer,int inflictedDamage) {
+		if(dealer.getRecoil() == 0) return;
+
+		attacker.damage((int)(dealer.getRecoil() * inflictedDamage));
+		if(Debug.pedantic) printDebug("Recoil damage = "+(int)(dealer.getRecoil() * inflictedDamage));
+		printMsg(attacker.getName()+" got " + (Debug.on ? (int)(dealer.getRecoil()*inflictedDamage) + " ("+dealer.getRecoil()*100+"%) " : "") + "damage from the recoil!");
+	}
+
+	/** If attacker or defender is null, throws exception */
+	private void checkActivePony() throws NoActivePonyException {
+		if(attacker == null || defender == null) {
+			StringBuilder msg = new StringBuilder("");
+			if(attacker == null) {
+				msg.append("Attacker is null! ");
+				printDebug("Error: attacker is null!");
+			}
+			if(defender == null) {
+				msg.append("Defender is null!");
+				printDebug("Error: defender is null!");
+			}
+			throw new NoActivePonyException(msg.toString());
+		}
+	}
+
+	private Team teamAttacker;
+	private Team teamDefender;
+	private Pony attacker;
+	private Pony defender;
+	private WeatherHolder weather = new WeatherHolder(Weather.CLEAR);
+	/** hazards [0]: attacker's side; [1]: defender's side. */
+	private List<Set<Hazard>> hazards = new ArrayList<Set<Hazard>>(2);
+	private DamageCalculator dc;
+	private Random rng;
+}
+		

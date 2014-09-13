@@ -1,0 +1,76 @@
+## THIS IS OLD, PROBABLY NOT UPDATED. IT WAS USED BY MYSELF TO
+## CLARIFY SOME THINGS TO MYSELF, IT'S NOT MEANT TO BE USEFUL
+## TO ANYONE FOR DEVELOPING OF STUFF.
+## Also, it's in Italian only
+
+dataTeam e battleTeam
+-----------------------------
+
+Il PokeponClient ha un suo Player e un suo Team; il Player viene
+usato per settare il nome, mentre il Team è quello costruito col
+TeamBuilder e contiene tutti i dati dei Pony. DA NOTARE che il
+Team contenente tutti i dati (che chiameremo dataTeam), **NON** è
+abbinato al Player, nel senso che player.getTeam() != dataTeam.
+Il motivo è il seguente:
+
+Il BattlePanel si crea un nuovo Player che è la copia di quello 
+posseduto dal Client, eccetto che non ha il team. Il team di questo
+Player è usato durante la battle per sostanzialmente le seguenti cose:
+
+1) sapere le specie dei pony e i loro nickname
+
+2) avere un modo rapido per ottenere gli URL delle loro sprite e alcune
+   caratteristiche base (typing, ecc.)
+
+questo team verrà chiamato battleTeam. Il battleTeam viene usato in par-
+ticolare dal teamMenuPanel e dal teamPanel (rispettivamente, il menu
+mostrato nella side-bar e i tasti cliccabili nel bottomPanel).
+
+Il PokeponServer, prima di cominciare la battaglia, si fa passare dai
+client i team completi, creandosi internamente una copia di ogni dataTeam;
+(questi vengono validati, eccetera). In questo modo il Server può gestire
+il BattleEngine avendo a disposizione tutte le mosse, abilità, item e 
+quant'altro.
+
+Comunicazioni
+--------------------
+
+Le comunicazioni avvengono all'incirca nel seguente modo:
+ogni giocatore all'inizio della battaglia si vede assegnato un playerID (1 
+o 2 per le battaglie in singolo), che userà come shortcut del proprio nome
+quando deve inviare dati;
+
+quando il client invia dati al server deve inviare informazioni sul battleID
+e sul proprio playerID. Un messaggio del client sarà pertanto della forma:
+
+~btlID |command|playerID|data
+
+dove:
+  ~ è il BATTLE PREFIX, che identifica il messaggio in modo che sia parsato
+    dal BattleExecutor;
+
+  btlID è l'id unico associato alla battaglia, così che il server sappia a
+        che BattleTask rivolgersi per l'interpretazione
+
+  command è il comando da interpretare
+
+  playerID identifica il player che ha inviato il messaggio (necessario per
+           come è strutturato il sistema di dispatching dei messaggi nel server)
+
+  data sono gli argomenti del comando.
+  
+
+Il Server risponde ai client in modo simile, ma poiché il BattlePanel non 
+ha tutte le informazioni sui pony (ha circa metà delle informazioni sul
+proprio team e quasi nessun'informazione sul team avversario), deve inviare
+i dati in modo più esplicito; così, se per switchare dal pony corrente
+al pony #2 il client manderà ad esempio:
+
+~42 |switch|1|2
+
+il server istruirà il BattlePanel nel modo più verboso:
+
+~42 |switch|ally|Sweetie Belle|SomeFancyNickHere
+
+Questo rende le istruzioni del server meno equivocabili dal client.
+

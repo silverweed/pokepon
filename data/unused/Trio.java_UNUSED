@@ -1,0 +1,31 @@
+//: util/Trio.java
+
+package pokepon.util;
+
+/** An utility class used in BattleTurn.
+ *
+ * @author Giacomo Parolini
+ */
+
+public class Trio<A,B,C> {
+	
+	public Trio(A a,B b,C c) {
+		first = a;
+		second = b;
+		third = c;
+	}
+
+	public A getFirst() { return first; }
+	public B getSecond() { return second; }
+	public C getThird() { return third; }
+
+	public void set(A a,B b,C c) {
+		first = a;
+		second = b;
+		third = c;
+	}
+
+	private A first;
+	private B second;
+	private C third;
+}

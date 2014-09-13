@@ -1,0 +1,72 @@
+	/** Forget a Move in order to learn another one (probably will be never used).
+	 * @return true: actually forgot/learned a move; false: didn't learn new move */
+	private boolean forgetMoveToLearn(Move _move) throws IOException {
+		
+		printMsg(name+" wants to learn "+_move.getName()+"\nbut "+name+" already knows "+MOVES_PER_PONY+" moves.");
+		char b = ' ';
+		outer:
+		do {
+			printMsg("Do you want to make "+name+" forget a move to learn "+_move.getName()+"?");
+			System.out.print("(Y)es / (N)o > ");
+			
+			Scanner scan = new Scanner(System.in);
+			b = scan.next().charAt(0);
+
+			//printDebug("OUTER - b: "+b);
+			
+			int num = 0;
+			if(b == 'y' || b == 'Y') {
+				do {
+					b = ' ';
+					printMsg("Which move do you want to forget?");
+					for(int i = 0; i < MOVES_PER_PONY; ++i) {
+						printMsg(i+1+") "+move[i].getName());
+					}
+					System.out.print("> ");
+					num = scan.nextInt();
+					//printDebug("INNER (Y=1,N=0) - num: "+num);
+					if(num > 0 && num <= MOVES_PER_PONY) {
+						move[num-1].printInfo();
+						do {
+							printMsg("\nForget "+move[num-1].getName()+" to learn "+_move.getName()+"?");
+							System.out.print("(Y)es / (N)o > ");
+							b = scan.next().charAt(0);
+							//printDebug("INNERMOST - b: "+b);
+							if(b == 'y' || b == 'Y') {
+								printMsg("One...two...PUF!\n"+name+" forgot "+move[num-1].getName());
+								_move.setPony(this);
+								move[num-1] = _move;
+								printMsg("in its place... "+name+" learned "+move[num-1].getName()+"!");
+								return true;
+							} else if(b == 'n' || b == 'N') break;
+
+						} while(b != 'y' && b != 'Y' && b != 'n' && b != 'N');
+
+					}
+
+				} while(num <= 0 || num > MOVES_PER_PONY);
+				
+			} else if(b == 'n' || b == 'N') {
+				char b2 = ' ';
+				do {
+					System.out.print("Block learning "+_move.getName()+"? (Y / N) > ");
+					b2 = scan.next().charAt(0);
+					//printDebug("b2: "+b2);
+					if(b2 == 'y' || b2 == 'Y') {
+						printMsg(name+" didn't learn "+_move.getName());
+						return false;
+					} else if(b2 == 'n' || b2 == 'N') {
+						//printDebug("continuing...");
+						b = ' ';
+						continue outer;	
+					}
+
+				} while(b2 != 'y' && b2 != 'Y' && b2 != 'n' && b2 != 'N');
+			}
+			//printDebug("Just before condition check...");
+
+		} while(b != 'y' && b != 'Y' && b != 'n' && b != 'N');
+		
+		return false;
+	}
+

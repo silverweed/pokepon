@@ -18,3 +18,5 @@
 - Add drain animation to Wild Weed
 
 - Implement multiple (simultaneous or consecutive) animations
+
+- forcedToSwitch should sometimes be set only on damage (immunity prevents it)

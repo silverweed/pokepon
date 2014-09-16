@@ -913,21 +913,23 @@ public class BattleTask implements Runnable {
 	}
 
 	private void checkFainted() {
-		if(	!engine.hasSentFaintedMsg(1) && 
-			battle.getPlayer(1).getActivePony() != null &&
+		if(	battle.getPlayer(1).getActivePony() != null &&
 			battle.getPlayer(1).getActivePony().isFainted()
 		) {
 			engine.clearVolatiles(1);
-			sendB(c1,"|fainted|ally");
-			sendB(c2,"|fainted|opp");
+			if(!engine.hasSentFaintedMsg(1)) { 
+				sendB(c1,"|fainted|ally");
+				sendB(c2,"|fainted|opp");
+			}
 		}
-		if(	!engine.hasSentFaintedMsg(2) && 
-			battle.getPlayer(2).getActivePony() != null &&
+		if(	battle.getPlayer(2).getActivePony() != null &&
 			battle.getPlayer(2).getActivePony().isFainted()
 		) {
 			engine.clearVolatiles(2);
-			sendB(c2,"|fainted|ally");
-			sendB(c1,"|fainted|opp");
+			if(!engine.hasSentFaintedMsg(2)) {
+				sendB(c2,"|fainted|ally");
+				sendB(c1,"|fainted|opp");
+			}
 		}
 	}
 

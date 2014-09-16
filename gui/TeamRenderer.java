@@ -59,10 +59,18 @@ public class TeamRenderer implements ListCellRenderer<Team> {
 		for(int i = 0; i < Team.MAX_TEAM_SIZE; ++i) {
 			if(value.getPony(i) != null) {
 				try {
-					ImageIcon img = new ImageIcon(ImageIO.read(value.getPony(i).getFrontSprite()).getScaledInstance(25,-1,Image.SCALE_SMOOTH));
+					ImageIcon img = new ImageIcon(ImageIO.read(value.getPony(i).getFrontSprite())
+								.getScaledInstance(25,-1,Image.SCALE_SMOOTH));
 					renderer.add(new JLabel(img),c);
-				} catch(IOException e) {
-					if(Debug.pedantic) printDebug("[TeamRenderer] IOException: "+e);
+				} catch(Exception e) {
+					try {
+						if(Debug.pedantic) printDebug("[TeamRenderer] IOException: "+e);
+						ImageIcon img = new ImageIcon(ImageIO.read(BattlePanel.EMPTY_TOKEN_URL)
+									.getScaledInstance(25,-1,Image.SCALE_SMOOTH));
+						renderer.add(new JLabel(img),c);
+					} catch(IOException ee) {
+						printDebug("[TeamRenderer] Another IOException: "+ee);
+					}
 				}
 			} else {
 				renderer.add(new JLabel(""),c);

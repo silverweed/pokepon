@@ -19,9 +19,6 @@ import javax.swing.border.*;
  */
 class TeamMenuPanel extends JPanel {
 
-	private static URL EMPTY_TOKEN_URL = TeamMenuPanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_small.png");
-	private static URL UNKNOWN_PONY_URL = TeamMenuPanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_small.png");
-
 	private Player player;
 	private PonyToken[] token = new PonyToken[Team.MAX_TEAM_SIZE];
 
@@ -56,11 +53,11 @@ class TeamMenuPanel extends JPanel {
 					Image img = null;
 					try {
 						if(unknown) {
-							img = ImageIO.read(UNKNOWN_PONY_URL)
+							img = ImageIO.read(BattlePanel.UNKNOWN_PONY_URL)
 									.getScaledInstance(BattlePanel.TEAM_SPRITE_SIZE, -1, Image.SCALE_SMOOTH);
 							if(Debug.on) printDebug("[TMP] Loaded unknown_pony icon");
 						} else if(pony == null || pony.getFrontSprite() == null) {
-							img = ImageIO.read(EMPTY_TOKEN_URL)
+							img = ImageIO.read(BattlePanel.EMPTY_TOKEN_URL)
 									.getScaledInstance(BattlePanel.TEAM_SPRITE_SIZE, -1, Image.SCALE_SMOOTH);
 							if(Debug.on) printDebug("[TMP] Loaded empty_token icon");
 						} else {
@@ -71,15 +68,15 @@ class TeamMenuPanel extends JPanel {
 								img = GrayFilter.createDisabledImage(img);
 						}
 						if(img == null)
-							setIcon(new ImageIcon(ImageIO.read(UNKNOWN_PONY_URL)
+							setIcon(new ImageIcon(ImageIO.read(BattlePanel.UNKNOWN_PONY_URL)
 								.getScaledInstance(BattlePanel.TEAM_SPRITE_SIZE,-1,Image.SCALE_SMOOTH)));
 						else
 							setIcon(new ImageIcon(img));
 					} catch(IOException e) {
 						printDebug("[TeamMenuPanel.PonyToken]: "+e);
 						try {
-							if(Debug.on) printDebug("[TMP] Reading icon from "+UNKNOWN_PONY_URL+"...");
-							setIcon(new ImageIcon(ImageIO.read(UNKNOWN_PONY_URL)
+							if(Debug.on) printDebug("[TMP] Reading icon from "+BattlePanel.UNKNOWN_PONY_URL+"...");
+							setIcon(new ImageIcon(ImageIO.read(BattlePanel.UNKNOWN_PONY_URL)
 								.getScaledInstance(BattlePanel.TEAM_SPRITE_SIZE,-1,Image.SCALE_SMOOTH)));
 						} catch(IOException ee) {
 							printDebug("[TeamMenuPanel.PonyToken]: Failed to read placeholder icon:");

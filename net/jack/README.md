@@ -1,6 +1,15 @@
-=== Java Awful Client-server Kit ===
-by silverweed91
+Java Awful Client-server Kit 
+==========================================
+A simple networking framework written from scratch by silverweed. DISCLAIMER: this suite does 
+not provide advanced security features, therefore you should avoid sending sensitive data
+while connected to a Poképon Server.
 
+You can obtain a reliably secure connection using an SSH tunnel to encrypt the
+connection: see the paragraph "Securing the Connection" below.
+
+
+How does it work
+----------------------------------------------
 There are many classes, but most of them are there just to support
 really important ones.
 
@@ -86,3 +95,19 @@ So, basically, the process is:
 - attach them to the Connection via addConnectionExecutor(new MyConnectionExecutor())
 - (you can also removeConnectionExecutor(executor))
 
+
+Securing the Connection
+-------------------------------------------------------
+If you need to be sure your server-client connection is secure, using an SSH tunnel is
+the most straightforward way to obtain this.
+
+First, run an SSH server on the machine where your Poképon Server is hosted; then,
+instead of directly connecting to the server, open an SSH tunnel to the server host:
+
+<pre>ssh -fN -L 12344:<the PoképonServer IP>:12344 user@serverhost</pre>
+
+Then connect your Poképon Client to the tunnel's local port:
+
+<pre>java -jar pokepon.jar client localhost:12344</pre>
+
+And that's it! Your connection is now encrypted via SSL.

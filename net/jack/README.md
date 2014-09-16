@@ -104,7 +104,7 @@ the most straightforward way to obtain this.
 First, run an SSH server on the machine where your Poképon Server is hosted; then,
 instead of directly connecting to the server, open an SSH tunnel to the server host:
 
-<pre>ssh -fN -L 12344:<the PoképonServer IP>:12344 user@serverhost</pre>
+<pre>ssh -fN -L 12344:(the PoképonServer IP):12344 user@serverhost</pre>
 
 Then connect your Poképon Client to the tunnel's local port:
 

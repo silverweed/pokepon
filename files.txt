@@ -130,6 +130,7 @@ move/GemStorm.java
 move/GetHype.java
 move/Glomp.java
 move/GlowingLaser.java
+move/HiddenTalent.java
 move/HindKick.java
 move/HollerOut.java
 move/HopefulStrike.java

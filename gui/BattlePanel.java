@@ -44,6 +44,9 @@ import static pokepon.util.ConcatenateArrays.merge;
  */
 public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	
+	public static URL EMPTY_TOKEN_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_small.png");
+	public static URL UNKNOWN_PONY_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_small.png");
+
 	/** Type of event for the appendEvent method */
 	private static enum EventType { CHAT, JOIN, LEAVE, RULE, SWITCH, MOVE, TURN, BATTLE, BOOST, EMPHASIZED, ERROR, CRITICAL, STATUS, HTML };
 	/** Type of result for the resultAnim method */
@@ -397,12 +400,17 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	}
 
 	public void setOnOpponentSide(URL url) {
-		JLabel sprite = new JLabel(new ImageIcon(url));
-		if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
-			if(Debug.on) printDebug("[setOnOpponentSide] sprite is null: using placeholder...");
-			sprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
+		if(url == null) {
+			JLabel sprite = new JLabel(new ImageIcon(PLACEHOLDER_URL[0]));
+			setOnOpponentSide(sprite);
+		} else {
+			JLabel sprite = new JLabel(new ImageIcon(url));
+			if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
+				if(Debug.on) printDebug("[setOnOpponentSide] sprite is null: using placeholder...");
+				sprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
+			}
+			setOnOpponentSide(sprite);
 		}
-		setOnOpponentSide(sprite);
 	}
 
 	private void setAllyBounds(final JLabel sprite) {
@@ -428,12 +436,17 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	}
 
 	public void setOnAllySide(URL url) {
-		JLabel sprite = new JLabel(new ImageIcon(url));
-		if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
-			if(Debug.on) printDebug("[setOnAllySide] sprite is null: using placeholder...");
-			sprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
+		if(url == null) {
+			JLabel sprite = new JLabel(new ImageIcon(PLACEHOLDER_URL[1]));
+			setOnAllySide(sprite);
+		} else {
+			JLabel sprite = new JLabel(new ImageIcon(url));
+			if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
+				if(Debug.on) printDebug("[setOnAllySide] sprite is null: using placeholder...");
+				sprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
+			}
+			setOnAllySide(sprite);
 		}
-		setOnAllySide(sprite);
 	}
 	
 	public Player getPlayer(int num) {

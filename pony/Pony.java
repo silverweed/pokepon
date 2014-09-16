@@ -351,8 +351,10 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		else {
 			if(getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+name.replaceAll("[\\s']","")+DIRSEP+"stand_left.gif") != null)
 				return getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+name.replaceAll("[\\s']","")+DIRSEP+"stand_left.gif");
-			else
+			else if(getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+name.replaceAll("[\\s']","")+DIRSEP+"stand_left.png") != null)
 				return getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+name.replaceAll("[\\s']","")+DIRSEP+"stand_left.png");
+			else
+				return getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+"Placeholder"+DIRSEP+"stand_left.gif");
 			//return new URL("file://"+getSpritesURL().getPath()+DIRSEP+name.replaceAll(" ","")+DIRSEP+"stand_left.gif");
 		}
 	}
@@ -365,8 +367,10 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		else {
 			if(getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+name.replaceAll("[\\s']","")+DIRSEP+"stand_right.gif") != null)
 				return getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+name.replaceAll("[\\s']","")+DIRSEP+"stand_right.gif");
-			else
+			else if(getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+name.replaceAll("[\\s']","")+DIRSEP+"stand_right.png") != null)
 				return getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+name.replaceAll("[\\s']","")+DIRSEP+"stand_right.png");
+			else
+				return getClass().getResource(Meta.complete2(Meta.SPRITE_DIR)+DIRSEP+"Placeholder"+DIRSEP+"stand_right.gif");
 			//new URL("file://"+getSpritesURL().getPath()+DIRSEP+name.replaceAll(" ","")+DIRSEP+"stand_right.gif");
 		}
 	}

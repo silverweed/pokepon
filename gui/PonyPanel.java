@@ -192,6 +192,17 @@ public class PonyPanel extends JPanel {
 				} catch(Exception e) {
 					printDebug("Caught exception while constructing PonyPanel("+p.getName()+"):");
 					e.printStackTrace();
+					try {
+						URL emptyTokenURL = null;
+						emptyTokenURL = getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon.png");
+						if(emptyTokenURL != null) {
+							Image img = ImageIO.read(emptyTokenURL);
+							img = img.getScaledInstance(110,-1,Image.SCALE_SMOOTH);
+							sprite.setIcon(new ImageIcon(img));
+						}
+					} catch(java.io.IOException ee) {
+						printDebug("Caught exception while setting empty token in PonyPanel.setPony(): "+ee);
+					}
 				}
 				if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
 					try {

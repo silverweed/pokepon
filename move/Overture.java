@@ -18,7 +18,7 @@ public class Overture extends Move {
 		super("Overture");
 		
 		type = Type.MUSIC;
-		moveType = Move.MoveType.STATUS;
+		moveType = Move.MoveType.SPECIAL;
 		maxpp = pp = 15;
 		baseDamage = 90;
 		accuracy = 100;

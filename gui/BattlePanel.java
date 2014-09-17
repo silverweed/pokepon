@@ -2101,9 +2101,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		JFrame frame = new JFrame();
 		final Player p1 = new Player("me");
 		final Player p2 = new Player("opponent");
-		p1.setTeam(Team.randomTeam(6));
+		Team team1 = Team.randomTeam(6);
+		p1.setTeam(team1);
 		p2.setTeam(Team.randomTeam(6));
 		final BattlePanel bp = new BattlePanel(p1,p2);
+		for(Pony p : team1) {
+			bp.teamP.addPony(p);
+		}
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {

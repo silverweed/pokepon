@@ -62,10 +62,17 @@ public class MessageProxy {
 		return err;
 	}
 	
-	public void startGUI(String title) {
-		JFrame frame = new JFrame();
-		frame.add(scrollbar);
-		SwingConsole.run(frame, 600, 400, title);
+	public void startGUI(final String title) {
+		final JFrame f = new JFrame();
+		f.add(scrollbar);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				f.setTitle(title);
+				f.setSize(800,600);
+				f.setVisible(true);
+			}
+		});
 	}
 	private boolean isViewAtBottom() {
 		JScrollBar sb = scrollbar.getVerticalScrollBar();

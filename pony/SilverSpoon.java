@@ -40,5 +40,7 @@ public class SilverSpoon extends Pony {
 		learnableMoves.put("Dodge",1);
 		learnableMoves.put("Chatter",10);
 		learnableMoves.put("Love And Care",40);
+
+		possibleAbilities[0] = "Lovebird";
 	}
 }

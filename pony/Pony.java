@@ -202,6 +202,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		public boolean confused;
 		public boolean taunted;
 		public boolean substitute;
+		public HashMap<Type,Float> volatileEffectiveness = new HashMap<>();
 	}
 
 	////////////// PUBLIC METHODS / FIELDS /////////////////
@@ -539,6 +540,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		v.accuracyModifier = accuracyModifier;
 		v.confused = confused;
 		v.substitute = substitute;
+		v.volatileEffectiveness = new HashMap<Type,Float>(volatileEffectiveness);
 		return v;
 	}
 
@@ -886,6 +888,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		accuracyModifier = vol.accuracyModifier;	
 		confused = vol.confused;
 		substitute = vol.substitute;
+		volatileEffectiveness = new HashMap<Type,Float>(vol.volatileEffectiveness);
 	}
 
 	// Weaknesses/Resistances/Immunities: for these methods, delegate to TypeDealer.
@@ -1662,8 +1665,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	
 	}
 
-	public void addVolatileEffectiveness(final AbstractMap.SimpleEntry<Type,Float> entry) {
-		volatileEffectiveness.put(entry.getKey(),entry.getValue());
+	public void addVolatileEffectiveness(final Type t, final float mul) {
+		volatileEffectiveness.put(t, mul);
 	}
 
 	public Float removeVolatileEffectiveness(final Type t) {
@@ -1943,7 +1946,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	protected int baseSpeed;
 	
 	// temporary modifiers
-	protected transient HashMap<Type,Float> volatileEffectiveness = new HashMap<Type,Float>();
+	protected HashMap<Type,Float> volatileEffectiveness = new HashMap<Type,Float>();
 
 	// etc
 	protected boolean canon = true;

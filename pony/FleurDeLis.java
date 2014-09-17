@@ -41,5 +41,6 @@ public class FleurDeLis extends Pony {
 		learnableMoves.put("Gem Storm",45);
 
 		possibleAbilities[0] = "Shining Coat";
+		possibleAbilities[1] = "Lovebird";
 	}
 }

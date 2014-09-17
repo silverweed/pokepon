@@ -206,7 +206,6 @@ net/jack/Connection.java
 net/jack/ConnectionExecutor.java
 net/jack/PasswordHash.java
 net/jack/client/BasicClient.java
-net/jack/client/BasicGUIClient.java
 net/jack/client/ChatPanel.java
 net/jack/client/Client.java
 net/jack/client/ClientBattleExecutor.java
@@ -256,6 +255,7 @@ pony/BulkBiceps.java
 pony/ButtonMash.java
 pony/ButtonsMom.java
 pony/Canni.java
+pony/CarrotTop.java
 pony/Cheerilee.java
 pony/CheeseSandwhich.java
 pony/ChiefThunderhooves.java
@@ -266,9 +266,11 @@ pony/DaringDo.java
 pony/DerpyHooves.java
 pony/DiamondTiara.java
 pony/Discord.java
+pony/Fancypants.java
 pony/Fiddlesticks.java
 pony/Flam.java
 pony/Fleetfoot.java
+pony/FleurDeLis.java
 pony/Flim.java
 pony/FlufflePuff.java
 pony/Fluttershy.java

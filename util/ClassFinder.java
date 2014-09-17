@@ -105,7 +105,7 @@ public final class ClassFinder {
 	}
 
 	// XXX: profiling data showed that this method is very time-expensive when LAUNCHED_FROM_JAR == true,
-	// due to repeated calls to ZipEntry.getNextEntry().
+	// due to repeated calls to ZipInputStream.getNextEntry().
 	public static List<String> allFilesIn(final String relpath) {
 		List<String> filenames = new ArrayList<>();
 		if(Meta.LAUNCHED_FROM_JAR) {	

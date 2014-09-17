@@ -287,7 +287,12 @@ public class TeamDealer {
 					sanedMovename = "Hidden Talent";
 					type = Type.forName(matcher.group(1));
 				} else {
-					sanedMovename = Saner.sane(movename,Meta.complete(MOVE_DIR),Move.class);
+					/* Next line is commented out because saning the move names with the
+					 * Saner produces a huge team loading performance loss (more than 10 times
+					 * slower). Just don't make typos in the save files.
+					 */
+					//sanedMovename = Saner.sane(movename,Meta.complete(MOVE_DIR),Move.class);
+					sanedMovename = movename.replaceAll(" ","");
 				}
 				if(sanedMovename == null) {
 					if(Debug.on) printDebug("[TeamDealer] Failed to parse move " + movename + ": giving up.");

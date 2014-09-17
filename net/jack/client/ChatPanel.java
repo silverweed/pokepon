@@ -90,7 +90,7 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 	}
 	public void append(String str, boolean escapeHTML) {
 		if(Debug.pedantic) printDebug("[ChatPanel] called with str="+str+"; escapeHTML="+escapeHTML);
-		String _str = escapeHTML ? sanitizeHTML(str) : str;
+		String _str = escapeHTML ? MessageManager.sanitize(str) : str;
 		// highlight nicknames
 		Matcher matcher = chatPattern.matcher(_str);
 		if(matcher.matches() && matcher.group("nick") != null) {

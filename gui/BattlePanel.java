@@ -2147,7 +2147,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						// players may use chat as well; this way the server doesn't bother to parse
 						// chat messages.
 						if(inputF.getText().charAt(0) != '/') 
-							sendB("|chat|"+p1.getName()+"|"+sanitizeHTML(inputF.getText())); 
+							sendB("|chat|"+p1.getName()+"|"+MessageManager.sanitize(inputF.getText())); 
 						else
 							sendB("|cmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));
 						history.add(inputF.getText());

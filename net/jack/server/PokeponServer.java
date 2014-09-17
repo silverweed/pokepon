@@ -350,7 +350,7 @@ public class PokeponServer extends DatabaseServerTest implements TestingClass {
 	}
 
 	public static void printUsage() {
-		consoleMsg("Usage: PokeponServer [--conf <conf_file>] [-i|--ip <ip>] [-p|--port <port>] [-v(vv...)|-v <verb.Lv>] [-m|--max-clients <max-clients>] [--name <name>]");
+		consoleMsg("Usage: PokeponServer [--conf <conf_file>] [-i|--ip <ip>] [-p|--port <port>] [-v(vv...)|-v <verb.Lv>] [-m|--max-clients <max-clients>] [--name <name>] [--forbid <list of regexes>] [-d|--database <dbUrl>]");
 		System.exit(0);
 	}
 

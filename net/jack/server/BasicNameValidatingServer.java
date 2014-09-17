@@ -67,7 +67,6 @@ public class BasicNameValidatingServer extends BasicServer implements NameValida
 	
 	/** You can put strings (even regexes) in this list in order to forbid nicknames */
 	protected Set<String> forbiddenNames = new HashSet<String>(Arrays.asList(new String[] {
-		"null",		
-		"^<.*>.*$",	//prevent names to contain html tags
+		"null"	// this is to avoid confusion in debugging
 	}));
 }

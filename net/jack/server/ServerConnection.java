@@ -139,7 +139,7 @@ class ServerConnection extends Connection {
 			return false;
 		}
 		if(verbosity >= 2) printDebug("Assigning new nick \""+nick+"\" to "+name+" ("+socket.getInetAddress()+")");
-		String newname = nick;
+		String newname = MessageManager.sanitize(nick);
 		
 		if(server instanceof NameValidatingServer) {
 			if(verbosity >= 2) printDebug("Server supports names validation.");

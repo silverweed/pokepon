@@ -8,7 +8,7 @@ import javax.swing.text.html.*;
 import java.io.*;
 import java.awt.*;
 import pokepon.util.StrAppendable;
-import static pokepon.util.MessageManager.sanitizeHTML;
+import pokepon.util.MessageManager;
 
 /** Provides two StrAppendables to use as altOut and altErr for MessageManager,
  * allowing to redirect stdout and stderr to a JTextPane rather than the console.
@@ -32,7 +32,8 @@ public class MessageProxy {
 		out = new StrAppendable() {
 			public void append(String str) {
 				try {
-					doc.insertBeforeEnd(doc.getParagraphElement(doc.getLength()), sanitizeHTML(str).replaceAll("\n", "<br>"));	
+					doc.insertBeforeEnd(doc.getParagraphElement(doc.getLength()), 
+						MessageManager.sanitize(str).replaceAll("\n", "<br>"));	
 					if(isViewAtBottom())
 						scrollToBottom();
 				} catch(BadLocationException|IOException e) {
@@ -43,7 +44,7 @@ public class MessageProxy {
 		err = new StrAppendable() {
 			public void append(String str) {
 				try {
-					str = "<font color='red'>" + sanitizeHTML(str) + "</font>";
+					str = "<font color='red'>" + MessageManager.sanitize(str) + "</font>";
 					doc.insertBeforeEnd(doc.getParagraphElement(doc.getLength()), str.replaceAll("\n", "<br>"));	
 					if(isViewAtBottom())
 						scrollToBottom();

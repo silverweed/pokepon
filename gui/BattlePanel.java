@@ -44,8 +44,16 @@ import static pokepon.util.ConcatenateArrays.merge;
  */
 public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	
-	public static URL EMPTY_TOKEN_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_small.png");
-	public static URL UNKNOWN_PONY_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_small.png");
+	public static URL EMPTY_TOKEN_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
+	public static URL UNKNOWN_PONY_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
+	public static final String[] BG_IMG_URL = new String[] {
+							"equestria_background_by_cl0setbr0ny.png",
+							"equestria_at_night_by_darcowalways.png"
+							};
+	public static final URL[] PLACEHOLDER_URL = {
+							BattlePanel.class.getResource(Meta.complete2(Meta.SPRITE_DIR)+"/Placeholder/stand_left.gif"),
+							BattlePanel.class.getResource(Meta.complete2(Meta.SPRITE_DIR)+"/Placeholder/stand_right.gif")
+							};
 
 	/** Type of event for the appendEvent method */
 	private static enum EventType { CHAT, JOIN, LEAVE, RULE, SWITCH, MOVE, TURN, BATTLE, BOOST, EMPHASIZED, ERROR, CRITICAL, STATUS, HTML };
@@ -66,14 +74,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private static final float FIELD_HW_RATIO = 0.9f;
 	/** Coordinate at which the actual field starts (equal to the side bar's width) */
 	private static final int FIELD_X = (int)((FIELD_WIDTH-(float)FIELD_HEIGHT/FIELD_HW_RATIO)/2f);
-	public static final String[] BG_IMG_URL = new String[] {
-							"equestria_background_by_cl0setbr0ny.png",
-							"equestria_at_night_by_darcowalways.png"
-							};
-	public static final URL[] PLACEHOLDER_URL = {
-							BattlePanel.class.getResource(Meta.complete2(Meta.SPRITE_DIR)+"/Placeholder/stand_left.gif"),
-							BattlePanel.class.getResource(Meta.complete2(Meta.SPRITE_DIR)+"/Placeholder/stand_right.gif")
-							};
+
 	/** This overrides the one in ChatPanel */
 	private static final int MAX_HIST_SIZE = 40;
 	static final int HAZARD_TOKEN_SIZE = 30;
@@ -620,7 +621,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 					for(int i = 0; i < 6; ++i) {
 						if(p1.getTeam().getPony(i) != null) {
-							previewSprite1[i] = new JLabel(new ImageIcon(p1.getTeam().getPony(i).getBackSprite()));
+							if(p1.getTeam().getPony(i).getBackSprite() == null)
+								previewSprite1[i] = new JLabel(new ImageIcon(PLACEHOLDER_URL[1]));
+							else
+								previewSprite1[i] = new JLabel(new ImageIcon(
+											p1.getTeam().getPony(i).getBackSprite()));
 							previewSprite1[i].setBounds(offsetx1,offsety1,
 										previewSprite1[i].getIcon().getIconWidth(),
 										previewSprite1[i].getIcon().getIconHeight());
@@ -628,7 +633,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							fieldP.add(previewSprite1[i],new Integer(layer));
 						}
 						if(p2.getTeam().getPony(i) != null) {
-							previewSprite2[i] = new JLabel(new ImageIcon(p2.getTeam().getPony(i).getFrontSprite()));
+							if(p2.getTeam().getPony(i).getFrontSprite() == null)
+								previewSprite2[i] = new JLabel(new ImageIcon(PLACEHOLDER_URL[0]));
+							else
+								previewSprite2[i] = new JLabel(new ImageIcon(
+											p2.getTeam().getPony(i).getFrontSprite()));
 							previewSprite2[i].setBounds(offsetx2,offsety2,
 										previewSprite2[i].getIcon().getIconWidth(),
 										previewSprite2[i].getIcon().getIconHeight());
@@ -707,9 +716,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						teamMenu1.setUnknown(index, false);
 
 					// switch-in animation
-					allySprite = new TransparentLabel(new JLabel(new ImageIcon(allyPony.getBackSprite())),0f);
-					if(allySprite.getIcon().getIconWidth() < 0)
-						allySprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
+					if(allyPony.getBackSprite() == null)
+						allySprite = new TransparentLabel(new JLabel(new ImageIcon(PLACEHOLDER_URL[1])),0f);
+					else {
+						allySprite = new TransparentLabel(new JLabel(new ImageIcon(allyPony.getBackSprite())),0f);
+						if(allySprite.getIcon().getIconWidth() < 0)
+							allySprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
+					}
 					switchInAnim(allySprite,true);
 
 					SwingUtilities.invokeAndWait(new Runnable() {
@@ -774,9 +787,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						teamMenu2.setUnknown(index, false);
 
 					// switch-in animation
-					oppSprite = new TransparentLabel(new JLabel(new ImageIcon(oppPony.getFrontSprite())));
-					if(oppSprite.getIcon().getIconWidth() < 0)
-						oppSprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
+					if(oppPony.getFrontSprite() == null)
+						oppSprite = new TransparentLabel(new JLabel(new ImageIcon(PLACEHOLDER_URL[0])),0f);
+					else {
+						oppSprite = new TransparentLabel(new JLabel(new ImageIcon(oppPony.getFrontSprite())),0f);
+						if(oppSprite.getIcon().getIconWidth() < 0)
+							oppSprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
+					}
 					switchInAnim(oppSprite,false);				
 
 					SwingUtilities.invokeAndWait(new Runnable() {
@@ -1210,7 +1227,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						public void run() {
 							if(allySprite == null)
 								allySprite = new TransparentLabel();
-							allySprite.setIcon(new ImageIcon(allyPony.getBackSprite()));
+							if(allyPony.getBackSprite() == null)
+								allySprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
+							else
+								allySprite.setIcon(new ImageIcon(allyPony.getBackSprite()));
 							setAllyBounds(allySprite);
 							validate();
 							repaint();
@@ -1230,7 +1250,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						public void run() {
 							if(oppSprite == null)
 								oppSprite = new TransparentLabel();
-							oppSprite.setIcon(new ImageIcon(oppPony.getFrontSprite()));
+							if(oppPony.getFrontSprite() == null)
+								oppSprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
+							else
+								oppSprite.setIcon(new ImageIcon(oppPony.getFrontSprite()));
 							setOpponentBounds(oppSprite);
 							validate();
 							repaint();

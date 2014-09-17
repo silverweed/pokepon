@@ -102,6 +102,7 @@ move/Balefire.java
 move/BassCannon.java
 move/BassDrop.java
 move/BindUp.java
+move/Bizaam.java
 move/BoulderBomb.java
 move/BubbleBurst.java
 move/BulletShower.java
@@ -244,7 +245,9 @@ player/TeamDealer.java
 pony/Aloe.java
 pony/AppleBloom.java
 pony/Applejack.java
+pony/Aryanne.java
 pony/BabsSeed.java
+pony/Bellesmith.java
 pony/BerryPunch.java
 pony/BigMacintosh.java
 pony/BonBon.java
@@ -252,6 +255,7 @@ pony/Braeburn.java
 pony/BulkBiceps.java
 pony/ButtonMash.java
 pony/ButtonsMom.java
+pony/Canni.java
 pony/Cheerilee.java
 pony/CheeseSandwhich.java
 pony/ChiefThunderhooves.java
@@ -279,15 +283,18 @@ pony/Lotus.java
 pony/LyraHeartstrings.java
 pony/MarblePie.java
 pony/MaudPie.java
+pony/MilkyWay.java
 pony/MsHarshwhinny.java
 pony/NightmareMoon.java
 pony/NurseRedheart.java
 pony/Octavia.java
+pony/Pilate.java
 pony/PinkiePie.java
 pony/Pipsqueak.java
 pony/Pony.java
 pony/PrincessCadance.java
 pony/PrincessCelestia.java
+pony/PrincessErroria.java
 pony/PrincessLuna.java
 pony/RainbowDash.java
 pony/Rarity.java
@@ -304,6 +311,7 @@ pony/Starswirl.java
 pony/SunsetShimmer.java
 pony/SweetieBelle.java
 pony/Tirek.java
+pony/Tracy.java
 pony/Trenderhoof.java
 pony/Trixie.java
 pony/TwilightSparkle.java

@@ -399,8 +399,10 @@ class GUILauncher extends JFrame {
 					MessageManager.setAltErr(proxy.getAltErr());
 					proxy.startGUI("Fast ponydex");
 				}
+
+				final String[] _args = args.split(" ");
 				try {
-					FastPonydex.main(args.split(" "));	
+					FastPonydex.main(_args);	
 				} catch(Exception ex) {
 					printDebug("Exception while invoking FastPonydex: "+ex);
 				}

@@ -9,7 +9,9 @@ import java.util.*;
 import java.net.*;
 
 /** This class provides static methods to convert a given string to
- * a known valid string chosen from a given collection.
+ * a known valid string chosen from a given collection;
+ * note that the sane() method shouldn't be called repeatedly wherever
+ * performance is important, because it slows down things a lot.
  *
  * @author Giacomo Parolini
  */

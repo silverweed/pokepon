@@ -32,7 +32,17 @@ installed of course) can be used to compile all the game classes.
 
 An utility <code>create_pokepon_jar.sh</code> can be found in data/
 but can only be used within a Unix shell. The script should be launched
-from the parent directory of the pokepon root.
+from the parent directory of the pokepon root. For example:
+<pre>$ pwd
+/path/to/pokepon
+$ cd ..
+$ ls
+pokepon/
+$ bash ./pokepon/data/create_pokepon_jar.sh
+... (some output from jar)
+$ ls
+pokepon/   pokepon.jar
+</pre>
 
 Server Setup
 -----------------------------------------------------

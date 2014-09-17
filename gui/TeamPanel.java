@@ -225,5 +225,17 @@ public class TeamPanel extends JPanel {
 		protected boolean showCondition() {
 			return token[num] != null;
 		}
+
+		// Show tooltip in fixed position, not where the cursor enters the button 
+		@Override
+		protected void showToolTip(MouseEvent e) {
+			setText();
+			toolTip.setTipText(text);
+			int linecount = (text.length() - text.replaceAll("<br>", "").length()) / 4;
+			int x = (int)token[num].getLocationOnScreen().getX();
+			int y = (int)token[num].getLocationOnScreen().getY() - 170; //- linecount*40;
+			popup = popupFactory.getPopup(component,toolTip,x,y);
+			popup.show();
+		}
 	}
 }

@@ -35,7 +35,7 @@ public class ChaosMagic extends Ability {
 				}
 			}
 		} while(!ok);
-		pony.addVolatileEffectiveness(addEntry(mType,0.5f));
+		pony.addVolatileEffectiveness(mType,0.5f);
 		printMsg(pony.getNickname()+" gained resistance to "+mType);
 		if(be.getBattleTask() != null) {
 			Connection ally = be.getConnection(be.getSide(pony));

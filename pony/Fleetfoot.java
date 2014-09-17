@@ -44,5 +44,6 @@ public class Fleetfoot extends Pony {
 		learnableMoves.put("Sky Dive",30);
 
 		possibleAbilities[0] = "Self Confidence";
+		possibleAbilities[1] = "Lovebird";
 	}
 }

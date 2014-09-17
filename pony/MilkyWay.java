@@ -4,7 +4,6 @@ package pokepon.pony;
 
 import pokepon.enums.*;
 import pokepon.util.Meta;
-import static pokepon.util.Meta.*;
 import java.net.*;
 
 /**	Milky Way

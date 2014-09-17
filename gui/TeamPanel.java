@@ -39,7 +39,7 @@ public class TeamPanel extends JPanel {
 		setLayout(new GridLayout(1,Team.MAX_TEAM_SIZE,10,1));
 		setBorder(new CompoundBorder(new TitledBorder("Team"),new EmptyBorder(3,3,3,3)));
 
-		emptyTokenURL = getClass().getResource("/"+Meta.complete(Meta.TOKEN_DIR)+"/empty_token_icon_small.png");
+		emptyTokenURL = getClass().getResource("/"+Meta.complete(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
 
 		for(int i = 0; i < Team.MAX_TEAM_SIZE; ++i) {
 			token[i] = new JToggleButton();
@@ -225,5 +225,5 @@ public class TeamPanel extends JPanel {
 		protected boolean showCondition() {
 			return token[num] != null;
 		}
-	};
+	}
 }

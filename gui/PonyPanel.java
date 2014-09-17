@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
 import java.util.*;
+import java.io.*;
 
 /** Graphical component that, given a Pony, displays its name, sprite,
  * nickname, typing and stats.
@@ -21,11 +22,27 @@ import java.util.*;
  */
 public class PonyPanel extends JPanel {
 
+	private static Image emptyToken = null;
+	private static int IMG_WIDTH = 110;
+	static {
+		// Load empty token image
+		try {
+			URL emptyTokenURL = PonyPanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left.png");
+			if(emptyTokenURL != null) {
+				emptyToken = ImageIO.read(emptyTokenURL)
+						.getScaledInstance(IMG_WIDTH, -1, Image.SCALE_SMOOTH);
+			} else {
+				emptyToken = ImageIO.read(BattlePanel.PLACEHOLDER_URL[0])
+						.getScaledInstance(IMG_WIDTH, -1, Image.SCALE_SMOOTH);
+			}
+		} catch(IOException e) {
+			printDebug("[PonyPanel] Caught exception while loading empty token: "+e);
+		}
+	}
+
 	protected Pony pony;
 	protected JTextField nickname = new RoundJTextField(20);
-	//protected JTextField name = new JTextField(20);
 	protected JLabel name = new JLabel();
-	//protected JTextField typing = new JTextField(20);
 	protected JLabel typing = new JLabel();
 	protected JTextField level = new RoundJTextField(3);
 	protected JTextField happiness = new RoundJTextField(3);
@@ -34,10 +51,9 @@ public class PonyPanel extends JPanel {
 	protected JLabel phrase = new JLabel(); 
 	protected StatsPanel statsPanel = new PonyStatsPanel();
 	protected JLabel sprite = new JLabel();
-	//protected JComboBox<String> ability = new JComboBox<String>();
-	//protected JTextField ability = new JTextField(20);
 
 	public PonyPanel() {
+
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -62,11 +78,9 @@ public class PonyPanel extends JPanel {
 		c.gridy = 7;
 		c.gridheight = 1;
 		c.insets = new Insets(0,4,0,4);
-		//name.setEditable(false);
 		add(name,c);
 
 		c.gridy = 8;
-		//typing.setEditable(false);
 		add(typing,c);
 		
 		c.gridx = 6;
@@ -107,17 +121,9 @@ public class PonyPanel extends JPanel {
 		c.gridx = 6;
 		c.gridy = 4;
 		c.gridwidth = 2;
-		//phrase.setEditable(false);
 		phrase.setMinimumSize(phrase.getPreferredSize());
 		phrase.setFont(phrase.getFont().deriveFont(Font.PLAIN));
 		add(phrase,c);
-
-		/*c.gridx = 6;
-		c.gridy = 5;
-		add(new JLabel("Ability"),c);
-
-		c.gridy = 6;
-		add(ability,c);*/
 
 		c.gridx = 0;
 		c.gridy = 10;
@@ -187,36 +193,14 @@ public class PonyPanel extends JPanel {
 				name.setText(p.getName());
 				nickname.setText(p.getNickname());
 				typing.setText("<html>"+p.getTypingHTMLTokens()+"</html>");
-				try {
+				if(p.getFrontSprite() == null)
+					sprite.setIcon(new ImageIcon(emptyToken));
+				else
 					sprite.setIcon(new ImageIcon(p.getFrontSprite()));
-				} catch(Exception e) {
-					printDebug("Caught exception while constructing PonyPanel("+p.getName()+"):");
-					e.printStackTrace();
-					try {
-						URL emptyTokenURL = null;
-						emptyTokenURL = getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon.png");
-						if(emptyTokenURL != null) {
-							Image img = ImageIO.read(emptyTokenURL);
-							img = img.getScaledInstance(110,-1,Image.SCALE_SMOOTH);
-							sprite.setIcon(new ImageIcon(img));
-						}
-					} catch(java.io.IOException ee) {
-						printDebug("Caught exception while setting empty token in PonyPanel.setPony(): "+ee);
-					}
-				}
-				if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
-					try {
-						URL emptyTokenURL = null;
-						emptyTokenURL = getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon.png");
-						if(emptyTokenURL != null) {
-							Image img = ImageIO.read(emptyTokenURL);
-							img = img.getScaledInstance(110,-1,Image.SCALE_SMOOTH);
-							sprite.setIcon(new ImageIcon(img));
-						}
-					} catch(java.io.IOException e) {
-						printDebug("Caught exception while setting empty token in PonyPanel.setPony(): "+e);
-					}
-				}
+
+				if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) 
+					sprite.setIcon(new ImageIcon(emptyToken));
+				
 				if(Debug.on) printDebug("icon size: "+sprite.getSize());
 				level.setText(""+p.getLevel());
 				happiness.setText(""+p.getHappiness());
@@ -224,23 +208,6 @@ public class PonyPanel extends JPanel {
 				species.setText(p.getRace().toString());
 				phrase.setText("<html><em>"+p.getIVMsg()+"</em></html>");
 				statsPanel.setPony(p);
-
-				/*ability.removeActionListener(abilityListener);
-				ability.removeAllItems();
-				validate();
-				repaint();
-				ability.addItem("");
-				for(String mv : pony.getPossibleAbilities()) {
-					ability.addItem(mv);
-				}
-				
-				if(pony.getAbility() != null)
-					ability.setSelectedItem(pony.getAbility().getName());
-				else
-					ability.setSelectedItem("");
-
-				ability.addActionListener(abilityListener);
-				*/
 			}
 		});
 	}
@@ -259,23 +226,6 @@ public class PonyPanel extends JPanel {
 		frame.add(new PonyPanel(pony));
 		SwingConsole.run(frame);
 	}
-
-	/*private ActionListener abilityListener = new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-			String selected = (String)ability.getSelectedItem();
-			if(Debug.on) printDebug("[PonyPanel] selected ability: "+selected);
-			if(selected == null || selected.equals("")) 
-				pony.setAbility(null);
-			else {
-				try {
-					pony.setAbility(AbilityCreator.create(selected));
-					if(Debug.on) printDebug("[PonyPanel] set pony's ability to "+pony.getAbility());
-				} catch(ReflectiveOperationException ee) {
-					printDebug("[PonyPanel] Failed to create ability: "+selected);
-				}
-			}
-		}
-	};*/
 
 	private class LevelListener implements DocumentListener {
 		
@@ -372,6 +322,5 @@ public class PonyPanel extends JPanel {
 			if(Debug.on) printDebug("Setting pony nickname to "+pony.getNickname());
 		}
 	}
-
 }
 

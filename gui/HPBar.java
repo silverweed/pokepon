@@ -56,6 +56,8 @@ class HPBar extends JPanel {
 	/** atk,def,spatk,spdef,speed,evasion,accuracy boosts */
 	private int[] boostTable = new int[7];
 	private PseudoStatusLabel[] boostLabel = new PseudoStatusLabel[7];
+	/** The panel containing the status labels */
+	private JPanel labelPanel = new JPanel(true);
 	
 	public HPBar(Pony pony,Color... txtColor) {
 		setOpaque(false);
@@ -79,19 +81,23 @@ class HPBar extends JPanel {
 			
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = HPBAR_GRIDWIDTH-2;
+		c.gridwidth = HPBAR_GRIDWIDTH - 2;
 		c.anchor = GridBagConstraints.WEST;
+		c.weightx = 0.8;
+		c.ipadx = 3;
 		ponyName = new JLabel(pony.getNickname());
 		add(ponyName,c);
 		
-		c.gridx = HPBAR_GRIDWIDTH-2;
+		c.gridx = HPBAR_GRIDWIDTH - 2;
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.EAST;
+		c.weightx = 0.2;
 		ponyLv = new JLabel("(Lv "+pony.getLevel()+")");
 		add(ponyLv,c);
 		
 		c.gridx = 0;
 		c.gridy = 1;
+		c.weightx = 0;
 		c.gridwidth = HPBAR_GRIDWIDTH;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
@@ -108,6 +114,16 @@ class HPBar extends JPanel {
 
 		c.gridx = 0;
 		c.gridy = 2;
+		c.gridwidth = HPBAR_GRIDWIDTH + 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.ipadx = 0;
+		labelPanel.setLayout(new GridBagLayout());
+		labelPanel.setOpaque(false);
+		add(labelPanel,c);
+		c.gridy = 0;
+		c.insets = new Insets(0,0,0,1);
+		labelPanel.add(Box.createRigidArea(new Dimension(HPBAR_LENGTH,1)),c);
 		
 		if(txtColor.length > 0) 
 			setTextColor(txtColor[0]);
@@ -297,9 +313,10 @@ class HPBar extends JPanel {
 				pony.addStatus(status);
 				c.gridwidth = 1;
 				c.gridheight = 1;
+				c.ipadx = 5;
 				c.anchor = GridBagConstraints.WEST;
 				c.fill = GridBagConstraints.HORIZONTAL;
-				if(c.gridy < 2) c.gridy = 2;
+				//if(c.gridy < 2) c.gridy = 2;
 				if(Debug.pedantic) printDebug("c: "+c.gridx+","+c.gridy);
 				StatusLabel sl = new StatusLabel(status,c.gridx,c.gridy);
 				statuses.add(sl);
@@ -311,8 +328,8 @@ class HPBar extends JPanel {
 					printDebug(" ("+statuses.size()+")");
 				}
 
-				synchronized(this) {
-					add(sl,c);
+				synchronized(labelPanel) {
+					labelPanel.add(sl,c);
 				}
 				++c.gridx;
 				if(c.gridx >= HPBAR_GRIDWIDTH) {
@@ -328,9 +345,10 @@ class HPBar extends JPanel {
 						pony.addStatus(status);
 						c.gridwidth = 1;
 						c.gridheight = 1;
+						c.ipadx = 5;
 						c.anchor = GridBagConstraints.WEST;
 						c.fill = GridBagConstraints.HORIZONTAL;
-						if(c.gridy < 2) c.gridy = 2;
+						//if(c.gridy < 2) c.gridy = 2;
 						if(Debug.pedantic) printDebug("c: "+c.gridx+","+c.gridy);
 						StatusLabel sl = new StatusLabel(status,c.gridx,c.gridy);
 						statuses.add(sl);
@@ -342,8 +360,8 @@ class HPBar extends JPanel {
 							printDebug(" ("+statuses.size()+")");
 						}
 
-						synchronized(this) {
-							add(sl,c);
+						synchronized(labelPanel) {
+							labelPanel.add(sl,c);
 						}
 						++c.gridx;
 						if(c.gridx >= HPBAR_GRIDWIDTH) {
@@ -372,13 +390,17 @@ class HPBar extends JPanel {
 		if(Debug.pedantic) printDebug("run(): statuses.size = "+statuses.size());
 		for(StatusLabel sl : statuses) {
 			if(Debug.pedantic) printDebug("removing:"+sl.getText());
-			remove(sl);
+			synchronized(labelPanel) {
+				labelPanel.remove(sl);
+			}
 			allStatuses.remove(sl);
 		}
 		statuses.clear();
 		for(PseudoStatusLabel psl : pseudoStatuses) {
 			if(Debug.pedantic) printDebug("removing:"+psl);
-			remove(psl);
+			synchronized(labelPanel) {
+				labelPanel.remove(psl);
+			}
 		}
 		c.gridx = 0;
 		for(PseudoStatusLabel psl : pseudoStatuses) {
@@ -412,13 +434,17 @@ class HPBar extends JPanel {
 			if(Debug.pedantic) printDebug("run(): pseudoStatuses.size = "+pseudoStatuses.size());
 			for(PseudoStatusLabel psl : pseudoStatuses) {
 				if(Debug.pedantic) printDebug("removing:"+psl.getText());
-				remove(psl);
+				synchronized(labelPanel) {
+					labelPanel.remove(psl);
+				}
 				allStatuses.remove(psl);
 			}
 			pseudoStatuses.clear();
 			for(StatusLabel sl : statuses) {
 				if(Debug.pedantic) printDebug("removing:"+sl);
-				remove(sl);
+				synchronized(labelPanel) {
+					labelPanel.remove(sl);
+				}
 			}
 			c.gridx = 0;
 			for(StatusLabel sl : statuses) {
@@ -438,6 +464,7 @@ class HPBar extends JPanel {
 	}
 
 	/** Remove a single Status or PseudoStatus from HP bar. */
+ 	// To quote Linus: "Let's hope this is bug-free, 'cause this one I don't want to debug :-)"
 	public void clearLabel(final GridLabel label) {
 		if(Debug.on) printDebug("[HPBar] Called clearLabel("+label+")");
 		boolean found = false;
@@ -450,8 +477,8 @@ class HPBar extends JPanel {
 			printDebug("[HPBar] Error: attempted to remove a non-existing label!");
 			return;
 		}
-		synchronized(this) {
-			remove(label);
+		synchronized(labelPanel) {
+			labelPanel.remove(label);
 		}
 		free = label.pos();
 
@@ -494,12 +521,14 @@ class HPBar extends JPanel {
 				if(Debug.pedantic) printDebug("tmpgridx+gl.gridwidth="+(tmpgridx+gl.gridwidth));
 				if(goodx != gl.gridx || goody != gl.gridy) {
 					if(Debug.on) printDebug("clearStatus: removing "+gl);
-					remove(gl);
+					synchronized(labelPanel) {
+						labelPanel.remove(gl);
+					}
 					gl.gridx = c.gridx = goodx;
 					gl.gridy = c.gridy = goody;
 					c.gridwidth = gl.gridwidth;
-					synchronized(this) {
-						add(gl,c);
+					synchronized(labelPanel) {
+						labelPanel.add(gl,c);
 					}
 					if(Debug.on) printDebug("clearStatus: added "+gl);
 				} else {
@@ -533,6 +562,7 @@ class HPBar extends JPanel {
 			if(SwingUtilities.isEventDispatchThread()) {
 				c.gridheight = 1;
 				c.gridwidth = Math.min(HPBAR_GRIDWIDTH,gridWidth);
+				c.ipadx = 3;
 				c.anchor = GridBagConstraints.WEST;
 				c.fill = GridBagConstraints.HORIZONTAL;
 				if(c.gridx + c.gridwidth > HPBAR_GRIDWIDTH) {
@@ -554,8 +584,8 @@ class HPBar extends JPanel {
 					printDebug(Arrays.asList(boostLabel).toString());
 				}
 
-				synchronized(this) {
-					add(psl,c);
+				synchronized(labelPanel) {
+					labelPanel.add(psl,c);
 				}
 				if(Debug.on) printDebug("Added: "+psl);
 				c.gridx += c.gridwidth;
@@ -570,6 +600,7 @@ class HPBar extends JPanel {
 					public void run() {
 						c.gridheight = 1;
 						c.gridwidth = Math.min(HPBAR_GRIDWIDTH,gridWidth);
+						c.ipadx = 3;
 						c.anchor = GridBagConstraints.WEST;
 						c.fill = GridBagConstraints.HORIZONTAL;
 						if(c.gridx + c.gridwidth > HPBAR_GRIDWIDTH) {
@@ -591,8 +622,8 @@ class HPBar extends JPanel {
 							printDebug(Arrays.asList(boostLabel).toString());
 						}
 
-						synchronized(this) {
-							add(psl,c);
+						synchronized(labelPanel) {
+							labelPanel.add(psl,c);
 						}
 						if(Debug.on) printDebug("Added: "+psl);
 						c.gridx += c.gridwidth;
@@ -641,30 +672,7 @@ class HPBar extends JPanel {
 
 		if(Debug.pedantic) printDebug("index: "+index+", boostLabel: "+boostLabel[index]);
 		if(boostTable[index] != 0) {
-			String stmod = "";
-			switch(index) {
-				case 0: 
-					stmod = "Atk";
-					break;
-				case 1:
-					stmod = "Def";
-					break;
-				case 2:
-					stmod = "SpA";
-					break;
-				case 3:
-					stmod = "SpD";
-					break;
-				case 4:
-					stmod = "Spe";
-					break;
-				case 5:
-					stmod = "Eva";
-					break;
-				case 6:
-					stmod = "Acc";
-					break;
-			}
+			String stmod = "Atk Def SpA SpD Spe Eva Acc".split(" ")[index];
 
 			// if stat is already boosted, just change the text
 			if(boostLabel[index] != null) {
@@ -673,14 +681,11 @@ class HPBar extends JPanel {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						boostLabel[ind].setText(stm+" "+Pony.getStatMod(boostTable[ind])+"x");
-						if(boostTable[ind] < 0)
-							boostLabel[ind].setGood(false);
-						else
-							boostLabel[ind].setGood(true);
+						boostLabel[ind].setGood(boostTable[ind] >= 0);
 					}
 				});
 			} else {
-				addPseudoStatus(stmod+" "+Pony.getStatMod(boostTable[index])+"x",(boostTable[index] > 0 ? true : false),3);
+				addPseudoStatus(stmod+" "+Pony.getStatMod(boostTable[index])+"x", boostTable[index] > 0, 3);
 			}
 		} else if(boostLabel[index] != null) {
 			clearLabel(boostLabel[index]);
@@ -725,7 +730,7 @@ class HPBar extends JPanel {
 		f.add(slider,BorderLayout.SOUTH);
 		SwingConsole.run(f);
 		
-		boolean doStuff = false;
+		boolean doStuff = true;
 
 		if(doStuff) {
 			//hp.clearStatus();

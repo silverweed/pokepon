@@ -892,6 +892,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	// Weaknesses/Resistances/Immunities: for these methods, delegate to TypeDealer.
+	/** @return map of { type: damage modifier } */
 	public Map<Type,Integer> getWeaknesses() {
 		Map<Type,Integer> wks = TypeDealer.getWeaknesses(type);
 		// TODO
@@ -909,6 +910,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return wks;
 	}
 
+	/** @return map of { type: 1 / damage modifier } */
 	public Map<Type,Integer> getResistances() {
 		Map<Type,Integer> res = TypeDealer.getResistances(type);
 

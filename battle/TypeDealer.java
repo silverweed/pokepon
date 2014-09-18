@@ -25,22 +25,22 @@ public class TypeDealer implements TestingClass {
 	//////////////// PUBLIC METHODS / FIELDS ////////////////
 
 	// GET METHODS //
-	/** @return List containing Types against whom the given type is weak. */
-	public static List<Type> getWeaknesses(Type type) {
-		if(type == null) return Collections.emptyList();
-		return Arrays.asList(weaknesses.get(type));
+	/** @return Set containing Types against whom the given type is weak. */
+	public static Set<Type> getWeaknesses(Type type) {
+		if(type == null || weaknesses.get(type).length == 0) return (Set<Type>)EnumSet.noneOf(Type.class);
+		return (Set<Type>)EnumSet.copyOf(Arrays.asList(weaknesses.get(type)));
 	}
 	
 	/** @return List containing Types against whom the given type resists. */
-	public static List<Type> getResistances(Type type) {
-		if(type == null) return Collections.emptyList();
-		return Arrays.asList(resistances.get(type));
+	public static Set<Type> getResistances(Type type) {
+		if(type == null || resistances.get(type).length == 0) return (Set<Type>)EnumSet.noneOf(Type.class);
+		return (Set<Type>)EnumSet.copyOf(Arrays.asList(resistances.get(type)));
 	}
 
 	/** @return List containing Types against whom the given type is immune. */
-	public static List<Type> getImmunities(Type type) {
-		if(type == null) return Collections.emptyList();
-		return Arrays.asList(immunities.get(type));
+	public static Set<Type> getImmunities(Type type) {
+		if(type == null || immunities.get(type).length == 0) return (Set<Type>)EnumSet.noneOf(Type.class);
+		return (Set<Type>)EnumSet.copyOf(Arrays.asList(immunities.get(type)));
 	}
 
 	/** @return String containing human-readable Types against whom the given type is weak. */
@@ -84,7 +84,7 @@ public class TypeDealer implements TestingClass {
 	
 	/** @return Map containing entries (Type,multiplier) of weaknesses */
 	public static Map<Type,Integer> getWeaknesses(Type[] type) {
-		Map<Type,Integer> map = new HashMap<Type,Integer>();
+		Map<Type,Integer> map = new EnumMap<Type,Integer>(Type.class);
 
 		for(Map.Entry<Type,Float> f : getEffectiveness(type).entrySet()) {
 			if(f.getValue() >= 2f) {
@@ -95,9 +95,9 @@ public class TypeDealer implements TestingClass {
 		return map;
 	}
 	
-	/** @return Map containing entries (Type,multiplier) of resistances */
+	/** @return Map containing entries (Type,1/multiplier) of resistances */
 	public static Map<Type,Integer> getResistances(Type[] type) {
-		Map<Type,Integer> map = new HashMap<Type,Integer>();
+		Map<Type,Integer> map = new EnumMap<Type,Integer>(Type.class);
 			
 		for(Map.Entry<Type,Float> f : getEffectiveness(type).entrySet()) {
 			if(f.getValue() <= 0.5f && f.getValue() > 0) {
@@ -110,7 +110,7 @@ public class TypeDealer implements TestingClass {
 	
 	/** @return Set containing immunities of 'type' */
 	public static Set<Type> getImmunities(Type[] type) {
-		Set<Type> set = new HashSet<Type>();
+		Set<Type> set = (Set<Type>)EnumSet.noneOf(Type.class); 
 		
 		for(Type t : type) {
 			for(Type t2 : getImmunities(t)) {
@@ -123,7 +123,7 @@ public class TypeDealer implements TestingClass {
 
 	/** @return Map containing (Type,damage_multiplier) for 'type'. */
 	public static Map<Type,Float> getEffectiveness(Type[] type) {
-		Map<Type,Float> map = new HashMap<Type,Float>();
+		Map<Type,Float> map = new EnumMap<Type,Float>(Type.class);
 		for(Type t : Type.values()) {
 			map.put(t,1f);
 		}

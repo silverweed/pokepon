@@ -27,9 +27,9 @@ public class CLITeamBuilder extends TeamBuilder {
 	@SuppressWarnings("unchecked")
 	public void buildTeam() {
 		
-		consoleMsg("@--------------------------------------------------------@");
-		consoleMsg("| Pokepon Command Line Interface Team Builder 1.0  by jp |");
-		consoleMsg("@--------------------------------------------------------@");
+		consoleMsg("@----------------------------------------------------------------@");
+		consoleMsg("| Pokepon Command Line Interface Team Builder 1.0  by silverweed |");
+		consoleMsg("@----------------------------------------------------------------@");
 		consoleMsg("\n*** Welcome to the Team Builder! ***\n");
 	
 		printCommands(cmd);

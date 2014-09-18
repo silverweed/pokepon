@@ -33,6 +33,7 @@ public class Pilate extends Pony {
 		canon = false;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Talk Out",1);
 		learnableMoves.put("Repeat",1);
 		learnableMoves.put("Relay Race",1);

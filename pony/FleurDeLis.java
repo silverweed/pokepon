@@ -28,8 +28,8 @@ public class FleurDeLis extends Pony {
 		baseSpeed = 80;
 
 		/* Learnable Moves */
-		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Love Burst",1);
+		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Freeze Spell",1);
 		learnableMoves.put("Overture",1);
 		learnableMoves.put("Enlighten",1);

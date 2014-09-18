@@ -32,6 +32,7 @@ public class Aryanne extends Pony {
 		canon = false;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Charge",1);
 		learnableMoves.put("Surprise Hit",1);
 		learnableMoves.put("Stalking",1);

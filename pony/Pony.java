@@ -202,7 +202,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		public boolean confused;
 		public boolean taunted;
 		public boolean substitute;
-		public HashMap<Type,Float> volatileEffectiveness = new HashMap<>();
+		public EnumMap<Type,Float> volatileEffectiveness = new EnumMap<>(Type.class);
 	}
 
 	////////////// PUBLIC METHODS / FIELDS /////////////////
@@ -215,16 +215,14 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		generateIV();
 	}
 	
-	/** Constructor with level */
+	/** Constructor with level - the one you should use */
 	public Pony(int _level) {
 		this();
-		if(_level < 1) {
-			_level = 1;
-		} else if(_level > MAX_LEVEL) _level = MAX_LEVEL;
+		if(_level < 1) _level = 1;
+		else if(_level > MAX_LEVEL) _level = MAX_LEVEL;
 		level = _level;
-		if(Debug.pedantic) {
+		if(Debug.pedantic) 
 			printDebug("Generated pony:\n\tlevel="+level+"\n\tnature="+nature);
-		}
 	}
 	
 	/** "Clones" this pony (copies base stats, name, level, IV, EV, Nature, moves, etc;
@@ -508,7 +506,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	public Set<Status> getStatus() { 
-		Set<Status> status = new HashSet<Status>();
+		Set<Status> status = (Set<Status>)EnumSet.noneOf(Status.class);
 		if(paralyzed) status.add(Status.PARALYZED);
 		if(burned) status.add(Status.BURNED);
 		if(petrified) status.add(Status.PETRIFIED);
@@ -540,7 +538,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		v.accuracyModifier = accuracyModifier;
 		v.confused = confused;
 		v.substitute = substitute;
-		v.volatileEffectiveness = new HashMap<Type,Float>(volatileEffectiveness);
+		v.volatileEffectiveness = new EnumMap<Type,Float>(volatileEffectiveness);
 		return v;
 	}
 
@@ -888,7 +886,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		accuracyModifier = vol.accuracyModifier;	
 		confused = vol.confused;
 		substitute = vol.substitute;
-		volatileEffectiveness = new HashMap<Type,Float>(vol.volatileEffectiveness);
+		volatileEffectiveness = new EnumMap<Type,Float>(vol.volatileEffectiveness);
 	}
 
 	// Weaknesses/Resistances/Immunities: for these methods, delegate to TypeDealer.
@@ -1948,7 +1946,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	protected int baseSpeed;
 	
 	// temporary modifiers
-	protected HashMap<Type,Float> volatileEffectiveness = new HashMap<Type,Float>();
+	protected EnumMap<Type,Float> volatileEffectiveness = new EnumMap<Type,Float>(Type.class);
 
 	// etc
 	protected boolean canon = true;

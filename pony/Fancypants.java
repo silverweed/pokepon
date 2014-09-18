@@ -28,13 +28,13 @@ public class Fancypants extends Pony {
 		baseSpeed = 80;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Scorching Beam",1);
 		learnableMoves.put("Eerie Sonata",1);
 		learnableMoves.put("Surprise Hit",1);
 		learnableMoves.put("Repeat",1);
 		learnableMoves.put("Chatter",1);
 		learnableMoves.put("Magic Shield",1);
-		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Sonic Barrier",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Dodge",1);

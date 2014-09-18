@@ -33,6 +33,7 @@ public class Canni extends Pony {
 		canon = false;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Speed Up",1);
 		learnableMoves.put("Startle",1);
 		learnableMoves.put("Meditation",1);

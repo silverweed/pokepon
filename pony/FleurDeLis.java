@@ -21,11 +21,11 @@ public class FleurDeLis extends Pony {
 		race = Race.UNICORN;
 
 		baseHp = 70; 
-		baseAtk = 55;
+		baseAtk = 50;
 		baseDef = 85;
 		baseSpatk = 85;
 		baseSpdef = 105;
-		baseSpeed = 80;
+		baseSpeed = 70;
 
 		/* Learnable Moves */
 		learnableMoves.put("Love Burst",1);

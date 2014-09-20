@@ -29,8 +29,8 @@ public class HiddenTalent extends Move {
 		type = Type.HONESTY;
 		moveType = Move.MoveType.SPECIAL;
 		maxpp = pp = 15;
-		baseDamage = 80;
-		accuracy = 95;
+		baseDamage = 60;
+		accuracy = 100;
 		priority = 0;
 		description = "";
 		briefDesc = "Its type depends on the user's IV.";

@@ -1796,6 +1796,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		} else if(token[0].equals("rmtaunt") && token.length > 1) {
 			/* |rmtaunt|(ally/opp) */
 			if(token[1].equals("ally")) {
+				if(allyPony == null) return;
 				if(!allyPony.isTaunted()) {
 					printDebug("[BP.interpret(taunt)] allyPony is not taunted!");
 					return;
@@ -1805,9 +1806,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					moveB[i].setMove(allyPony.getMove(i));
 					moveB[i].setEnabled(true);
 				}
-				allyHPBar.clearPseudoStatus("Taunt");
+				if(allyHPBar != null) {
+					allyHPBar.clearPseudoStatus("Taunt");
+					allyHPBar.update();
+				}
 				resultAnim(allyLocation(),"Taunt ended!", ResultType.GOOD);
-				allyHPBar.update();
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						validate();
@@ -1817,9 +1820,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				appendEvent(EventType.BATTLE,allyPony.getNickname()+"'s taunt ended!");
 
 			} else if(token[1].equals("opp")) {
-				oppHPBar.clearPseudoStatus("Taunt");
+				if(oppPony == null) return;
+				if(oppHPBar != null) {
+					oppHPBar.clearPseudoStatus("Taunt");
+					oppHPBar.update();
+				}
 				resultAnim(oppLocation(),"Taunt ended!", ResultType.GOOD);
-				oppHPBar.update();
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						validate();

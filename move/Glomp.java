@@ -27,6 +27,9 @@ public class Glomp extends Move {
 		briefDesc = "30% to paralyze the target";
 
 		targetParalysis = 0.3f;
+
+		animation.put("name", "Direct");
+		animation.put("sprite", "user");
 	}
 	
 	public Glomp(Pony p) {

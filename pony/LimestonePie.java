@@ -30,6 +30,7 @@ public class LimestonePie extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Rock Throw",1);
+		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Surprise Hit",1);
 		learnableMoves.put("Stealth Diamonds",1);

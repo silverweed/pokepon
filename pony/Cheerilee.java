@@ -30,6 +30,7 @@ public class Cheerilee extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",1);
+		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Talk Out",1);
 		learnableMoves.put("Mirror Pond",1);

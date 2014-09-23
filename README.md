@@ -11,6 +11,7 @@ Download
 -----------------------------------------------------
 If you just want the executable JAR file, use this download link:
 <a href='http://inle.freeserver.me/pokepon/downloads/pokepon-0.01.jar'>Poképon 0.01</a>
+(warning: the pre-packaged game probably won't be the latest version).
 
 Launching the game
 -----------------------------------------------------

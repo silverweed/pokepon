@@ -33,6 +33,7 @@ public class Bellesmith extends Pony {
 		canon = false;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Whirling Hoof",1);
 		learnableMoves.put("Whine",1);

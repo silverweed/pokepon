@@ -30,6 +30,7 @@ public class MarblePie extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Rock Throw",1);
+		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Talk Out",1);
 		learnableMoves.put("Mirror Pond",1);

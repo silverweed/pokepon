@@ -29,6 +29,7 @@ public class Applejack extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",1);
+		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Raging Spree",1);

@@ -31,6 +31,7 @@ public class FlufflePuff extends Pony {
 		baseSpeed = 50;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Entrench",1);
 		learnableMoves.put("Nap",1);

@@ -31,6 +31,8 @@ public class Littlepip extends Pony {
 		baseSpeed = 74;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Rectify",1);
+		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Meditation",1);
 		learnableMoves.put("Enlighten",1);

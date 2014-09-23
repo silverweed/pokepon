@@ -28,6 +28,7 @@ public class MsHarshwhinny extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",10);
+		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Whine",26);
 		learnableMoves.put("Mirror Pond",1);

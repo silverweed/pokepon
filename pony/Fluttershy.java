@@ -30,6 +30,7 @@ public class Fluttershy extends Pony {
 
 		/* Learnable moves */
 		learnableMoves.put("Tackle",1);
+		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Wild Weed",1);
 		learnableMoves.put("Talk Out",1);

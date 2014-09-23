@@ -33,6 +33,7 @@ public class CocoPommel extends Pony {
 
 		/* Learnable moves */
 		learnableMoves.put("Shy Away",1);
+		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Talk Out",1);
 		learnableMoves.put("Stalking",1);

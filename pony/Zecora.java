@@ -29,6 +29,7 @@ public class Zecora extends Pony {
 		baseSpeed = 75;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Wild Weed",1);
 		learnableMoves.put("Balefire",1);

@@ -1282,8 +1282,10 @@ public class BattleEngine {
 
 		if(rng.nextFloat() < dealer.healAllTeamStatus()) {
 			teamAttacker.healTeamStatus();
-			if(battleTask != null)
-				battleTask.sendB("|battle|Team cured!");
+			if(battleTask != null) {
+				battleTask.sendB(ally,"|healteam|ally");
+				battleTask.sendB(opp,"|healteam|opp");
+			}
 		}
 
 		if(!defender.isKO()) {

@@ -29,6 +29,7 @@ public class Aloe extends Pony {
 		baseSpeed = 60;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Meditation",1);
 		learnableMoves.put("Nap",1);

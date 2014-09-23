@@ -29,6 +29,7 @@ public class BonBon extends Pony {
 		baseSpeed = 70;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Get Hype",1);
 		learnableMoves.put("Stalking",1);

@@ -29,6 +29,7 @@ public class FleurDeLis extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Love Burst",1);
+		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Freeze Spell",1);
 		learnableMoves.put("Overture",1);

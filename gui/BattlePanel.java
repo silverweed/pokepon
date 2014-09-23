@@ -1686,6 +1686,36 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				Thread.sleep(INTERPRET_DELAY);
 			} catch(InterruptedException ignore) {}
 
+		} else if(token[0].equals("healteam") && token.length > 1) {
+			/* |healteam|(ally/opp) */
+			if(token[1].equals("ally")) {
+				if(allyPony != null)
+					allyPony.healStatus();
+				if(allyHPBar != null) {
+					allyHPBar.clearStatuses();
+					allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+				}
+				p1.getTeam().healTeamStatus();	
+				appendEvent(EventType.EMPHASIZED, "Team cured!");
+				resultAnim(allyLocation(),"Team cured!",ResultType.GOOD);
+			} else if(token[1].equals("opp")) {
+				if(oppPony != null)
+					oppPony.healStatus();
+				if(oppHPBar != null) {
+					oppHPBar.clearStatuses();
+					allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+				}
+				p2.getTeam().healTeamStatus();
+				appendEvent(EventType.EMPHASIZED, "Team cured!");
+				resultAnim(oppLocation(),"Team cured!",ResultType.GOOD);
+			} else {
+				printDebug("[BP.interpret(healteam)] error: side is "+token[1]+"!");
+			}
+
+			try {
+				Thread.sleep(INTERPRET_DELAY);
+			} catch(InterruptedException ignore) {}
+
 		} else if(token[0].equals("addpseudo") && token.length > 3) {
 			/* |addpseudo|(ally/opp)|(good/bad)|pseudostatus */
 			boolean good = false;

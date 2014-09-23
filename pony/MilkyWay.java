@@ -31,6 +31,7 @@ public class MilkyWay extends Pony {
 		canon = false;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Hind Kick",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Startle",1);
 		learnableMoves.put("Whine",1);

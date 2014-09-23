@@ -31,6 +31,7 @@ public class Starswirl extends Pony {
 		baseSpeed = 100;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Wild Weed",1);
 		learnableMoves.put("Nap",1);

@@ -28,6 +28,7 @@ public class Octavia extends Pony {
 		baseSpeed = 56;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Eerie Sonata",1);

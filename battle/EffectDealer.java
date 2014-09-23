@@ -86,6 +86,7 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public float removeTargetNegativeStatModifiers() { return removeTargetNegativeStatModifiers; }
 	public float removeTargetPositiveStatModifiers() { return removeTargetPositiveStatModifiers; }
 	public float healUserStatus() { return healUserStatus; }
+	public float healTargetStatus() { return healTargetStatus; }
 	
 	// additional effects
 	public float getRecoil() { return recoil; }
@@ -231,6 +232,7 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	/* Healing effects */
 	protected float healUser;	//user regains HP
 	protected float healUserStatus;	//user loses negative statuses.
+	protected float healTargetStatus;	
 	protected float healAllTeamStatus;
 	protected float removeUserNegativeStatModifiers;
 	protected float removeUserPositiveStatModifiers;

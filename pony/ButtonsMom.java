@@ -34,6 +34,7 @@ public class ButtonsMom extends Pony {
 		
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",1);
+		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Holler Out",1);
 		learnableMoves.put("Love And Care",1);

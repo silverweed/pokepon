@@ -29,6 +29,7 @@ public class Lotus extends Pony {
 		baseSpeed = 70;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);

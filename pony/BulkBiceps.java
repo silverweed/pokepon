@@ -29,6 +29,7 @@ public class BulkBiceps extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Charge",10);
+		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Raging Spree",1);

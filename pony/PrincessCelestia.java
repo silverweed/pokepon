@@ -29,6 +29,7 @@ public class PrincessCelestia extends Pony {
 		baseSpeed = 120;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Spa Treatment",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Sonic Barrier",1);

@@ -29,6 +29,7 @@ public class BerryPunch extends Pony {
 		baseSpeed = 81;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Stalking",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Get Hype",1);
 		learnableMoves.put("Nap",1);
@@ -39,6 +40,7 @@ public class BerryPunch extends Pony {
 		learnableMoves.put("Dodge",1);
 		learnableMoves.put("Tackle",1);
 		learnableMoves.put("Venom Potion",30);
-	}
 
+		possibleAbilities[0] = "Simplicity";
+	}
 }

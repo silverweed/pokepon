@@ -1,8 +1,8 @@
 #!/bin/bash
 
 JAVA='/usr/lib/jvm/java-7-openjdk-amd64/bin/java'
-[[ -n $(which $JAVA) ]] || JAVA='java'
-if [[ ! -x $JAVA ]]; then
+[[ -x $JAVA ]] || JAVA='java'
+if [[ ! -x $(which JAVA) ]]; then
 	echo "Sorry, couldn't find java on this machine. Please install Java 7 or later." >&2
 	exit 1
 fi

@@ -15,7 +15,7 @@ import static pokepon.util.MessageManager.*;
 
 public class Simplicity extends Ability {
 
-	private int origAtk;
+	private int origAtk = -1;
 	private int origAcc;
 	private Move move;
 
@@ -31,7 +31,8 @@ public class Simplicity extends Ability {
 			move = be.getCurrentMove();
 			origAcc = move.getAccuracy();
 			move.setAccuracy((int)(origAcc*0.85));
-			origAtk = pony.getBaseStat("atk");
+			if(origAtk == -1)
+				origAtk = pony.getBaseStat("atk");
 			pony.setBaseStat("Atk", (int)(origAtk*1.4f));
 		}
 	}

@@ -653,6 +653,7 @@ public class BattleTask implements Runnable {
 				scheduledMove[first-1].setDamageBoost(scheduledMove[first-1].getBaseDamage());
 			}
 			
+			if(Debug.on) printDebug("First: "+first+"; speed1 = "+effSpeed1+", speed2 = "+effSpeed2);
 			Connection firstC = first == 1 ? c1 : c2;
 			Connection secondC = second == 1 ? c1 : c2;
 

@@ -335,7 +335,7 @@ public class TeamDealer {
 					if(Debug.pedantic) printDebug("parsing token "+token[i]+"; nick = "+nick+", item = "+item);
 					if(token[i].equals("~")) {
 						nick = "";
-					} else if(token[i].equals("@")) {	//TODO
+					} else if(token[i].equals("@")) {	
 						item = "";
 					} else {
 						if(item == null)	// we are parsing nickname
@@ -350,9 +350,10 @@ public class TeamDealer {
 				}
 				if(item != null) {
 					try {
-						pony.setItem(ItemCreator.create(item));
+						pony.setItem(ItemCreator.create(item.trim()));
 					} catch(ReflectiveOperationException e) {
-						printDebug("[parseSaveDataLine] Error: couldn't give item "+token[i]+" to "+pony.getFullName()+": "+e);
+						printDebug("[parseSaveDataLine] Error: couldn't give item "+item.trim()+" to "+pony.getFullName()+": "+e);
+						e.printStackTrace();
 					}
 				}
 				team.add(pony);	

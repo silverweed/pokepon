@@ -21,4 +21,4 @@
 
 - forcedToSwitch should sometimes be set only on damage (immunity prevents it)
 
-- SPEED UP THE GAME IF LAUNCHED FROM JAR!
+- SPEED UP THE GAME IF LAUNCHED FROM JAR! -> Partially fixed

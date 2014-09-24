@@ -19,6 +19,17 @@ import java.util.concurrent.*;
  */
 public class PokeponServer extends DatabaseServerTest implements TestingClass {
 	
+	private static Set<Format> availableFormats = new LinkedHashSet<>();
+	static {
+		// The clients will see the available formats in this order.
+		availableFormats.add(RuleSet.Predefined.SPECIESCLAUSE);
+		availableFormats.add(RuleSet.Predefined.RANDOMBATTLE);
+		availableFormats.add(RuleSet.Predefined.NOUBER);
+		availableFormats.add(RuleSet.Predefined.CANON);
+		availableFormats.add(RuleSet.Predefined.ITEMCLAUSE);
+		availableFormats.add(RuleSet.Predefined.MONOTYPE);
+		availableFormats.add(RuleSet.Predefined.DEFAULT);
+	}
 	private BattleSchedule battleSchedule = new BattleSchedule(); 
 	private Map<String,BattleTask> battles = Collections.synchronizedMap(new HashMap<String,BattleTask>());
 	private int battleID = 0;
@@ -336,17 +347,8 @@ public class PokeponServer extends DatabaseServerTest implements TestingClass {
 
 	}
 
-	public Set<Format> getAvailableFormats() {
-		Set<Format> formats = new LinkedHashSet<>();
-		// The clients will see the available formats in this order.
-		formats.add(RuleSet.Predefined.SPECIESCLAUSE);
-		formats.add(RuleSet.Predefined.RANDOMBATTLE);
-		formats.add(RuleSet.Predefined.NOUBER);
-		formats.add(RuleSet.Predefined.CANON);
-		formats.add(RuleSet.Predefined.ITEMCLAUSE);
-		formats.add(RuleSet.Predefined.MONOTYPE);
-		formats.add(RuleSet.Predefined.DEFAULT);
-		return formats;
+	public static Set<Format> getAvailableFormats() {
+		return availableFormats;
 	}
 
 	public static void printUsage() {

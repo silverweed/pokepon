@@ -21,13 +21,13 @@ public class Charity extends Ability {
 
 	public Charity() {
 		super("Charity");
-		briefDesc = "Boosts Generosity moves' damage by 50% when HP is less or equal to 25%.";
+		briefDesc = "Boosts Generosity moves' damage by 50% when HP is less or equal to 33%.";
 	}
 	
 	@Override
 	public void beforeMoveHit(final BattleEngine be) {
 		if(pony != be.getAttacker()) return;
-		if(pony.hp() <= pony.maxhp() / 4) 
+		if(pony.hp() <= pony.maxhp() / 3) 
 			boost = 1.5f;
 		else 
 			boost = 1f;

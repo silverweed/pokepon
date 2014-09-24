@@ -13,6 +13,7 @@ ability/HighScorer.java
 ability/Indifference.java
 ability/Integrity.java
 ability/Leadership.java
+ability/Lovebird.java
 ability/MagicDrain.java
 ability/MagicHeal.java
 ability/Mastery.java
@@ -83,6 +84,9 @@ gui/animation/Fade.java
 gui/animation/Shake.java
 gui/animation/Whirl.java
 item/AlicornAmulet.java
+item/ChoiceBoots.java
+item/ChoiceBridle.java
+item/ChoiceSaddle.java
 item/Item.java
 item/SpareSnacks.java
 item/ZapAppleJuice.java
@@ -131,6 +135,7 @@ move/GemStorm.java
 move/GetHype.java
 move/Glomp.java
 move/GlowingLaser.java
+move/HeavyMassage.java
 move/HiddenTalent.java
 move/HindKick.java
 move/HollerOut.java
@@ -160,6 +165,7 @@ move/Practice.java
 move/RagingSpree.java
 move/RaiseSun.java
 move/Rampage.java
+move/Rectify.java
 move/Relax.java
 move/RelayRace.java
 move/Repeat.java
@@ -176,6 +182,7 @@ move/SneakAttack.java
 move/Snuggle.java
 move/SonicBarrier.java
 move/SonicRainboom.java
+move/SpaTreatment.java
 move/SpeedUp.java
 move/Stalking.java
 move/Stampede.java
@@ -276,6 +283,7 @@ pony/FlufflePuff.java
 pony/Fluttershy.java
 pony/Gilda.java
 pony/GrannySmith.java
+pony/Homage.java
 pony/KingSombra.java
 pony/LightningDust.java
 pony/LimestonePie.java

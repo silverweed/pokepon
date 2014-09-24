@@ -21,13 +21,13 @@ public class Devotion extends Ability {
 
 	public Devotion() {
 		super("Devotion");
-		briefDesc = "Boosts Loyalty moves' damage by 50% when HP is less or equal to 25%.";
+		briefDesc = "Boosts Loyalty moves' damage by 50% when HP is less or equal to 33%.";
 	}
 	
 	@Override
 	public void beforeMoveHit(final BattleEngine be) {
 		if(pony != be.getAttacker()) return;
-		if(pony.hp() <= pony.maxhp() / 4) 
+		if(pony.hp() <= pony.maxhp() / 3) 
 			boost = 1.5f;
 		else 
 			boost = 1f;

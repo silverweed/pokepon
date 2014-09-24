@@ -46,7 +46,7 @@ public class Rampage extends Move {
 	public BattleEvent[] getBattleEvents() {
 		double rand = Math.random();
 		return new BattleEvent[] {
-			new BattleEvent(rand < 0.25 ? 1 : (rand < 0.75 ? 2 : 3),name) {
+			new BattleEvent(rand < 0.25 ? 2 : (rand < 0.75 ? 3 : 4),name) {
 				@Override
 				public void onTurnEnd(final BattleEngine be) {
 					Pony ap = be.getTeam(be.getSide(source)).getActivePony();

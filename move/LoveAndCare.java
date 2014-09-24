@@ -12,6 +12,7 @@ import pokepon.enums.*;
 import pokepon.pony.*;
 import pokepon.player.*;
 import pokepon.battle.*;
+import pokepon.net.jack.*;
 import pokepon.util.Debug;
 import static pokepon.util.MessageManager.*;
 
@@ -27,6 +28,13 @@ public class LoveAndCare extends Move {
 		priority = 0;
 		description = "The user prepares to use some TLC on the Active Pony, healing him/her the following turn.";
 		briefDesc = "Heals the active pony at the<br>end of the next turn.";
+
+		animation.put("name", "Fade");
+		animation.put("sprite", "wisp.png");
+		animation.put("transparent",true);
+		animation.put("fadeOut",true);
+		animation.put("initialPoint","ally +20Y");
+		animation.put("finalPoint","ally -50Y");
 	}
 
 	public LoveAndCare(Pony p) {
@@ -59,8 +67,14 @@ public class LoveAndCare extends Move {
 						if(pony != null && !pony.isFainted()) {
 							int heal = pony.increaseHpPerc(50f);	
 							if(be.getBattleTask() != null) {
-								be.getBattleTask().sendB(be.getConnection(be.getSide(source)),"|damage|ally|-"+heal);
-								be.getBattleTask().sendB(be.getConnection(be.getOppositeSide(source)),"|damage|opp|-"+heal);
+								Connection ally = be.getConnection(be.getSide(source));
+								be.getBattleTask().sendB(ally,"|damage|ally|-"+heal);
+								be.getBattleTask().sendB(ally,"|anim|ally|"+
+									"|name=Fade|sprite=wisp.png|transparent=(b)true"+
+									"|fadeOut=(b)false|initialPoint=ally -50Y"+
+									"|finalPoint=ally +20Y");
+								be.getBattleTask().sendB(
+									be.getConnection(be.getOppositeSide(source)),"|damage|opp|-"+heal);
 							}
 						}
 					}

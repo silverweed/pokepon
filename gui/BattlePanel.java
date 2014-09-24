@@ -926,7 +926,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			boolean avoid = token.length > 3 && token[3].equals("avoid");
 
 			try {
-				anim = createAnimation(MoveCreator.create(token[2]),token[1],avoid);
+				anim = createAnimation(MoveCreator.create(token[2]).getAnimation(),token[1],avoid);
 
 				if(anim == null) {
 					printDebug("[BP.interpret(move)] no animation found for move "+token[2]);
@@ -975,6 +975,66 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			} else if(token[1].equals("opp")) {
 				appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
 				resultAnim(oppLocation(),"Avoided!");
+			}
+			try {
+				Thread.sleep(INTERPRET_DELAY);
+			} catch(InterruptedException ignore) {}
+
+		} else if(token[0].equals("anim") && token.length > 2) {
+			/* |anim|(opp/ally)|key1=value1|key2=value2|... */
+			if(!token[1].equals("opp") && !token[1].equals("ally")) {
+				printDebug("[BP.interpret(anim)] Error: side is "+token[1]+"!");
+				return;
+			}
+			Map<String,Object> opts = new HashMap<>();
+			for(int i = 2; i < token.length; ++i) {
+				String[] pair = token[i].split("=", 2);
+				if(pair.length != 2) {
+					printDebug("[BP.interpret(anim)] Bad pair received: "+token[i]+"; ignoring.");
+					continue;
+				}
+				Object value = null;
+				Matcher matcher = Pattern.compile("^\\(([a-z])\\)(.+)$").matcher(pair[1]);
+				if(matcher.matches()) {
+					if(Debug.on) printDebug("Converting type of "+pair[1]);
+					try {
+						switch(matcher.group(1).charAt(0)) {
+							case 'b':
+								value = Boolean.parseBoolean(matcher.group(2));
+								break;
+							case 'i':
+								value = Integer.parseInt(matcher.group(2));
+								break;
+							case 'f':
+								value = Float.parseFloat(matcher.group(2));
+								break;
+							case 'd':
+								value = Double.parseDouble(matcher.group(2));
+								break;
+							default:
+								value = pair[1];
+						}
+					} catch(IllegalArgumentException e) {
+						printDebug("[BP.interpret(anim)] Cannot convert '"+matcher.group(2)+"' to "+matcher.group(1));
+						continue;
+					}
+				} else {
+					value = pair[1];
+				}
+				opts.put(pair[0], value);
+			}
+			Animation anim = createAnimation(opts, token[1], false);
+			if(anim == null) {
+				printDebug("[BP.interpret(anim)] Error: resulting animation is null!");
+				return;
+			}
+			anim.start();
+			synchronized(anim) {
+				try {
+					anim.wait();
+				} catch(InterruptedException e) {
+					printDebug("Animation interrupted.");
+				}
 			}
 			try {
 				Thread.sleep(INTERPRET_DELAY);
@@ -2115,7 +2175,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			printDebug("[BattlePanel]: Unknown command: "+line);
 		}
 
-		if(!token[0].equals("chat")) {
+		if(!(token[0].equals("chat") || token[0].equals("html") || token[0].equals("htmlconv"))) {
 			// reset move selections
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
@@ -2546,16 +2606,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				
 				eventP.append(sb.toString(), false);
-				/*try {
-					eventD.insertBeforeEnd(eventD.getParagraphElement(eventD.getLength()),sb.toString());	
-					if(Debug.on) printDebug("Inserted string: "+sb.toString());
-					validate();
-					repaint();
-				} catch(BadLocationException e) {
-					printDebug("[appendEvent]: bad location: "+e);
-				} catch(IOException e) {
-					printDebug("[appendEvent]: IOException: "+e);
-				}*/
 			}
 		});
 	}
@@ -2667,8 +2717,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 	// FIXME: riguardami!
 	@SuppressWarnings("unchecked")
-	private Animation createAnimation(EffectDealer dealer,final String side,final boolean avoid) {
-		Map<String,Object> opts = dealer.getAnimation();
+	private Animation createAnimation(Map<String,Object> opts,final String side,final boolean avoid) {
 		if(!opts.containsKey("name") || !opts.containsKey("sprite")) return null;
 		if(!(side.equals("ally") || side.equals("opp"))) {
 			printDebug("[createAnimation] error: side is "+side);
@@ -2691,12 +2740,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				animSprite = new JLabel(
 							new ImageIcon(
 								ImageIO.read(
-									//new URL(/*Meta.getTokensURL().getProtocol()+*/
-											//"file://"+Meta.getTokensURL().getPath()+
-											getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+
-											Meta.DIRSEP+"moves"+Meta.DIRSEP+"fx"+
-											Meta.DIRSEP+(String)opts.get("sprite"))
-									//)
+									getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+
+									Meta.DIRSEP+"moves"+Meta.DIRSEP+"fx"+
+									Meta.DIRSEP+(String)opts.get("sprite"))
 								).getScaledInstance(HAZARD_TOKEN_SIZE,-1,Image.SCALE_SMOOTH)
 							)
 						);
@@ -2729,7 +2775,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				opts.put("sprite",animSprite);
 
 			} catch(Exception e) {
-				printDebug("[createAnimation("+dealer+")] error while loading sprite: "+e);
+				printDebug("[createAnimation("+opts.get("name")+")] error while loading sprite: "+e);
 				if(animSprite != null) {
 					animSprite.setVisible(false);
 					fieldP.remove(animSprite);
@@ -2765,7 +2811,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			return null;
 		}
 
-		if(Debug.on) printDebug("[createAnimation("+dealer+")] anim = "+anim);
+		if(Debug.on) printDebug("[createAnimation("+opts.get("name")+")] anim = "+anim);
 		return anim;
 	}
 

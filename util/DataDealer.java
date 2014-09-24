@@ -41,6 +41,8 @@ public class DataDealer {
 			return null;
 
 		StringBuilder sb = new StringBuilder("");
+		// DISCLAIMER!! Since Swing cannot decently render even basic HTML tables, we use a shitty HTML, which
+		// even the Swing library can understand.
 		if(_package.equals("pony")) {
 			try {
 				Pony pony = PonyCreator.create(name);
@@ -51,15 +53,24 @@ public class DataDealer {
 				// local sprite URL.
 				sb.append("<br><img src=\"[sprite: "+pony.getName()+"]\" height=25px width=30px />");
 				sb.append("&nbsp;<b>"+pony.getName()+"</b>&nbsp;&nbsp;"+pony.getTypingHTMLSpecialTags()+"<br>");
-				sb.append("<table>");
+				//sb.append("<table><tr>");
 				for(int i = 0; i < pony.getPossibleAbilities().size(); ++i)
 					if(pony.getPossibleAbilities().get(i) != null)
-						sb.append("<td>"+pony.getPossibleAbilities().get(i)+"</td>");
-				sb.append("</table><br>");
-				sb.append("<table><tr><th>HP</th><th>Atk</th><th>Def</th><th>SpA</th><th>SpD</th><th>Spe</th></tr><br>");
-				sb.append("<tr><td>"+pony.getBaseHp()+"</td><td>"+pony.getBaseAtk()+"</td><td>"+pony.getBaseDef()+"</td>");
-				sb.append("<td>"+pony.getBaseSpatk()+"</td><td>"+pony.getBaseSpdef()+"</td><td>"+pony.getBaseSpeed()+"</td><br>");
-				sb.append("</table>");
+						//sb.append("<td>"+pony.getPossibleAbilities().get(i)+"</td>");
+						sb.append(pony.getPossibleAbilities().get(i)+"&nbsp;&nbsp;&nbsp;");
+				//sb.append("</tr></table><br>");
+				sb.append("<br>");
+				sb.append("<b>HP&nbsp;&nbsp;Atk&nbsp;&nbsp;Def&nbsp;&nbsp;SpA&nbsp;&nbsp;SpD&nbsp;&nbsp;Spe</b><br>");
+				sb.append(pony.getBaseHp()+"&nbsp;&nbsp;");
+				sb.append(pony.getBaseAtk()+"&nbsp;&nbsp;");
+				sb.append(pony.getBaseDef()+"&nbsp;&nbsp;");
+				sb.append(pony.getBaseSpatk()+"&nbsp;&nbsp;");
+				sb.append(pony.getBaseSpdef()+"&nbsp;&nbsp;");
+				sb.append(pony.getBaseSpeed()+"<br>");
+				//sb.append("<table><tr><th>HP</th><th>Atk</th><th>Def</th><th>SpA</th><th>SpD</th><th>Spe</th></tr>");
+				//sb.append("<tr><td>"+pony.getBaseHp()+"</td><td>"+pony.getBaseAtk()+"</td><td>"+pony.getBaseDef()+"</td>");
+				//sb.append("<td>"+pony.getBaseSpatk()+"</td><td>"+pony.getBaseSpdef()+"</td><td>"+pony.getBaseSpeed()+"</td></tr>");
+				//sb.append("</table>");
 			} catch(ReflectiveOperationException e) {
 				printDebug("[BT.processCommand(data)] Error creating pony "+query);
 				return "|error|Couldn't create pony "+query;
@@ -68,13 +79,16 @@ public class DataDealer {
 			try {
 				Move move = MoveCreator.create(name);
 
-				sb.append("<br><font size=3 color=\"gray\">Move:</font>&nbsp;<b>"+move.getName()+"</b>");
+				sb.append("<br><font size=3 color=\"gray\">Move:</font>&nbsp;<b>"+move.getName()+"</b>&nbsp;");
 				sb.append("<img src=\"[type: "+move.getType()+"]\"/>&nbsp;");
-				sb.append("<img src=\"[movetype: "+move.getMoveType()+"]\"/></font>&nbsp;&nbsp;");
-				sb.append("<table><tr><th><small>Pow.</small></th><th><small>Acc.</small></th><th><small>PP</small></th></tr><br>");
-				sb.append("<tr><td><small>"+(move.getBaseDamage() != 0 ? move.getBaseDamage() : "-")+"</small></td>");
-				sb.append("<td><small>"+(move.getAccuracy() < 0 ? "-" : move.getAccuracy())+"</small></td>");
-				sb.append("<td><small>"+(move.getMaxPP() < 0 ? "-" : move.getMaxPP())+"</small></td></tr></table><br>");
+				sb.append("<img src=\"[movetype: "+move.getMoveType()+"]\"/></font>&nbsp;&nbsp;<br>");
+				sb.append("<small><b>Pow.</b>&nbsp;&nbsp;"+(move.getBaseDamage() != 0 ? move.getBaseDamage() : "-")+"&nbsp;&nbsp;");
+				sb.append("<b>Acc.</b>&nbsp;&nbsp;"+(move.getAccuracy() < 0 ? "-" : move.getAccuracy())+"&nbsp;&nbsp;");
+				sb.append("<b>PP</b>&nbsp;&nbsp;"+(move.getMaxPP() < 0 ? "-" : move.getMaxPP())+"</small><br>");
+				//sb.append("<table><tr><th><small>Pow.</small></th><th><small>Acc.</small></th><th><small>PP</small></th></tr><br>");
+				//sb.append("<tr><td><small>"+(move.getBaseDamage() != 0 ? move.getBaseDamage() : "-")+"</small></td>");
+				//sb.append("<td><small>"+(move.getAccuracy() < 0 ? "-" : move.getAccuracy())+"</small></td>");
+				//sb.append("<td><small>"+(move.getMaxPP() < 0 ? "-" : move.getMaxPP())+"</small></td></tr></table><br>");
 				sb.append("<font color=\"gray\">"+move.getBriefDescription()+"</font><br>");
 			} catch(ReflectiveOperationException e) {
 				printDebug("[BT.processCommand(data)] Error creating move "+query);

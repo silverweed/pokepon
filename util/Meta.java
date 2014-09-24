@@ -205,11 +205,11 @@ public class Meta {
 		Pattern pattern = Pattern.compile("^[^\\[]*(?:\\[(?<sub>[^\\]]+): (?<sprite>[^\\]]+)\\])+?.*$");
 		Matcher matcher = pattern.matcher(msg);
 		String replaced = msg;
-		if(Debug.on) printDebug("[BP.interpret(htmlconv)] Text = "+msg);
+		if(Debug.on) printDebug("[Meta.toLocalURL] Text = "+msg);
 		int cycles = 0;
 		while(matcher.matches()) {
 			if(cycles > 50) return replaced;
-			if(Debug.on) printDebug("[BP.interpret(htmlconv)] Matched: '"+matcher.group("sub")+"'.");
+			if(Debug.on) printDebug("[Meta.toLocalURL] Matched: '"+matcher.group("sub")+"'.");
 			if(matcher.group("sub").equals("sprite")) {
 				try {
 					Pony tmp = PonyCreator.create(matcher.group("sprite"));
@@ -220,7 +220,7 @@ public class Meta {
 								);
 
 				} catch(ReflectiveOperationException e) {
-					printDebug("[BP.interpret(htmlconv)] Error creating "+matcher.group("sprite")+": "+e);
+					printDebug("[Meta.toLocalURL] Error creating "+matcher.group("sprite")+": "+e);
 				}
 			} else if(matcher.group("sub").equals("type")) {
 				try {
@@ -230,7 +230,7 @@ public class Meta {
 								""+tk
 								);
 				} catch(NullPointerException e) {
-					printDebug("[BP.interpret(htmlconv)] Error creating type "+matcher.group("sprite"));
+					printDebug("[Meta.toLocalURL] Error creating type "+matcher.group("sprite"));
 					e.printStackTrace();
 				}
 			} else if(matcher.group("sub").equals("movetype")) {
@@ -241,14 +241,15 @@ public class Meta {
 								""+tk
 								);
 				} catch(NullPointerException e) {
-					printDebug("[BP.interpret(htmlconv)] Error creating movetype "+matcher.group("sprite"));
+					printDebug("[Meta.toLocalURL] Error creating movetype "+matcher.group("sprite"));
 					e.printStackTrace();
 				}
 			}
-			if(Debug.on) printDebug("[BP.interpret(htmlconv)] Replaced = "+replaced);
+			if(Debug.pedantic) printDebug("[Meta.toLocalURL] Replaced = "+replaced);
 			matcher = pattern.matcher(replaced);
 			++cycles;
 		}
+		if(Debug.on) printDebug("[Meta.toLocalURL] replaced:\n"+replaced);
 		return replaced;
 	}
 

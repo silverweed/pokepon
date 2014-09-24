@@ -1,4 +1,4 @@
-//: item/SpareSnaks.java
+//: item/AlicornAmulet.java
 
 package pokepon.item;
 

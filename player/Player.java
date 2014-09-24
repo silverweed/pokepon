@@ -97,20 +97,26 @@ public class Player {
 	}
 
 	public boolean switchPony(int i,final BattleEngine be) {
+		Pony curAP = team.getActivePony();
 		if(!team.setActivePony(i)) {
 			if(Debug.on) printDebug("Couldn't switch in pony #"+i+"!");
 			return false;
 		}
+		if(curAP != null)
+			curAP.removeVolatiles();
 		//if(Debug.pedantic) printDebug("Calling trigger(onSwitchIn); AP: "+team.getActivePony());
 		//team.getActivePony().trigger("onSwitchIn",be);
 		return true;
 	}
 
 	public boolean switchPony(String name,final BattleEngine be) {
+		Pony curAP = team.getActivePony();
 		if(!team.setActivePony(name)) {
 			if(Debug.on) printDebug("Couldn't switch in pony "+name+"!");
 			return false;
 		}
+		if(curAP != null)
+			curAP.removeVolatiles();
 		//if(Debug.pedantic) printDebug("Calling trigger(onSwitchIn); AP: "+team.getActivePony());
 		//team.getActivePony().trigger("onSwitchIn",be);
 		return true;

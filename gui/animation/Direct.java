@@ -35,10 +35,13 @@ public class Direct extends AttackAnimation {
 		for(Map.Entry<String,Object> entry : opts.entrySet()) {
 			if(entry.getKey().equals("accelerated")) 
 				accelerated = (Boolean)entry.getValue();
+
 			if(entry.getKey().equals("accelerationRate"))
 				accelerationRate = (Double)entry.getValue();
+
 			else if(entry.getKey().equals("inverted"))
 				forward ^= (Boolean)entry.getValue();
+
 			else if(entry.getKey().equals("passThrough"))
 				passThrough = true;
 		}

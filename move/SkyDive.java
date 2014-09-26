@@ -24,9 +24,24 @@ public class SkyDive extends Move {
 		description = "Swoop towards your enemy from the sky to inflict massive damage.";
 		briefDesc = "Inflicts regular damage.";
 
-		animation.put("name","Direct");
+		animation.put("name","Compound");
+		animation.put("anims", java.util.Arrays.asList("Fade","Fade"));
 		animation.put("sprite","user");
-		animation.put("passThrough",true);
+		animation.put("transparent",true);
+		animation.put("fadeOut",true);
+		animation.put("persistent",true);
+		animation.put("1:iterations",40f);
+		animation.put("1:delay",50);
+		animation.put("1:accelerated",true);
+		animation.put("1:initialPoint","ally");
+		animation.put("1:finalPoint","opp b450X b450Y");
+		animation.put("1:rewind",true);
+		animation.put("2:initialPoint","opp -300X -300Y");
+		animation.put("2:finalPoint","opp +300X +250Y");
+		animation.put("2:rewindTo","ally");
+		//animation.put("name","Direct");
+		//animation.put("sprite","user");
+		//animation.put("passThrough",true);
 	}
 
 	public SkyDive(Pony p) {

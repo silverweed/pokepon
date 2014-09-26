@@ -31,6 +31,9 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 	protected boolean persistent;
 	protected boolean usedByAlly = true;
 	protected Rectangle originalBounds;
+	protected boolean rewind;
+	protected Point rewindTo;
+	protected float numIterations = 10f;
 
 	@SuppressWarnings("unchecked")
 	/** @param panel The component where to perform the animation
@@ -39,8 +42,8 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 	public BasicAnimation(final JComponent panel,Map<String,Object> opts) {
 		this.panel = panel;
 		if(opts.containsKey("sprite")) {
-				sprite = (JComponent)opts.remove("sprite");
-			}
+			sprite = (JComponent)opts.remove("sprite");
+		}
 		if(opts.containsKey("delay")) {
 			delay = (Integer)opts.remove("delay");
 		}
@@ -55,6 +58,14 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 		}
 		if(opts.containsKey("usedByAlly")) {
 			usedByAlly = (Boolean)opts.remove("usedByAlly");
+		}
+		if(opts.containsKey("rewind")) {
+			rewind = (Boolean)opts.remove("rewind");
+		} else if(opts.containsKey("rewindTo")) {
+			rewindTo = parseShift((String)opts.remove("rewindTo"));
+		}
+		if(opts.containsKey("iterations")) {
+			numIterations = (Float)opts.remove("iterations");
 		}
 		
 		if(sprite != null)
@@ -93,24 +104,64 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 
 	public abstract void actionPerformed(ActionEvent e);
 
+	/** Parses a string of the form: opp/ally (+/-/f/b)[0-9]+(X/Y) and returns a
+	 * Point with the shifted absolute coordinates; for a correct functioning,
+	 * usedByAlly, allyBounds and oppBounds must be properly set.
+	 */
 	protected Point parseShift(String phrase) {
 		String[] token = phrase.split(" ");
-		Point pt = new Point(0,0);
+		
+		if(!(token[0].equals("ally") || token[0].equals("opp"))) 
+			throw new IllegalArgumentException("[parseShift] token[0] is neither ally nor opp, but "+token[0]+"!");
+
+		Point pt = !(usedByAlly ^ token[0].equals("ally"))
+				? new Point((int)allyBounds.getX(), (int)allyBounds.getY())
+				: new Point((int)oppBounds.getX(), (int)oppBounds.getY());
+
 		for(int i = 1; i < token.length; ++i) {
-			byte sign = (token[i].charAt(0) == '+' ? (byte)1 : (token[i].charAt(0) == '-' ? (byte)-1 : 0));
-			if(sign == 0) continue;
-					
-			char coord = token[i].charAt(token[i].length() - 1);
+			byte sign = 0;
+			char coord = Character.toUpperCase(token[i].charAt(token[i].length() - 1));
+
+			switch(token[i].charAt(0)) {
+				case '+':
+					sign = (byte)1;
+					break;
+				case '-':
+					sign = (byte)-1;
+					break;
+				case 'f':
+				case 'F':
+					sign = (byte)((!(usedByAlly ^ token[0].equals("ally")))
+							? coord == 'X' ? 1 : -1
+							: coord == 'X' ? -1 : 1
+						);
+					/*sign = (byte)(usedByAlly  
+							? token[0].equals("ally")
+								? coord == 'X' ? 1 : -1
+								: coord == 'X' ? -1 : 1
+							: token[0].equals("ally")
+								? coord == 'X' ? -1 : 1
+								: coord == 'X' ? 1 : -1
+						);*/
+					break;
+				case 'b':
+				case 'B':
+					sign = (byte)((!(usedByAlly ^ token[0].equals("ally")))
+							? coord == 'X' ? -1 : 1
+							: coord == 'X' ? 1 : -1
+						);
+					break;
+			}
+			if(sign == 0) continue;			
+
 			try { 
 				int shift = Integer.parseInt(token[i].substring(1,token[i].length() -1));
 				switch(coord) {
 					case 'Y':
-					case 'y':
-						pt.setLocation(pt.getX(), sign * shift);
+						pt.setLocation(pt.getX(), pt.getY() + sign * shift);
 						break;
 					case 'X':
-					case 'x':
-						pt.setLocation(sign * shift, pt.getY());
+						pt.setLocation(pt.getX() + sign * shift, pt.getY());
 						break;
 				}
 
@@ -118,7 +169,8 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 				printDebug("[Fade.parseShift] illegal argument: "+e);
 			}
 		}
-
+		
+		if(Debug.pedantic) printDebug("[Fade.parseShift("+phrase+")] returning "+pt);
 		return pt;
 	}
 }

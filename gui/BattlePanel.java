@@ -983,20 +983,28 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							printDebug("Animation interrupted.");
 						}
 					}
-					if(avoid) {
-						if(token[1].equals("ally")) {
-							appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
-							resultAnim(oppLocation(),"Avoided!");
-						} else if(token[1].equals("opp")) {
-							appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
-							resultAnim(allyLocation(),"Avoided!");
-						}
+					if(animsopts.get(i).get("postWait") != null) {
 						try {
-							Thread.sleep(INTERPRET_DELAY);
-						} catch(InterruptedException ignore) {}
+							Thread.sleep((int)animsopts.get(i).get("postWait"));
+						} catch(IllegalArgumentException|ClassCastException ee) {
+							printDebug("[BP.interpret(move)] illegal argument: "+animsopts.get(i).get("postWait"));
+						} catch(InterruptedException ignore2) {}
 					}
-					if(Debug.on) printDebug("Ended animation.");
 				}
+				if(avoid) {
+					if(token[1].equals("ally")) {
+						appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
+						resultAnim(oppLocation(),"Avoided!");
+					} else if(token[1].equals("opp")) {
+						appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
+						resultAnim(allyLocation(),"Avoided!");
+					}
+					try {
+						Thread.sleep(INTERPRET_DELAY);
+					} catch(InterruptedException ignore) {}
+				}
+				if(Debug.on) printDebug("Ended animation.");
+
 			} catch(ReflectiveOperationException e) {
 				printDebug("[BP.interpret(move)] failed to create move "+token[2]);
 			} catch(Exception e) {
@@ -1104,6 +1112,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			}
 
 		} else if(token[0].equals("unlock")) {
+			/* |unlock */
 			if(allyPony == null || !allyPony.isLockedOnMove()) {
 				appendEvent(EventType.ERROR,"Received 'unlock' but ally is not locked on move!");
 				printDebug("[BP.interpret(unlock)] allyPony is not locked on move!");

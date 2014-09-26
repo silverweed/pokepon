@@ -13,7 +13,7 @@ import java.util.*;
  * 
  * @author silverweed
  */
-public class Whirl extends Animation {
+public class Whirl extends BasicAnimation {
 
 	/** Determines the formula used to compute velocity */
 	private int count = 0;

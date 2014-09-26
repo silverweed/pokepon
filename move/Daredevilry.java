@@ -25,8 +25,11 @@ public class Daredevilry extends Move {
 		description = "";
 		briefDesc = "Lowers user Def and SpD by 1.";
 
-		animation.put("name","Ballistic2");
-		animation.put("sprite","user");
+		animation.put("anims", java.util.Arrays.asList("Ballistic2", "Direct"));
+		animation.put("name","Compound");
+		animation.put("sprite", "user");
+		animation.put("delay", 30);
+		animation.put("2:passThrough", true);
 		
 		userDef = addEntry(-1, 1f);
 		userSpdef = addEntry(-1, 1f);

@@ -51,7 +51,7 @@ Server Setup
 The server should be able to run out of the box, but some configuration may be
 required or desirable.
 
-To start a server, simply open the game and select the "Server" option in the
+To start a server, open the game and select the "Server" option in the
 graphical launcher; a configuration window will open, but usually you can
 simply click "OK" without touching it (the only thing you may be forced to
 change is the server IP, in case the game cannot guess the correct one).
@@ -73,7 +73,7 @@ The configuration file itself contains explanation about the possible options.
 
 How to connect
 --------------------------------------------------------
-To connect to a running Poképon Server simply start the Client, either from
+To connect to a running Poképon Server start the Client, either from
 the graphical launcher or issuing the command 
 <code>java -jar /path/to/pokepon.jar client &lt;serverIP&gt;</code>
 
@@ -93,9 +93,7 @@ editor, syntax highlighting files are available in the game repository,
 under data/vim.
 
 Protip: the <code>/help</code> command can be used to obtain a list of the
-available chat commands. Additionally to the listed ones, the commands
-<code>/data</code>, <code>/eff</code> and <code>/serverinfo</code> are also
-available.
+available chat commands. 
 
 Battling
 ----------------------------------------------------------

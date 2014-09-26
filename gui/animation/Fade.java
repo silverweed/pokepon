@@ -21,7 +21,6 @@ import java.util.*;
 public class Fade extends BasicAnimation {
 
 	private boolean forward;
-	private boolean rewind;
 	private Point initialPoint, finalPoint;
 	private int vx, vy;
 	private TransparentLabel tSprite;
@@ -36,7 +35,7 @@ public class Fade extends BasicAnimation {
 		super(panel,opts);
 		if(delay == -1) delay = 25;
 		for(Map.Entry<String,Object> entry : opts.entrySet()) {
-			if(entry.getKey().equals("fadeOut"))
+			if(entry.getKey().equals("fadeOut")) {
 				if((Boolean)entry.getValue()) {
 					finalOpacity = 0f;
 					initialOpacity = 1f;
@@ -44,86 +43,27 @@ public class Fade extends BasicAnimation {
 					finalOpacity = 1f;
 					initialOpacity = 0f;
 				}
-			else if(entry.getKey().equals("accelerated")) 
+
+			} else if(entry.getKey().equals("accelerated")) {
 				accelerated = (Boolean)entry.getValue();
-			else if(entry.getKey().equals("initialPoint")) {
-				if(entry.getValue() instanceof String) {
-					String sEntry = (String)entry.getValue();
-					if(sEntry.startsWith("ally")) {
-						Point shift = parseShift(sEntry);
-						if(usedByAlly) {
-							initialPoint = new Point(
-										(int)(allyBounds.getX() + shift.getX()),
-										(int)(allyBounds.getY() + shift.getY())
-									);
-						} else {
-							initialPoint = new Point(
-										(int)(oppBounds.getX() + shift.getX()),
-										(int)(oppBounds.getY() + shift.getY())
-									);
-						}
-										
-					} else if(sEntry.startsWith("opp")) {
-						Point shift = parseShift(sEntry);
-						if(usedByAlly) {
-							initialPoint = new Point(
-										(int)(oppBounds.getX() + shift.getX()),
-										(int)(oppBounds.getY() + shift.getY())
-									);
-						} else {
-							initialPoint = new Point(
-										(int)(allyBounds.getX() + shift.getX()),
-										(int)(allyBounds.getY() + shift.getY())
-									);
-						}
-					} else {
-						throw new IllegalArgumentException("invalid option: "+entry.getValue());
-					}
-				} else {
+
+			} else if(entry.getKey().equals("initialPoint")) {
+				if(entry.getValue() instanceof String) 
+					initialPoint = parseShift((String)entry.getValue());
+				else 
 					initialPoint = (Point)entry.getValue();
-				}
+				
 			} else if(entry.getKey().equals("finalPoint")) {
-				if(entry.getValue() instanceof String) {
-					String sEntry = (String)entry.getValue();
-					if(sEntry.startsWith("ally")) {
-						Point shift = parseShift(sEntry);
-						if(usedByAlly) {
-							finalPoint = new Point(
-										(int)(allyBounds.getX() + shift.getX()),
-										(int)(allyBounds.getY() + shift.getY())
-									);
-						} else {
-							finalPoint = new Point(
-										(int)(oppBounds.getX() + shift.getX()),
-										(int)(oppBounds.getY() + shift.getY())
-									);
-						}
-										
-					} else if(sEntry.startsWith("opp")) {
-						Point shift = parseShift(sEntry);
-						if(usedByAlly) {
-							finalPoint = new Point(
-										(int)(oppBounds.getX() + shift.getX()),
-										(int)(oppBounds.getY() + shift.getY())
-									);
-						} else {
-							finalPoint = new Point(
-										(int)(allyBounds.getX() + shift.getX()),
-										(int)(allyBounds.getY() + shift.getY())
-									);
-						}
-					} else {
-						throw new IllegalArgumentException("invalid option: "+entry.getValue());
-					}
-				} else {
+				if(entry.getValue() instanceof String) 
+					finalPoint = parseShift((String)entry.getValue());
+				else 
 					finalPoint = (Point)entry.getValue();
-				}
+				
 			} else if(entry.getKey().equals("finalOpacity")) {
 				finalOpacity = (Float)entry.getValue();
+
 			} else if(entry.getKey().equals("initialOpacity")) {
 				initialOpacity = (Float)entry.getValue();
-			} else if(entry.getKey().equals("rewind")) {
-				rewind = (Boolean)entry.getValue();
 			}
 		}
 		
@@ -137,14 +77,14 @@ public class Fade extends BasicAnimation {
 
 		tSprite = (TransparentLabel)sprite;
 
-		if(Debug.on) printDebug("initialPoint = "+initialPoint);
+		if(Debug.on) printDebug("initialPoint = "+initialPoint+"\nfinalPoint = "+finalPoint);
 		tSprite.setBounds((int)initialPoint.getX(),(int)initialPoint.getY(),
 			sprite.getWidth(),sprite.getHeight());
 
 		tSprite.setOpacity(initialOpacity);
 
-		vx = (int)((float)(finalPoint.getX() - initialPoint.getX())/10f);
-		vy = (int)((float)(finalPoint.getY() - initialPoint.getY())/10f);
+		vx = (int)((float)(finalPoint.getX() - initialPoint.getX())/numIterations);
+		vy = (int)((float)(finalPoint.getY() - initialPoint.getY())/numIterations);
 		initialDistance = (float)distance((int)initialPoint.getX(),(int)initialPoint.getY(),finalPoint);
 		perc = 1f;
 	}
@@ -180,17 +120,24 @@ public class Fade extends BasicAnimation {
 		panel.repaint();
 
 		if(prevPerc < perc) {
-			if(!persistent)
+			if(!persistent) {
 				panel.remove(tSprite);
-			if(rewind) {
-				printDebug("[Fade] rewinding.");
-				tSprite.setOpacity(initialOpacity);
-				tSprite.setLocation(initialPoint);
-			} else {
-				tSprite.setOpacity(finalOpacity);
 				sprite.setLocation(finalPoint);
+			} else {
+				if(rewind) {
+					if(Debug.on) printDebug("[Fade] rewinding.");
+					tSprite.setOpacity(initialOpacity);
+					tSprite.setLocation(initialPoint);
+				} else if(rewindTo != null) {
+					if(Debug.on) printDebug("[Fade] rewinding to "+rewindTo+".");
+					tSprite.setOpacity(initialOpacity);
+					tSprite.setLocation(rewindTo);
+				} else {
+					tSprite.setOpacity(finalOpacity);
+					tSprite.setLocation(finalPoint);
+				}
 			}
-			printDebug("[Fad terminating; opacity = "+tSprite.getOpacity());
+			if(Debug.on) printDebug("[Fade] terminating; opacity = "+tSprite.getOpacity());
 			terminate(e);
 		}
 	}

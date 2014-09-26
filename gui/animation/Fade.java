@@ -18,7 +18,7 @@ import java.util.*;
  * 
  * @author Giacomo Parolini
  */
-public class Fade extends Animation {
+public class Fade extends BasicAnimation {
 
 	private boolean forward;
 	private boolean rewind;

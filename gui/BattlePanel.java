@@ -486,6 +486,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	 * to execute a move animation with a command like:
 	 * |move|ally|MoveName (for a Move used by ally pony)
 	 */
+	@SuppressWarnings("unchecked")
 	public void interpret(String line) {
 		if(line == null || !line.startsWith("|") || line.length() < 2) {
 			if(Debug.on) printDebug("[BattlePanel]: Ignoring malformed line: "+line);
@@ -922,37 +923,80 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		} else if(token[0].equals("move") && token.length > 2) {
 			/* |move|(ally/opp)|Move Name[|avoid] */
 			
-			Animation anim = null;
+			BasicAnimation anim = null;
 			boolean avoid = token.length > 3 && token[3].equals("avoid");
 
 			try {
-				anim = createAnimation(MoveCreator.create(token[2]).getAnimation(),token[1],avoid);
+				Map<String,Object> opts = MoveCreator.create(token[2]).getAnimation();
+				List<String> anims = null;
+				List<Map<String,Object>> animsopts = null;
+				
+				/* A Compound animation is a chain of several animations to be reproduced
+				 * in series. To specify a compound animation, the options must look like:
+				 *   animation.put("name", "Compound");
+				 *   animation.put("anims", Arrays.asList("Animation1", "Animation2", ...));
+				 */
+				if(opts.get("name").equals("Compound")) {
+					anims = (List<String>)opts.get("anims");
+					animsopts = new ArrayList<Map<String,Object>>(anims.size());
+					for(int i = 0; i < anims.size(); ++i)
+						animsopts.add(new HashMap<String,Object>());
 
-				if(anim == null) {
-					printDebug("[BP.interpret(move)] no animation found for move "+token[2]);
-					return;
-				}
-				anim.start();
-				synchronized(anim) {
-					try {
-						anim.wait();
-					} catch(InterruptedException e) {
-						printDebug("Animation interrupted.");
+					/* opts whose keys start with [0-9]: are specific to a single
+					 * animation in the chain; the others are global to all
+					 * animations. e.g. 1:sprite=wisp.png will apply only to the
+					 * FIRST animation in the chain.
+					 */
+					for(String key : opts.keySet()) {
+						if(key.matches("^[0-9]:.*")) {
+							try {
+								animsopts.get(Integer.parseInt(key.substring(0,1))-1)
+									.put(key.substring(2), opts.get(key));
+							} catch(IndexOutOfBoundsException e) {
+								printDebug("[BP.interpret(move)] Invalid key: "+key);
+							}
+						} else if(!key.equals("name")) {
+							for(int i = 0; i < anims.size(); ++i)
+								animsopts.get(i).put(key, opts.get(key));
+						}
 					}
+				} else {
+					anims = Arrays.asList((String)opts.get("name"));
+					animsopts = Arrays.asList(opts);
 				}
-				if(avoid) {
-					if(token[1].equals("ally")) {
-						appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
-						resultAnim(oppLocation(),"Avoided!");
-					} else if(token[1].equals("opp")) {
-						appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
-						resultAnim(allyLocation(),"Avoided!");
+
+				for(int i = 0; i < anims.size(); ++i) {
+					animsopts.get(i).put("name", anims.get(i));
+					if(Debug.on) printDebug("opts = "+animsopts.get(i));
+
+					anim = createAnimation(animsopts.get(i), token[1], avoid);
+
+					if(anim == null) {
+						printDebug("[BP.interpret(move)] no animation found for move "+token[2]);
+						return;
 					}
-					try {
-						Thread.sleep(INTERPRET_DELAY);
-					} catch(InterruptedException ignore) {}
+					anim.start();
+					synchronized(anim) {
+						try {
+							anim.wait();
+						} catch(InterruptedException e) {
+							printDebug("Animation interrupted.");
+						}
+					}
+					if(avoid) {
+						if(token[1].equals("ally")) {
+							appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
+							resultAnim(oppLocation(),"Avoided!");
+						} else if(token[1].equals("opp")) {
+							appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
+							resultAnim(allyLocation(),"Avoided!");
+						}
+						try {
+							Thread.sleep(INTERPRET_DELAY);
+						} catch(InterruptedException ignore) {}
+					}
+					if(Debug.on) printDebug("Ended animation.");
 				}
-				if(Debug.on) printDebug("Ended animation.");
 			} catch(ReflectiveOperationException e) {
 				printDebug("[BP.interpret(move)] failed to create move "+token[2]);
 			} catch(Exception e) {
@@ -2717,7 +2761,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 	// FIXME: riguardami!
 	@SuppressWarnings("unchecked")
-	private Animation createAnimation(Map<String,Object> opts,final String side,final boolean avoid) {
+	private BasicAnimation createAnimation(Map<String,Object> opts,final String side,final boolean avoid) {
 		if(!opts.containsKey("name") || !opts.containsKey("sprite")) return null;
 		if(!(side.equals("ally") || side.equals("opp"))) {
 			printDebug("[createAnimation] error: side is "+side);
@@ -2725,7 +2769,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 
 		String animType = (String)opts.remove("name");
-		Animation anim = null;
+		BasicAnimation anim = null;
 		JLabel animSprite = null;
 
 		if(opts.get("sprite").equals("user") && side.equals("ally") || opts.get("sprite").equals("target") && side.equals("opp")) {
@@ -2796,7 +2840,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		if(Debug.pedantic) printDebug("[createAnimation] opts = "+opts);
 
 		try {
-			Class<? extends Animation> animBuilder = (Class<? extends Animation>)Class.forName(
+			Class<? extends BasicAnimation> animBuilder = (Class<? extends BasicAnimation>)Class.forName(
 									(Meta.POKEPON_ROOTDIR+Meta.DIRSEP+Meta.ANIMATION_DIR+Meta.DIRSEP+
 									animType.replaceAll(" ","")).replaceAll(""+Meta.DIRSEP,".")
 									);

@@ -14,7 +14,7 @@ import static pokepon.util.MessageManager.*;
  *
  * @author Giacomo Parolini
  */
-public abstract class AttackAnimation extends Animation {
+public abstract class AttackAnimation extends BasicAnimation {
 	
 	/** Max speed of sprite motion */
 	protected int maxV = 45;

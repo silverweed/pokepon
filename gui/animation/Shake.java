@@ -13,7 +13,7 @@ import java.util.*;
  * 
  * @author Giacomo Parolini
  */
-public class Shake extends Animation {
+public class Shake extends BasicAnimation {
 
 	/** Determines the formula used to compute velocity */
 	private enum AnimStyle { CONST, LINEAR, HARMONIC }

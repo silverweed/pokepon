@@ -29,6 +29,7 @@ public class NightmareMoon extends Pony {
 		baseSpeed = 95;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Scare Away",1);

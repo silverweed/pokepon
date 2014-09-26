@@ -27,6 +27,7 @@ public class Discord extends Pony {
 		baseSpeed = 85;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Dimension Twist",1);

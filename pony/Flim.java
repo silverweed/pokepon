@@ -29,6 +29,7 @@ public class Flim extends Pony {
 		baseSpeed = 98;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Sonic Barrier",1);
 		learnableMoves.put("Mirror Pond",1);

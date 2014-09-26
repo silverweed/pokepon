@@ -28,6 +28,7 @@ public class KingSombra extends Pony {
 		baseSpeed = 100;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Sonic Barrier",1);
 		learnableMoves.put("Stalking",1);

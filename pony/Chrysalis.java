@@ -28,6 +28,7 @@ public class Chrysalis extends Pony {
 		baseSpeed = 85;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Meditation",1);
 		learnableMoves.put("Balefire",1);

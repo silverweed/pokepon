@@ -24,6 +24,9 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 		help.append(CMD_PREFIX+"battle <user> - request a battle vs an user.\n");
 		help.append(CMD_PREFIX+"btldel <user> - delete battle request vs an user.\n");
 		help.append(CMD_PREFIX+"battles - list battle schedule.\n");
+		help.append(CMD_PREFIX+"data <name> - show info about pony/move/item/ability.\n");
+		help.append(CMD_PREFIX+"eff <type>[,type2] - show typechart for a type.\n");
+		help.append(CMD_PREFIX+"eff <typeA> -> <typeB>[,typeB2]  - show effectiveness of typeA atk vs typeB defense.\n");
 	}
 
 	@Override

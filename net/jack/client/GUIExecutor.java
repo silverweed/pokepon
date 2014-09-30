@@ -28,7 +28,7 @@ class GUIExecutor extends ClientConnectionExecutor {
 				}
 			});
 		} catch(Exception e) {
-			printDebug("Caught exception while printing message: "+e);
+			printDebug("[GUIExecutor] Caught exception while printing message: "+e);
 			return 0;
 		}
 		return 1;	

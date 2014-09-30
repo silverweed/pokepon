@@ -31,6 +31,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		help.append(CMD_PREFIX+"whois <nick> - display information on user.\n");
 		help.append(CMD_PREFIX+"whoami - display information about you.\n");
 		help.append(CMD_PREFIX+"pm <user> <msg> - send a PM to an user.\n");
+		help.append(CMD_PREFIX+"whisper <user> <msg> - alias for `pm`.\n");
 		help.append(CMD_PREFIX+"serverinfo - display server information.\n");
 		help.append(CMD_PREFIX+"disconnect - disconnect from the server.\n");
 	}
@@ -185,7 +186,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		} else if(cmd.equals("disconnect")) {
 			connection.sendMsg(CMN_PREFIX+"disconnect");
 			return 1;
-		} else if(cmd.equals("pm")) {
+		} else if(cmd.equals("pm") || cmd.equals("whisper")) {
 			if(token.length < 3) {
 				connection.sendMsg("Syntax error. Correct syntax is /pm <user> <msg>.");
 				return 1;
@@ -195,7 +196,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			for(Connection conn : server.getClients()) {
 				if(conn.getName().equals(token[1])) {
 					conn.sendMsg("["+connection.getName()+" whispered]: "+mesg);
-					connection.sendMsg(connection.getName()+" whispered to "+token[1]+": "+mesg);
+					connection.sendMsg("You whispered to "+token[1]+": "+mesg);
 					return 1;
 				}
 			}

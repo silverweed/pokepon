@@ -37,6 +37,8 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 	private PrintWriter out;
 	private String nick = "No nick";
 	private Pattern chatPattern = Pattern.compile("^(?<nick>\\S+) said:.*$");
+	private Pattern whisperPattern = Pattern.compile("^(?<nick>\\[\\S+ whispered\\]):.*$");
+	private Pattern meWhisperPattern = Pattern.compile("^(?<nick>You whispered to [^ :]+):.*$");
 
 	public ChatPanel() {
 		super(true);	// enables double buffering
@@ -95,9 +97,13 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 		Matcher matcher = chatPattern.matcher(_str);
 		if(matcher.matches() && matcher.group("nick") != null) {
 			if(matcher.group("nick").equals(nick))
-				_str = _str.replaceAll(matcher.group("nick"),"<b><font color='blue'>"+matcher.group("nick")+"</font></b>");
+				_str = _str.replace(matcher.group("nick"),"<b><font color='blue'>"+matcher.group("nick")+"</font></b>");
 			else
-				_str = _str.replaceAll(matcher.group("nick"),"<b><font color='green'>"+matcher.group("nick")+"</font></b>");
+				_str = _str.replace(matcher.group("nick"),"<b><font color='green'>"+matcher.group("nick")+"</font></b>");
+		} else if((matcher = whisperPattern.matcher(_str)).matches() && matcher.group("nick") != null) {
+			_str = _str.replace(matcher.group("nick"),"<b><em><font color='#00B800'>"+matcher.group("nick")+"</font></em></b>");
+		} else if((matcher = meWhisperPattern.matcher(_str)).matches() && matcher.group("nick") != null) {
+			_str = _str.replace(matcher.group("nick"),"<b><em><font color='#00AAFF'>"+matcher.group("nick")+"</font></em></b>");
 		}
 		try {
 			inD.insertBeforeEnd(inD.getParagraphElement(inD.getLength()),_str+"<br>");	

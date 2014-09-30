@@ -110,7 +110,7 @@ class ClientConnection extends Connection {
 					System.out.println(msg);
 
 			} catch(Exception e) {
-				printDebug("Caught exception while printing message: "+e);
+				printDebug("[ClientConnection] Caught exception while printing message: "+e);
 			}
 			return 1;
 		}

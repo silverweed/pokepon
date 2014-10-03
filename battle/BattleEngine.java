@@ -951,8 +951,9 @@ public class BattleEngine {
 	 */
 	// this method may probably be reorganized better...
 	private void applyAdditionalEffects(final EffectDealer dealer) {
-		
-		// if transform move, transform now 
+		int allyn = team1 == teamAttacker ? 0 : 1;
+		int oppn = allyn == 0 ? 1 : 0;
+		// Transform effects
 		if(dealer.transformsUser() && !attacker.isKO()) {
 			if(echoBattle) printMsgnb(attacker.getFullName() + " transformed into ");
 			if(dealer.transformUserInto(this) != null)
@@ -979,18 +980,6 @@ public class BattleEngine {
 
 			}
 		} 
-
-		if(team1 == teamAttacker) {
-			if(forcedToSwitch[0] == 0 && checkProtect(dealer))
-				forcedToSwitch[0] = dealer.forceUserSwitch();
-			if(forcedToSwitch[1] == 0 && checkProtect(dealer) && !hadSubstitute)
-				forcedToSwitch[1] = dealer.forceTargetSwitch();
-		} else {
-			if(forcedToSwitch[1] == 0 && checkProtect(dealer))
-				forcedToSwitch[1] = dealer.forceUserSwitch();
-			if(forcedToSwitch[0] == 0 && checkProtect(dealer) && !hadSubstitute)
-				forcedToSwitch[0] = dealer.forceTargetSwitch();
-		}
 		if(dealer.transformsTarget() && !defender.isKO() && checkProtect(dealer)) {
 			if(echoBattle) printMsgnb(defender.getFullName() + " transformed into ");
 			if(dealer.transformTargetInto(this) != null)
@@ -1015,10 +1004,18 @@ public class BattleEngine {
 				}
 			}
 		}
+
+		// Forced switches flags
+		if(forcedToSwitch[allyn] == 0 && checkProtect(dealer) && (dealer.forceUserSwitch() < 3 || inflictedDamage > 0))
+			forcedToSwitch[allyn] = dealer.forceUserSwitch();
+		if(forcedToSwitch[oppn] == 0 && checkProtect(dealer) && (dealer.forceTargetSwitch() < 3 || inflictedDamage > 0))
+			forcedToSwitch[oppn] = dealer.forceTargetSwitch();
+
 		// Protection effects
 		if(dealer.protectUser() && !attacker.isKO()) {
 			attacker.setProtected(true);
 		}
+
 		// Damage Effects
 		if(dealer.damageUser() != 0 && !attacker.isKO()) {
 			int inflictedDamage = dealer.damageUser();
@@ -1083,18 +1080,17 @@ public class BattleEngine {
 						battleTask.sendB(opp,"|damage|opp|"+selfDmg+"|quiet");
 					}
 					//if(echoBattle && dealer.getPhrase().length() > 0) printMsg(dealer.getPhrase());
-					if(attacker == team1.getActivePony()) 
-						substitute[0] = attacker.setSubstitute(true);
-					else
-						substitute[1] = attacker.setSubstitute(true);
+					substitute[allyn] = attacker.setSubstitute(true);
 					if(Debug.on) printDebug("Substitute lives: ["+substitute[0]+","+substitute[1]+"]");
 					if(battleTask != null) {
 						battleTask.sendB(ally,"|substitute|ally");
 						battleTask.sendB(opp,"|substitute|opp");
 						if(dealer.getPhrase().length() > 0)
-							battleTask.sendB("|battle|"+dealer.getPhrase().replaceAll("\\[pony\\]",attacker.getNickname()));
+							battleTask.sendB("|battle|"+
+								dealer.getPhrase().replaceAll("\\[pony\\]",attacker.getNickname()));
 						else
-							battleTask.sendB("|battle|"+attacker.getNickname()+" put itself behind a Substitute!");
+							battleTask.sendB("|battle|"+
+								attacker.getNickname()+" put itself behind a Substitute!");
 					}
 				}
 			}
@@ -1238,7 +1234,7 @@ public class BattleEngine {
 				attacker.setFlinched(true);
 			}
 		
-			/* Healing Effects */
+			// Healing Effects 
 			if(dealer.healUser() > 0) {
 				attacker.setHp((int)(attacker.hp()+(attacker.maxhp()*dealer.healUser())));
 				if(battleTask != null) {
@@ -1323,7 +1319,7 @@ public class BattleEngine {
 			}
 		}
 		
-		/* Weather Effects */
+		// Weather Effects 
 		if(dealer.changeWeather() != null) {
 			if(weather == null) weather = new WeatherHolder(dealer.changeWeather());
 			else weather.set(dealer.changeWeather());
@@ -1335,7 +1331,7 @@ public class BattleEngine {
 			}
 		}
 
-		/* Move-Specific Effects */
+		// Move-Specific Effects 
 		if(dealer instanceof Move) {
 			/* Hazard Effects */
 			Hazard hazard = ((Move)dealer).getHazard();
@@ -1343,24 +1339,29 @@ public class BattleEngine {
 				// check if hazard is already present and, if layerable, add layer
 				boolean found = false;
 				if(teamAttacker == team1) {
-					if(Debug.on) printDebug("[BE] Searching for hazard "+hazard.getName()+" in p2's side...\nhazards2="+hazards2);
+					if(Debug.on) printDebug("[BE] Searching for hazard "+
+							hazard.getName()+" in p2's side...\nhazards2="+hazards2);
 					for(Hazard h : hazards2) {
 						if(h.getName().equals(hazard.getName())) {
 							found = true;
-							if(Debug.on) printDebug("[BE] Found it. Layers: "+h.getLayers()+" / "+h.getMaxLayers());
+							if(Debug.on) printDebug("[BE] Found it. Layers: "+
+									h.getLayers()+" / "+h.getMaxLayers());
 							if(h.getLayers() < h.getMaxLayers()) {
 								h.addLayer();
 								if(echoBattle) printMsg(hazard.getSetupPhrase()[0]);
 								if(battleTask != null) {
-									battleTask.sendB(ally,"|addhazard|opp|"+hazard.getClass().getSimpleName());
-									battleTask.sendB(opp,"|addhazard|ally|"+hazard.getClass().getSimpleName());
+									battleTask.sendB(ally,"|addhazard|opp|"+
+											hazard.getClass().getSimpleName());
+									battleTask.sendB(opp,"|addhazard|ally|"+
+											hazard.getClass().getSimpleName());
 									battleTask.sendB(ally,"|battle|"+hazard.getSetupPhrase()[0]);
 									battleTask.sendB(opp,"|battle|"+hazard.getSetupPhrase()[1]);
 								}
 							} else {
 								if(echoBattle) printMsg("Cannot stack more layers of "+hazard.getName());
 								if(battleTask != null)
-									battleTask.sendB("|battle|Cannot stack more than "+hazard.getMaxLayers()+" layers of "+hazard.getName()+"!");
+									battleTask.sendB("|battle|Cannot stack more than "+
+										hazard.getMaxLayers()+" layers of "+hazard.getName()+"!");
 							}
 							break;
 						}
@@ -1380,24 +1381,29 @@ public class BattleEngine {
 						}
 					}
 				} else if(teamAttacker == team2) {
-					if(Debug.on) printDebug("[BE] Searching for hazard "+hazard.getName()+" in p1's side...\nhazards1="+hazards1);
+					if(Debug.on) printDebug("[BE] Searching for hazard "+
+							hazard.getName()+" in p1's side...\nhazards1="+hazards1);
 					for(Hazard h : hazards1) {
 						if(h.getName().equals(hazard.getName())) {
 							found = true;
-							if(Debug.on) printDebug("[BE] Found it. Layers: "+h.getLayers()+" / "+h.getMaxLayers());
+							if(Debug.on) printDebug("[BE] Found it. Layers: "+
+									h.getLayers()+" / "+h.getMaxLayers());
 							if(h.getLayers() < h.getMaxLayers()) {
 								h.addLayer();
 								if(echoBattle) printMsg(hazard.getSetupPhrase()[0]);
 								if(battleTask != null) {
-									battleTask.sendB(ally,"|addhazard|opp|"+hazard.getClass().getSimpleName());
-									battleTask.sendB(opp,"|addhazard|ally|"+hazard.getClass().getSimpleName());
+									battleTask.sendB(ally,"|addhazard|opp|"+
+											hazard.getClass().getSimpleName());
+									battleTask.sendB(opp,"|addhazard|ally|"+
+											hazard.getClass().getSimpleName());
 									battleTask.sendB(ally,"|battle|"+hazard.getSetupPhrase()[0]);
 									battleTask.sendB(opp,"|battle|"+hazard.getSetupPhrase()[1]);
 								}
 							} else {
 								if(echoBattle) printMsg("Cannot stack more layers of "+hazard.getName());
 								if(battleTask != null)
-									battleTask.sendB("|battle|Cannot stack more than "+hazard.getMaxLayers()+" layers of "+hazard.getName()+"!");
+									battleTask.sendB("|battle|Cannot stack more than "+
+										hazard.getMaxLayers()+" layers of "+hazard.getName()+"!");
 							}
 							break;
 						}

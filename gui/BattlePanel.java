@@ -928,6 +928,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 			try {
 				Map<String,Object> opts = MoveCreator.create(token[2]).getAnimation();
+
+				if(opts == null || opts.get("name") == null) 
+					return;
+
 				List<String> anims = null;
 				List<Map<String,Object>> animsopts = null;
 				
@@ -1211,7 +1215,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			appendEvent(EventType.RULE,"Rated battle");
 
 		} else if(token[0].equals("battle") && token.length > 1) {
-			/* |battle|message */
+			/* |battle|message[|(emph/html/move)] */
 			if(token.length > 2) {
 				if(token[2].equals("emph"))
 					appendEvent(EventType.EMPHASIZED,token[1]);

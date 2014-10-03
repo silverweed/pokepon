@@ -30,7 +30,8 @@ public class TeleportBlast extends Move {
 		animation.put("sprite","shadowball.png");
 		animation.put("bounceBack",false);
 
-		forceUserSwitch = 1;	
+		// forces switch to chosen ally on damage
+		forceUserSwitch = 3;	
 	}
 
 	public TeleportBlast(Pony p) {

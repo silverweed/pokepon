@@ -69,5 +69,4 @@ public class ChaosBurst extends Move {
 		Move newmove = possibleMoves.get((new Random()).nextInt(possibleMoves.size()));
 		return newmove;
 	}
-		
 }

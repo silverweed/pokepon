@@ -31,8 +31,9 @@ public class Stampede extends Move {
 		animation.put("bounceBack",true);
 		animation.put("accelerated",true);
 		animation.put("delay",20);
-
-		forceTargetSwitch = 2;	
+	
+		// forces switch to random opp on damage
+		forceTargetSwitch = 4;	
 	}
 
 	public Stampede(Pony p) {

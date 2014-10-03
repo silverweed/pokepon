@@ -108,6 +108,9 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public boolean maximizeHits() { return maximizeHits; }
 	public boolean protectUser() { return protectUser; }
 	public boolean tauntTarget() { return tauntTarget; }
+	/** 0: false, 1: to chosen pony, 2: to random pony,
+	 * 3: to chosen pony on damage, 4: to random pony on damage 
+	 */
 	public byte forceUserSwitch() { return forceUserSwitch; }
 	public byte forceTargetSwitch() { return forceTargetSwitch; }
 	public float changeDamageDealtBy(Type t) { return 1f; }

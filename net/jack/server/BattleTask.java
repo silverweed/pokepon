@@ -943,7 +943,9 @@ public class BattleTask implements Runnable {
 			Connection thatC = i == 1 ? c2 : c1;
 			if(!engine.getTeam(i).getActivePony().isKO()) {
 				switch(engine.isForcedToSwitch(i)) {
-					case 1: {
+					case 1: // switch to chosen pony
+					case 3:
+					{
 						if(engine.getTeam(i).getViablePonies() <= 1) break;
 						Pony curAP = battle.getPlayer(i).getActivePony();
 						sendB(thatC,"|wait");
@@ -959,10 +961,11 @@ public class BattleTask implements Runnable {
 						}
 						break;
 					}
-					case 2: {
+					case 2: // switch to random pony
+					case 4:
+					{
 						// don't apply effect if there are no more allies alive
 						if(engine.getTeam(i).getViablePonies() <= 1) break;
-						// switch to random pony
 						int rand = -1;
 						do {
 							rand = engine.getRNG().nextInt(engine.getTeam(i).members());

@@ -21,8 +21,14 @@ public class MessageProxy {
 	private final HTMLDocument doc;
 	private StrAppendable out, err;
 	private JScrollPane scrollbar;
+	private int _defaultCloseOperation;
 
 	public MessageProxy() {
+		this(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	public MessageProxy(final int defaultCloseOperation) {
+		_defaultCloseOperation = defaultCloseOperation;
 		pane.setEditable(false);
 		pane.setContentType("text/html");
 		pane.setFont(new Font(Font.SANS_SERIF,Font.PLAIN,GUIGlobals.FONT_SIZE));
@@ -68,7 +74,7 @@ public class MessageProxy {
 		f.add(scrollbar);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				f.setDefaultCloseOperation(_defaultCloseOperation);
 				f.setTitle(title);
 				f.setSize(800,600);
 				f.setVisible(true);

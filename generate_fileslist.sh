@@ -7,7 +7,7 @@ if [[ $# > 0 && $1 != "-w" ]]; then
 fi
 
 if [[ $1 == "-w" ]]; then 
-	git ls-files | grep -e 'java$' | egrep -v 'old|unused' > files.txt
+	git ls-files | grep -e 'java$' | grep -v 'unused' > files.txt
 else
-	git ls-files | grep -e 'java$' | egrep -v 'old|unused' 
+	git ls-files | grep -e 'java$' | grep -v 'unused' 
 fi

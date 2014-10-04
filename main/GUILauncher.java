@@ -336,15 +336,32 @@ class GUILauncher extends JFrame {
 				}
 				GUILauncher.this.dispose();
 				if(msgbox.isSelected()) {
-					MessageProxy proxy = new MessageProxy();
+					MessageProxy proxy = new MessageProxy(JFrame.DISPOSE_ON_CLOSE);
 					MessageManager.setAltOut(proxy.getAltOut());
 					MessageManager.setAltErr(proxy.getAltErr());
 					proxy.startGUI("Pokepon Client - messages");
 				}
 				final PokeponClient client = new PokeponClient(srvIp.getText(), Integer.parseInt(srvPort.getText()));	
+				// FIXME: the error panels don't show up!!
 				new Thread() {
 					public void run() {
-						client.start();
+						try {
+							client.start();
+						} catch(ConnectException e) {
+							JOptionPane.showMessageDialog(
+									null,
+									"Couldn't connect to host!",
+									"Connection Error",
+									JOptionPane.ERROR_MESSAGE
+							);
+						} catch(UnknownHostException e) {
+							JOptionPane.showMessageDialog(
+									null,
+									"Unknown host: " + srvIp.getText(),
+									"Unknown host",
+									JOptionPane.ERROR_MESSAGE
+							);
+						}
 					}
 				}.start();
 			}
@@ -394,7 +411,7 @@ class GUILauncher extends JFrame {
 
 				consoleHeader("   FAST PONYDEX   ");
 				if(System.console() == null) {
-					MessageProxy proxy = new MessageProxy();
+					MessageProxy proxy = new MessageProxy(JFrame.DISPOSE_ON_CLOSE);
 					MessageManager.setAltOut(proxy.getAltOut());
 					MessageManager.setAltErr(proxy.getAltErr());
 					proxy.startGUI("Fast ponydex");

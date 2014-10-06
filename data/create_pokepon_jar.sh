@@ -16,5 +16,6 @@ Main-Class: pokepon.main.QuickLauncher
 TMPFILE=$(mktemp -u)
 find ./pokepon -name \*class | egrep -v 'unused' > $TMPFILE
 jar cvfm pokepon.jar manifest.mf $(< $TMPFILE) pokepon/net/server.conf pokepon/resources
+chmod +x pokepon.jar
 rm -f $TMPFILE
 #jar cvfm pokepon.jar manifest.mf pokepon/*/*class pokepon/*/*/*class pokepon/*/*/*/*class pokepon/net/server.conf pokepon/* pokepon/resources/*

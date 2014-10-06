@@ -78,7 +78,7 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 		usersL.addMouseListener(usersML);
 	}
 
-	public synchronized void start() {
+	public synchronized void start() throws ConnectException, UnknownHostException {
 		try {
 			s = new Socket(host,port);
 			chatP.initialize(s);
@@ -105,12 +105,13 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 				}
 			}.start();
 			wait(); //suspend this thread not to throttle CPU.
-		} catch(ConnectException e) {
-			printDebug("Couldn't connect to "+host+":"+port);
+		} catch(ConnectException|UnknownHostException e) {
+			throw e;
+		/*	printDebug("Couldn't connect to "+host+":"+port);
 			System.exit(2);
 		} catch(UnknownHostException e) {
 			printDebug("Unknown host: "+host);
-			System.exit(3);
+			System.exit(3);*/
 		} catch(Exception e) {
 			printDebug("Caught exception: "+e);
 			e.printStackTrace();
@@ -142,7 +143,13 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 		}
 		//SwingConsole.setSystemLookAndFeel();
 		PokeponClient client = new PokeponClient(splitted[0],port);
-		client.start();
+		try {
+			client.start();
+		} catch(UnknownHostException e) {
+			printDebug("Unknown host: "+splitted[0]);
+		} catch(ConnectException e) {
+			printDebug("Couldn't connect to host!");
+		}
 	}
 	
 	protected static void printUsage() {
@@ -684,6 +691,7 @@ class ButtonsPanel extends JPanel {
 	private ActionListener teamBuilderListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 			consoleMsg("Opening TeamBuilder.\n");
+			client.append("Opening TeamBuilder...");
 			(new GUITeamBuilder(client)).buildTeam();
 		}
 	};

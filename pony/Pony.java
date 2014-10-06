@@ -893,7 +893,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	/** @return map of { type: damage modifier } */
 	public Map<Type,Integer> getWeaknesses() {
 		Map<Type,Integer> wks = TypeDealer.getWeaknesses(type);
-		// TODO
 		for(Type t : volatileEffectiveness.keySet()) {
 			if(volatileEffectiveness.get(t) > 1f) {
 				if(wks.keySet().contains(t)) 
@@ -982,8 +981,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 	}
 
-	/** @param path - either the complete URL of the sprite or the relative path from the sprites directory is accepted.
-	 */
+	/** @param path - either the complete URL of the sprite or the relative path from the sprites directory is accepted. */
 	public void setBackSprite(final String path) {
 		try {
 			backSprite = new URL(path);
@@ -997,13 +995,13 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 	}
 
-	/** @param path - either the complete URL of the token or the relative path from the tokens directory is accepted.
-	 */
+	/** @param path - either the complete URL of the token or the relative path from the tokens directory is accepted. */
 	public void setToken(final String path) {
 		try {
 			token = new URL(path);
 		} catch(MalformedURLException e) {
-			if(Debug.on) printDebug("[Pony.setToken] Malformed URL: "+path+";\n trying with relative path file://"+getResourcesURL().getPath()+"/tokens/"+path+" ...");
+			if(Debug.on) printDebug("[Pony.setToken] Malformed URL: "+path+
+				";\n trying with relative path file://"+getResourcesURL().getPath()+"/tokens/"+path+" ...");
 			try {
 				token = new URL("file://"+getResourcesURL().getPath()+"/tokens/"+path);
 			} catch(MalformedURLException ee) {
@@ -1393,9 +1391,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 				if(vb) printMsg(name + " learned " + _move.getName() + "!");
 				return true;
 			} else {
-				// if pony already has all moves, ask to forget one (only in verbose mode)
-				//if(vb) return forgetMoveToLearn(_move);
-				//else 
 				return false;
 			}
 		} else {
@@ -1428,8 +1423,10 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		else
 			printMsg(sb.toString()+": none");
 		if(Debug.on) {
-			printMsg("- IVs -\nhp: "+hpIV+"\natk: "+atkIV+"\ndef: "+defIV+"\nspatk: "+spatkIV+"\nspdef: "+spdefIV+"\nspeed: "+speedIV);
-			printMsg("- EVs -\nhp: "+hpEV+"\natk: "+atkEV+"\ndef: "+defEV+"\nspatk: "+spatkEV+"\nspdef: "+spdefEV+"\nspeed: "+speedEV);
+			printMsg("- IVs -\nhp: "+hpIV+"\natk: "+atkIV+"\ndef: "+defIV+
+				"\nspatk: "+spatkIV+"\nspdef: "+spdefIV+"\nspeed: "+speedIV);
+			printMsg("- EVs -\nhp: "+hpEV+"\natk: "+atkEV+"\ndef: "+defEV+
+				"\nspatk: "+spatkEV+"\nspdef: "+spdefEV+"\nspeed: "+speedEV);
 		}
 		
 	}
@@ -1465,7 +1462,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 				"speed:",speed())
 			);
 		}
-
 	}
 
 	public String getTyping() {
@@ -1662,7 +1658,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		mapIV.put(speedIV,"speed");
 		
 		return mapIV.get(mapIV.lastKey()).toString();
-	
 	}
 
 	public void addVolatileEffectiveness(final Type t, final float mul) {
@@ -1685,8 +1680,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 				petrified = true;
 				break;
 			case INTOXICATED:
-				intoxicated = true;
-				poisoned = true;
+				intoxicated = poisoned = true;
 				break;
 			case POISONED:
 				poisoned = true;
@@ -1725,8 +1719,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 				petrified = false;
 				break;
 			case INTOXICATED:
-				intoxicated = false;
-				poisoned = false;
+				intoxicated = poisoned = false;
 				break;
 			case POISONED:
 				poisoned = false;

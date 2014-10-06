@@ -52,6 +52,7 @@ for ($i = 0; $i < scalar @type; ++$i) {
 }
 my $sprite = 'sprites/' . $name =~ s/[\s']//gr . '/stand_right.gif';
 $sprite =~ s/gif/png/g unless (-e $sprite);
+$sprite =~ s/sprites\/([A-Za-z']+)\/stand_right\.png/sprites\/Placeholder\/stand_left\.gif/ unless (-e $sprite);
 print
 "        </tr>
         <tr>

@@ -9,7 +9,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-/** A basic implementation of TCP server 
+/** A basic implementation of a TCP server 
  * 
  * @author Giacomo Parolini
  */

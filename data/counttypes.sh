@@ -1,4 +1,5 @@
 #!/bin/bash
+# counts number of ponies of each type
 
 RUNDIR=$(dirname $(readlink -f $0))
 

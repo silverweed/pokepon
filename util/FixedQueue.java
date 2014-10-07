@@ -5,6 +5,11 @@ package pokepon.util;
 import java.util.*;
 import static pokepon.util.MessageManager.*;
 
+/** A Deque with fixed size: adding an element while size == limit
+ * will cause the first element to be polled from the queue.
+ *
+ * @author Giacomo Parolini
+ */
 public class FixedQueue<T> extends ArrayDeque<T> {
 	
 	private int limit;

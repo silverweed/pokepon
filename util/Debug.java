@@ -7,16 +7,13 @@ package pokepon.util;
  * @author Giacomo Parolini
  */
  
-public class Debug {
+public abstract class Debug {
 	
-	/** Prevent this class from being instantiated */
-	private Debug() {
-		throw new RuntimeException("Debug class cannot be instantiated!");
-	}
-
 	/* Utility methods and fields */
 
 	public static boolean on = true;	// switch to 'false' to turn debugging off.
+	/** Note that due to a flaw in design, pedantic = true does NOT imply on = true;
+	 * likewise, on = false does not imply pedantic = false.
+	 */
 	public static boolean pedantic = false;
- 
 }

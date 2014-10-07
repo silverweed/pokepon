@@ -38,7 +38,7 @@ public class VolumeBar extends JPanel {
 				}
 			});
 		} else {
-			slider = new Slider(JSlider.VERTICAL, 0, 0);
+			slider = new JSlider(JSlider.VERTICAL, 0, 0);
 			slider.setEnabled(false);
 		}
 		if(looper.canMute()) {

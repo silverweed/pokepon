@@ -44,11 +44,17 @@ public class QuickLauncher implements TestingClass {
 				if(args[i].equals("-d")) {
 					pokepon.util.Debug.on = false;
 					printDebug("[debug] Debug is OFF");
+
 				} else if(args[i].equals("-p")) {
 					pokepon.util.Debug.pedantic = true;
 					printDebug("[debug] Debug set to PEDANTIC");
+
+				} else if(args[i].equals("-m") || args[i].equals("--mute")) {
+					pokepon.gui.GUIGlobals.soundOn = false;
+
 				} else if(args[i].startsWith("-")) {
 					printUsage();
+
 				} else {
 					myClass = args[i];
 					if(Debug.on) printDebug("[debug] testingClass set to "+myClass);

@@ -18,6 +18,8 @@ public class Looper implements Runnable {
 	
 	private AudioInputStream sound;
 	private volatile boolean shouldStop;
+	private BooleanControl mute;
+	private FloatControl gain;
 	private Clip clip;
 	private int start, end;
 
@@ -26,6 +28,9 @@ public class Looper implements Runnable {
 		try {
 			File soundFile = new File(file);
 			sound = AudioSystem.getAudioInputStream(soundFile);
+			init();
+		} catch(LineUnavailableException e) {
+			printDebug("[ Looper ] WARNING! Cannot play sound: disabling BGM.");
 		} catch(FileNotFoundException e) {
 			printDebug("File not found: "+file);
 		} catch(UnsupportedAudioFileException e) {
@@ -39,6 +44,9 @@ public class Looper implements Runnable {
 	public Looper(final URL url) {
 		try {
 			sound = AudioSystem.getAudioInputStream(url);
+			init();
+		} catch(LineUnavailableException e) {
+			printDebug("[ Looper ] WARNING! Cannot play sound: disabling BGM.");
 		} catch(UnsupportedAudioFileException e) {
 			printDebug("Unsupported audio file:");
 			e.printStackTrace();
@@ -52,12 +60,6 @@ public class Looper implements Runnable {
 	 */
 	public void run() {
 		try {
-			// load sound into memory (as a Clip)
-			DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
-			clip = (Clip) AudioSystem.getLine(info);
-			clip.open(sound);
-			if(end != 0)
-				clip.setLoopPoints(start, end);
 			clip.loop(Clip.LOOP_CONTINUOUSLY);
 			while(!shouldStop) {
 				synchronized(clip) {
@@ -66,13 +68,32 @@ public class Looper implements Runnable {
 			}
 			clip.stop();
 			if(Debug.on) printDebug("[Looper] Stopped.");
-		} catch(LineUnavailableException e) {
-			printDebug("[ Looper ] WARNING! Cannot play sound: disabling BGM.");
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
 		if(Debug.on) printDebug("run(): terminated.");
 	}
+
+	public float getMaxVolume() {
+		if(gain == null) return 0f;
+		return gain.getMaximum();
+	}
+
+	public float getMinVolume() {
+		if(gain == null) return 0;
+		return gain.getMinimum();
+	}
+
+	public float getVolume() {
+		return gain.getValue();
+	}
+
+	public boolean isMute() {
+		return mute != null && mute.getValue();
+	}
+	
+	public boolean canChangeVolume() { return gain != null; }
+	public boolean canMute() { return mute != null; }
 
 	/** @param secStart The second whence to start the loop
 	 * @param secEnd The ending second of the loop
@@ -91,9 +112,61 @@ public class Looper implements Runnable {
 		}
 	}
 
+	public void setVolume(float val) {
+		if(gain == null) return;
+		synchronized(gain) {
+			gain.setValue(val);
+		}
+	}
+
+	public void volumeUp(float val) {
+		if(gain == null) return;
+		synchronized(gain) {
+			gain.setValue(gain.getValue() + val);
+		}
+	}
+
+	public synchronized boolean muteToggle() {
+		if(mute == null) return false;
+		setMute(!mute.getValue());
+		return mute.getValue();
+	}
+
+	public synchronized void setMute(boolean m) {
+		if(mute == null) return;
+		mute.setValue(m);
+	}
+
 	/** Convert a time expressed in seconds to number of samples */
 	private static int timeToSamples(final double time, final AudioFormat format) {
 		return (int)(time * format.getSampleRate());
+	}
+	
+	/** This is better be done when constructing the Looper, so we can use the gain properties
+	 * before calling run().
+	 */
+	private void init() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		// load sound into memory (as a Clip)
+		DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
+		clip = (Clip) AudioSystem.getLine(info);
+		clip.open(sound);
+		// ignorant check on the FloatControl type
+		try {
+			gain = (FloatControl) clip.getControl(FloatControl.Type.VOLUME);
+		} catch(IllegalArgumentException e) {
+			try {
+				gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+			} catch(IllegalArgumentException ee) {
+				printDebug("[ Looper ] Can't get a known Gain Control: continuing, but won't be able to set volume in the application.");
+			}
+		}
+		try {
+			mute = (BooleanControl) clip.getControl(BooleanControl.Type.MUTE);
+		} catch(IllegalArgumentException e) {
+			printDebug("[ Looper ] Can't get Mute Control: continuing, but won't be able to mute sound in the application.");
+		}
+		if(end != 0)
+			clip.setLoopPoints(start, end);
 	}
 
 	public static void main(String[] args) throws Exception {

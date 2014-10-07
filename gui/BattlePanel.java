@@ -348,8 +348,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		add(eventP,c);
 
 		// Start the BGM
-		looper = PresetBGM.getLooper("xy-rival.wav");
-		new Thread(looper).start();
+		if(GUIGlobals.soundOn) {
+			looper = PresetBGM.getLooper("xy-rival.wav");
+			if(looper != null)
+				new Thread(looper).start();
+		}
 	}
 
 	private Point allyLocation() {

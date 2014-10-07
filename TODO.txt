@@ -24,3 +24,5 @@
 - SPEED UP THE GAME IF LAUNCHED FROM JAR! -> Partially fixed
 
 - Implement Weather
+
+- Sound control in the BattlePanel

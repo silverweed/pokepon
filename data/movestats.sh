@@ -1,4 +1,5 @@
 #!/bin/bash
+# compiles a tables with some stats about moves
 
 # get options
 while [[ $# -gt 0 ]]; do

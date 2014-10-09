@@ -32,6 +32,7 @@ public class ButtonMash extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Nap",1);
+		learnableMoves.put("Mustache Spell",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Burning Powder",1);

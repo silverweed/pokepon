@@ -21,6 +21,7 @@ public class FlufflePuff extends Pony {
 		type[1] = Type.LOVE;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 		canon = false;
 
 		baseHp = 150;
@@ -46,5 +47,6 @@ public class FlufflePuff extends Pony {
 
 		/* possibleAbilities */
 		possibleAbilities[0] = "Magic Heal";
+		possibleAbilities[1] = "Spell Refractory";
 	}
 }

@@ -213,6 +213,13 @@ public class BattleEngine {
 		weather = wh;
 	}
 
+	/** breakCycle can be manipulated from TriggeredEffectDealers to prevent a move
+	 * to hit the defender for the turn being. The DamageCalculator won't be called at all.
+	 */
+	public void setBreakCycle(boolean b) {
+		breakCycle = b;
+	}
+
 	/** Used by onDamage triggers to change the inflicted damage on the fly */
 	public void setInflictedDamage(int infDamage) {
 		latestInflictedDamage = inflictedDamage = infDamage;
@@ -489,7 +496,7 @@ public class BattleEngine {
 			triggerEvent("beforeMoveHit");
 			int i = 0;
 			int hits = 1;
-			boolean breakCycle = false;
+			breakCycle = false;
 			/* If multiple hits move, first decide the hits count. */
 			if(move.getHits() > 1) {
 				if(	(attacker.getItem() != null && attacker.getItem().maximizeHits()) ||
@@ -1641,5 +1648,6 @@ public class BattleEngine {
 	//private List<Map.Entry<Move,Integer>> delayedMoves = new ArrayList<Map.Entry<Move,Integer>>();
 	private int[] lockingTurns = { 0, 0 };
 	private boolean hadSubstitute;
+	private boolean breakCycle;
 	boolean echoBattle = true;
 }

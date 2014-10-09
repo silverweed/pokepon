@@ -21,6 +21,7 @@ public class LyraHeartstrings extends Pony {
 		type[1] = Type.MAGIC;
 		
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 100;
 		baseAtk = 50;

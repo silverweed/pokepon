@@ -19,6 +19,7 @@ public class KingSombra extends Pony {
 		type[0] = Type.SHADOW;
 
 		race = Race.UNICORN;
+		sex = Sex.MALE;
 
 		baseHp = 81;
 		baseAtk = 150;
@@ -46,6 +47,7 @@ public class KingSombra extends Pony {
 
 		/* possibleAbilities */
 		possibleAbilities[0] = "Subjection";
+		possibleAbilities[1] = "Spell Refractory";
 	}
 
 }

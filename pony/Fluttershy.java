@@ -20,6 +20,7 @@ public class Fluttershy extends Pony {
 		type[0] = Type.KINDNESS;
 		
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 115; 
 		baseAtk = 65;

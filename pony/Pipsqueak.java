@@ -20,6 +20,7 @@ public class Pipsqueak extends Pony {
 		type[1] = Type.GENEROSITY;
 
 		race = Race.EARTHPONY;
+		sex = Sex.MALE;
 
 		baseHp = 60;
 		baseAtk = 70;

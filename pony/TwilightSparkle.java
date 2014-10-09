@@ -20,6 +20,7 @@ public class TwilightSparkle extends Pony {
 		type[0] = Type.MAGIC;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 88;
 		baseAtk = 55;

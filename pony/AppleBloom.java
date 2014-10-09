@@ -20,6 +20,7 @@ public class AppleBloom extends Pony {
 		type[1] = Type.SPIRIT;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 60;

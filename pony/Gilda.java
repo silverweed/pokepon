@@ -20,6 +20,7 @@ public class Gilda extends Pony {
 		type[1] = Type.LOYALTY;
 		
 		race = Race.GRYPHON;
+		sex = Sex.FEMALE;
 
 		baseHp = 71;
 		baseAtk = 109;

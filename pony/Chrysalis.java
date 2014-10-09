@@ -19,6 +19,7 @@ public class Chrysalis extends Pony {
 		type[1] = Type.LOVE;
 		
 		race = Race.MYTHICBEAST;
+		sex = Sex.FEMALE;
 
 		baseHp = 105;
 		baseAtk = 105;

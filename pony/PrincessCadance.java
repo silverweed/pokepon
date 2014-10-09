@@ -19,6 +19,7 @@ public class PrincessCadance extends Pony {
 		type[0] = Type.LOVE;
 
 		race = Race.ALICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 130;
 		baseAtk = 55;

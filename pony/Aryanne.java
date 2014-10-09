@@ -21,6 +21,7 @@ public class Aryanne extends Pony {
 		type[0] = Type.LOYALTY;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 65;
 		baseAtk = 122;

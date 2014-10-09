@@ -21,6 +21,7 @@ public class ShiningArmor extends Pony {
 		type[1] = Type.LOYALTY;
 
 		race = Race.UNICORN;
+		sex = Sex.MALE;
 
 		baseHp = 75;
 		baseAtk = 65;

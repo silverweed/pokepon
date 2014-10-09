@@ -21,6 +21,7 @@ public class Littlepip extends Pony {
 		type[1] = Type.KINDNESS;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 		canon = false;
 
 		baseHp = 89;

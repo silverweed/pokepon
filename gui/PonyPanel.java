@@ -48,6 +48,7 @@ public class PonyPanel extends JPanel {
 	protected JTextField happiness = new RoundJTextField(3);
 	protected JLabel canon = new JLabel();
 	protected JLabel species = new JLabel();
+	protected JLabel sex = new JLabel();
 	protected JLabel phrase = new JLabel(); 
 	protected StatsPanel statsPanel = new PonyStatsPanel();
 	protected JLabel sprite = new JLabel();
@@ -117,9 +118,16 @@ public class PonyPanel extends JPanel {
 
 		c.gridx = 7;
 		add(species,c);
-		
+
 		c.gridx = 6;
 		c.gridy = 4;
+		add(new JLabel("Sex"), c);
+
+		c.gridx = 7;
+		add(sex, c);
+		
+		c.gridx = 6;
+		c.gridy = 5;
 		c.gridwidth = 2;
 		phrase.setMinimumSize(phrase.getPreferredSize());
 		phrase.setFont(phrase.getFont().deriveFont(Font.PLAIN));
@@ -206,6 +214,10 @@ public class PonyPanel extends JPanel {
 				happiness.setText(""+p.getHappiness());
 				canon.setText((p.isCanon() ? "<html><font color=green>yes</font></html>" : "<html><font color=red>no</font></html>"));
 				species.setText(p.getRace().toString());
+				if(p.getSex() == Pony.Sex.FEMALE)
+					sex.setText("<html><font color=#FF00FF>Female</font></html>");
+				else
+					sex.setText("<html><font color=#0066FF>Male</font></html>");
 				phrase.setText("<html><em>"+p.getIVMsg()+"</em></html>");
 				statsPanel.setPony(p);
 			}

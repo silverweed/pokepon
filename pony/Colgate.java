@@ -19,6 +19,7 @@ public class Colgate extends Pony {
 		type[1] = Type.MAGIC;
 		
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 83;
 		baseAtk = 60;

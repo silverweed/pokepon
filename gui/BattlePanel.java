@@ -1053,6 +1053,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					continue;
 				}
 				Object value = null;
+				/* Parse optional argument typecast. Since all we receive are strings,
+				 * one can specify a 'typecast pattern' in the value field, like:
+				 * delay=(i)40  // will convert "40" to an Integer
+				 * We don't use implicit casting based on the key because it's a less
+				 * flexible and explicit approach. It's the caller's responsibility to correctly
+				 * cast values types according to their key.
+				 */
 				Matcher matcher = Pattern.compile("^\\(([a-z])\\)(.+)$").matcher(pair[1]);
 				if(matcher.matches()) {
 					if(Debug.on) printDebug("Converting type of "+pair[1]);

@@ -20,6 +20,7 @@ public class SilverSpoon extends Pony {
 		type[1] = Type.SHADOW;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 50;

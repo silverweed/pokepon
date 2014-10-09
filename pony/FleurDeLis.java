@@ -19,6 +19,7 @@ public class FleurDeLis extends Pony {
 		type[1] = Type.LIGHT;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 70; 
 		baseAtk = 50;

@@ -20,6 +20,7 @@ public class NightmareMoon extends Pony {
 		type[0] = Type.NIGHT;
 		
 		race = Race.ALICORN;
+		sex = Sex.FEMALE;
 		
 		baseHp = 110;
 		baseAtk = 90;

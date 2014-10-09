@@ -19,6 +19,7 @@ public class GrannySmith extends Pony {
 		type[0] = Type.HONESTY;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 100;
 		baseAtk = 78;

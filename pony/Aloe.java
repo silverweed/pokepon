@@ -20,6 +20,7 @@ public class Aloe extends Pony {
 		type[1] = Type.LIGHT;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 70;

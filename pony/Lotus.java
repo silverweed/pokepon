@@ -20,6 +20,7 @@ public class Lotus extends Pony {
 		type[1] = Type.LOVE;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 60;
 		baseAtk = 90;

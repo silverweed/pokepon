@@ -20,6 +20,7 @@ public class PrincessCelestia extends Pony {
 		type[1] = Type.LIGHT;
 
 		race = Race.ALICORN;
+		sex = Sex.FEMALE;
 		
 		baseHp = 120;
 		baseAtk = 120;

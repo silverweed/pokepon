@@ -21,6 +21,7 @@ public class ButtonMash extends Pony {
 		type[0] = Type.PASSION;
 
 		race = Race.EARTHPONY;
+		sex = Sex.MALE;
 
 		baseHp = 85;
 		baseAtk = 60;

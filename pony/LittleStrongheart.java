@@ -20,6 +20,7 @@ public class LittleStrongheart extends Pony {
 		type[1] = Type.PASSION;
 
 		race = Race.BUFFALO;
+		sex = Sex.FEMALE;
 
 		baseHp = 75;
 		baseAtk = 90;

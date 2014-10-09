@@ -19,6 +19,7 @@ public class Rarity extends Pony {
 		type[0] = Type.GENEROSITY;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 90; 
 		baseAtk = 60;

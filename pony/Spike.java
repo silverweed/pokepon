@@ -20,6 +20,7 @@ public class Spike extends Pony {
 		type[1] = Type.MAGIC;
 		
 		race = Race.MYTHICBEAST;
+		sex = Sex.MALE;
 
 		baseHp = 70;
 		baseAtk = 65;

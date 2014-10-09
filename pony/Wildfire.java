@@ -20,6 +20,7 @@ public class Wildfire extends Pony {
 		type[1] = Type.PASSION;
 
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 105;
 		baseAtk = 95;

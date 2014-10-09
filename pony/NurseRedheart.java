@@ -21,6 +21,7 @@ public class NurseRedheart extends Pony {
 		type[1] = Type.GENEROSITY;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 250; 
 		baseAtk = 55;

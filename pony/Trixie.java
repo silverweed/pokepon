@@ -20,6 +20,7 @@ public class Trixie extends Pony {
 		type[1] = Type.PASSION;
 	
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 40;

@@ -29,6 +29,8 @@ public class MagicBlast extends Move {
 		animation.put("name","Direct");
 		animation.put("bounceBack",false);
 		animation.put("sprite","shadowball.png");
+
+		isBeamMove = true;
 	}
 	
 	public MagicBlast(Pony p) {

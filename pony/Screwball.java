@@ -18,6 +18,7 @@ public class Screwball extends Pony {
 		type[0] = Type.CHAOS;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 60;
 		baseAtk = 60;

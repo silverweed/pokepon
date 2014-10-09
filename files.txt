@@ -266,7 +266,7 @@ pony/ButtonsMom.java
 pony/Canni.java
 pony/CarrotTop.java
 pony/Cheerilee.java
-pony/CheeseSandwhich.java
+pony/CheeseSandwich.java
 pony/ChiefThunderhooves.java
 pony/Chrysalis.java
 pony/CocoPommel.java

@@ -22,6 +22,7 @@ public class ButtonsMom extends Pony {
 		type[1] = Type.KINDNESS;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 135;
 		baseAtk = 89;

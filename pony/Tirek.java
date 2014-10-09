@@ -22,6 +22,7 @@ public class Tirek extends Pony {
 		type[1] = Type.MAGIC;
 
 		race = Race.MYTHICBEAST;
+		sex = Sex.MALE;
 
 		baseHp = 90;
 		baseAtk = 60;

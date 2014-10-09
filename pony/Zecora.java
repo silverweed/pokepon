@@ -20,6 +20,7 @@ public class Zecora extends Pony {
 		type[0] = Type.SPIRIT;
 
 		race = Race.ZEBRA;
+		sex = Sex.FEMALE;
 
 		baseHp = 80;
 		baseAtk = 95;
@@ -47,5 +48,6 @@ public class Zecora extends Pony {
 		learnableMoves.put("Venom Potion",44);
 
 		possibleAbilities[0] = "Ataraxy";
+		possibleAbilities[1] = "Spell Refractory";
 	}
 }

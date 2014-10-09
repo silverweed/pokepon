@@ -20,6 +20,7 @@ public class Homage extends Pony {
 		type[1] = Type.LOVE;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 		canon = false;
 
 		baseHp = 90;

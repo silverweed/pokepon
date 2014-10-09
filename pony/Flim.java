@@ -20,6 +20,7 @@ public class Flim extends Pony {
 		type[1] = Type.PASSION;
 		
 		race = Race.UNICORN;
+		sex = Sex.MALE;
 
 		baseHp = 75;
 		baseAtk = 75;

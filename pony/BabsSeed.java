@@ -20,6 +20,7 @@ public class BabsSeed extends Pony {
 		type[1] = Type.SHADOW;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 87;
 		baseAtk = 100;

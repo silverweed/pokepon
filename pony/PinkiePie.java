@@ -20,6 +20,7 @@ public class PinkiePie extends Pony {
 		type[0] = Type.LAUGHTER;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 80;
 		baseAtk = 95;

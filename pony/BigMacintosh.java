@@ -20,6 +20,7 @@ public class BigMacintosh extends Pony {
 		type[1] = Type.LOYALTY;
 
 		race = Race.EARTHPONY;
+		sex = Sex.MALE;
 
 		baseHp = 115;
 		baseAtk = 80;

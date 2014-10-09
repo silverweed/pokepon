@@ -22,6 +22,7 @@ public class Bellesmith extends Pony {
 		type[1] = Type.KINDNESS;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 75;
 		baseAtk = 90;

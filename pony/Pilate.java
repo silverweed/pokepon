@@ -22,6 +22,7 @@ public class Pilate extends Pony {
 		type[1] = Type.NIGHT;
 
 		race = Race.ZEBRA;
+		sex = Sex.MALE;
 
 		baseHp = 84;
 		baseAtk = 42;

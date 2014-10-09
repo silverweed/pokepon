@@ -24,6 +24,7 @@ public class Xenith extends Pony {
 		type[1] = Type.SHADOW;
 
 		race = Race.ZEBRA;
+		sex = Sex.FEMALE;
 		canon = false;
 
 		baseHp = 75;

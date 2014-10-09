@@ -21,6 +21,7 @@ public class VinylScratch extends Pony {
 		type[1] = Type.CHAOS;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 95;
 		baseAtk = 45;

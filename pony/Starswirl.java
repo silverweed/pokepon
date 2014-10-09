@@ -22,6 +22,7 @@ public class Starswirl extends Pony {
 		type[0] = Type.MAGIC;
 
 		race = Race.UNICORN;
+		sex = Sex.MALE;
 
 		baseHp = 100;
 		baseAtk = 100;

@@ -19,6 +19,7 @@ public class Soarin extends Pony {
 		type[0] = Type.LOYALTY;
 
 		race = Race.PEGASUS;
+		sex = Sex.MALE;
 
 		baseHp = 68;
 		baseAtk = 88;

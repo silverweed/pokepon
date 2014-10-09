@@ -19,6 +19,7 @@ public class Scootaloo extends Pony {
 		type[0] = Type.PASSION;
 
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 70;
 		baseAtk = 110;

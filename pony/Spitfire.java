@@ -20,6 +20,7 @@ public class Spitfire extends Pony {
 		type[1] = Type.LOYALTY;
 
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 75;
 		baseAtk = 125;

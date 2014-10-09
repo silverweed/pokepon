@@ -20,6 +20,7 @@ public class SunsetShimmer extends Pony {
 		type[1] = Type.SHADOW;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 75;
 		baseAtk = 60;

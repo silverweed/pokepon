@@ -146,6 +146,9 @@ public abstract class Move extends EffectDealer {
 	public int getLockingTurns() { return lockingTurns; }
 	public String locksTargetOn() { return locksTargetOn; }
 
+	/// miscellaneous
+	public boolean isBeamMove() { return isBeamMove; }
+
 	@Override
 	public void reset() {
 		turnDelay = 0;
@@ -278,4 +281,7 @@ public abstract class Move extends EffectDealer {
 	protected boolean useTargetSpatk;
 	protected boolean useTargetDef;
 	protected boolean useTargetSpdef;
+
+	/* Miscellaneous  */
+	protected boolean isBeamMove;
 }

@@ -20,6 +20,7 @@ public class Braeburn extends Pony {
 		type[1] = Type.GENEROSITY;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.MALE;
 
 		baseHp = 75;
 		baseAtk = 90;

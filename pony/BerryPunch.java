@@ -20,6 +20,7 @@ public class BerryPunch extends Pony {
 		type[1] = Type.LAUGHTER;
 	
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 86;

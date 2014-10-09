@@ -20,6 +20,7 @@ public class LightningDust extends Pony {
 		type[0] = Type.PASSION;
 
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 64;
 		baseAtk = 95;

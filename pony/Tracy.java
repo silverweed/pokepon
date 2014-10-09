@@ -21,6 +21,7 @@ public class Tracy extends Pony {
 		type[0] = Type.SHADOW;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 60;
 		baseAtk = 95;

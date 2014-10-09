@@ -129,7 +129,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 	}
 	
-	public enum Race { 
+	public static enum Race { 
 		EARTHPONY("Earth Pony"), 
 		PEGASUS("Pegasus"),
 		UNICORN("Unicorn"),
@@ -152,7 +152,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 	};
 
-	public enum Status { 
+	public static enum Status { 
 		KO("KO"),
 		PARALYZED("Paralyzed"),
 		BURNED("Burned"), 
@@ -191,6 +191,16 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 	};
 
+	public static enum Sex {
+		FEMALE,
+		MALE;
+
+		@Override
+		public String toString() {
+			return this == MALE ? "Male" : "Female";
+		}
+	};
+
 	public class Volatiles {
 		public int atkModifier;
 		public int defModifier;
@@ -212,6 +222,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		name = "Unnamed_Pony"; 
 		level = 1;
 		nature = generateNature();
+		sex = Sex.FEMALE;
 		generateIV();
 	}
 	
@@ -411,6 +422,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public int getLevel() { return level; }
 	public Nature getNature() { return nature; }
 	public Race getRace() { return race; }
+	public Sex getSex() { return sex; }
 	public Move getMove(int i) { return move[i]; }
 	public Move getMove(final String name) {
 		for(Move m : move) {
@@ -1405,7 +1417,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	/** Prints info about internal fields. */
 	public void printInfo(boolean all) {
-		printMsgnb("*** Pony Info ***\nName: "+name+(item == null ? "" : " @ "+item)+"\nAbility: "+ability+"\nLevel: "+level);
+		printMsgnb("*** Pony Info ***\nName: "+name+(item == null ? "" : " @ "+item)+" ("+
+			sex.toString().charAt(0)+")\nAbility: "+ability+"\nLevel: "+level);
 		printMsg("\nNature: "+nature+" "+printNatureInfo(nature)+"\nRace: "+race);
 		printTypingInfo();
 		printMsg(getIVMsg());
@@ -1949,6 +1962,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	protected URL backSprite;
 	/** URL of the small token image showed in teambuilder and similar; CURRENTLY UNUSED: we use a scaled instance of the frontSprite instead. */
 	protected URL token;
+	protected Sex sex;
 
 	//////////////////////////////////////////////////////////// END PROTECTED
 	

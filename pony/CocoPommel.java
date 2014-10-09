@@ -23,6 +23,7 @@ public class CocoPommel extends Pony {
 		type[0] = Type.KINDNESS;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 98; 
 		baseAtk = 50;

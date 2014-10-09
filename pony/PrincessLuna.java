@@ -20,6 +20,7 @@ public class PrincessLuna extends Pony {
 		type[1] = Type.NIGHT;
 
 		race = Race.ALICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 65;
 		baseAtk = 66;

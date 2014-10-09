@@ -20,6 +20,7 @@ public class BonBon extends Pony {
 		type[1] = Type.SPIRIT;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 70;
 		baseAtk = 70;

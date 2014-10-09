@@ -30,6 +30,7 @@ public class GlowingLaser extends Move {
 		animation.put("bounceBack",false);
 
 		targetSpdef = addEntry(-1,0.1f);
+		isBeamMove = true;
 	}
 
 	public GlowingLaser(Pony p) {

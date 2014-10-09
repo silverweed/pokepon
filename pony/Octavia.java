@@ -19,6 +19,7 @@ public class Octavia extends Pony {
 		type[0] = Type.MUSIC;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 120;
 		baseAtk = 79;

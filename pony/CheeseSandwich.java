@@ -1,26 +1,27 @@
-//: pony/CheeseSandwhich.java
+//: pony/CheeseSandwich.java
 
 package pokepon.pony;
 
 import pokepon.enums.*;
 
-/** Cheese Sandwhich
+/** Cheese Sandwich
  * 	excellent Speed and attack; decent SpA too;
  *	lacks Defense and HP.
  *
  * @author Giacomo Parolini
  */
 
-public class CheeseSandwhich extends Pony {
+public class CheeseSandwich extends Pony {
 	
-	public CheeseSandwhich(int _level) {
+	public CheeseSandwich(int _level) {
 		super(_level);
 		
-		name = "Cheese Sandwhich";
+		name = "Cheese Sandwich";
 		type[0] = Type.LAUGHTER;
 		type[1] = Type.CHAOS;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.MALE;
 
 		baseHp = 61;
 		baseAtk = 110;

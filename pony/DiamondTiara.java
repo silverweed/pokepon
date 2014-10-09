@@ -20,6 +20,7 @@ public class DiamondTiara extends Pony {
 		type[1] = Type.SHADOW;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 60;
 		baseAtk = 65;

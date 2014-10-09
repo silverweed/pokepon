@@ -19,6 +19,7 @@ public class DerpyHooves extends Pony {
 		type[1] = Type.LAUGHTER;
 
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 75;
 		baseAtk = 95;

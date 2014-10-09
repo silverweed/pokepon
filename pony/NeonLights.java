@@ -20,6 +20,7 @@ public class NeonLights extends Pony {
 		type[1] = Type.NIGHT;
 
 		race = Race.UNICORN;
+		sex = Sex.MALE;
 
 		baseHp = 65;
 		baseAtk = 85;

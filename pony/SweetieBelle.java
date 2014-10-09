@@ -21,6 +21,7 @@ public class SweetieBelle extends Pony {
 		type[1] = Type.MUSIC;
 
 		race = Race.UNICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 100;
 		baseAtk = 62;

@@ -20,6 +20,7 @@ public class Flam extends Pony {
 		type[1] = Type.LAUGHTER;
 		
 		race = Race.UNICORN;
+		sex = Sex.MALE;
 
 		baseHp = 98;
 		baseAtk = 60;

@@ -18,6 +18,7 @@ public class MsHarshwhinny extends Pony {
 		type[0] = Type.LOYALTY;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 100;
 		baseAtk = 75;

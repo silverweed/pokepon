@@ -19,6 +19,7 @@ public class DaringDo extends Pony {
 		type[1] = Type.PASSION;
 
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 150;

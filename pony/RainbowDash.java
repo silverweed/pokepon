@@ -20,6 +20,7 @@ public class RainbowDash extends Pony {
 		type[0] = Type.LOYALTY;
 
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 82;
 		baseAtk = 130;

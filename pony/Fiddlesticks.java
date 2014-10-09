@@ -20,6 +20,7 @@ public class Fiddlesticks extends Pony {
 		type[1] = Type.MUSIC;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 94;
 		baseAtk = 70;

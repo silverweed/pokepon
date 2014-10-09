@@ -8,7 +8,9 @@ import pokepon.pony.*;
  * have a duration or a delay after which they disappear, and can be triggered
  * like any TriggeredEffectDealer; the difference with normal TEDs is that a BattleEvent
  * is not linked with a particular pony, but is a 'global' effect, which normally acts
- * independently from its source.
+ * independently from its source;
+ * BattleEvents can be used in several ways, e.g to spawn a delayed effect
+ * or to setup a persistent effect which lasts N turns before disappearing.
  *
  * @author Giacomo Parolini
  */

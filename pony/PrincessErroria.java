@@ -22,6 +22,7 @@ public class PrincessErroria extends Pony {
 		type[1] = Type.CHAOS;
 
 		race = Race.ALICORN;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 65;

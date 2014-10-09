@@ -23,6 +23,7 @@ public class ChiefThunderhooves extends Pony {
 		type[1] = Type.LOYALTY;
 
 		race = Race.BUFFALO;
+		sex = Sex.MALE;
 
 		baseHp = 100;
 		baseAtk = 70;

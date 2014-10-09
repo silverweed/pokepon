@@ -19,6 +19,7 @@ public class BulkBiceps extends Pony {
 		type[0] = Type.PASSION;
 
 		race = Race.PEGASUS;
+		sex = Sex.MALE;
 
 		baseHp = 80;
 		baseAtk = 170;

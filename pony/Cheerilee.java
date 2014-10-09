@@ -20,6 +20,7 @@ public class Cheerilee extends Pony {
 		type[1] = Type.KINDNESS;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 95;
 		baseAtk = 76;

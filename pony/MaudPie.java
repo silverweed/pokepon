@@ -21,6 +21,7 @@ public class MaudPie extends Pony {
 		type[0] = Type.HONESTY;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 100;

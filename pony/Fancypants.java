@@ -19,6 +19,7 @@ public class Fancypants extends Pony {
 		type[1] = Type.NIGHT;
 		
 		race = Race.UNICORN;
+		sex = Sex.MALE;
 
 		baseHp = 80;
 		baseAtk = 65;

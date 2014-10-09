@@ -20,6 +20,7 @@ public class Fleetfoot extends Pony {
 		type[1] = Type.LOVE; 
 
 		race = Race.PEGASUS;
+		sex = Sex.FEMALE;
 
 		baseHp = 80;
 		baseAtk = 50;

@@ -23,6 +23,7 @@ public class Trenderhoof extends Pony {
 		type[0] = Type.KINDNESS;
 		
 		race = Race.UNICORN;
+		sex = Sex.MALE;
 
 		baseHp = 120;
 		baseAtk = 65;

@@ -30,6 +30,7 @@ public class HornBeam extends Move {
 		animation.put("bounceBack",false);
 
 		targetConfusion = 0.1f;
+		isBeamMove = true;
 	}
 
 	public HornBeam(Pony p) {

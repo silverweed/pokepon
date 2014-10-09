@@ -20,6 +20,7 @@ public class LimestonePie extends Pony {
 		type[1] = Type.NIGHT;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 109;
 		baseAtk = 81;

@@ -20,6 +20,7 @@ public class MilkyWay extends Pony {
 		type[0] = Type.GENEROSITY;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 100;
 		baseAtk = 76;

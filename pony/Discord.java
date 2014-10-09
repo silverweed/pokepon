@@ -18,6 +18,7 @@ public class Discord extends Pony {
 		type[0] = Type.CHAOS;
 		
 		race = Race.MYTHICBEAST;
+		sex = Sex.MALE;
 
 		baseHp = 125;
 		baseAtk = 105;

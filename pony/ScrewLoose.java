@@ -18,6 +18,7 @@ public class ScrewLoose extends Pony {
 		type[0] = Type.CHAOS;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 90;
 		baseAtk = 90;
@@ -38,5 +39,6 @@ public class ScrewLoose extends Pony {
 		learnableMoves.put("Chaos Burst",20);
 
 		/* abilities */
+		possibleAbilities[0] = "Spell Refractory";
 	}
 }

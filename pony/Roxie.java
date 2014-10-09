@@ -22,6 +22,7 @@ public class Roxie extends Pony {
 		type[1] = Type.SPIRIT;
 		
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 60;
 		baseAtk = 115;

@@ -22,6 +22,7 @@ public class Canni extends Pony {
 		type[1] = Type.LAUGHTER;
 
 		race = Race.EARTHPONY;
+		sex = Sex.FEMALE;
 
 		baseHp = 110;
 		baseAtk = 39;
@@ -46,5 +47,7 @@ public class Canni extends Pony {
 		learnableMoves.put("Chatter",1);
 		learnableMoves.put("Bubble Burst",1);
 		learnableMoves.put("Bizaam",100);
+
+		possibleAbilities[0] = "Spell Refractory";
 	}
 }

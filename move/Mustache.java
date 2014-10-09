@@ -1,4 +1,4 @@
-//: move/MustacheSpell.java
+//: move/Mustache.java
 
 package pokepon.move;
 
@@ -13,10 +13,10 @@ import pokepon.pony.Pony;
  * @author Giacomo Parolini
  */
 
-public class MustacheSpell extends Move {
+public class Mustache extends Move {
 	
-	public MustacheSpell() {
-		super("Mustache Spell");
+	public Mustache() {
+		super("Mustache");
 		
 		type = Type.LOVE;
 		moveType = Move.MoveType.SPECIAL;
@@ -31,7 +31,7 @@ public class MustacheSpell extends Move {
 		animation.put("sprite", "user");
 	}
 	
-	public MustacheSpell(Pony p) {
+	public Mustache(Pony p) {
 		this();
 		pony = p;
 	}

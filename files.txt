@@ -24,6 +24,7 @@ ability/SenseOfDanger.java
 ability/ShiningCoat.java
 ability/Simplicity.java
 ability/SolarMagic.java
+ability/SpellRefractory.java
 ability/Stubborn.java
 ability/Subjection.java
 ability/UpperHoof.java
@@ -154,6 +155,7 @@ move/Meditation.java
 move/MirrorPond.java
 move/Move.java
 move/MoveNotFoundException.java
+move/Mustache.java
 move/Mutate.java
 move/MysteriousBrew.java
 move/Nap.java

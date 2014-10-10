@@ -204,26 +204,6 @@ public class BasicServer implements Server {
 	public InetAddress getAddress() { return myAddress; }
 
 	// SERVER CONFIGURATION FUNCTIONS
-	/*public void loadConfiguration(ServerOptions opts) {
-		if(opts.port != -1) {
-			if(verbosity >= 2) printDebug("[loadConfiguration] set port to "+opts.port);
-			port = opts.port;
-		}
-		if(opts.address != null) {
-			try {
-				myAddress = InetAddress.getByName(opts.address);
-				if(verbosity >= 2) printDebug("[loadConfiguration] set address to "+opts.address);
-			} catch(IOException e) {
-				printDebug("[loadConfiguration] invalid address: "+e);
-			}
-		}
-		if(opts.serverName != null)
-			serverName = opts.serverName;
-		if(opts.verbosity != null)
-			verbosity = opts.verbosity;
-
-		if(verbosity >= 1) printDebug("[BasicServer] loaded configuration.");
-	}*/
 
 	/** Read command-line arguments and process all those that should be processed
 	 * _BEFORE_ reading the conf file, then strip those arguments from args.

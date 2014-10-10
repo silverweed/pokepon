@@ -177,13 +177,6 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		}
 	}
 
-	/*@Override
-	public void loadConfiguration(ServerOptions opts) {
-		super.loadConfiguration(opts);
-		if(opts.maxClients != -1)
-			maxClients = opts.maxClients;
-	}*/
-
 	protected static void printUsage() {
 		consoleMsg("Usage: "+MultiThreadedServer.class.getSimpleName()+" [port] [verbosity]");
 		System.exit(0);

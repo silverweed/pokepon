@@ -266,19 +266,6 @@ public class DatabaseServer extends MultiThreadedServer {
 		return 2;
 	}	
 
-	/*@Override
-	public void loadConfiguration(ServerOptions opts) {
-		super.loadConfiguration(opts);
-		if(opts.database != null) {
-			try {
-				setDatabaseLocation(opts.database);
-			} catch(IOException e) {
-				printDebug("["+serverName+"] Error loading database location: "+e);
-			}
-		}
-		if(verbosity >= 1) printDebug("[DatabaseServer] loaded configuration.");
-	}*/
-
 	protected static void printUsage() {
 		System.out.println("Usage: "+DatabaseServer.class.getSimpleName()+" [address (- for localhost)] [port] [verbosity]");
 		System.exit(0);

@@ -57,17 +57,6 @@ public class BasicNameValidatingServer extends BasicServer implements NameValida
 		return maxNickLen;
 	}
 
-	/*@Override
-	public void loadConfiguration(ServerOptions opts) {
-		super.loadConfiguration(opts);
-		if(opts.maxNickLen != -1)
-			maxNickLen = opts.maxNickLen;
-		if(opts.forbiddenNames != null)
-			forbiddenNames.addAll(opts.forbiddenNames);
-	}*/
-	
 	/** You can put strings (even regexes) in this list in order to forbid nicknames */
-	protected Set<String> forbiddenNames = new HashSet<String>(Arrays.asList(new String[] {
-		"null"	// this is to avoid confusion in debugging
-	}));
+	protected Set<String> forbiddenNames = new HashSet<String>();
 }

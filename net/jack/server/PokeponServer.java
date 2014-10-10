@@ -17,7 +17,7 @@ import java.util.concurrent.*;
  *
  * @author Giacomo Parolini
  */
-public class PokeponServer extends DatabaseServerTest implements TestingClass {
+public class PokeponServer extends DatabaseServer implements TestingClass {
 	
 	private static Set<Format> availableFormats = new LinkedHashSet<>();
 	static {

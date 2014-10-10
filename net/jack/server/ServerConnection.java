@@ -35,9 +35,7 @@ class ServerConnection extends Connection {
 		
 		try {
 			name = socket.getInetAddress().getHostName().split("\\.")[0] + "-" + nConn++;
-			if(verbosity >= 1) printDebug("[Connection] Constructed connection with "+socket+" (name: "+name+")");
-			if(verbosity >= 0) server.broadcast(socket,name+" connected to server.");
-			server.broadcast(socket,CMN_PREFIX+"useradd "+name);
+			// before noticing other clients about this, verify it in the run() method
 		} catch(Exception e) {
 			printDebug("Caught exception while constructing Connection: "+e);
 			try {
@@ -61,7 +59,50 @@ class ServerConnection extends Connection {
 	
 	@Override
 	public void run() {
-		/* Send users list to client */
+		/* Shyly try to retreive the client's OS */
+		if(verbosity >= 2) printDebug(name+": Retreiving client OS information...");
+		try {
+			socket.setSoTimeout(SOCKET_TIMEOUT);
+			sendMsg(CMN_PREFIX+"youros");
+			String[] token = input.readLine().split(" ");
+			if(token.length >= 2) {
+				if(token[0].equals(CMN_PREFIX+"myos")) {
+					os = ConcatenateArrays.merge(token,1);
+					if(verbosity >= 2) printDebug(name+": OK. OS set to "+os);
+				} else if(
+					server.connectPolicy == MultiThreadedServer.ConnectPolicy.PARANOID || 
+					server.connectPolicy == MultiThreadedServer.ConnectPolicy.AVERAGE && token[0].equals("GET")
+				) {
+					printDebug("[ServerConnection] Received invalid response `"+token[0]+"`: dropping connection with "+name);
+					printDebug("  (Server.connectPolicy is set to "+server.connectPolicy+")");
+					disconnect();
+					return;
+				}
+			} else {
+				if(verbosity >= 2) printDebug(name+": received invalid OS data: "+Arrays.asList(token));
+			}
+		} catch(SocketTimeoutException e) {
+			// os unknown
+			if(verbosity >= 2) printDebug(name+": timeout. OS set to Unknown.");
+		} catch(Exception e) {
+			printDebug("Unexpected exception in ServerConnection.run(): "+e);
+			printDebug(name+" disconnecting.");
+			disconnect();
+			return;
+		} finally {
+			try {
+				if(socket != null)
+					socket.setSoTimeout(0);
+				sendMsg(CMN_PREFIX+"ok");
+			} catch(SocketException e) {
+				printDebug("Unexpected exception in Connection.run(): "+e);
+				printDebug(name+" disconnecting.");
+				disconnect();
+				return;
+			}	
+		}
+
+		/* After verifying this client is legit, send users list to client */
 		if(verbosity >= 2) printDebug(name+": sending users data to client...");
 		Iterable<Connection> clients = server.getClients();
 		synchronized(clients) {
@@ -74,39 +115,10 @@ class ServerConnection extends Connection {
 					sendMsg(CMN_PREFIX+"useradd "+conn.getName());
 			}
 		}
-		/* Shyly try to retreive the client's OS */
-		if(verbosity >= 2) printDebug(name+": Retreiving client OS information...");
-		try {
-			socket.setSoTimeout(SOCKET_TIMEOUT);
-			sendMsg(CMN_PREFIX+"youros");
-			String[] token = input.readLine().split(" ");
-			if(token.length >= 2) {
-				if(token[0].equals(CMN_PREFIX+"myos")) {
-					os = ConcatenateArrays.merge(token,1);
-					if(verbosity >= 2) printDebug(name+": OK. OS set to "+os);
-				}
-			} else {
-				if(verbosity >= 2) printDebug(name+": received invalid OS data: "+Arrays.asList(token));
-			}
-		} catch(SocketTimeoutException e) {
-			// os unknown
-			if(verbosity >= 2) printDebug(name+": timeout. OS set to Unknown.");
-		} catch(Exception e) {
-			printDebug("Unexpected exception in Connection.run(): "+e);
-			printDebug(name+" disconnecting.");
-			disconnect();
-			return;
-		} finally {
-			try {
-				socket.setSoTimeout(0);
-				sendMsg(CMN_PREFIX+"ok");
-			} catch(SocketException e) {
-				printDebug("Unexpected exception in Connection.run(): "+e);
-				printDebug(name+" disconnecting.");
-				disconnect();
-				return;
-			}	
-		}
+		/* The notify other clients that we've just connected */
+		if(verbosity >= 1) printDebug("[Connection] Constructed connection with "+socket+" (name: "+name+")");
+		if(verbosity >= 0) server.broadcast(socket,name+" connected to server.");
+		server.broadcast(socket,CMN_PREFIX+"useradd "+name);
 
 		/* Start receiving loop */
 		try {
@@ -211,8 +223,8 @@ class ServerConnection extends Connection {
 		if(Debug.on) printDebug("Called "+name+".disconnect()");
 		if(server instanceof PokeponServer)
 			((PokeponServer)server).destroyAllBattles(name);
-		if(server instanceof MultiServerTest) {
-			List<Connection> clients = ((MultiServerTest)server).getClients();
+		if(server instanceof MultiThreadedServer) {
+			List<Connection> clients = ((MultiThreadedServer)server).getClients();
 			synchronized(clients) {
 				if(clients.remove(this)) {
 					if(verbosity >= 2)

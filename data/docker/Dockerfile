@@ -10,5 +10,4 @@ run chown -R pokepon:users /opt/pokepon
 
 env CLASSPATH /opt
 expose 12344
-entrypoint ["/usr/bin/java"]
-cmd ["pokepon.net.jack.server.PokeponServer"]
+entrypoint ["/usr/bin/java", "pokepon.net.jack.server.PokeponServer"]

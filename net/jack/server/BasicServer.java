@@ -354,7 +354,7 @@ public class BasicServer implements Server {
 	protected static ServerOptions readConfigFile(URL file, int verbosity) throws UnknownOptionException {
 		String line = null;
 		List<String> lines = new LinkedList<>();
-		if(verbosity >= 1) printDebug("["+MultiServerTest.class.getSimpleName()+"] Reading configuration file: "+file.getPath());
+		if(verbosity >= 1) printDebug("["+MultiThreadedServer.class.getSimpleName()+"] Reading configuration file: "+file.getPath());
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file.getPath())))) {
 			if(verbosity >= 1) printDebug("[ OK ] Configuration file is readable.");
 			while((line = reader.readLine()) != null) {

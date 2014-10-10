@@ -7,7 +7,7 @@ isolated environment, pretty much like a Virtual Machine, but not quite.
 Docker containers are extremely lightweight, can be started and stopped in a few seconds (or less)
 and can be replicated out of the box on any host equipped with Docker.
 
-<b>What does this mean to me, which only want to run a PokeponServer?</b>
+<b>What does this mean to me, that only want to run a PokeponServer?</b>
 
 It means you can host a PokeponServer in a secure environment on your Linux machine without
 bothering installing a dedicated VM. It also mean you can start and stop it as you wish,

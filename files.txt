@@ -234,8 +234,6 @@ net/jack/server/BattleTask.java
 net/jack/server/CommandsExecutor.java
 net/jack/server/CommunicationsExecutor.java
 net/jack/server/DatabaseServer.java
-net/jack/server/DatabaseServerTest.java
-net/jack/server/MultiServerTest.java
 net/jack/server/MultiThreadedServer.java
 net/jack/server/NameValidatingServer.java
 net/jack/server/PokeponCommandsExecutor.java

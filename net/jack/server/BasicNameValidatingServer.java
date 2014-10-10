@@ -25,19 +25,20 @@ public class BasicNameValidatingServer extends BasicServer implements NameValida
 	public BasicNameValidatingServer(ServerOptions opts) throws IOException {
 		super(opts);
 		loadOptions(opts);
+		if(opts.serverName == null && !alreadySetName)
+			serverName = getClass().getSimpleName();
 		if(verbosity >= 0)
 			printDebug("["+serverName+"] Constructed with maxNickLen = "+maxNickLen+" and "+forbiddenNames.size()+" forbidden name rules.");
 	}
 
 	@Override
 	public BasicNameValidatingServer loadOptions(ServerOptions opts) {
+		super.loadOptions(opts);
+		if(verbosity >= 2) printDebug("[BasicNameValidatingServer] Called loadOptions");
 		if(opts.maxNickLen != -1)
 			maxNickLen = opts.maxNickLen;
-		if(opts.serverName == null)
-			serverName = BasicNameValidatingServer.class.getSimpleName();
 		if(opts.forbiddenNames != null)
 			forbiddenNames.addAll(opts.forbiddenNames);
-		super.loadOptions(opts);
 		return this;
 	}
 	
@@ -56,14 +57,14 @@ public class BasicNameValidatingServer extends BasicServer implements NameValida
 		return maxNickLen;
 	}
 
-	@Override
+	/*@Override
 	public void loadConfiguration(ServerOptions opts) {
 		super.loadConfiguration(opts);
 		if(opts.maxNickLen != -1)
 			maxNickLen = opts.maxNickLen;
 		if(opts.forbiddenNames != null)
 			forbiddenNames.addAll(opts.forbiddenNames);
-	}
+	}*/
 	
 	/** You can put strings (even regexes) in this list in order to forbid nicknames */
 	protected Set<String> forbiddenNames = new HashSet<String>(Arrays.asList(new String[] {

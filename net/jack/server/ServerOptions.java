@@ -67,6 +67,11 @@ public class ServerOptions {
 		return this;
 	}
 
+	public ServerOptions connectPolicy(MultiThreadedServer.ConnectPolicy cP) {
+		connPolicy = cP;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{ ");
@@ -79,6 +84,7 @@ public class ServerOptions {
 		if(database != null) sb.append("database: "+database+", ");
 		if(forbiddenNames != null && !forbiddenNames.isEmpty()) sb.append("forbiddenNames: "+forbiddenNames+", ");
 		if(confFile != null) sb.append("confFile: "+confFile+", ");
+		if(connPolicy != null) sb.append("connectPolicy: "+connPolicy+", ");
 		sb.delete(sb.length()-1, sb.length());
 		sb.append(" }");
 
@@ -94,4 +100,5 @@ public class ServerOptions {
 	String database;
 	Set<String> forbiddenNames;
 	String confFile;
+	MultiThreadedServer.ConnectPolicy connPolicy = null;
 }

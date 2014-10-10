@@ -41,9 +41,9 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 
 	public PokeponServer(ServerOptions opts) throws IOException {
 		super(opts);
-		if(opts.serverName == null)
-			serverName = PokeponServer.class.getSimpleName();
-		if(verbosity >= 0)
+		if(opts.serverName == null && !alreadySetName)
+			serverName = getClass().getSimpleName();
+		if(verbosity >= 2)
 			printDebug("["+serverName+"] Constructed.");
 	}
 
@@ -392,16 +392,16 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	 * @param opts (optional) additional options
 	 */
 	public PokeponServer configure(String[] args, ServerOptions... opts) throws MalformedURLException, UnknownOptionException {
-		if(Debug.on) printDebug("["+serverName+"] CONFIGURING");
+		if(verbosity >= 2) printDebug("["+serverName+"] CONFIGURING");
 		createDefaultConf();
 		args = loadPreConfig(args);
-		loadConfiguration(readConfigFile(new URL("file://"+confFile)));
+		loadOptions(readConfigFile(new URL("file://"+confFile)));
 		for(ServerOptions o : opts) {
 			printDebug("Loading additional option: "+o);
 			loadOptions(o);
 		}
-		if(Debug.on) printDebug("["+serverName+"] loaded "+opts.length+" additional options");
-		loadConfiguration(parseServerOptions(args));
+		if(verbosity >= 1) printDebug("["+serverName+"] loaded "+opts.length+" additional options");
+		loadOptions(parseServerOptions(args));
 		return this;
 	}
 

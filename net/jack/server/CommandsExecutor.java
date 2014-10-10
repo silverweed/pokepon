@@ -97,8 +97,9 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			for(Connection conn : server.getClients()) {
 				if(conn.getName().equals(token[1])) {
 					StringBuilder sb = new StringBuilder("Info about: "+token[1]+"\n");
-					sb.append("  IP Address:        "+conn.getSocket().getInetAddress().getHostAddress()+"\n");
-					sb.append("  Hostname:          "+conn.getSocket().getInetAddress().getHostName()+"\n");
+					// TODO: add admin roles and send sensible information only to admins.
+					sb.append("  IP Address:        (not allowed)"/*+conn.getSocket().getInetAddress().getHostAddress()*/+"\n");
+					sb.append("  Hostname:          (not allowed)"/*+conn.getSocket().getInetAddress().getHostName()*/+"\n");
 					sb.append("  Connected since:   "+conn.getConnectionTime()+"\n");
 					sb.append("  Connection time:   "+secondsToDate(-conn.getConnectionTime().getTime()/1000+(new Date()).getTime()/1000)+"\n");
 					sb.append("  Operating System:  "+conn.getOS()+"\n");

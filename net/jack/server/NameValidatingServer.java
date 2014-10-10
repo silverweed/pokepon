@@ -10,7 +10,7 @@ import pokepon.net.jack.*;
  */
 public interface NameValidatingServer extends Server {
 	
-	public int maxNickLen();
 	public boolean isValidName(String name);
-	
+	public int maxNickLen();
+	public int minNickLen();
 }

@@ -28,13 +28,16 @@ class ServerConnection extends Connection {
 	MultiThreadedServer server;
 	private static int nConn = 1;
 
-	public ServerConnection(MultiThreadedServer server,Socket client,int... verbosityLvl) {
-		super(client,verbosityLvl);
+	public ServerConnection(MultiThreadedServer server, Socket client, int... verbosityLvl) {
+		super(client, verbosityLvl);
 		
 		this.server = server;
 		
 		try {
-			name = socket.getInetAddress().getHostName().split("\\.")[0] + "-" + nConn++;
+			if(server.defaultNick != null)
+				name = server.defaultNick + "-" + nConn++;
+			else
+				name = socket.getInetAddress().getHostName().split("\\.")[0] + "-" + nConn++;
 			// before noticing other clients about this, verify it in the run() method
 		} catch(Exception e) {
 			printDebug("Caught exception while constructing Connection: "+e);
@@ -166,6 +169,10 @@ class ServerConnection extends Connection {
 			sendMsg("Syntax error.");
 			return false;
 		}
+		if(nick.length() < server.minNickLen()) {
+			sendMsg("Nickname too short. Nicknames should have at least "+server.minNickLen()+" characters.");
+			return false;
+		}
 		if(verbosity >= 2) printDebug("Assigning new nick \""+nick+"\" to "+name+" ("+socket.getInetAddress()+")");
 		String newname = MessageManager.sanitize(nick);
 		
@@ -174,7 +181,7 @@ class ServerConnection extends Connection {
 			try {
 				int maxNickLen = ((NameValidatingServer)server).maxNickLen();
 				if(newname.length() > maxNickLen) {
-					newname = newname.substring(0,maxNickLen-1);
+					newname = newname.substring(0,maxNickLen);
 				}
 				if(!((NameValidatingServer)server).isValidName(newname)) {
 					sendMsg("illegal name.");

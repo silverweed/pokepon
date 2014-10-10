@@ -320,6 +320,30 @@ public class BasicServer implements Server {
 					System.exit(2);
 				}
 
+			} else if(token.equals("--default-nick")) {
+				try {
+					srvopts.defaultNick = opts.remove(0);
+				} catch(IndexOutOfBoundsException e) {
+					printDebug("[ ERROR ] expected string after 'default-nick' option.");
+					e.printStackTrace();
+					System.exit(2);
+				}
+			} else if(token.equals("--max-nick-len")) {
+				try {
+					srvopts.maxNickLen = Integer.parseInt(opts.remove(0));
+				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
+					printDebug("[ ERROR ] expected integer after 'max-nick-len' option.");
+					e.printStackTrace();
+					System.exit(2);
+				}
+			} else if(token.equals("--min-nick-len")) {
+				try {
+					srvopts.minNickLen = Integer.parseInt(opts.remove(0));
+				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
+					printDebug("[ ERROR ] expected integer after 'min-nick-len' option.");
+					e.printStackTrace();
+					System.exit(2);
+				}
 			} else {
 				if(!token.matches("^(-h|--help)$"))
 					throw new UnknownOptionException(token);

@@ -7,6 +7,7 @@ import pokepon.util.*;
 import static pokepon.util.MessageManager.*;
 import java.security.*;
 import java.security.spec.*;
+import java.awt.*;
 import javax.swing.*;
 import java.nio.*;
 import java.nio.charset.*;
@@ -28,7 +29,7 @@ class ClientCommunicationsExecutor extends ClientConnectionExecutor {
 		
 		if(connection.getVerbosity() >= 3) printDebug("Called ClientCommunicationExecutor (msg="+msg+")");
 		
-		if(msg.charAt(0) != '!') return 0;
+		if(msg.charAt(0) != CMN_PREFIX) return 0;
 		
 		String[] token = msg.substring(1).split(" ");
 		String cmd = token[0];
@@ -41,7 +42,7 @@ class ClientCommunicationsExecutor extends ClientConnectionExecutor {
 			printMsg("Set nick to "+token[1]);
 			return 1;
 		} else if(cmd.equals("givepasswd")) {
-			if(!(client instanceof JFrame)) return 0;
+			if(!(client instanceof Component)) return 0;
 			JPanel panel = new JPanel();
 			JLabel label = new JLabel("Enter a password:");
 			JPasswordField pass = new JPasswordField(15);
@@ -49,7 +50,7 @@ class ClientCommunicationsExecutor extends ClientConnectionExecutor {
 			panel.add(pass);
 			String[] options = new String[]{"OK", "Cancel"};
 			int option = JOptionPane.showOptionDialog(
-								(JFrame)client, 
+								(Component)client, 
 								panel, 
 								"Please enter password",
 								JOptionPane.NO_OPTION, 

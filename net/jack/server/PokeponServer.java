@@ -352,7 +352,18 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	}
 
 	public static void printUsage() {
-		consoleMsg("Usage: PokeponServer [--conf <conf_file>] [-i|--ip <ip>] [-p|--port <port>] [-v(vv...)|-v <verb.Lv>] [-m|--max-clients <max-clients>] [--name <name>] [--forbid <list of regexes>] [-d|--database <dbUrl>]");
+		consoleMsg("Usage: PokeponServer [opts]\n"+
+		"Options are:\n"+
+		"\t--conf <conf_file>:             use a different configuration file than the default one.\n"+
+		"\t-i,--ip <ip>:                   bind the server to the ip <ip>\n"+
+		"\t-p,--port <port>:               listen on port <port> (default: 12344)\n"+
+		"\t-v(vv...),-v <verb.Lv>:         set verbosity to <verb.Lv> (-1~4)\n"+
+		"\t-m,--max-clients <max-clients>: limit the number of clients allowed to <max-clients>\n"+
+		"\t--name <name>:                  set the server name\n"+
+		"\t--forbid <list of regexes>:     forbid patterns from being used as chat nicknames\n"+
+		"\t-d,--database <dbUrl>:          change the server database file location\n"+
+		"\t-c,--policy <connect-policy>:   change the server connection policy\n"+
+		"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");
 		System.exit(0);
 	}
 

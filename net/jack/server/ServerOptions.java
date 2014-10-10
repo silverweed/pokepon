@@ -38,6 +38,11 @@ public class ServerOptions {
 		return this;
 	}
 
+	public ServerOptions minNickLen(int maxNL) {
+		minNickLen = maxNL;
+		return this;
+	}
+
 	public ServerOptions serverName(String name) {
 		serverName = name;
 		return this;
@@ -72,6 +77,11 @@ public class ServerOptions {
 		return this;
 	}
 
+	public ServerOptions defaultNick(String dN) {
+		defaultNick = dN;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{ ");
@@ -95,10 +105,12 @@ public class ServerOptions {
 	Integer verbosity = null;
 	String address;
 	int maxNickLen = -1;
+	int minNickLen = -1;
 	String serverName;
 	int maxClients = -1;
 	String database;
 	Set<String> forbiddenNames;
 	String confFile;
 	MultiThreadedServer.ConnectPolicy connPolicy = null;
+	String defaultNick;
 }

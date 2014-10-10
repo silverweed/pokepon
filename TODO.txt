@@ -15,7 +15,7 @@
 - 'Repeat' bug: sometimes locks the wrong move / allows using blocking
   moves like Love Burst several times in a row
 
-- Add drain animation to Wild Weed
+- Add drain animation to Wild Weed (also check for bugs when pony is fainted)
 
 - Implement multiple (simultaneous or consecutive) animations
 
@@ -26,3 +26,19 @@
 - Implement Weather
 
 - Sound control in the BattlePanel
+
+- Moves which drop stats after usage should not drop them on 'immune'
+
+- Implement 'export log' feature
+
+- 'Fainted' messages should be sent only once by the server!
+
+- Toxic activates even when the pony is already fainted
+
+- Heavy Massage not removing statuses?
+
+- Nicknames: config option to set default nicks, request nick on login feature 
+
+- Whois shouldn't show the IP to clients other than admins
+
+- Implement chat roles! And moderation commands

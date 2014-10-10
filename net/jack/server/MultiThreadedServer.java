@@ -26,7 +26,13 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	protected ThreadPoolExecutor pool;
 	protected ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(200*maxClients);
 	protected List<Connection> clients = Collections.synchronizedList(new LinkedList<Connection>());
+	/** The policy for allowing clients to connect to this server: see server.conf for details */
 	ConnectPolicy connectPolicy = ConnectPolicy.AVERAGE;
+	/** If null, clients will get a default name of the form clientHostname-N, else
+	 * defaultNick-N (with N being the number of connections the server has had so far);
+	 * set this parameter in server.conf or with a command line option.
+	 */
+	String defaultNick;
 	
 	public MultiThreadedServer() throws IOException {
 		this(ServerOptions.construct());
@@ -70,11 +76,15 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		if(verbosity >= 2) printDebug("[MultiThreadedServer] Called loadOptions");
 		if(opts.maxClients != -1) {
 			maxClients = opts.maxClients;
-			printDebug("[MultiThreadedServer] maxClients set to "+maxClients);
+			if(verbosity >= 2) printDebug("[MultiThreadedServer] maxClients set to "+maxClients);
 		}
 		if(opts.connPolicy != null) {
 			connectPolicy = opts.connPolicy;
-			printDebug("[MultiThreadedServer] connectPolicy set to "+connectPolicy);
+			if(verbosity >= 2) printDebug("[MultiThreadedServer] connectPolicy set to "+connectPolicy);
+		}
+		if(opts.defaultNick != null) {
+			defaultNick = opts.defaultNick;
+			if(verbosity >= 2) printDebug("[MultiTheadedServer] defaultNick set to "+defaultNick);
 		}
 		return this;
 	}

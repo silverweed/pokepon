@@ -62,14 +62,32 @@ As an alternative, the server can be started in batch mode via the command
 (The flag <code>-h</code> can be used to obtain a quick summary of the server
 options).
 
-The configuration file for the Poképon Server can be found in:
+If the server was started from the JAR package, the configuration file
+it will use can be found in:
 * Linux / Mac
 <pre>~/.pokepon/server.conf</pre>
 
 * Windows
 <pre>%APPDATA%/pokepon/server.conf</pre>
 
+Else it will use <code>pokepon/net/server.conf</code>.
+
 The configuration file itself contains explanation about the possible options.
+
+The server will use a file as a database to store nick / password pairs (the
+passwords are never saved in plain text, but are pre-hashed by the client
+and then hashed again with a random salt by the server, so don't attempt to
+change them manually: if you need to change an user's password, delete the
+record altogether and re-register).
+If the server was started from the JAR package, the database file can be found in
+the same directory as the conf file (<code>~/.pokepon/server.db</code> or
+</code>%APPDATA%/pokepon/server.db</code>), else it will reside in 
+<code>pokepon/data/server.db</code>).
+
+Both the configuration file and the database will be recreated every time
+the server cannot find them in the expected locations, so if you want a
+fresh conf file or an empty db, you can delete or move those files and
+have them recreated.
 
 Running a dedicated server
 --------------------------------------------------------

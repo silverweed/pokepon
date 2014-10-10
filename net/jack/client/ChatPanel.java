@@ -81,8 +81,10 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 
 	public void dispose() {
 		try {
-			in.close();
-			out.close();
+			if(in != null) 
+				in.close();
+			if(out != null)
+				out.close();
 		} catch(IOException e) {}
 	}
 

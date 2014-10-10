@@ -74,7 +74,8 @@ class ServerConnection extends Connection {
 					(server.connectPolicy == MultiThreadedServer.ConnectPolicy.AVERAGE && 
 						(token[0].equals("GET") || token[0].equals("POST") || token[0].equals("HEAD")
 						|| token[0].equals("DELETE") || token[0].equals("PUT") || token[0].equals("TRACE")
-						|| token[0].equals("CONNECT")))
+						|| token[0].equals("CONNECT"))
+					)
 				) {
 					printDebug("[ServerConnection] Received invalid response `"+token[0]+"`: dropping connection with "+name);
 					printDebug("  (Server.connectPolicy is set to "+server.connectPolicy+")");
@@ -130,7 +131,7 @@ class ServerConnection extends Connection {
 					sendMsg(CMN_PREFIX+"useradd "+conn.getName());
 			}
 		}
-		/* The notify other clients that we've just connected */
+		/* Then notify other clients that we've just connected */
 		if(verbosity >= 1) printDebug("[Connection] Constructed connection with "+socket+" (name: "+name+")");
 		if(verbosity >= 0) server.broadcast(socket,name+" connected to server.");
 		server.broadcast(socket,CMN_PREFIX+"useradd "+name);

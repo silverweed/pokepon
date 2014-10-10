@@ -322,39 +322,33 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		}
 		/* If token > 2 then token[2] is the password */
 		if(token.length > 2) {
-			try {
-				int ret = 42;
-				switch((ret = ((DatabaseServer)server).registerNick(nick,token[2].toCharArray()))) {
-					case 0:
-						if(connection.getVerbosity() >= 1) printDebug("Registered nickname "+nick+".");
-						connection.sendMsg("Successfully registered nickname "+nick+".");
-						token[2] = null;
-						connection.setName(nick);
-						return 1;
-					case 1:	//nickname esists
-						if(connection.getVerbosity() >= 1) printDebug("Nickname "+nick+" not registered: already exists.");
-						connection.sendMsg("Nickname "+nick+" already exists.");
-						token[2] = null;
-						return 1;
-					case 2:	//generic error
-						if(connection.getVerbosity() >= 1) printDebug("Error: couldn't register "+nick+".");
-						connection.sendMsg("Error: couldn't register nickname "+nick+".");
-						token[2] = null;
-						return 1;
-					case 3: //illegal name
-						if(connection.getVerbosity() >= 1) printDebug("Illegal nick: "+nick+".");
-						connection.sendMsg("Illegal nick.");
-						token[2] = null;
-						return 1;
-					default:
-						if(connection.getVerbosity() >= 1) printDebug("registerNick("+nick+") returned "+ret+".");
-						token[2] = null;
-						return 1;
-				}
-			} catch(FileNotFoundException e) {
-				printDebug("Database not found: "+e);
-				connection.sendMsg("Server database error. Cannot register nicknames.");
-				return 1;
+			int ret = 42;
+			switch((ret = ((DatabaseServer)server).registerNick(nick,token[2].toCharArray()))) {
+				case 0:
+					if(connection.getVerbosity() >= 1) printDebug("Registered nickname "+nick+".");
+					connection.sendMsg("Successfully registered nickname "+nick+".");
+					token[2] = null;
+					connection.setName(nick);
+					return 1;
+				case 1:	//nickname esists
+					if(connection.getVerbosity() >= 1) printDebug("Nickname "+nick+" not registered: already exists.");
+					connection.sendMsg("Nickname "+nick+" already exists.");
+					token[2] = null;
+					return 1;
+				case 2:	//generic error
+					if(connection.getVerbosity() >= 1) printDebug("Error: couldn't register "+nick+".");
+					connection.sendMsg("Error: couldn't register nickname "+nick+".");
+					token[2] = null;
+					return 1;
+				case 3: //illegal name
+					if(connection.getVerbosity() >= 1) printDebug("Illegal nick: "+nick+".");
+					connection.sendMsg("Illegal nick.");
+					token[2] = null;
+					return 1;
+				default:
+					if(connection.getVerbosity() >= 1) printDebug("registerNick("+nick+") returned "+ret+".");
+					token[2] = null;
+					return 1;
 			}
 		} else {	// else prompt for password
 			for(ConnectionExecutor ex : connection.getExecutors()) {
@@ -370,38 +364,32 @@ class CommandsExecutor extends ServerConnectionExecutor {
 						} else {
 							printDebug("Received password. Registering...");
 							int ret = 42;
-							try {
-								switch((ret = ((DatabaseServer)server).registerNick(nick,words[1].toCharArray()))) {
-									case 0:
-										if(connection.getVerbosity() >= 1) printDebug("Registered nickname "+nick+".");
-										connection.sendMsg("Successfully registered nickname "+nick+".");
-										words[1] = null;
-										connection.setName(nick);
-										return 1;
-									case 1:	//nickname esists
-										if(connection.getVerbosity() >= 1) printDebug("Nickname "+nick+" not registered: already exists.");
-										connection.sendMsg("Nickname "+nick+" already exists.");
-										words[1] = null;
-										return 1;
-									case 2:	//generic error
-										if(connection.getVerbosity() >= 1) printDebug("Error: couldn't register "+nick+".");
-										connection.sendMsg("Error: couldn't register nickname "+nick+".");
-										words[1] = null;
-										return 1;
-									case 3: //illegal name
-										if(connection.getVerbosity() >= 1) printDebug("Illegal nick: "+nick+".");
-										connection.sendMsg("Illegal nick.");
-										words[1] = null;
-										return 1;
-									default:
-										if(connection.getVerbosity() >= 1) printDebug("registerNick("+nick+") returned "+ret+".");
-										words[1] = null;
-										return 1;
-								}
-							} catch(FileNotFoundException e) {
-								printDebug("Database not found: "+e);
-								connection.sendMsg("Server database error. Cannot register nicknames.");
-								return 1;
+							switch((ret = ((DatabaseServer)server).registerNick(nick,words[1].toCharArray()))) {
+								case 0:
+									if(connection.getVerbosity() >= 1) printDebug("Registered nickname "+nick+".");
+									connection.sendMsg("Successfully registered nickname "+nick+".");
+									words[1] = null;
+									connection.setName(nick);
+									return 1;
+								case 1:	//nickname esists
+									if(connection.getVerbosity() >= 1) printDebug("Nickname "+nick+" not registered: already exists.");
+									connection.sendMsg("Nickname "+nick+" already exists.");
+									words[1] = null;
+									return 1;
+								case 2:	//generic error
+									if(connection.getVerbosity() >= 1) printDebug("Error: couldn't register "+nick+".");
+									connection.sendMsg("Error: couldn't register nickname "+nick+".");
+									words[1] = null;
+									return 1;
+								case 3: //illegal name
+									if(connection.getVerbosity() >= 1) printDebug("Illegal nick: "+nick+".");
+									connection.sendMsg("Illegal nick.");
+									words[1] = null;
+									return 1;
+								default:
+									if(connection.getVerbosity() >= 1) printDebug("registerNick("+nick+") returned "+ret+".");
+									words[1] = null;
+									return 1;
 							}
 						}
 					} catch(IOException e) {

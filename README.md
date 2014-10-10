@@ -71,6 +71,36 @@ The configuration file for the Poképon Server can be found in:
 
 The configuration file itself contains explanation about the possible options.
 
+Running a dedicated server
+--------------------------------------------------------
+If you plan running a dedicated server, or a server that will host
+several (read: more than a couple of) clients, you should use the unpackaged
+version of the game, which is slightly faster accessing Java classes than the
+JAR. In that case, these are the instructions to follow:
+* Download the game, either the Zip archive or using Git. The latter is preferred,
+since it'll be much easier to grab the updates:
+<pre>git clone https://github.com/silverweed/pokepon.git</pre>
+* Set the CLASSPATH environment variable to the directory containing the pokepon
+root directory. E.g. if you downloaded the repository in /home/me/, do:
+<pre>export CLASSPATH=/home/me  # only valid on *nix systems</pre>
+* Start the server <b>as an unprivileged user</b> with:
+<pre>java pokepon.net.jack.server.PokeponServer [opts]</pre>
+
+<b>Tips</b>
+* Use the default port: it'll be easier for clients to connect to your server if they
+don't have to remember a custom port.
+* To keep a server log (on *nix):
+<pre>java pokepon.net.jack.server.PokeponServer [opts] &> server.log
+-OR-
+java pokepon.net.jack.server.PokeponServer [opts] |& tee server.log
+</pre>
+* It's not recommended setting the <code>max-clients</code> option to a higher value than the default one
+* Isolate the server as much as possible: being in alpha stage, there may be security issues or unknown
+server exploits. Using a Virtual Machine or <a href='https://docker.com'>a Docker container</a> is a
+good security measure. For the latter, a Dockerfile for a PokeponServer is available in <code>data/docker</code> 
+(see the instruction in data/docker/README.md)
+
+
 How to connect
 --------------------------------------------------------
 To connect to a running Poképon Server start the Client, either from

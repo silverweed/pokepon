@@ -73,7 +73,8 @@ class ServerConnection extends Connection {
 					server.connectPolicy == MultiThreadedServer.ConnectPolicy.PARANOID || 
 					(server.connectPolicy == MultiThreadedServer.ConnectPolicy.AVERAGE && 
 						(token[0].equals("GET") || token[0].equals("POST") || token[0].equals("HEAD")
-						|| token[0].equals("DELETE") || token[0].equals("PUT")))
+						|| token[0].equals("DELETE") || token[0].equals("PUT") || token[0].equals("TRACE")
+						|| token[0].equals("CONNECT")))
 				) {
 					printDebug("[ServerConnection] Received invalid response `"+token[0]+"`: dropping connection with "+name);
 					printDebug("  (Server.connectPolicy is set to "+server.connectPolicy+")");

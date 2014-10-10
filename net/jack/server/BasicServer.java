@@ -36,11 +36,15 @@ public class BasicServer implements Server {
 	 */
 	public BasicServer(ServerOptions opts) throws IOException {
 		ss = new ServerSocket();
+		/*
 		if(opts.address != null)
 			myAddress = InetAddress.getByName(opts.address);
 		else
 			myAddress = InetAddress.getLocalHost();
+		*/
 		loadOptions(opts);
+		if(opts.serverName == null && !alreadySetName)
+			serverName = getClass().getSimpleName();
 		if(verbosity >= 0)
 			printDebug("["+serverName+"] Constructed with address = "+myAddress+":"+port+", verbosity "+verbosity+" and conf-file "+confFile);
 	}
@@ -49,7 +53,7 @@ public class BasicServer implements Server {
 	 * and quietly rejects unknown ones.
 	 */
 	public BasicServer loadOptions(ServerOptions opts) {
-		if(Debug.on) printDebug("["+serverName+"] Called loadOptions("+opts+")");
+		if(Debug.on) printDebug("[BasicServer] Called loadOptions("+opts+")");
 		try {
 			if(opts.address != null)
 				myAddress = InetAddress.getByName(opts.address);
@@ -58,10 +62,12 @@ public class BasicServer implements Server {
 		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}
-		if(opts.serverName != null)
+		if(opts.serverName != null) {
 			serverName = opts.serverName;
-		else
-			serverName = BasicServer.class.getSimpleName();
+			alreadySetName = true;
+		} else if(!alreadySetName) {
+			serverName = getClass().getSimpleName();
+		}
 		if(opts.port != -1)
 			port = opts.port;
 		if(opts.verbosity != null)
@@ -198,7 +204,7 @@ public class BasicServer implements Server {
 	public InetAddress getAddress() { return myAddress; }
 
 	// SERVER CONFIGURATION FUNCTIONS
-	public void loadConfiguration(ServerOptions opts) {
+	/*public void loadConfiguration(ServerOptions opts) {
 		if(opts.port != -1) {
 			if(verbosity >= 2) printDebug("[loadConfiguration] set port to "+opts.port);
 			port = opts.port;
@@ -217,7 +223,7 @@ public class BasicServer implements Server {
 			verbosity = opts.verbosity;
 
 		if(verbosity >= 1) printDebug("[BasicServer] loaded configuration.");
-	}
+	}*/
 
 	/** Read command-line arguments and process all those that should be processed
 	 * _BEFORE_ reading the conf file, then strip those arguments from args.
@@ -312,6 +318,28 @@ public class BasicServer implements Server {
 					e.printStackTrace();
 					System.exit(2);
 				}
+			} else if(token.matches("^(-c|--(connect(ion)?-)?policy)$")) {
+				try {
+					String pol = opts.remove(0);
+					if(pol.toLowerCase().equals("paranoid")) 
+						srvopts.connPolicy = MultiThreadedServer.ConnectPolicy.PARANOID;
+					else if(pol.toLowerCase().equals("average") || 
+						pol.toLowerCase().equals("default") || 
+						pol.toLowerCase().equals("normal")
+					) 
+						srvopts.connPolicy = MultiThreadedServer.ConnectPolicy.AVERAGE;
+					else if(pol.toLowerCase().equals("permissive")) 
+						srvopts.connPolicy = MultiThreadedServer.ConnectPolicy.PERMISSIVE;
+					else {
+						printDebug("[ ERROR ] unknown value for 'policy' flag.");
+						System.exit(2);
+					}
+				} catch(IndexOutOfBoundsException e) {
+					printDebug("[ ERROR ] expected 'paranoid','average' or 'permissive' after 'policy' flag.");
+					e.printStackTrace();
+					System.exit(2);
+				}
+
 			} else {
 				if(!token.matches("^(-h|--help)$"))
 					throw new UnknownOptionException(token);
@@ -320,7 +348,7 @@ public class BasicServer implements Server {
 			}
 		}
 
-		if(verbosity >= 0) printDebug("Opts to change after configuration: "+srvopts);
+		if(verbosity >= 2) printDebug("Opts to change after configuration: "+srvopts);
 		return srvopts;
 	}
 
@@ -338,6 +366,8 @@ public class BasicServer implements Server {
 			arg += tmp+" ";
 		while((tmp = opts.poll()) != null && !tmp.startsWith("-"))
 			arg += tmp+" ";
+		
+		arg = arg.trim();
 
 		// if last string removed was the next option, re-insert it in the opts list.
 		if(tmp != null)
@@ -380,6 +410,7 @@ public class BasicServer implements Server {
 	protected InetAddress myAddress;
 	protected int verbosity = DEFAULT_VERBOSITY;
 	protected String serverName;
+	protected boolean alreadySetName;
 	
 	private ServerSocket ss;
 	private Date connectionTime;

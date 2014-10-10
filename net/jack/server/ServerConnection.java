@@ -71,7 +71,9 @@ class ServerConnection extends Connection {
 					if(verbosity >= 2) printDebug(name+": OK. OS set to "+os);
 				} else if(
 					server.connectPolicy == MultiThreadedServer.ConnectPolicy.PARANOID || 
-					server.connectPolicy == MultiThreadedServer.ConnectPolicy.AVERAGE && token[0].equals("GET")
+					(server.connectPolicy == MultiThreadedServer.ConnectPolicy.AVERAGE && 
+						(token[0].equals("GET") || token[0].equals("POST") || token[0].equals("HEAD")
+						|| token[0].equals("DELETE") || token[0].equals("PUT")))
 				) {
 					printDebug("[ServerConnection] Received invalid response `"+token[0]+"`: dropping connection with "+name);
 					printDebug("  (Server.connectPolicy is set to "+server.connectPolicy+")");
@@ -80,9 +82,21 @@ class ServerConnection extends Connection {
 				}
 			} else {
 				if(verbosity >= 2) printDebug(name+": received invalid OS data: "+Arrays.asList(token));
+				if(server.connectPolicy == MultiThreadedServer.ConnectPolicy.PARANOID) {
+					printDebug("[ServerConnection] Received invalid response `"+token[0]+"`: dropping connection with "+name);
+					printDebug("  (Server.connectPolicy is set to "+server.connectPolicy+")");
+					disconnect();
+					return;
+				}
 			}
 		} catch(SocketTimeoutException e) {
 			// os unknown
+			if(server.connectPolicy == MultiThreadedServer.ConnectPolicy.PARANOID) {
+				printDebug("[ServerConnection] Timeout on OS request. Dropping connection with "+name);
+				printDebug("  (Server.connectPolicy is set to "+server.connectPolicy+")");
+				disconnect();
+				return;
+			}
 			if(verbosity >= 2) printDebug(name+": timeout. OS set to Unknown.");
 		} catch(Exception e) {
 			printDebug("Unexpected exception in ServerConnection.run(): "+e);

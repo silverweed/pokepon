@@ -19,8 +19,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 
 	public static enum ConnectPolicy {
 		PERMISSIVE, 	// allow all TCP connections
-		AVERAGE,	// disallow HTTP requests
-		PARANOID	// disallow all but requests compliant with JACK protocol 
+		AVERAGE,	// disallow HTTP requests (but allow clients like netcat and telnet)
+		PARANOID	// disallow all but requests compliant with J.A.C.K. protocol 
 	};
 	protected int maxClients = 100;
 	protected ThreadPoolExecutor pool;
@@ -58,17 +58,24 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				}
 			}
 		};
-		if(opts.serverName == null)
-			serverName = MultiThreadedServer.class.getSimpleName();
+		if(opts.serverName == null && !alreadySetName)
+			serverName = getClass().getSimpleName();
 		if(verbosity >= 0)
-			printDebug("["+serverName+"] Constructed with maxClients = "+maxClients);
+			printDebug("["+serverName+"] Constructed with maxClients = "+maxClients+" and connectPolicy = "+connectPolicy);
 	}
 
 	@Override
 	public MultiThreadedServer loadOptions(ServerOptions opts) {
-		if(opts.maxClients != -1)
-			maxClients = opts.maxClients;
 		super.loadOptions(opts);
+		if(verbosity >= 2) printDebug("[MultiThreadedServer] Called loadOptions");
+		if(opts.maxClients != -1) {
+			maxClients = opts.maxClients;
+			printDebug("[MultiThreadedServer] maxClients set to "+maxClients);
+		}
+		if(opts.connPolicy != null) {
+			connectPolicy = opts.connPolicy;
+			printDebug("[MultiThreadedServer] connectPolicy set to "+connectPolicy);
+		}
 		return this;
 	}
 	
@@ -78,8 +85,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		try {
 			server = new MultiThreadedServer();
 			args = server.loadPreConfig(args);
-			server.loadConfiguration(readConfigFile(new URL(confFile)));
-			server.loadConfiguration(parseServerOptions(args));
+			server.loadOptions(readConfigFile(new URL(confFile)));
+			server.loadOptions(parseServerOptions(args));
 			server.start();
 		} catch(IOException e) {
 			printDebug("Caught IOException while starting MultiThreadedServer: ");
@@ -170,12 +177,12 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		}
 	}
 
-	@Override
+	/*@Override
 	public void loadConfiguration(ServerOptions opts) {
 		super.loadConfiguration(opts);
 		if(opts.maxClients != -1)
 			maxClients = opts.maxClients;
-	}
+	}*/
 
 	protected static void printUsage() {
 		consoleMsg("Usage: "+MultiThreadedServer.class.getSimpleName()+" [port] [verbosity]");

@@ -33,21 +33,22 @@ public class DatabaseServer extends MultiThreadedServer {
 		loadOptions(opts);
 		if(opts.database == null)
 			setDatabaseLocation("file://"+Meta.getDataURL().getPath()+"/server.db"); 
-		if(opts.serverName == null)
-			serverName = DatabaseServer.class.getSimpleName();
+		if(opts.serverName == null && !alreadySetName)
+			serverName = getClass().getSimpleName();
 		if(verbosity >= 0)
 			printDebug("["+serverName+"] Constructed with database: "+dbURL+" (path: "+dbName+")");
 	}
 
 	@Override
 	public DatabaseServer loadOptions(ServerOptions opts) {
+		super.loadOptions(opts);
+		if(verbosity >= 2) printDebug("[DatabaseServer] Called loadOptions");
 		try {
 			if(opts.database != null)
 				setDatabaseLocation(opts.database);
 		} catch(MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
-		super.loadOptions(opts);
 		return this;
 	}
 
@@ -80,8 +81,8 @@ public class DatabaseServer extends MultiThreadedServer {
 		try {
 			server = new DatabaseServer();
 			args = server.loadPreConfig(args);
-			server.loadConfiguration(readConfigFile(new URL(confFile)));
-			server.loadConfiguration(parseServerOptions(args));
+			server.loadOptions(readConfigFile(new URL(confFile)));
+			server.loadOptions(parseServerOptions(args));
 			server.start();
 		} catch(IOException e) {
 			printDebug("Caught IOException while starting DatabaseServer: ");
@@ -265,7 +266,7 @@ public class DatabaseServer extends MultiThreadedServer {
 		return 2;
 	}	
 
-	@Override
+	/*@Override
 	public void loadConfiguration(ServerOptions opts) {
 		super.loadConfiguration(opts);
 		if(opts.database != null) {
@@ -276,7 +277,7 @@ public class DatabaseServer extends MultiThreadedServer {
 			}
 		}
 		if(verbosity >= 1) printDebug("[DatabaseServer] loaded configuration.");
-	}
+	}*/
 
 	protected static void printUsage() {
 		System.out.println("Usage: "+DatabaseServer.class.getSimpleName()+" [address (- for localhost)] [port] [verbosity]");

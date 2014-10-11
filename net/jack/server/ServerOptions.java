@@ -82,6 +82,11 @@ public class ServerOptions {
 		return this;
 	}
 
+	public ServerOptions welcomeMessage(String wM) {
+		welcomeMessage = wM;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{ ");
@@ -113,4 +118,5 @@ public class ServerOptions {
 	String confFile;
 	MultiThreadedServer.ConnectPolicy connPolicy = null;
 	String defaultNick;
+	String welcomeMessage;
 }

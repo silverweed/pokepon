@@ -364,6 +364,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		"\t-d,--database <dbUrl>:          change the server database file location\n"+
 		"\t-c,--policy <connect-policy>:   change the server connection policy\n"+
 		"\t--default-nick <string>:        set the default nick to be given to anon clients\n"+
+		"\t--welcome-message <string>:     set a welcome message to be given to clients\n"+
 		"\t--min-nick-len <integer>:       set the minimum accepted nickname length\n"+
 		"\t--max-nick-len <integer>:       longer nicknames will be truncated to this length\n"+
 		"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");

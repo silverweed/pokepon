@@ -328,9 +328,9 @@ public class BasicServer implements Server {
 					e.printStackTrace();
 					System.exit(2);
 				}
-			} else if(token.equals("--welcome-message")) {
+			} else if(token.equals("--welcome-message") || token.equals("--motd")) {
 				try {
-					srvopts.welcomeMessage = opts.remove(0);
+					srvopts.welcomeMessage = parseTillNextOpt(opts); 
 				} catch(IndexOutOfBoundsException e) {
 					printDebug("[ ERROR ] expected string after 'welcome-message' option.");
 					e.printStackTrace();

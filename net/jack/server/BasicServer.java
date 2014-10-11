@@ -328,6 +328,14 @@ public class BasicServer implements Server {
 					e.printStackTrace();
 					System.exit(2);
 				}
+			} else if(token.equals("--welcome-message")) {
+				try {
+					srvopts.welcomeMessage = opts.remove(0);
+				} catch(IndexOutOfBoundsException e) {
+					printDebug("[ ERROR ] expected string after 'welcome-message' option.");
+					e.printStackTrace();
+					System.exit(2);
+				}
 			} else if(token.equals("--max-nick-len")) {
 				try {
 					srvopts.maxNickLen = Integer.parseInt(opts.remove(0));

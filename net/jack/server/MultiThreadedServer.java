@@ -33,6 +33,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	 * set this parameter in server.conf or with a command line option.
 	 */
 	String defaultNick;
+	/** Message to send to users on connection */
+	String welcomeMessage;
 	
 	public MultiThreadedServer() throws IOException {
 		this(ServerOptions.construct());
@@ -85,6 +87,10 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		if(opts.defaultNick != null) {
 			defaultNick = opts.defaultNick;
 			if(verbosity >= 2) printDebug("[MultiTheadedServer] defaultNick set to "+defaultNick);
+		}
+		if(opts.welcomeMessage != null) {
+			welcomeMessage = opts.welcomeMessage;
+			if(verbosity >= 2) printDebug("[MultiTheadedServer] welcomeMessage set to "+welcomeMessage);
 		}
 		return this;
 	}

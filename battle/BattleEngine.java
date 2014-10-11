@@ -26,8 +26,8 @@ public class BattleEngine {
 	
 	private void setup() {
 		dc = new DamageCalculator(rng);
-		hazards1 = new HashSet<Hazard>();
-		hazards2 = new HashSet<Hazard>();
+		hazards1 = Collections.synchronizedSet(new HashSet<Hazard>());
+		hazards2 = Collections.synchronizedSet(new HashSet<Hazard>());
 	}
 		
 	/** team1 and team2 are fixed references to the p1's and p2's teams; p1 and p2 also remain the
@@ -71,12 +71,12 @@ public class BattleEngine {
 		return getTeam(getOppositeSide(pony)).getActivePony();
 	}
 	public WeatherHolder getWeather() { return weather; }
-	public Set<Hazard> getHazards(int i) {
+	public synchronized Set<Hazard> getHazards(int i) {
 		if(i == 1) return hazards1;
 		else if(i == 2) return hazards2;
 		else return null;
 	}
-	public List<Set<Hazard>> getHazards() {
+	public synchronized List<Set<Hazard>> getHazards() {
 		List<Set<Hazard>> hz = new ArrayList<Set<Hazard>>();
 		hz.add(hazards1);
 		hz.add(hazards2);
@@ -783,8 +783,8 @@ public class BattleEngine {
 			if(hz.getName().equals("Wild Weed")) {
 				it.remove();
 				if(battleTask != null) {
-					battleTask.sendB(getConnection(side),"|rmhazard|ally|Wild Weed");
-					battleTask.sendB(getConnection(side == 1 ? 2 : 1),"|rmhazard|ally|Wild Weed");
+					battleTask.sendB(getConnection(side),"|rmhazard|ally|Wild Weed|quiet");
+					battleTask.sendB(getConnection(side == 1 ? 2 : 1),"|rmhazard|opp|Wild Weed|quiet");
 				}
 				break;
 			}
@@ -1536,7 +1536,7 @@ public class BattleEngine {
 			}
 			if(battleTask != null) {
 				battleTask.sendB(ally,"|rmhazard|opp");
-				battleTask.sendB(opp,"|rmhazard|hazard");
+				battleTask.sendB(opp,"|rmhazard|ally");
 			}
 		}
 	}

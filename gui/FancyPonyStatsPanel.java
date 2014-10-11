@@ -356,7 +356,7 @@ class FancyPonyStatsPanel extends StatsPanel {
 
 	//////////////////////////////////////////////// END LISTENERS
 
-	private synchronized void refresh() {
+	synchronized void refresh() {
 		if(Debug.pedantic) printDebug("CALLED REFRESH()");
 		SwingUtilities.invokeLater(new Runnable() {
 			public synchronized void run() {

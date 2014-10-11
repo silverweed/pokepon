@@ -44,6 +44,12 @@ public class WildWeedHazard extends Hazard {
 
 	@Override
 	public void onTurnEnd(final BattleEngine be) {
+		// only trigger if ponies on both side are alive
+		if(	be.getDefender() == null || be.getDefender().isFainted() ||
+			be.getAttacker() == null || be.getAttacker().isFainted()
+		) {
+			return;
+		}
 		for(EffectDealer ed : be.getTeam(side).getActivePony().getEffectDealers())
 			if(ed.negateSecondaryDamage())
 				return;

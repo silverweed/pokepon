@@ -2117,7 +2117,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 	
 		} else if(token[0].equals("addhazard") && token.length > 2) {
-			/* |addhazard|(ally/opp)|Hazard Name */
+			/* |addhazard|(ally/opp)|Hazard ClassName */
 			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 				printDebug("[BP.interpret(addhazard)]: Error - side is "+token[1]);
 				return;
@@ -2183,17 +2183,22 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		
 		} else if(token[0].equals("rmhazard") && token.length > 1) {
-			/* |rmhazard|(ally/opp)[|Hazard Name] */
+			/* |rmhazard|(ally/opp)[|Hazard's Move Name|quiet] */
 			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 				printDebug("[BP.interpret(rmhazard)]: Error - side is "+token[1]);
 				return;
 			}
+			final boolean quiet = token.length > 3 && token[3].equals("quiet");
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {
 						int side = token[1].equals("ally") ? 0 : 1;
 						if(token.length > 2) {
 							// only remove the specified hazard
+							if(hazardTokens.get(side).get(token[2]) == null) {
+								printDebug("[BP.interpret(rmhazard)] Error - no such hazard on side "+side+": "+token[2]);
+								return;
+							}
 							for(JLabel lab : hazardTokens.get(side).get(token[2])) {
 								if(lab != null) {
 									lab.setVisible(false);
@@ -2206,8 +2211,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 								}
 							}
 							hazards.get(side).remove(token[2]);
-							appendEvent(EventType.EMPHASIZED,token[2]+" disappeared from your " +
-								(side == 1 ? "opponent's " : "") + "field!");
+							if(!quiet)
+								appendEvent(EventType.EMPHASIZED,token[2]+" disappeared from your " +
+									(side == 1 ? "opponent's " : "") + "field!");
 						} else {
 							for(List<JLabel> list : hazardTokens.get(side).values()) {
 								for(JLabel lab : list) {
@@ -2216,8 +2222,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 								}
 							}
 							hazards.get(side).clear();
-							appendEvent(EventType.EMPHASIZED,"Hazards disappeared from your " +
-								(side == 1 ? "opponent's " : "") + "field!");
+							if(!quiet)
+								appendEvent(EventType.EMPHASIZED,"Hazards disappeared from your " +
+									(side == 1 ? "opponent's " : "") + "field!");
 						}
 					}
 				});

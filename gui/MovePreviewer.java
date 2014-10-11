@@ -172,7 +172,12 @@ public class MovePreviewer extends PokeponPreviewer {
 		if(Debug.on) printDebug("Called MovePreviewer.showPreview("+str+"); pony = "+pony);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				listModel.clear();
+				try {
+					listModel.clear();
+				} catch(ArrayIndexOutOfBoundsException e) {
+					// pretty much harmless: don't print entire stack trace
+					printDebug("[MovePreviewer] Out of bounds: "+e);
+				}
 				List<Move> matched = new ArrayList<>();
 				for(String a : moves) {
 					// find out if move matches string

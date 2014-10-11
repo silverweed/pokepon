@@ -267,6 +267,9 @@ public class PonyPanel extends JPanel {
 			try {
 				pony.setLevel(Math.min(Pony.MAX_LEVEL,Integer.parseInt(lev)));
 				if(Debug.on) printDebug("Setting pony level to "+pony.getLevel());
+				if(statsPanel instanceof FancyPonyStatsPanel) {
+					((FancyPonyStatsPanel)statsPanel).refresh();
+				}
 			} catch(IllegalArgumentException e) {
 				if(Debug.on) printDebug("Error in parsing level: setting level to 1.");
 				pony.setLevel(1);

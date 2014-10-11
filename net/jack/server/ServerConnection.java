@@ -143,7 +143,7 @@ class ServerConnection extends Connection {
 		if(server.welcomeMessage != null) {
 			String[] messages = server.welcomeMessage.split("\\\\n");
 			for(String msg : messages)
-				sendMsg("motd "+msg);
+				sendMsg(CMN_PREFIX+"motd "+msg);
 		}
 
 		/* Start receiving loop */

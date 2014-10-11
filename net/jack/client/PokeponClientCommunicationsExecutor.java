@@ -184,7 +184,7 @@ class PokeponClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 							title,
 							type);
 			return 1;
-		} else if(cmd.equals("html")) {
+		} else if(cmd.equals("html") || cmd.equals("motd")) {
 			if(token.length < 2) return 1;
 			pClient.append(ConcatenateArrays.merge(token,1),false);
 			return 1;

@@ -100,6 +100,7 @@ public class ServerOptions {
 		if(forbiddenNames != null && !forbiddenNames.isEmpty()) sb.append("forbiddenNames: "+forbiddenNames+", ");
 		if(confFile != null) sb.append("confFile: "+confFile+", ");
 		if(connPolicy != null) sb.append("connectPolicy: "+connPolicy+", ");
+		if(welcomeMessage != null) sb.append("welcomeMessage: "+welcomeMessage+", ");
 		sb.delete(sb.length()-1, sb.length());
 		sb.append(" }");
 

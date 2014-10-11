@@ -138,6 +138,13 @@ class ServerConnection extends Connection {
 		if(verbosity >= 1) printDebug("[Connection] Constructed connection with "+socket+" (name: "+name+")");
 		if(verbosity >= 0) server.broadcast(socket,name+" connected to server.");
 		server.broadcast(socket,CMN_PREFIX+"useradd "+name);
+		
+		/* Send welcome message */
+		if(server.welcomeMessage != null) {
+			String[] messages = server.welcomeMessage.split("\\\\n");
+			for(String msg : messages)
+				sendMsg("motd "+msg);
+		}
 
 		/* Start receiving loop */
 		try {

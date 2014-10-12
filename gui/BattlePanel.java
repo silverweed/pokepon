@@ -1718,20 +1718,26 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 			if(token[1].equals("ally")) {
 				if(status == null) {	// heal all statuses
-					allyPony.healStatus();
-					allyHPBar.clearStatuses();
-					allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					if(allyPony != null)
+						allyPony.healStatus();
+					if(allyHPBar != null) {
+						allyHPBar.clearStatuses();
+						allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					}
 					if(!quiet) {
 						appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" healed!");
 						resultAnim(allyLocation(),"Healed!",ResultType.GOOD);
 					}
 
 				} else { 
-					allyPony.healStatus(status);
-					if(status != Status.CONFUSED)
-						allyHPBar.clearStatus(status);
-					else
-						allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					if(allyPony != null)
+						allyPony.healStatus(status);
+					if(allyHPBar != null) {
+						if(status != Status.CONFUSED)
+							allyHPBar.clearStatus(status);
+						else
+							allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					}
 					if(!quiet) {
 						if(token.length > 3) 
 							appendEvent(EventType.STATUS,token[2],"ally|"+token[3]);
@@ -1763,7 +1769,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 			} else if(token[1].equals("opp")) {
 				if(status == null) {
-					oppPony.healStatus();
+					if(oppPony != null)
+						oppPony.healStatus();
 					if(oppHPBar != null) {
 						oppHPBar.clearStatuses();
 						oppHPBar.clearPseudoStatus(Status.CONFUSED.toString());
@@ -1773,11 +1780,14 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						resultAnim(oppLocation(),"Healed!",ResultType.GOOD);
 					}
 				} else {
-					oppPony.healStatus(status);
-					if(status != Status.CONFUSED)
-						oppHPBar.clearStatus(status);
-					else
-						oppHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					if(oppPony != null)
+						oppPony.healStatus(status);
+					if(oppHPBar != null) {
+						if(status != Status.CONFUSED)
+							oppHPBar.clearStatus(status);
+						else
+							oppHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					}
 					if(!quiet) {
 						if(token.length > 3)
 							appendEvent(EventType.STATUS,token[2],"opp|"+token[3]);

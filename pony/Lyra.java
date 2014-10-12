@@ -1,4 +1,4 @@
-//: pony/LyraHeartstrings.java
+//: pony/Lyra.java
 
 package pokepon.pony;
 
@@ -11,12 +11,12 @@ import pokepon.enums.*;
  * @author Tommaso Parolini
  */
 
-public class LyraHeartstrings extends Pony {
+public class Lyra extends Pony {
 	
-	public LyraHeartstrings(int _level) {
+	public Lyra(int _level) {
 		super(_level);
 		
-		name = "Lyra Heartstrings";
+		name = "Lyra";
 		type[0] = Type.MUSIC;
 		type[1] = Type.MAGIC;
 		

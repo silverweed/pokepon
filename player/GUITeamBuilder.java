@@ -167,8 +167,12 @@ public class GUITeamBuilder extends TeamBuilder {
 
 	private ActionListener saveTeamListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			TeamDealer.ensureSaveDirExists();
-			fileChooser.setSelectedFile(new File(Meta.getSaveURL().getPath()+Meta.DIRSEP+team.getName()+TeamDealer.SAVE_EXT));
+			File savepath = TeamDealer.ensureSaveDirExists();
+			if (savepath == null) {
+				printDebug("[GUITeamBuilder] cannot save where I'd like to; trying to save in home...");
+				savepath = new File(System.getProperty("user.home"));
+			}
+			fileChooser.setSelectedFile(new File(savepath.getPath()+Meta.DIRSEP+team.getName()+TeamDealer.SAVE_EXT));
 			switch(fileChooser.showSaveDialog(frame)) {
 				case JFileChooser.CANCEL_OPTION:
 					printDebug("Team was not saved.");

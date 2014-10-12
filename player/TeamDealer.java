@@ -368,23 +368,23 @@ public class TeamDealer {
 		return true;
 	}
 
-	public static boolean ensureSaveDirExists() {
+	public static File ensureSaveDirExists() {
 		File dirpath = new File(Meta.getSaveURL().getPath());
 		if(!dirpath.isDirectory()) {
 			if(!dirpath.exists()) {
 				printDebug("[TeamDealer] "+dirpath+" does not exist: creating it...");
 				try {
 					Files.createDirectories(Paths.get(dirpath.getPath()));
-					return true;
+					return dirpath;
 				} catch(IOException e) {
 					printDebug("[TeamDealer] Exception while creating save directory:");
 					e.printStackTrace();
-					return false;
+					return null;
 				}
 			} else {
 				printDebug("[TeamDealer] Error: path `"+dirpath+"' is not a valid directory path, and could not create it.");
-				return false;
+				return null;
 			}
-		} else return true;
+		} else return dirpath;
 	}
 }

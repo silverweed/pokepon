@@ -292,7 +292,7 @@ pony/LimestonePie.java
 pony/LittleStrongheart.java
 pony/Littlepip.java
 pony/Lotus.java
-pony/LyraHeartstrings.java
+pony/Lyra.java
 pony/MarblePie.java
 pony/MaudPie.java
 pony/MilkyWay.java

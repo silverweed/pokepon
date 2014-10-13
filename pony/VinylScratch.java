@@ -34,7 +34,7 @@ public class VinylScratch extends Pony {
 		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Startle",1);
 		learnableMoves.put("Snuggle",1);
-		learnableMoves.put("nap",1);
+		learnableMoves.put("Nap",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Sonic Barrier",1);
 		learnableMoves.put("Get Hype",1);

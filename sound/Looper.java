@@ -60,6 +60,8 @@ public class Looper implements Runnable {
 	 */
 	public void run() {
 		try {
+			if(end != 0)
+				clip.setLoopPoints(start, end);
 			clip.loop(Clip.LOOP_CONTINUOUSLY);
 			while(!shouldStop) {
 				synchronized(clip) {
@@ -101,6 +103,7 @@ public class Looper implements Runnable {
 	public void setLoopPoints(final double secStart, final double secEnd) {
 		start = timeToSamples(secStart, sound.getFormat());
 		end = timeToSamples(secEnd, sound.getFormat());
+		if(Debug.on) printDebug("[ Looper ] Setting loop points: "+secStart+", "+secEnd);
 	}
 
 	/** Stop the looper and terminate the run() method */
@@ -165,8 +168,6 @@ public class Looper implements Runnable {
 		} catch(IllegalArgumentException e) {
 			printDebug("[ Looper ] Can't get Mute Control: continuing, but won't be able to mute sound in the application.");
 		}
-		if(end != 0)
-			clip.setLoopPoints(start, end);
 	}
 
 	public static void main(String[] args) throws Exception {

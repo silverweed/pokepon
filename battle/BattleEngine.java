@@ -1013,13 +1013,13 @@ public class BattleEngine {
 		}
 
 		// Forced switches flags
-		if(dealer.forceUserSwitch() > 0) {
+		if(dealer.forceUserSwitch() > 0 && !attacker.isKO()) {
 			if(forcedToSwitch[allyn] == 0 && checkProtect(dealer) && (dealer.forceUserSwitch() < 3 || inflictedDamage > 0))
 				forcedToSwitch[allyn] = dealer.forceUserSwitch();
 		} else {
 			forcedToSwitch[allyn] = 0;
 		}
-		if(dealer.forceTargetSwitch() > 0) {
+		if(dealer.forceTargetSwitch() > 0 && !defender.isKO()) {
 			if(forcedToSwitch[oppn] == 0 && checkProtect(dealer) && (dealer.forceTargetSwitch() < 3 || inflictedDamage > 0))
 				forcedToSwitch[oppn] = dealer.forceTargetSwitch();
 		} else {

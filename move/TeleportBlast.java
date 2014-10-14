@@ -31,7 +31,7 @@ public class TeleportBlast extends Move {
 		animation.put("bounceBack",false);
 
 		// forces switch to chosen ally on damage
-		forceUserSwitch = 3;	
+		forceUserSwitch = 1;	
 		isBeamMove = true;
 	}
 

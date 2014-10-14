@@ -2007,45 +2007,55 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			if(token[1].equals("ally")) {
 				faintAnim(allySprite);
 				appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" fainted!");
-				int ponyIndex = findIndexOf(1,allyPony.getNickname());
+				final int ponyIndex = findIndexOf(1,allyPony.getNickname());
 				teamMenu1.setFainted(ponyIndex,true);
-				teamP.getToken(ponyIndex).setEnabled(false);	
-				if(allyHPBar != null) {
-					synchronized(allyHPBar) {
-						allyHPBar.setVisible(false);
-						fieldP.remove(allyHPBar);
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						teamP.getToken(ponyIndex).setEnabled(false);	
+						if(allyHPBar != null) {
+							synchronized(allyHPBar) {
+								allyHPBar.setVisible(false);
+								fieldP.remove(allyHPBar);
+							}
+							allyHPBar = null;
+						}
+						if(allySprite != null) {
+							allySprite.setVisible(false);
+							allySprite = null;
+						}
+						if(allyPony != null) 
+							synchronized(allyPony) {
+								allyPony.setFainted(true);
+							}
+						moveP.setVisible(false);
+						for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
+							moveB[i].setMove(null);
 					}
-					allyHPBar = null;
-				}
-				if(allySprite != null) {
-					allySprite.setVisible(false);
-					allySprite = null;
-				}
-				if(allyPony != null) 
-					synchronized(allyPony) {
-						allyPony.setFainted(true);
-					}
-				moveP.setVisible(false);
+				});
 			} else if(token[1].equals("opp")) {
 				faintAnim(oppSprite);
 				appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" fainted!");
-				int ponyIndex = findIndexOf(2,oppPony.getNickname());
+				final int ponyIndex = findIndexOf(2,oppPony.getNickname());
 				teamMenu2.setFainted(ponyIndex,true);
-				if(oppHPBar != null) {
-					synchronized(oppHPBar) {
-						oppHPBar.setVisible(false);
-						fieldP.remove(oppHPBar);
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						if(oppHPBar != null) {
+							synchronized(oppHPBar) {
+								oppHPBar.setVisible(false);
+								fieldP.remove(oppHPBar);
+							}
+							oppHPBar = null;
+						}
+						if(oppSprite != null) {
+							oppSprite.setVisible(false);
+							oppSprite = null;
+						}
+						if(oppPony != null) 
+							synchronized(oppPony) {
+								oppPony.setFainted(true);
+							}
 					}
-					oppHPBar = null;
-				}
-				if(oppSprite != null) {
-					oppSprite.setVisible(false);
-					oppSprite = null;
-				}
-				if(oppPony != null) 
-					synchronized(oppPony) {
-						oppPony.setFainted(true);
-					}
+				});
 			}
 		} else if(token[0].equals("effective") && token.length > 2) {
 			/* |effective|ally/opp|multiplier */
@@ -2086,7 +2096,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				if(Debug.on) printDebug("Invoking wait...");
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {
-						//moveP.setVisible(false);
+						moveP.setVisible(false);
 						showBottomAlert("Waiting for the opponent...");
 						teamP.setVisible(false);
 						validate();

@@ -20,7 +20,7 @@ public class ZapAppleJuice extends Item {
 
 	@Override
 	public void onDamage(final BattleEngine be) {
-		if(pony.hp() == pony.maxhp() && be.getLatestInflictedDamage() > pony.hp()) {
+		if(pony.hp() == pony.maxhp() && be.getLatestInflictedDamage() > pony.hp() && !pony.hasSubstitute()) {
 			be.setInflictedDamage(pony.hp() - 1);
 			if(be.getBattleTask() != null)
 				be.getBattleTask().sendB("|battle|"+pony.getNickname()+" drinks its Zap Apple Juice and resists!");

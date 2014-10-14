@@ -36,7 +36,7 @@ public class DimensionTwist extends Move {
 		animation.put("rewind",true);
 
 		// switch to random pony on damage
-		forceUserSwitch = 4;	
+		forceUserSwitch = 2;	
 	}
 
 	public DimensionTwist(Pony p) {

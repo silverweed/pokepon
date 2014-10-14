@@ -570,10 +570,11 @@ public class BattleEngine {
 							if(echoBattle) printMsg(defender.getNickname()+"'s substitute faded!");
 						} else {
 							//If successful OHKO, just KO the opponent.
-							latestInflictedDamage = inflictedDamage = defender.hp();
+							inflictedDamage = defender.hp();
 							// ...unless an item or ability has something to say.
 							defender.trigger("onDamage",this);
 							triggerEvent("onDamage");
+							latestInflictedDamage = inflictedDamage;
 							defender.damage(inflictedDamage); 
 							if(battleTask != null && inflictedDamage != 0) {
 								battleTask.sendB(ally,"|damage|opp|"+inflictedDamage);
@@ -584,34 +585,37 @@ public class BattleEngine {
 							if(echoBattle && defender.hp() <= 0) printMsg("It's a one hit KO!");
 						}
 					}
-				} else {
-					if(defender.hasSubstitute()) {
-						substitute[currentPlayer() - 1] -= dc.calculateBattleDamage(move, this);
-						if(echoBattle) printMsg("The substitute took damage for "+defender.getNickname()+"!");
-						if(battleTask != null) {
-							battleTask.sendB(ally,"|resultanim|opp|bad|Damage!");
-							battleTask.sendB(opp,"|resultanim|ally|bad|Damage!");
-						}
-						if(substitute[currentPlayer() - 1] <= 0) {
-							substitute[currentPlayer() - 1] = 0;
-							defender.setSubstitute(false);
+				} else { // NON-OHKO MOVE: call DamageCalculator
+					inflictedDamage = dc.calculateBattleDamage(move,this);
+					defender.trigger("onDamage", this); // this may change inflictedDamage
+					triggerEvent("onDamage");
+					if(inflictedDamage != 0) {
+						latestInflictedDamage = inflictedDamage;
+						if(defender.hasSubstitute()) {
+							substitute[currentPlayer() - 1] -= inflictedDamage;
+							if(echoBattle) printMsg("The substitute took damage for "+defender.getNickname()+"!");
 							if(battleTask != null) {
-								battleTask.sendB("|battle|"+defender.getNickname()+"'s substitute faded!");
-								battleTask.sendB(ally,"|rmsubstitute|opp");
-								battleTask.sendB(opp,"|rmsubstitute|ally");
+								battleTask.sendB(ally,"|resultanim|opp|bad|Damage!");
+								battleTask.sendB(opp,"|resultanim|ally|bad|Damage!");
 							}
-							if(echoBattle) printMsg(defender.getNickname()+"'s substitute faded!");
+							if(substitute[currentPlayer() - 1] <= 0) {
+								substitute[currentPlayer() - 1] = 0;
+								defender.setSubstitute(false);
+								if(battleTask != null) {
+									battleTask.sendB("|battle|"+defender.getNickname()+"'s substitute faded!");
+									battleTask.sendB(ally,"|rmsubstitute|opp");
+									battleTask.sendB(opp,"|rmsubstitute|ally");
+								}
+								if(echoBattle) printMsg(defender.getNickname()+"'s substitute faded!");
+							}
+						} else {
+							defender.damage(inflictedDamage);
+							if(battleTask != null && inflictedDamage != 0) {
+								battleTask.sendB(ally,"|damage|opp|"+inflictedDamage);
+								battleTask.sendB(opp,"|damage|ally|"+inflictedDamage);
+							}
+							if(echoBattle) printDamageMsg(defender,inflictedDamage);
 						}
-					} else {
-						latestInflictedDamage = inflictedDamage = dc.calculateBattleDamage(move,this);
-						defender.trigger("onDamage", this); // this may change inflictedDamage
-						triggerEvent("onDamage");
-						defender.damage(inflictedDamage);
-						if(battleTask != null && inflictedDamage != 0) {
-							battleTask.sendB(ally,"|damage|opp|"+inflictedDamage);
-							battleTask.sendB(opp,"|damage|ally|"+inflictedDamage);
-						}
-						if(echoBattle) printDamageMsg(defender,inflictedDamage);
 					}
 				}
 
@@ -638,7 +642,7 @@ public class BattleEngine {
 				}
 				
 				/* If move is Struggle, subtract 25% of attacker's max HP as recoil */
-				if(move.getName().equals("Struggle")) {
+				if(move.getName().equals("Struggle") && inflictedDamage != 0) {
 					int damage = attacker.damagePerc(25f);
 					if(battleTask != null) {
 						battleTask.sendB(ally,"|recoil|ally|"+damage);
@@ -647,12 +651,15 @@ public class BattleEngine {
 					if(echoBattle) printMsg(attacker.getNickname()+" got "+damage+" damage from the recoil!");
 				}
 
+				// these are triggered even if move didn't inflict any damage, so it's the
+				// callee's job to check that.
 				attacker.trigger("afterMoveHit",this);
 				defender.trigger("afterMoveHit",this);
 				triggerEvent("afterMoveHit");
 
-				/* After move hit successfully, apply additional effects */
-				applyAdditionalEffects(move);
+				/* After move hit successfully, apply additional effects (only if move actually inflicted damage) */
+				if(inflictedDamage != 0 || move.effectsAlwaysApply())
+					applyAdditionalEffects(move);
 			}
 
 			if(move.getHits() > 1) {
@@ -1014,13 +1021,13 @@ public class BattleEngine {
 
 		// Forced switches flags
 		if(dealer.forceUserSwitch() > 0 && !attacker.isKO()) {
-			if(forcedToSwitch[allyn] == 0 && checkProtect(dealer) && (dealer.forceUserSwitch() < 3 || inflictedDamage > 0))
+			if(forcedToSwitch[allyn] == 0 && checkProtect(dealer) /*&& (dealer.forceUserSwitch() < 3 || inflictedDamage > 0) */)
 				forcedToSwitch[allyn] = dealer.forceUserSwitch();
 		} else {
 			forcedToSwitch[allyn] = 0;
 		}
 		if(dealer.forceTargetSwitch() > 0 && !defender.isKO()) {
-			if(forcedToSwitch[oppn] == 0 && checkProtect(dealer) && (dealer.forceTargetSwitch() < 3 || inflictedDamage > 0))
+			if(forcedToSwitch[oppn] == 0 && checkProtect(dealer) /*&& (dealer.forceTargetSwitch() < 3 || inflictedDamage > 0)*/)
 				forcedToSwitch[oppn] = dealer.forceTargetSwitch();
 		} else {
 			forcedToSwitch[oppn] = 0;
@@ -1597,7 +1604,7 @@ public class BattleEngine {
 
 	/** Inflicts recoil damage equal to dealer.getRecoil() * inflictedDamage */
 	private void applyRecoilDamage(EffectDealer dealer,int inflictedDamage) {
-		if(dealer.getRecoil() == 0) return;
+		if(dealer.getRecoil() == 0 || inflictedDamage == 0) return;
 
 		int recoilDamage = (int)(dealer.getRecoil() * inflictedDamage);
 		attacker.damage(recoilDamage);

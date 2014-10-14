@@ -24,6 +24,24 @@ In case the game doesn't start upon double-clicking, try right-clicking
 it and select "Open with Java JDK 7" or something alike.
 Java 1.7 or later is required to play Poképon.
 
+To connect to a running server, click "Client" and insert the server IP
+(the port is usually the default one, unless the server mantainer has
+decided otherwise).
+
+<table>
+  <tr>
+    <th colspan=2>List of public Poképon Servers</th>
+  </tr>
+  <tr>
+    <th>Server IP</th>
+    <th>Mantainer</th>
+  </tr>
+  <tr>
+    <td>lyrawearspants.com</td>
+    <td>RedEnchilada</td>
+  </tr>
+</table>
+
 Building
 -----------------------------------------------------
 You don't need to build anything if you just wanna play, but in case you
@@ -230,3 +248,4 @@ Credits
 Author & Mantainers
 -----------------------------------------------------------------
 * Author: silverweed [silverweed]
+* Public server hosting: RedEnchilada

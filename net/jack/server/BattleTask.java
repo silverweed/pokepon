@@ -770,6 +770,9 @@ public class BattleTask implements Runnable {
 			WeatherHolder weather = engine.getWeather();
 			for(int i = 1; i < 3; ++i) {
 				Pony ap = battle.getPlayer(i).getActivePony();
+				// all following effects apply only when this AP is alive
+				if(ap.isFainted())
+					continue;
 				Connection thisC = i == 1 ? c1 : c2;
 				Connection thatC = i == 1 ? c2 : c1;
 				boolean preventsSec = false;
@@ -861,15 +864,17 @@ public class BattleTask implements Runnable {
 						sendB("|battle|"+ap.getNickname()+" will faint in "+(ap.deathCounter++)+" turns!");
 					}
 				}
-				if(	weather != null &&
-					weather.get() != null && 
-					weather.get() != Weather.CLEAR &&
-					weather.count == 0
-				) {
-					sendB("|battle|The weather became clear!");
-					engine.setWeather(WeatherHolder.getClearWeather());
-				}
+
 				checkFainted();
+			}
+			// end weather
+			if(	weather != null &&
+				weather.get() != null && 
+				weather.get() != Weather.CLEAR &&
+				weather.count == 0
+			) {
+				sendB("|battle|The weather became clear!");
+				engine.setWeather(WeatherHolder.getClearWeather());
 			}
 
 			if(checkWin()) {
@@ -921,6 +926,7 @@ public class BattleTask implements Runnable {
 			if(!engine.hasSentFaintedMsg(1)) { 
 				sendB(c1,"|fainted|ally");
 				sendB(c2,"|fainted|opp");
+				engine.setSentFaintedMsg(1, true);
 			}
 		}
 		if(	battle.getPlayer(2).getActivePony() != null &&
@@ -930,6 +936,7 @@ public class BattleTask implements Runnable {
 			if(!engine.hasSentFaintedMsg(2)) {
 				sendB(c2,"|fainted|ally");
 				sendB(c1,"|fainted|opp");
+				engine.setSentFaintedMsg(2, true);
 			}
 		}
 	}

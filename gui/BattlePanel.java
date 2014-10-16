@@ -1102,9 +1102,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					printDebug("Animation interrupted.");
 				}
 			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
+			if(!opts.containsKey("nodelay")) {
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+			}
 
 		} else if(token[0].equals("lockon") && token.length > 1) {
 			/* |lockon|Move Name */
@@ -2831,13 +2833,34 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			fieldP.setLayer(oppSprite,MOVE_LAYER);
 		} else {
 			try {
+				int width = HAZARD_TOKEN_SIZE;
+				int height = -1;
+				if(opts.containsKey("width")) {
+					try {
+						width = (int)opts.get("width");
+					} catch(ClassCastException ee) {
+						printDebug("[createAnimation] invalid width: "+opts.get("width"));
+					} finally {
+						if(width < 0) width = HAZARD_TOKEN_SIZE;
+						opts.remove("width");
+					}
+				}
+				if(opts.containsKey("height")) {
+					try {
+						height = (int)opts.get("height");
+					} catch(ClassCastException ee) {
+						printDebug("[createAnimation] invalid height: "+opts.get("height"));
+					} finally {
+						opts.remove("height");
+					}
+				}
 				animSprite = new JLabel(
 							new ImageIcon(
 								ImageIO.read(
 									getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+
 									Meta.DIRSEP+"moves"+Meta.DIRSEP+"fx"+
 									Meta.DIRSEP+(String)opts.get("sprite"))
-								).getScaledInstance(HAZARD_TOKEN_SIZE,-1,Image.SCALE_SMOOTH)
+								).getScaledInstance(width, height, Image.SCALE_SMOOTH)
 							)
 						);
 				if(opts.get("transparent") != null && (Boolean)opts.get("transparent")) {

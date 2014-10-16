@@ -53,7 +53,7 @@ public class Entrench extends Move {
 					if(be.currentPlayer() != be.getSide(source)) {
 						if(be.getCurrentMove().getMoveType() == Move.MoveType.PHYSICAL)	{
 							if(Debug.on) printDebug("["+name+"] reducing physical damage by half...");
-							be.setInflictedDamage(be.getLatestInflictedDamage() / 2);
+							be.setInflictedDamage(be.getInflictedDamage() / 2);
 						}
 					}
 				}

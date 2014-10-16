@@ -118,6 +118,7 @@ public class BattleEngine {
 		return rng;
 	}
 	public Move getCurrentMove() { return currentMove; }
+	public int getInflictedDamage() { return inflictedDamage; }
 	public int getLatestInflictedDamage() { return latestInflictedDamage; }
 	public List<BattleEvent> getBattleEvents() { return battleEvents; }
 

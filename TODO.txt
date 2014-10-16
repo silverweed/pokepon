@@ -17,7 +17,7 @@
 
 - Add drain animation to Wild Weed (also check for bugs when pony is fainted)
 
-- Implement multiple (simultaneous or consecutive) animations
+- Implement multiple (simultaneous or consecutive) animations -> Consecutive done
 
 - forcedToSwitch should sometimes be set only on damage (immunity prevents it)
 
@@ -27,15 +27,15 @@
 
 - Sound control in the BattlePanel
 
-- Moves which drop stats after usage should not drop them on 'immune'
+- Moves which drop stats after usage should not drop them on 'immune' -> Done
 
 - Implement 'export log' feature
 
-- 'Fainted' messages should be sent only once by the server!
+- 'Fainted' messages should be sent only once by the server! -> Probably fixed
 
-- Toxic activates even when the pony is already fainted
+- Toxic activates even when the pony is already fainted -> Fixed
 
-- Heavy Massage not removing statuses?
+- Heavy Massage not removing statuses? -> Fixed
 
 - Nicknames: config option to set default nicks, request nick on login feature 
 

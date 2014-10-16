@@ -221,6 +221,13 @@ public class BattleEngine {
 		breakCycle = b;
 	}
 
+	public void setSentFaintedMsg(int pl, boolean b) {
+		if(pl == 1 || pl == 2)
+			sentFaintedMsg[pl - 1] = b;
+		else
+			throw new RuntimeException("[BE] error: given pl = "+pl+" to setSentFaintedMsg.");
+	}
+
 	/** Used by onDamage triggers to change the inflicted damage on the fly */
 	public void setInflictedDamage(int infDamage) {
 		latestInflictedDamage = inflictedDamage = infDamage;
@@ -1187,6 +1194,13 @@ public class BattleEngine {
 			if(rng.nextFloat() < dealer.getTargetFlinch() && checkProtect(dealer)) {
 				printEffectMsg("enemy ",defender,"flinched");
 				defender.setFlinched(true);
+			}
+			if(rng.nextFloat() < dealer.healTargetStatus() && defender.hasNegativeCondition()) {
+				defender.healStatus();
+				if(battleTask != null) {
+					battleTask.sendB(ally,"|rmstatus|opp");
+					battleTask.sendB(opp,"|rmstatus|ally");
+				}
 			}
 		}	
 		// Side effects (special conditions etc)

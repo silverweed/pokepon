@@ -6,6 +6,7 @@ import pokepon.battle.*;
 import pokepon.move.hazard.*;
 import pokepon.util.*;
 import pokepon.pony.*;
+import pokepon.net.jack.*;
 import static pokepon.util.MessageManager.*;
 
 /** 
@@ -54,15 +55,20 @@ public class WildWeedHazard extends Hazard {
 			if(ed.negateSecondaryDamage())
 				return;
 		int dmg = be.getTeam(side).getActivePony().damagePerc(12.5f);
+		Connection ally = be.getConnection(side), opp = be.getConnection(side == 1 ? 2 : 1);
 		be.getTeam(side == 1 ? 2 : 1).getActivePony().increaseHp(dmg);
 		if(be.getBattleTask() != null) {
-			be.getBattleTask().sendB(be.getConnection(side),"|damage|ally|"+dmg+"|"+
+			be.getBattleTask().sendB(ally, "|anim|opp|name=Fade|sprite=energyball.png|transparent=(b)true"+
+				"|width=(i)100|fadeOut=(b)true|initialPoint=opp|finalPoint=ally|nodelay=true");
+			be.getBattleTask().sendB(opp, "|anim|opp|name=Fade|sprite=energyball.png|transparent=(b)true"+
+				"|width=(i)100|fadeOut=(b)true|initialPoint=ally|finalPoint=opp|nodelay=true");
+			be.getBattleTask().sendB(ally, "|damage|ally|"+dmg+"|"+
 				be.getTeam(side).getActivePony().getNickname()+"'s healt is sapped by "+name+"!");
-			be.getBattleTask().sendB(be.getConnection(side == 1 ? 2 : 1),"|damage|opp|"+dmg+"|"+
+			be.getBattleTask().sendB(opp, "|damage|opp|"+dmg+"|"+
 				be.getTeam(side).getActivePony().getNickname()+"'s healt is sapped by "+name+"!");
 
-			be.getBattleTask().sendB(be.getConnection(side),"|damage|opp|-"+dmg);
-			be.getBattleTask().sendB(be.getConnection(side == 1 ? 2 : 1),"|damage|ally|-"+dmg);
+			be.getBattleTask().sendB(ally, "|damage|opp|-"+dmg);
+			be.getBattleTask().sendB(opp, "|damage|ally|-"+dmg);
 		}
 	}
 }

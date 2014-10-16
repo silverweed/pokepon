@@ -26,6 +26,7 @@ public class RagingSpree extends Move {
 
 		animation.put("name","Direct");
 		animation.put("sprite","hoof.png");
+		animation.put("bounceBack", false);
 
 		userSpatk = addEntry(-2, 1f);
 	}

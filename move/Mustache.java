@@ -66,7 +66,7 @@ public class Mustache extends Move {
 			}
 		} else {
 			damageBoost = 0;
-			targetAtk = targetDef = targetSpatk = targetSpdef = targetAccuracy = targetEvasion = null;
+			targetAtk = targetDef = targetSpatk = targetSpdef = targetSpeed = targetAccuracy = targetEvasion = null;
 		}
 		return true;
 	}

@@ -492,12 +492,13 @@ public class BattleEngine {
 				battleTask.sendB(ally,"|move|ally|"+move.getName());
 				battleTask.sendB(opp,"|move|opp|"+move.getName());
 			}
+			breakCycle = false;
+			// these may set breakCycle = true
 			attacker.trigger("beforeMoveHit",this);
 			defender.trigger("beforeMoveHit",this);
 			triggerEvent("beforeMoveHit");
 			int i = 0;
 			int hits = 1;
-			breakCycle = false;
 			/* If multiple hits move, first decide the hits count. */
 			if(move.getHits() > 1) {
 				if(	(attacker.getItem() != null && attacker.getItem().maximizeHits()) ||

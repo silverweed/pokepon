@@ -26,8 +26,8 @@ public class SpellRefractory extends Ability {
 		if(be.getCurrentMove().isBeamMove() && be.getDefender() == pony) {
 			be.setBreakCycle(true);
 			if(be.getBattleTask() != null) {
-				be.getBattleTask().sendB(be.getAlly(),"|immune|ally");
-				be.getBattleTask().sendB(be.getOpp(),"|immune|opp");
+				be.getBattleTask().sendB(be.getAlly(),"|immune|opp");
+				be.getBattleTask().sendB(be.getOpp(),"|immune|ally");
 				be.getBattleTask().sendB("|battle|"+pony.getNickname()+" is not affected by "+be.getCurrentMove()+"!");
 			}
 		}

@@ -56,7 +56,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							};
 
 	/** Type of event for the appendEvent method */
-	private static enum EventType { CHAT, JOIN, LEAVE, RULE, SWITCH, MOVE, TURN, BATTLE, BOOST, EMPHASIZED, ERROR, CRITICAL, STATUS, HTML };
+	private static enum EventType { CHAT, JOIN, LEAVE, RULE, SWITCH, MOVE, TURN, BATTLE, BOOST, EMPHASIZED, ERROR, CRITICAL, STATUS, HTML, INFO };
 	/** Type of result for the resultAnim method */
 	private static enum ResultType { GOOD, BAD, NEUTRAL };
 
@@ -97,6 +97,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private int playerID;
 	/** Reference to the parent client's connection */
 	private Connection connection;
+	/** Reference to an optional BattleLogger */
+	private BattleLogger battleLogger;
 	/** ID used by both the client and the server to uniquely identify the battle */
 	private String battleID;
 	private TeamMenuPanel teamMenu1;
@@ -172,6 +174,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	// persistent effects
 	/** array (0: ally, 1: opp) of maps [peName, peSprite] */
 	private List<Map<String,JLabel>> persEffectsSprite = new ArrayList<>();
+	private String format;
 
 	/** This gets called by all the constructors to initialize some objects which cannot be constructed inline */
 	private void constructStuff() {
@@ -225,6 +228,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	 * @param bgmNum ID of the background music to use (optional)
 	 */
 	public void initialize(String format, int bgNum, int bgmNum) {
+		this.format = format;
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		isRandomBattle = format.equals("Random_Battle");
 
@@ -391,7 +395,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	}
 
 	/** Spawn a JLabel on opponent side on the PONY_LAYER */
-	public void setOnOpponentSide(final JLabel sprite) {
+	private void setOnOpponentSide(final JLabel sprite) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				setOpponentBounds(sprite);
@@ -403,7 +407,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		});
 	}
 
-	public void setOnOpponentSide(URL url) {
+	private void setOnOpponentSide(URL url) {
 		if(url == null) {
 			JLabel sprite = new JLabel(new ImageIcon(PLACEHOLDER_URL[0]));
 			setOnOpponentSide(sprite);
@@ -427,7 +431,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	}
 
 	/** Spawn a JLabel on ally side on the PONY_LAYER */
-	public void setOnAllySide(final JLabel sprite) {
+	private void setOnAllySide(final JLabel sprite) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				setAllyBounds(sprite);
@@ -439,7 +443,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		});
 	}
 
-	public void setOnAllySide(URL url) {
+	private void setOnAllySide(URL url) {
 		if(url == null) {
 			JLabel sprite = new JLabel(new ImageIcon(PLACEHOLDER_URL[1]));
 			setOnAllySide(sprite);
@@ -459,6 +463,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		else throw new IllegalArgumentException("Player id must be 1 or 2!");
 	}
 
+	public String getFormat() {
+		return format != null && format.length() > 0 ? format : "Unknown Format";
+	}
+
+	public final String getBattleID() { return battleID; }
+
 	/** Searches for pony named 'name' in p[num]'s team and returns it. */
 	public Pony findInTeam(int num,String name) {
 		Player pl = (num == 1 ? p1 : (num == 2 ? p2 : null));
@@ -477,6 +487,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			if(pl.getTeam().getPony(i).getNickname().equals(name)) return i;
 		}
 		return -1;
+	}
+
+	public void setBattleLogger(final BattleLogger logger) {
+		battleLogger = logger;
 	}
 
 	/** This is the main method handling the battle: 
@@ -2342,10 +2356,24 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						// here we use fullname rather than playerID because guests other than
 						// players may use chat as well; this way the server doesn't bother to parse
 						// chat messages.
-						if(inputF.getText().charAt(0) != '/') 
+						if(inputF.getText().charAt(0) != CMD_PREFIX) {
 							sendB("|chat|"+p1.getName()+"|"+MessageManager.sanitize(inputF.getText())); 
-						else
-							sendB("|cmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));
+						} else {
+							printDebug("input: "+inputF.getText());
+							String txt = inputF.getText().trim();
+							if(txt.equals(CMD_PREFIX+"export") || txt.equals(CMD_PREFIX+"save")) {
+								if(battleLogger != null) {
+									// TODO: add capability to select save location
+									battleLogger.processRecord(null);
+									if(battleLogger.getFeedbackMsg() != null)
+										appendEvent(EventType.INFO,battleLogger.getFeedbackMsg());
+								} else {
+									appendEvent(EventType.INFO,"You haven't enabled logging for this battle.");
+								}
+							} else {
+								sendB("|cmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));
+							}
+						}
 						history.add(inputF.getText());
 						if(history.size() > MAX_HIST_SIZE) history.removeFirst();
 						index = history.size()-1;
@@ -2692,6 +2720,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							sb.append("<font color=\"gray\">[error] An error has occurred</font>");
 						else
 							sb.append("<font color=\"gray\">[error] "+event+"</font>");
+						break;
+					case INFO:
+						/* INFO, msg */
+						sb.append("<font color=\"gray\">[info] "+event+"</font>");
 						break;
 					case CRITICAL:
 						/* CRITICAL, event */

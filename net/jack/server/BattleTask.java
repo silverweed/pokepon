@@ -1016,7 +1016,7 @@ public class BattleTask implements Runnable {
 			if(token.length < 2) {
 				sendB(conn,"|error|Syntax error: correct syntax is :<br>&nbsp;" +
 					CMD_PREFIX + "eff type1[,type2]<br>&nbsp;"+
-					CMD_PREFIX + "eff type1 -&gvoidt; type2[,type3]");
+					CMD_PREFIX + "eff type1 -&gt; type2[,type3]");
 				return;
 			}
 			String response = dataDealer.getEffectiveness(ConcatenateArrays.merge(token,1));

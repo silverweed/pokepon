@@ -46,6 +46,8 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	protected Map<String,BattlePanel> battles = new HashMap<String,BattlePanel>();
 	protected TeamDealer teamDealer = new TeamDealer();
 	protected boolean loadedTeams;
+	protected Map<String,String> options = new HashMap<>();
+	protected Map<String,BattleLogger> battleLoggers = new HashMap<>();
 
 	public PokeponClient(String host,int port) {
 		super(true);
@@ -76,6 +78,10 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 		//c.weighty = 0.5;
 		add(new JScrollPane(usersL),c);
 		usersL.addMouseListener(usersML);
+
+		// Default options
+		// TODO: create a way to change these
+		options.put("logBattle", "true");
 	}
 
 	public synchronized void start() throws ConnectException, UnknownHostException {
@@ -172,6 +178,7 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	public String getName() {
 		return chatP.getNick();
 	}
+	public Map<String,String> getOptions() { return options; }
 	public Socket getSocket() { return s; }
 	public void stop() {
 		try {
@@ -204,6 +211,13 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	public void userAdd(String name,String color) {
 		if(connection.getVerbosity() >= 3) printDebug("Called userAdd("+name+","+color+")");
 		users.addElement("<html><font color="+color+">"+name+"</font></html>");
+	}
+	
+	public void logBattleLine(final String line) {
+		if(line.charAt(0) != BTL_PREFIX || line.length() < 2) return;
+		BattleLogger logger = battleLoggers.get(Character.toString(line.charAt(1))); 
+		if(logger != null)
+			logger.addLine(line);
 	}
 
 	/** Renames an user; it can match users whose name is contained within html tags, and the renamed user
@@ -341,7 +355,11 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 						} else {
 							newbattle.initialize(format);
 						}
-						battles.put(id,newbattle);
+						battles.put(id, newbattle);
+						if(options.containsKey("logBattle") && options.get("logBattle").equals("true")) {
+							if(Debug.on) printDebug("[spawnBattle] attaching FileBattleLogger to battle "+id+".");
+							battleLoggers.put(id, new FileBattleLogger(newbattle));
+						}
 						final JFrame battleFrame = new JFrame();
 						battleFrame.add(newbattle);
 						battleFrame.addWindowListener(new WindowAdapter() {
@@ -601,9 +619,10 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 						);
 		if(Debug.on) 
 			printDebug("selected team "+
-					(sel == JOptionPane.CLOSED_OPTION || sel == JOptionPane.CANCEL_OPTION ? 
-						"<none>" : 
-						"#"+teamList.getSelectedIndex())
+				(sel == JOptionPane.CLOSED_OPTION || sel == JOptionPane.CANCEL_OPTION  
+					? "<none>" 
+					: "#"+teamList.getSelectedIndex()
+				)
 			);
 
 		if(	sel == JOptionPane.CLOSED_OPTION || 
@@ -634,7 +653,8 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 				"Possible rule formats are:\n"+
 				"p:Name Of Pony\nm:Name Of Move\ni:Name Of Item\na:Name Of Ability\n"+
 				"c:{p:Name Of Pony,m:Name Of Move,[...]} (bans the described combo)\n"+
-				":speciesclause / :canon / :itemclause");
+				":speciesclause / :canon / :itemclause\n"+
+				"\nMore info on https://github.com/silverweed/pokepon/#creating-custom-formats");
 			}
 		});
 		panel.add(BorderLayout.NORTH, hint);

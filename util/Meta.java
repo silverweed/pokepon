@@ -3,6 +3,7 @@
 package pokepon.util;
 
 import java.net.*;
+import java.io.*;
 import java.nio.*;
 import java.nio.file.*;
 import java.util.regex.*;
@@ -154,6 +155,11 @@ public class Meta {
 		return getSubURL(AUDIO_DIR);
 	}
 
+	/** Returns the URL of the battle records directory */
+	public static URL getBattleRecordsURL() {
+		return LAUNCHED_FROM_JAR ? getAppDataURL(BATTLE_RECORDS_DIR) : getSubURL("data" + DIRSEP + BATTLE_RECORDS_DIR);
+	}
+
 	/** Takes a string and hides its extension */
 	public static String hideExtension(String str) {
 		String[] arr = str.split("\\.");
@@ -253,6 +259,26 @@ public class Meta {
 		return replaced;
 	}
 
+	public static File ensureDirExists(String dirPath) {
+		File dirpath = new File(dirPath); 
+		if(!dirpath.isDirectory()) {
+			if(!dirpath.exists()) {
+				printDebug("[Meta] "+dirpath+" does not exist: creating it...");
+				try {
+					Files.createDirectories(Paths.get(dirpath.getPath()));
+					return dirpath;
+				} catch(IOException e) {
+					printDebug("[Meta] Exception while creating directory:");
+					e.printStackTrace();
+					return null;
+				}
+			} else {
+				printDebug("[Meta] Error: path `"+dirpath+"' is not a valid directory path, and could not create it.");
+				return null;
+			}
+		} else return dirpath;
+	}
+
 	/** Path of the Pokepon root directory, relative to the java classpath */
 	public final static String POKEPON_ROOTDIR = "pokepon";
 	// These are relative to POKEPON_ROOTDIR
@@ -273,6 +299,7 @@ public class Meta {
 	// These are in APPDATA when the game is launched from jar (i.e. in release version)
 	public final static String DATA_DIR = "";
 	public final static String SAVE_DIR = "teams";
+	public final static String BATTLE_RECORDS_DIR = "battle_records";
 
 	public static void main(String[] args) {
 		consoleHeader("   META   ");

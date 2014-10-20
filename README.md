@@ -40,6 +40,10 @@ decided otherwise).
     <td>lyrawearspants.com</td>
     <td>RedEnchilada</td>
   </tr>
+  <tr>
+    <td colspan=2><em><small>Want to host a server? Feel free <br>
+    to <a href='mailto:silverweed1991@gmail.com'>contact me</a>!</small></em></td>
+  </tr>
 </table>
 
 Building

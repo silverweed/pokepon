@@ -16,10 +16,14 @@ import java.util.*;
 public class BasicServer implements Server {
 
 	public static final int DEFAULT_PORT = 12344;
-	protected static final int DEFAULT_VERBOSITY = 1;
+	public static final String DEFAULT_CONF_FILE = (Meta.LAUNCHED_FROM_JAR 
+								? Meta.getDataURL()
+								: Meta.getNetURL()
+							).getPath() + Meta.DIRSEP + "server.conf";
 
-	protected static String confFile = (Meta.LAUNCHED_FROM_JAR ? Meta.getDataURL() : Meta.getNetURL()).getPath() +
-					Meta.DIRSEP + "server.conf";
+	public static final int DEFAULT_VERBOSITY = 1;
+
+	protected static String confFile = DEFAULT_CONF_FILE;
 	static {
 		if(Debug.on) printDebug("[BasicServer] CONF_FILE = "+confFile);
 	}
@@ -202,8 +206,25 @@ public class BasicServer implements Server {
 	public ServerSocket getServerSocket() { return ss; }
 	public Date getConnectionTime() { return connectionTime; }
 	public InetAddress getAddress() { return myAddress; }
+	public String getConfFile() { return confFile; }
+	public void setConfFile(String path) {
+		confFile = path;
+	}
 
 	// SERVER CONFIGURATION FUNCTIONS
+	
+	public void printConfiguration(final PrintStream s) {
+		consoleHeader("Server configuration", '·', s);	
+		s.println("- address: "+myAddress);
+		s.println("- port: "+port);
+		s.println("- serverName: "+serverName);
+		s.println("- verbosity: "+verbosity);
+		s.println("- confFile: "+confFile);
+	}
+
+	public void printConfiguration() {
+		printConfiguration(System.err);
+	}
 
 	/** Read command-line arguments and process all those that should be processed
 	 * _BEFORE_ reading the conf file, then strip those arguments from args.
@@ -222,170 +243,6 @@ public class BasicServer implements Server {
 			}
 		}
 		return nwargs.toArray(new String[0]);
-	}
-
-	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {
-		return parseServerOptions(args, 1);
-	}
-
-	/** Parses an array of strings and fills a ServerOptions object accordingly.
-	 * @return The ServerOptions object with the configuration specified by the args
-	 */
-	protected static ServerOptions parseServerOptions(String[] args, int verbosity) throws UnknownOptionException {
-		LinkedList<String> opts = new LinkedList<String>(Arrays.asList(args)); 
-		ServerOptions srvopts = ServerOptions.construct();
-		
-		while(opts.size() > 0) {
-			String token = opts.remove(0);
-			if(verbosity >= 2)
-				printDebug("token: ^"+token+"$");
-			if(token.matches("^(-p|--port)$")) {
-				try {
-					srvopts.port = Integer.parseInt(opts.remove(0));
-					if(verbosity >= 1) printDebug("port set to "+srvopts.port);
-				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
-					printDebug("[ ERROR ] expected integer after 'port' option.");
-					System.exit(2);
-				}
-			} else if(token.matches("^--(serverN|n)ame$")) {
-				try {
-					srvopts.serverName = parseTillNextOpt(opts);
-					if(verbosity >= 1) printDebug("name set to "+srvopts.serverName);
-				} catch(IndexOutOfBoundsException e) {
-					printDebug("[ ERROR ] expected token after 'name' option.");
-				}
-			} else if(token.matches("^-v+?$") || token.equals("--verbosity")) {
-				if((token.equals("-v") || token.equals("--verbosity")) && opts.size() > 0 && !opts.get(0).startsWith("-")) {
-					try {
-						srvopts.verbosity = Integer.parseInt(opts.remove(0));
-						if(verbosity >= 1) printDebug("verbosity set to "+srvopts.verbosity);
-					} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
-						printDebug("[ ERROR ] expected integer after 'verbosity' option.");
-						System.exit(2);
-					}
-				} else {
-					srvopts.verbosity = token.substring(1).length();
-					if(verbosity >= 1) printDebug("verbosity set to "+srvopts.verbosity);
-				}
-			} else if(token.matches("^(-m|--max-clients)$")) {
-				try {
-					srvopts.maxClients = Integer.parseInt(opts.remove(0));
-					if(verbosity >= 1) printDebug("maxClients set to "+srvopts.maxClients);
-				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
-					printDebug("[ ERROR ] expected integer after 'max-clients' option.");
-					System.exit(2);
-				}
-			} else if(token.matches("^(-d|--database)$")) {
-				try {
-					srvopts.database(parseTillNextOpt(opts));
-				} catch(IndexOutOfBoundsException e) {	
-					printDebug("[ ERROR ] expected token after 'database' option.");
-					System.exit(2);
-				}
-			} else if(token.matches("^(-i|--ip)$")) {
-				try {
-					srvopts.address = opts.remove(0);
-				} catch(IndexOutOfBoundsException e) {
-					printDebug("[ ERROR ] expected ip address after 'ip' option.");
-					System.exit(2);
-				}
-			} else if(token.equals("--forbid")) {
-				try {
-					srvopts = srvopts.forbiddenNames(new HashSet<String>(Arrays.asList(parseTillNextOpt(opts).split("\\s+"))));
-					if(verbosity >= 1) printDebug("Added "+srvopts.forbiddenNames+" to forbidden names.");
-				} catch(IndexOutOfBoundsException e) {
-					printDebug("[ ERROR ] expected list of strings after 'forbid' option.");
-					e.printStackTrace();
-					System.exit(2);
-				}
-			} else if(token.matches("^(-c|--(connect(ion)?-)?policy)$")) {
-				try {
-					String pol = opts.remove(0);
-					if(pol.toLowerCase().equals("paranoid")) 
-						srvopts.connPolicy = MultiThreadedServer.ConnectPolicy.PARANOID;
-					else if(pol.toLowerCase().equals("average") || 
-						pol.toLowerCase().equals("default") || 
-						pol.toLowerCase().equals("normal")
-					) 
-						srvopts.connPolicy = MultiThreadedServer.ConnectPolicy.AVERAGE;
-					else if(pol.toLowerCase().equals("permissive")) 
-						srvopts.connPolicy = MultiThreadedServer.ConnectPolicy.PERMISSIVE;
-					else {
-						printDebug("[ ERROR ] unknown value for 'policy' flag.");
-						System.exit(2);
-					}
-				} catch(IndexOutOfBoundsException e) {
-					printDebug("[ ERROR ] expected 'paranoid','average' or 'permissive' after 'policy' flag.");
-					e.printStackTrace();
-					System.exit(2);
-				}
-
-			} else if(token.equals("--default-nick")) {
-				try {
-					srvopts.defaultNick = opts.remove(0);
-				} catch(IndexOutOfBoundsException e) {
-					printDebug("[ ERROR ] expected string after 'default-nick' option.");
-					e.printStackTrace();
-					System.exit(2);
-				}
-			} else if(token.equals("--welcome-message") || token.equals("--motd")) {
-				try {
-					srvopts.welcomeMessage = parseTillNextOpt(opts); 
-				} catch(IndexOutOfBoundsException e) {
-					printDebug("[ ERROR ] expected string after 'welcome-message' option.");
-					e.printStackTrace();
-					System.exit(2);
-				}
-			} else if(token.equals("--max-nick-len")) {
-				try {
-					srvopts.maxNickLen = Integer.parseInt(opts.remove(0));
-				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
-					printDebug("[ ERROR ] expected integer after 'max-nick-len' option.");
-					e.printStackTrace();
-					System.exit(2);
-				}
-			} else if(token.equals("--min-nick-len")) {
-				try {
-					srvopts.minNickLen = Integer.parseInt(opts.remove(0));
-				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
-					printDebug("[ ERROR ] expected integer after 'min-nick-len' option.");
-					e.printStackTrace();
-					System.exit(2);
-				}
-			} else {
-				if(!token.matches("^(-h|--help)$"))
-					throw new UnknownOptionException(token);
-				else
-					throw new UnknownOptionException();
-			}
-		}
-
-		if(verbosity >= 2) printDebug("Opts to change after configuration: "+srvopts);
-		return srvopts;
-	}
-
-	/** Given a list of options and arguments, like:
-	 * --ip 192.168.0.100 --name My Server Name -vvv
-	 * returns the string between the first argument and the next one
-	 * (in the example, would return "My Server Name".
-	 * The passed opts list gets stripped in the process.
-	 */
-	protected static String parseTillNextOpt(LinkedList<String> opts) {
-		String arg = "";
-		
-		String tmp = opts.poll();
-		if(!tmp.startsWith("-"))
-			arg += tmp+" ";
-		while((tmp = opts.poll()) != null && !tmp.startsWith("-"))
-			arg += tmp+" ";
-		
-		arg = arg.trim();
-
-		// if last string removed was the next option, re-insert it in the opts list.
-		if(tmp != null)
-			opts.add(0, tmp);
-
-		return arg;
 	}
 
 	protected static ServerOptions readConfigFile(URL file) throws UnknownOptionException {
@@ -414,7 +271,7 @@ public class BasicServer implements Server {
 			printDebug("[ WARNING ] IOException while reading conf file: "+e);
 		}
 
-		return parseServerOptions(lines.toArray(new String[0]));
+		return ServerOptions.parseServerOptions(lines.toArray(new String[0]));
 	}
 	//////////////////////// END PUBLIC
 	

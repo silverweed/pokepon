@@ -19,6 +19,7 @@ import java.util.concurrent.*;
  */
 public class PokeponServer extends DatabaseServer implements TestingClass {
 	
+	public static final int DEFAULT_MAX_BATTLES = 100;
 	private static Set<Format> availableFormats = new LinkedHashSet<>();
 	static {
 		// The clients will see the available formats in this order.
@@ -33,6 +34,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	private BattleSchedule battleSchedule = new BattleSchedule(); 
 	private Map<String,BattleTask> battles = Collections.synchronizedMap(new HashMap<String,BattleTask>());
 	private int battleID = 0;
+	private int maxBattles = DEFAULT_MAX_BATTLES;
 	private Welcomer welcomer = new Welcomer();
 
 	public PokeponServer() throws IOException {
@@ -41,12 +43,21 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 
 	public PokeponServer(ServerOptions opts) throws IOException {
 		super(opts);
-		if(opts.serverName == null && !alreadySetName)
-			serverName = getClass().getSimpleName();
+		loadOptions(opts);
 		if(verbosity >= 2)
 			printDebug("["+serverName+"] Constructed.");
 	}
 
+	@Override
+	public PokeponServer loadOptions(ServerOptions opts) {
+		super.loadOptions(opts);
+		if(opts.maxBattles != -1)
+			maxBattles = opts.maxBattles;
+		if(opts.serverName == null && !alreadySetName)
+			serverName = getClass().getSimpleName();
+
+		return this;
+	}
 	
 	@Override
 	public void start() throws IOException {
@@ -56,6 +67,8 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		welcomer.start();
 
 		consoleHeader(new String[]{" "+serverName.toUpperCase()+" "," running on: "+myAddress+":"+port+" "},'*');
+		printConfiguration();
+		consoleMsg("························");
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
 			Socket newClient = accept();
@@ -101,7 +114,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		public synchronized List<Map.Entry<String,Format>> get(String key) {
 			return schedule.get(key);
 		}	
-
+		
 		/** @return If client1 -&gt; client2 is scheduled, its format, else null. */
 		public synchronized Format getFormat(String client1, String client2) {
 			if(schedule.get(client1) == null) return null;
@@ -241,6 +254,14 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		return battles;
 	}
 
+	public int getMaxBattles() {
+		return maxBattles;
+	}
+
+	public void setMaxBattles(int n) {
+		maxBattles = n;
+	}
+
 	public synchronized BattleSchedule getBattleSchedule() { return battleSchedule; }
 
 	/** Battle scheduling happens this way: 
@@ -256,6 +277,12 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	 */
 	public synchronized void scheduleBattle(Connection client1,Connection client2,Format format) {
 		if(verbosity >= 2) printDebug(client1.getName()+" sent a battle request to "+client2.getName());
+		if(battles.size() >= maxBattles) {
+			if(verbosity >= 0)
+				printDebug("[PokeponServer] Dropping battle request "+client1.getName()+" -> "+client2.getName()+
+					": too many active battles ("+battles.size()+" / "+maxBattles+")");
+			return;
+		}
 		if(battleSchedule.isScheduled(client2.getName(), client1.getName(), false)) {
 			// retreive this battle's format
 			Format fmt = battleSchedule.getFormat(client2.getName(),client1.getName());
@@ -310,6 +337,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		return false;
 	}
 
+	/** Removes all battles involving client 'name' from battles and battleSchedule. */
 	public synchronized void destroyAllBattles(String name) {
 		if(verbosity >= 1)
 			printDebug("[PokeponServer] Destroying all battles with player "+name);
@@ -367,6 +395,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		"\t--welcome-message <string>:     set a welcome message to be given to clients\n"+
 		"\t--min-nick-len <integer>:       set the minimum accepted nickname length\n"+
 		"\t--max-nick-len <integer>:       longer nicknames will be truncated to this length\n"+
+		"\t--max-battles <integer>:        set the limit of concurrent battles allowed by the server.\n"+
 		"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");
 		System.exit(0);
 	}
@@ -416,8 +445,14 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 			loadOptions(o);
 		}
 		if(verbosity >= 1) printDebug("["+serverName+"] loaded "+opts.length+" additional options");
-		loadOptions(parseServerOptions(args));
+		loadOptions(ServerOptions.parseServerOptions(args));
 		return this;
+	}
+
+	@Override
+	public void printConfiguration(PrintStream s) {
+		super.printConfiguration(s);
+		s.println("- maxBattles: "+maxBattles);
 	}
 
 	public static void main(String[] args) {

@@ -91,7 +91,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			return 1;
 		} else if(cmd.equals("whois")) {
 			if(token.length < 2) {
-				connection.sendMsg("Syntax error. Correct syntax is /whois <nick>");
+				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"whois <nick>");
 				return 1;
 			}
 			for(Connection conn : server.getClients()) {
@@ -189,7 +189,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			return 1;
 		} else if(cmd.equals("pm") || cmd.equals("whisper")) {
 			if(token.length < 3) {
-				connection.sendMsg("Syntax error. Correct syntax is /pm <user> <msg>.");
+				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"pm <user> <msg>.");
 				return 1;
 			}
 			String mesg = ConcatenateArrays.merge(token,2);
@@ -214,7 +214,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 	 */
 	private int assignNick(String[] token) {
 		if(token.length < 2) {
-			connection.sendMsg("Syntax error. Correct syntax is /nick <nick> [password]");
+			connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"nick <nick> [password]");
 			return 1;
 		}
 		String nick = token[1];
@@ -254,13 +254,15 @@ class CommandsExecutor extends ServerConnectionExecutor {
 										int ret = 42;
 										try {
 											if(((DatabaseServer)server).checkPasswd(nick,words[1].toCharArray())) {
-												if(connection.getVerbosity() >= 2) printDebug("Password matched for nick "+nick);
+												if(connection.getVerbosity() >= 2) 
+													printDebug("Password matched for nick "+nick);
 												words[1] = null;
 												connection.sendMsg("Successfully logged in.");
 												connection.setName(nick);
 												return 1;
 											} else {
-												if(connection.getVerbosity() >= 2) printDebug("Password mismatch for nick "+nick);
+												if(connection.getVerbosity() >= 2) 
+													printDebug("Password mismatch for nick "+nick);
 												connection.sendMsg("Incorrect password.");
 												return 1;
 											}
@@ -301,7 +303,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 
 	private int registerNick(String[] token) {
 		if(token.length != 2 && token.length != 3) {
-			connection.sendMsg("Syntax error. Correct syntax is /register <nick> [password]");
+			connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"register <nick> [password]");
 			return 1;
 		}
 		
@@ -405,15 +407,23 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		}
 	}
 
+	/** Given a number of _seconds, returns a human-readable date in
+	 * format days : hours : minutes : seconds
+	 */
 	private String secondsToDate(long _seconds) {
+		int days;
 		int hours;
 		int minutes;
 		int seconds;
 
-		hours = (int)(_seconds / 3600);
+		days = (int)(_seconds / 86400);
+		hours = (int)((_seconds % 86400) / 3600);
 		minutes = (int)((_seconds % 3600) / 60);
 		seconds = (int)(_seconds % 60);
 
-		return (hours > 0 ? hours + "h " : "") + (minutes > 0 ? minutes + "m " : "") + seconds + "s";
+		return 	(days > 0 ? days + "d" : "") +
+			(hours > 0 ? hours + "h " : "") + 
+			(minutes > 0 ? minutes + "m " : "") +
+			seconds + "s";
 	}
 }

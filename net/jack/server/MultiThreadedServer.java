@@ -17,13 +17,15 @@ import java.net.*;
 
 public class MultiThreadedServer extends BasicNameValidatingServer implements AutoCloseable {
 
+	public static final int DEFAULT_MAX_CLIENTS = 100;
 	public static enum ConnectPolicy {
 		PERMISSIVE, 	// allow all TCP connections
 		AVERAGE,	// disallow HTTP requests (but allow clients like netcat and telnet)
 		PARANOID	// disallow all but requests compliant with J.A.C.K. protocol 
 	};
-	protected int maxClients = 100;
+	protected int maxClients = DEFAULT_MAX_CLIENTS;
 	protected ThreadPoolExecutor pool;
+	/** Queue used by the ThreadPoolExecutor to store tasks */
 	protected ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(200*maxClients);
 	protected List<Connection> clients = Collections.synchronizedList(new LinkedList<Connection>());
 	/** The policy for allowing clients to connect to this server: see server.conf for details */
@@ -54,7 +56,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 							printDebug("Connection "+c.getName()+" removed from clients list.");
 						}
 						if(verbosity >= 1) {
-							if(clients.size() < 20)
+							if(clients.size() < 10)
 								printDebug("clients: "+clients+" ("+clients.size()+" / "+maxClients+")");
 							else 
 								printDebug("clients: "+clients.size()+" / "+maxClients);

@@ -4,6 +4,7 @@ import java.awt.geom.*;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 
+/** @author Some guy on the Internet */
 class TextBubbleBorder extends AbstractBorder {
 
     private Color color;
@@ -107,9 +108,9 @@ class TextBubbleBorder extends AbstractBorder {
                 JLabel l = new JLabel(
                     "The quick brown fox jumped over the lazy dog!");
 
-                l.setBorder(new TextBubbleBorder(Color.MAGENTA.darker(),2,4,0));
+                l.setBorder(new TextBubbleBorder(Color.RED,2,4,0));
                 l.setOpaque(true);
-                l.setBackground(Color.BLACK);
+                l.setBackground(Color.WHITE);
                 JOptionPane.showMessageDialog(null, l);
             }
         });

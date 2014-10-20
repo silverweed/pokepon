@@ -63,25 +63,28 @@ class GUILauncher extends JFrame {
 		c.gridy = 1;
 		c.insets = new Insets(4,4,4,4);
 		c.anchor = GridBagConstraints.CENTER;
-		GradientButton btn = new GradientButton(BTN_BG1, BTN_BG2, "Server");
+		
+		GradientButton btn = new GradientButton(BTN_BG1, BTN_BG2, "Client");
 		btn.setToggleable(false);
-		btn.setToolTipText("Starts the Pokepon Server in a terminal.");
-		if(celestia != null) btn.setFont(celestia.deriveFont(Font.PLAIN, BTN_FONT_SIZE));
-		btn.setPreferredSize(new Dimension(BTN_X, BTN_Y));
-		btn.setForeground(BTN_FG);
-		btn.addMouseListener(new HoverListener(btn));
-		btn.addActionListener(serverListener);
-		add(btn, c);
-		btn = new GradientButton(BTN_BG1, BTN_BG2, "Client");
-		btn.setToggleable(false);
-		btn.setToolTipText("Starts the Pokepon Client.");
+		btn.setToolTipText("Connect to a running Pokepon Server");
 		if(celestia != null) btn.setFont(celestia.deriveFont(Font.PLAIN, BTN_FONT_SIZE));
 		btn.setPreferredSize(new Dimension(BTN_X, BTN_Y));
 		btn.addMouseListener(new HoverListener(btn));
 		btn.addActionListener(clientListener);
 		btn.setForeground(BTN_FG);
+		add(btn, c);
+		
+		btn = new GradientButton(BTN_BG1, BTN_BG2, "Server");
+		btn.setToggleable(false);
+		btn.setToolTipText("Starts the Pokepon Server.");
+		if(celestia != null) btn.setFont(celestia.deriveFont(Font.PLAIN, BTN_FONT_SIZE));
+		btn.setPreferredSize(new Dimension(BTN_X, BTN_Y));
+		btn.setForeground(BTN_FG);
+		btn.addMouseListener(new HoverListener(btn));
+		btn.addActionListener(serverListener);
 		c.gridx = 1;
 		add(btn, c);
+		
 		btn = new GradientButton(BTN_BG1, BTN_BG2, "Teambuilder");
 		btn.setToggleable(false);
 		btn.setToolTipText("Starts the GUI TeamBuilder");
@@ -93,16 +96,18 @@ class GUILauncher extends JFrame {
 		c.gridx = 0;
 		c.gridy = 3;
 		add(btn, c);
-		btn = new GradientButton(BTN_BG1, BTN_BG2, "Ponydex");
+		
+		btn = new GradientButton(BTN_BG1, BTN_BG2, "Typechart");
 		btn.setToggleable(false);
-		btn.setToolTipText("Prints a list of ponies ordered by stats in a terminal.");
+		btn.setToolTipText("Shows the typechart");
 		if(celestia != null) btn.setFont(celestia.deriveFont(Font.PLAIN, BTN_FONT_SIZE));
 		btn.setPreferredSize(new Dimension(BTN_X, BTN_Y));
 		btn.addMouseListener(new HoverListener(btn));
-		btn.addActionListener(dexListener);
+		btn.addActionListener(chartListener);
 		btn.setForeground(BTN_FG);
 		c.gridx = 1;
 		add(btn, c);
+		
 		// add footer and logo
 		JLabel footerLabel = new JLabel("<html>I know this launcher sucks,<br> it's a Pre-alpha release :P</html>");
 		footerLabel.setFont(new Font("Sans-serif", Font.PLAIN, 12));
@@ -371,7 +376,12 @@ class GUILauncher extends JFrame {
 				(new GUITeamBuilder()).buildTeam();		
 			}
 		},
-		dexListener = new ActionListener() {
+		chartListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				(new Typechart()).display();
+			}
+		};
+		/*dexListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ButtonGroup bGroup = new ButtonGroup();	
 				JPanel msg = new JPanel(new GridLayout(11,1));
@@ -424,5 +434,5 @@ class GUILauncher extends JFrame {
 					printDebug("Exception while invoking FastPonydex: "+ex);
 				}
 			}
-		};
+		};*/
 }

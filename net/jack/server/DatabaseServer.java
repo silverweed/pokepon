@@ -82,7 +82,7 @@ public class DatabaseServer extends MultiThreadedServer {
 			server = new DatabaseServer();
 			args = server.loadPreConfig(args);
 			server.loadOptions(readConfigFile(new URL(confFile)));
-			server.loadOptions(parseServerOptions(args));
+			server.loadOptions(ServerOptions.parseServerOptions(args));
 			server.start();
 		} catch(IOException e) {
 			printDebug("Caught IOException while starting DatabaseServer: ");
@@ -265,6 +265,12 @@ public class DatabaseServer extends MultiThreadedServer {
 
 		return 2;
 	}	
+	
+	@Override
+	public void printConfiguration(final PrintStream s) {
+		super.printConfiguration(s);
+		s.println("- database: "+dbURL);
+	}
 
 	protected static void printUsage() {
 		System.out.println("Usage: "+DatabaseServer.class.getSimpleName()+" [address (- for localhost)] [port] [verbosity]");

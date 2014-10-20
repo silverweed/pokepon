@@ -15,8 +15,10 @@ import java.awt.event.*;
 import java.util.*;
 
 /** A component that displays graphically a pony's stats and allows to change them
- * with sliders and textfields (totally Zarel-style); the whole bulk of teambuilding
- * is done here.
+ * with sliders and textfields (totally Zarel-style); a good deal of teambuilding
+ * is done here;
+ * since this is one of the most complex GUI classes, handle with care or something
+ * may break.
  *
  * @author Giacomo Parolini
  */
@@ -58,7 +60,7 @@ class FancyPonyStatsPanel extends StatsPanel {
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = new Insets(2,3,2,3);
 
-		for(int i = 0 ; i < 6; ++i) {
+		for(int i = 0; i < 6; ++i) {
 			baseStats[i] = new JLabel();
 			totStats[i] = new JLabel();
 			evField[i] = new RoundJTextField(4);
@@ -138,8 +140,6 @@ class FancyPonyStatsPanel extends StatsPanel {
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.LINE_END;
 		add(bstLabel,c);
-
-		
 	}
 
 	public FancyPonyStatsPanel(Pony p) {
@@ -151,6 +151,7 @@ class FancyPonyStatsPanel extends StatsPanel {
 		return pony;
 	}
 
+	/** Changes the currently selected pony, refreshing the GUI accordingly. */
 	public synchronized void setPony(final Pony p) {
 		pony = p;
 		for(int i = 0; i < 6; ++i) {
@@ -174,6 +175,8 @@ class FancyPonyStatsPanel extends StatsPanel {
 		SwingConsole.run(f);
 	}
 
+
+	/////////////////////////// START LISTENERS //////////////////////////////////////
 
 	private abstract class MyChangeListener	{	
 		protected final int num;
@@ -203,8 +206,6 @@ class FancyPonyStatsPanel extends StatsPanel {
 			}
 		}
 	}
-
-	/////////////////////////// START LISTENERS //////////////////////////////////////
 
 	/** Catches changes in the sliders and modifies the pony's EV accordingly. */
 	private class SliderChangeListener extends MyChangeListener implements ChangeListener {
@@ -262,7 +263,11 @@ class FancyPonyStatsPanel extends StatsPanel {
 			// if text is invalid, set EV to 0 and, if necessary, nature to neutral.
 			if(!matcher.matches()) {
 				ev[num] = 0;
-				if(pony.getNature().increasedStat() != null && (pony.getNature().increasedStat().equals(stat) || pony.getNature().decreasedStat().equals(stat)))
+				if(	pony.getNature().increasedStat() != null && 
+					(	pony.getNature().increasedStat().equals(stat) || 
+						pony.getNature().decreasedStat().equals(stat)
+					)
+				)
 					nature = "neutral";
 				refresh();
 				return;

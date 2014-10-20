@@ -133,27 +133,47 @@ class GUILauncher extends JFrame {
 	
 	private final ActionListener
 		serverListener = new ActionListener() {
+			
+			private JFileChooser fChooser = new JFileChooser(BasicServer.DEFAULT_CONF_FILE);
+
 			public void actionPerformed(ActionEvent e) {
 				JPanel msgPanel = new JPanel(new GridBagLayout());
 				GridBagConstraints c = new GridBagConstraints();
-				final JCheckBox useConf = new JCheckBox("Load all from server.conf");
+				c.gridx = c.gridy = 0;
+				c.gridwidth = 3;
+				c.insets = new Insets(1, 2, 1, 2);
+				msgPanel.add(new JLabel("Unspecified opts will be loaded from:"), c);
+
+				// conf file path
+				final JTextField confPath = new JTextField(BasicServer.DEFAULT_CONF_FILE, 30);
+
+				final JButton changeConfBtn = new JButton("Change");
+				changeConfBtn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						switch(fChooser.showOpenDialog(getParent())) {
+							case JFileChooser.APPROVE_OPTION:
+								if(fChooser.getSelectedFile() != null) 
+									confPath.setText(fChooser.getSelectedFile().getPath());
+								break;
+						}
+					}
+				});
+				++c.gridy;
+				c.gridx = 0;
+				c.gridwidth = 1;
+				msgPanel.add(changeConfBtn, c);
+
+				c.gridwidth = 2;
+				c.gridx = 1;
+				msgPanel.add(confPath, c);
+
 				final JTextField srvIp = new JTextField(20), srvPort = new JTextField(6),
 						srvName = new JTextField(20), srvMaxClients = new JTextField(4),
 						srvDB = new JTextField(25);
-				useConf.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						srvIp.setEditable(!useConf.isSelected());
-						srvPort.setEditable(!useConf.isSelected());
-						srvName.setEditable(!useConf.isSelected());
-						srvMaxClients.setEditable(!useConf.isSelected());
-						srvDB.setEditable(!useConf.isSelected());
-					}
-				});
-				c.gridwidth = 3;
-				msgPanel.add(useConf, c);
 				// ip
 				c.gridwidth = 1;
-				c.gridy = 1;
+				++c.gridy;
+				c.gridx = 0;
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("IP: "), c);
 				srvPort.setText(""+BasicServer.DEFAULT_PORT);
@@ -166,7 +186,7 @@ class GUILauncher extends JFrame {
 				} catch(UnknownHostException ignore) {}
 				// port
 				c.gridx = 0;
-				c.gridy = 2;
+				++c.gridy;
 				c.gridwidth = 1;
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("Port: "), c);
@@ -174,12 +194,12 @@ class GUILauncher extends JFrame {
 				c.gridwidth = 2;
 				c.anchor = GridBagConstraints.WEST;
 				msgPanel.add(srvPort, c);
-				c.gridy = 3;
+				++c.gridy;
 				c.gridwidth = 3;
 				msgPanel.add(new JLabel("<html>(<i>Optional parameters</i>)</html>"), c);
 				// name
 				c.gridx = 0;
-				c.gridy = 4;
+				++c.gridy;
 				c.gridwidth = 1;
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("Name: "), c);
@@ -189,7 +209,7 @@ class GUILauncher extends JFrame {
 				msgPanel.add(srvName, c);
 				// max clients
 				c.gridx = 0;
-				c.gridy = 5;
+				++c.gridy;
 				c.gridwidth = 1;
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("Max clients: "), c);
@@ -199,7 +219,7 @@ class GUILauncher extends JFrame {
 				msgPanel.add(srvMaxClients, c);
 				// database
 				c.gridx = 0;
-				c.gridy = 6;
+				++c.gridy;
 				c.gridwidth = 1;
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("Database: "), c);
@@ -225,7 +245,7 @@ class GUILauncher extends JFrame {
 
 					return;
 				}
-				if(!useConf.isSelected() && 
+				/*if(!useConf.isSelected() && 
 					(	srvIp.getText().length() == 0 ||
 						srvPort.getText().length() == 0
 					)
@@ -235,26 +255,29 @@ class GUILauncher extends JFrame {
 						"Not starting server.", "Unspecified option(s)",
 						JOptionPane.ERROR_MESSAGE);
 					return;
-				}
+				}*/
 				
 				try {
 					final PokeponServer server = new PokeponServer();
-					if(!useConf.isSelected()) {
-						ServerOptions opts = ServerOptions.construct()
-									.address(srvIp.getText())
-									.port(Integer.parseInt(srvPort.getText()));
-						if(srvName.getText().length() > 0)
-							opts.serverName(srvName.getText());
-						if(srvMaxClients.getText().length() > 0)
-							opts.maxClients(Integer.parseInt(srvMaxClients.getText()));
-						if(srvDB.getText().length() > 0)
-							opts.database(srvDB.getText());
-						
-						printDebug("Opts: "+opts);
-						server.configure(new String[0], opts);
-					} else {
-						server.configure(new String[0]);
-					}
+					ServerOptions opts = ServerOptions.construct();
+
+					if(srvIp.getText().length() > 0)
+						opts.address(srvIp.getText());
+					if(srvPort.getText().length() > 0)
+						opts.port(Integer.parseInt(srvPort.getText()));
+					if(srvName.getText().length() > 0)
+						opts.serverName(srvName.getText());
+					if(srvMaxClients.getText().length() > 0)
+						opts.maxClients(Integer.parseInt(srvMaxClients.getText()));
+					if(srvDB.getText().length() > 0)
+						opts.database(srvDB.getText());
+					if(!confPath.getText().equals(BasicServer.DEFAULT_CONF_FILE))
+						opts.confFile(confPath.getText());
+					
+					if(Debug.on) printDebug("Opts: "+opts);
+
+					server.configure(new String[0], opts);
+
 					new Thread() {
 						public void run() {
 							try {

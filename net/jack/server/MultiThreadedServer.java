@@ -102,7 +102,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			server = new MultiThreadedServer();
 			args = server.loadPreConfig(args);
 			server.loadOptions(readConfigFile(new URL(confFile)));
-			server.loadOptions(parseServerOptions(args));
+			server.loadOptions(ServerOptions.parseServerOptions(args));
 			server.start();
 		} catch(IOException e) {
 			printDebug("Caught IOException while starting MultiThreadedServer: ");
@@ -191,6 +191,14 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		} finally {
 			shutdown();
 		}
+	}
+
+	@Override
+	public void printConfiguration(final PrintStream s) {
+		super.printConfiguration(s);
+		s.println("- maxClients: "+maxClients);
+		s.println("- connectPolicy: "+connectPolicy);
+		s.println("- welcomeMessage: "+welcomeMessage);
 	}
 
 	protected static void printUsage() {

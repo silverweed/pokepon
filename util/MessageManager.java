@@ -194,6 +194,34 @@ public class MessageManager {
 		System.out.println("");
 	}
 	
+	public static void consoleHeader(String text) {
+		consoleHeader(new String[] { text });
+	}
+	public static void consoleHeader(String text, char d) {
+		consoleHeader(new String[] { text }, d);
+	}
+	public static void consoleHeader(String text, char d, PrintStream stream) {
+		consoleHeader(new String[] { text }, d, stream);
+	}
+	public static void consoleHeader(String text, char d, PrintStream stream, int vSpacing) {
+		consoleHeader(new String[] { text }, d, stream, vSpacing);
+	}
+	public static void consoleHeader(String text, char d, PrintStream stream, int vSpacing, int hSpacing) {
+		consoleHeader(new String[] { text }, d, stream, vSpacing, hSpacing);
+	}
+	public static void consoleHeader(String[] text) {
+		consoleHeader(text, '*');
+	}
+	public static void consoleHeader(String[] text, char d) {
+		consoleHeader(text, d, System.out);
+	}
+	public static void consoleHeader(String[] text, char d, PrintStream stream) {
+		consoleHeader(text, d, stream, 1);
+	}
+	public static void consoleHeader(String[] text, char d, PrintStream stream, int vSpacing) {
+		consoleHeader(text, d, stream, vSpacing, 2);
+	}
+
 	/** Prints a 'header' in a nice format, boxed by char:
 	 * e.g. if char='*', print a 'string' like this:
 	 *      ************************
@@ -203,21 +231,19 @@ public class MessageManager {
 	 *      ************************
 	 *
 	 * @param text An array of Strings, where each element is a different row of the header
-	 * @param d The box delimiter
-	 * @param ps (Optional) A PrintStream where to output (default: System.out)
+	 * @param d (Optional) The box delimiter (default: '*')
+	 * @param stream (Optional) A PrintStream where to output (default: System.out)
+	 * @param vSpacing (Optional) the number of lines to leave before and after the strings (default: 1)
+	 * @param hSpacing (Optional) the number of characters to leave before and after each line (default: 2)
 	 */
-	public static void consoleHeader(String[] text,char d,PrintStream... ps) {
-		PrintStream stream = System.out;
-		if(ps.length > 0) {
-	 		stream = ps[0];
-	 	}
+	public static void consoleHeader(String[] text, char d, PrintStream stream, int vSpacing, int hSpacing) {
 	 	/* First, get maximum length of a row */
 	 	int maxLen = 0;
 	 	for(String s : text) {
 	 		if(s.length() > maxLen) maxLen = s.length();
 	 	}
 	 	
-	 	maxLen += 2;	// leave some space
+	 	maxLen += hSpacing;	// leave some space
 	 	
 	 	StringBuilder sb = new StringBuilder("");
 	 	for(int i = 0; i < maxLen; ++i)
@@ -225,8 +251,9 @@ public class MessageManager {
 	 		
 	 	/* Print first line of box */
 	 	stream.format("%c%-"+maxLen+"s%c\n",d,sb.toString(),d);
-	 	/* Print second line */
-	 	stream.format("%c%-"+maxLen+"s%c\n",d," ",d);
+		/* Print leading vertical gap */
+		for(int i = 0; i < vSpacing; ++i)
+			stream.format("%c%-"+maxLen+"s%c\n",d," ",d);
 	 	
 	 	/* Print content lines (centered) */
 	 	for(String s : text) {
@@ -239,27 +266,11 @@ public class MessageManager {
 	 			stream.format("%c%-"+((maxLen-s.length())/2)+"s%s%-"+((maxLen-s.length())/2)+"s%c\n",d," ",s," ",d);
 	 	}
 	 	
-	 	/* Print penultimate line */
-	 	stream.format("%c%-"+maxLen+"s%c\n",d," ",d);
+	 	/* Print trailing vertical gap */
+		for(int i = 0; i < vSpacing; ++i)
+			stream.format("%c%-"+maxLen+"s%c\n",d," ",d);
 	 	/* Print last line */
 	 	stream.format("%c%-"+maxLen+"s%c\n",d,sb.toString(),d);
-	}
-
-	/** Overloaded method that uses the 'default style' for the console header, ie
-	  * '*' as delimiter char and System.out as printstream.
-	  */
-	public static void consoleHeader(String[] text) {
-	 	consoleHeader(text,'*',System.out);
-	}
-
-	/** Overloaded method used to pass a single line to consoleHeader */
-	public static void consoleHeader(String text,char d,PrintStream... ps) {
-		consoleHeader(new String[] {text},d,ps);
-	}
-
-	/** Overloaded method used to pass a single line to default consoleHeader. */
-	public static void consoleHeader(String text) {
-		consoleHeader(new String[] {text});
 	}
 
 	public static void printDamageMsg(Pony pony,int inflictedDamage) {

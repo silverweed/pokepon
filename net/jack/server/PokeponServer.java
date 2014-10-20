@@ -19,7 +19,7 @@ import java.util.concurrent.*;
  */
 public class PokeponServer extends DatabaseServer implements TestingClass {
 	
-	public static final int DEFAULT_MAX_BATTLES = 100;
+	public static final int DEFAULT_MAX_BATTLES = DEFAULT_MAX_CLIENTS;
 	private static Set<Format> availableFormats = new LinkedHashSet<>();
 	static {
 		// The clients will see the available formats in this order.

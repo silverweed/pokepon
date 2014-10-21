@@ -565,6 +565,8 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 			team = teams.get(teamList.getSelectedIndex());
 			if(format.equals("Custom")) {
 				format = createCustomFormat();
+				if(format == null)
+					return false;
 				if(Debug.on) printDebug("CUSTOM FORMAT: "+format);
 			}
 		}
@@ -682,14 +684,41 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 		panel.add(area);
 		JButton hint = new JButton("?");
 		hint.addActionListener(new ActionListener() {
+			private final static String helpURL = "https://github.com/silverweed/pokepon/#creating-custom-formats";
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(PokeponClient.this,
-				"Insert rules separated by newlines.\n"+
-				"Possible rule formats are:\n"+
-				"p:Name Of Pony\nm:Name Of Move\ni:Name Of Item\na:Name Of Ability\n"+
-				"c:{p:Name Of Pony,m:Name Of Move,[...]} (bans the described combo)\n"+
-				":speciesclause / :canon / :itemclause\n"+
-				"\nMore info on https://github.com/silverweed/pokepon/#creating-custom-formats");
+				JPanel p = new JPanel(new GridBagLayout());
+				GridBagConstraints c = new GridBagConstraints();
+				c.gridheight = 8;
+				JLabel l = new JLabel("<html>Insert rules separated by newlines.<br>"+
+				"Possible rule formats are:<br>"+
+				"p:Name Of Pony<br>m:Name Of Move<br>i:Name Of Item<br>a:Name Of Ability<br>"+
+				"c:{p:Name Of Pony,m:Name Of Move,[...]} (bans the described combo)<br>"+
+				":speciesclause / :canon / :itemclause<br></html>");
+				p.add(l,c);
+				JButton b = new JButton("<html>More info on <font color=\"#000099\">"+
+					"<u>"+helpURL+"</u></font></html>");
+				b.setOpaque(false);
+				b.setBackground(Color.WHITE);
+				b.setBorderPainted(false);
+				b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						if(Desktop.isDesktopSupported()) {
+							try {
+								Desktop.getDesktop().browse(new URI(helpURL));
+							} catch(IOException|URISyntaxException ee) {
+								printDebug("Exception while opening URL: ");
+								ee.printStackTrace();
+								JOptionPane.showMessageDialog(PokeponClient.this, "Couldn't open URL!",
+									"Error", JOptionPane.ERROR_MESSAGE);
+							}
+						}
+					}
+				});							
+				b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				c.gridy = 8;
+				c.gridheight = 1;
+				p.add(b,c);
+				JOptionPane.showMessageDialog(PokeponClient.this, p);
 			}
 		});
 		panel.add(BorderLayout.NORTH, hint);
@@ -705,7 +734,7 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 						null
 						);
 		if(sel == JOptionPane.CLOSED_OPTION || sel == JOptionPane.CANCEL_OPTION)
-			return "";		
+			return null;		
 		
 		return "@Custom: " + area.getText().replaceAll("\n","\\$");
 	}

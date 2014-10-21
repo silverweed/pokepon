@@ -13,6 +13,7 @@ import pokepon.util.*;
 import pokepon.player.*;
 import javax.swing.*;
 import javax.swing.text.*;
+import javax.swing.border.*;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.regex.*;
 import java.net.*;
 import java.io.*;
+import java.lang.reflect.*;
 
 /** The Pokepon Client
  *
@@ -46,7 +48,8 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	protected Map<String,BattlePanel> battles = new HashMap<String,BattlePanel>();
 	protected TeamDealer teamDealer = new TeamDealer();
 	protected boolean loadedTeams;
-	protected Map<String,String> options = new HashMap<>();
+	//protected Map<String,String> options = new HashMap<>();
+	protected volatile boolean optLogBattle;
 	protected Map<String,BattleLogger> battleLoggers = new HashMap<>();
 
 	public PokeponClient(String host,int port) {
@@ -81,7 +84,7 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 
 		// Default options
 		// TODO: create a way to change these
-		options.put("logBattle", "true");
+		optLogBattle = true;
 	}
 
 	public synchronized void start() throws ConnectException, UnknownHostException {
@@ -178,7 +181,36 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	public String getName() {
 		return chatP.getNick();
 	}
-	public Map<String,String> getOptions() { return options; }
+	/** Uses reflection to retrieve the value of an option; options all have a name
+	 * like optSomeNameHere, and you can call hasOptionEnabled(someNameHere) to
+	 * retrieve it without using explicit getters; since this returns a Field, you
+	 * should know the type of the retrieved option, so you can cast it with Field.get().
+	 * @return the Object representing this option
+	 */
+	public Object getOption(String opt) {
+		try {
+			return getClass().getField("opt"+opt.substring(0,1).toUpperCase()+opt.substring(1)).get(this);
+		} catch(NoSuchFieldException|SecurityException|IllegalArgumentException|IllegalAccessException e) {
+			printDebug("[PokeponClient.getOption("+opt+")] exception: "+e);
+			return null;
+		}
+	}
+	/** Similar to getOption(String opt), but only for boolean values; works as a shortcut method 
+	 * for getOption(opt).get() and all the exception handling implied.
+	 * @return true if option exists, is boolean and is true, false otherwise
+	 */
+	public boolean hasOptionEnabled(String opt) {
+		try {
+			Field optField = getClass().getField("opt"+opt.substring(0,1).toUpperCase()+opt.substring(1));
+			if(optField.getType() != Boolean.class)
+				return false;
+			return optField.getBoolean(this);
+		} catch(NoSuchFieldException|SecurityException|IllegalArgumentException|IllegalAccessException e) {
+			printDebug("[PokeponClient.hasOptionEnabled("+opt+")] exception: "+e);
+		}
+		return false;
+	}
+
 	public Socket getSocket() { return s; }
 	public void stop() {
 		try {
@@ -250,7 +282,8 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 								users.addElement(newN);
 							} else {
 								if(connection.getVerbosity() >= 3)
-									printDebug("groups are non-null. New nick is "+matcher.group("starttags")+newN+matcher.group("endtags"));
+									printDebug("groups are non-null. New nick is "+
+										matcher.group("starttags")+newN+matcher.group("endtags"));
 								users.addElement(matcher.group("starttags")+newN+matcher.group("endtags"));
 							}
 						}
@@ -356,9 +389,11 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 							newbattle.initialize(format);
 						}
 						battles.put(id, newbattle);
-						if(options.containsKey("logBattle") && options.get("logBattle").equals("true")) {
+						if(optLogBattle) {
 							if(Debug.on) printDebug("[spawnBattle] attaching FileBattleLogger to battle "+id+".");
-							battleLoggers.put(id, new FileBattleLogger(newbattle));
+							BattleLogger bl = new FileBattleLogger(newbattle);
+							newbattle.setBattleLogger(bl);
+							battleLoggers.put(id, bl);
 						}
 						final JFrame battleFrame = new JFrame();
 						battleFrame.add(newbattle);
@@ -680,6 +715,7 @@ class ButtonsPanel extends JPanel {
 	private JButton bTeamBuilder = new JButton("Teambuilder");
 	private JButton bExit = new JButton("Exit");
 	private JButton bChallenge = new JButton("Challenge");
+	private JButton bSettings = new JButton("Settings");
 	private final PokeponClient client;
 
 	public ButtonsPanel(PokeponClient _client) {
@@ -696,15 +732,18 @@ class ButtonsPanel extends JPanel {
 		add(bTeamBuilder);
 		bChallenge.addActionListener(challengeListener);
 		add(bChallenge);
+		bSettings.addActionListener(settingsListener);
+		add(bSettings);
 	}
 	
-	/* One method to get them all. */
+	// One method to get them all. 
 	public JButton get(String b) {
 		String a = b.toLowerCase();
 		
 		if(a.equals("teambuilder")) return bTeamBuilder;
 		else if(a.equals("exit")) return bExit;
 		else if(a.equals("challenge")) return bChallenge;
+		else if(a.equals("settings")) return bSettings;
 		else return null;
 	}
 
@@ -712,7 +751,7 @@ class ButtonsPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			consoleMsg("Opening TeamBuilder.\n");
 			client.append("Opening TeamBuilder...");
-			(new GUITeamBuilder(client)).buildTeam();
+			new GUITeamBuilder(client).buildTeam();
 		}
 	};
 	private ActionListener challengeListener = new ActionListener() {
@@ -720,6 +759,61 @@ class ButtonsPanel extends JPanel {
 			String uName = JOptionPane.showInputDialog("Enter name of the user to challenge:");
 			if(uName != null)
 				client.getConnection().sendMsg(CMD_PREFIX+"battle "+uName);
+		}
+	};
+	private ActionListener settingsListener = new ActionListener() {
+		private JPanel panel = new JPanel();
+		private JCheckBox 
+			logBattleBtn = new JCheckBox("Enable battle logging"),
+			soundBtn = new JCheckBox("Enable sound");
+		private boolean initialized;
+
+		// initialize GUI just once, not every time we click the button
+		private void init() {
+			panel.setLayout(new GridLayout(3, 1));
+			// title
+			JLabel l = new JLabel("Client Settings");
+			l.setHorizontalAlignment(JLabel.CENTER);
+			l.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			panel.add(l);
+			// enable/disable battle logging
+			logBattleBtn.setToolTipText("<html>If checked, you'll be able to export the<br>"+
+				"battle log by issuing the <b>"+CMD_PREFIX+"save</b> or <b>"+CMD_PREFIX+"export</b> command<br>"+
+				"from the battle chat. Uncheck if you<br>"+
+				"don't need this feature and you want<br>"+
+				"to save some memory during battles.</html>");
+			logBattleBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					client.optLogBattle = logBattleBtn.isSelected();
+				}
+			});
+			panel.add(logBattleBtn);
+			// enable/disable sound
+			soundBtn.setToolTipText("Mute/unmute sound during battle.");
+			soundBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					GUIGlobals.soundOn = soundBtn.isSelected();
+				}
+			});
+			panel.add(soundBtn);
+			initialized = true;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			if(!initialized) 
+				init();
+			logBattleBtn.setSelected(client.optLogBattle);
+			soundBtn.setSelected(GUIGlobals.soundOn);
+			JOptionPane.showOptionDialog(
+					client,
+					panel,
+					"Pokepon Client settings",
+					JOptionPane.DEFAULT_OPTION,
+					JOptionPane.PLAIN_MESSAGE,
+					null,
+					null,
+					null
+					);
 		}
 	};
 }

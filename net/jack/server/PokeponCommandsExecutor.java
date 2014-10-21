@@ -27,6 +27,8 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 		help.append(CMD_PREFIX+"data <name> - show info about pony/move/item/ability.\n");
 		help.append(CMD_PREFIX+"eff <type>[,type2] - show typechart for a type.\n");
 		help.append(CMD_PREFIX+"eff <typeA> -> <typeB>[,typeB2]  - show effectiveness of typeA atk vs typeB defense.\n");
+		help.append(CMD_PREFIX+"save (in battle) - exports current battle log.\n");
+		help.append(CMD_PREFIX+"export - alias for "+CMD_PREFIX+"save.\n");
 	}
 
 	@Override
@@ -110,8 +112,10 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 							return 1;
 						}
 					}
-					pServer.scheduleBattle(connection,conn,format);
-					connection.sendMsg("Sent battle request to "+conn.getName());
+					if(pServer.scheduleBattle(connection,conn,format)) 
+						connection.sendMsg("Sent battle request to "+conn.getName());
+					else
+						connection.sendMsg("Server refused to send battle request to "+conn.getName());
 					return 1;
 				}
 			}

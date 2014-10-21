@@ -1,6 +1,7 @@
-*class
-*swp
+*.class
+*.swp
 *~
-*html
-*pkp
+*.html
+*.pkp
 *server.db
+*.log

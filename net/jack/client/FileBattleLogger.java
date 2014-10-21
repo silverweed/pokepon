@@ -34,25 +34,30 @@ public class FileBattleLogger extends BattleLogger {
 				++i;
 			} while(outFile.exists());
 		} else {
-			if(Meta.ensureDirExists(Meta.getBattleRecordsURL().getPath()) == null) {
-				printDebug("[BattleLogger] fatal error: directory not created. Aborting.");
+			File outdir = null;
+			if((outdir = Meta.ensureDirExists(Meta.getBattleRecordsURL().getPath())) == null) {
+				printDebug("[FileBattleLogger] fatal error: directory not created. Aborting.");
 				return;
 			}
 			int i = 0;
 			do {
-				outFile = new File(Meta.getBattleRecordsURL().getPath()+"/"+bp.getBattleID()+"_"+bp.getPlayer(1)+
-					"_vs_"+bp.getPlayer(2)+"-"+bp.getFormat().replaceAll(" ","")+(i == 0 ? "" : "-"+i));
+				outFile = new File(outdir.getPath()+Meta.DIRSEP+bp.getBattleID()+"_"+bp.getPlayer(1).getName()+
+					"_vs_"+bp.getPlayer(2).getName()+"-"+bp.getFormat().replaceAll(" ","")+(i == 0 ? "" : "-"+i)+".log");
 				++i;
+				if(Debug.pedantic) printDebug("[FileBattleLogger] "+outFile+".exists() = "+outFile.exists());
 			} while(outFile.exists());
 		}
-		if(outFile.canWrite()) {
-			try (PrintWriter writer = new PrintWriter(new FileOutputStream(outFile))) {
-				for(String line : history) 
-					writer.println(line);
-				feedbackMsg = "Battle saved in "+outFile+".";
-			} catch(FileNotFoundException e) {
-				printDebug("[BattleLogger] File not found: "+outFile);
-			}
+		if(Debug.on) printDebug("[FileBattleLogger] outfile = "+outFile);
+		try (PrintWriter writer = new PrintWriter(new FileOutputStream(outFile))) {
+			// append header
+			writer.println("# Battle: " + bp.getPlayer(1).getName() + " vs " + bp.getPlayer(2).getName() + 
+				" (" + bp.getFormat() + ")");
+			writer.println("# Date: " + new Date());
+			for(String line : history) 
+				writer.println(line);
+			feedbackMsg = "Battle saved in "+outFile+".";
+		} catch(FileNotFoundException e) {
+			printDebug("[FileBattleLogger] File not found: "+outFile);
 		}
 	}
 }

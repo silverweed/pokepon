@@ -2359,9 +2359,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						if(inputF.getText().charAt(0) != CMD_PREFIX) {
 							sendB("|chat|"+p1.getName()+"|"+MessageManager.sanitize(inputF.getText())); 
 						} else {
-							printDebug("input: "+inputF.getText());
-							String txt = inputF.getText().trim();
-							if(txt.equals(CMD_PREFIX+"export") || txt.equals(CMD_PREFIX+"save")) {
+							String txt = inputF.getText().trim().substring(1);
+							if(txt.equals("export") || txt.equals("save")) {
 								if(battleLogger != null) {
 									// TODO: add capability to select save location
 									battleLogger.processRecord(null);

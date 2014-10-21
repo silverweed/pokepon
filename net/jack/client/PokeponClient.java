@@ -48,9 +48,9 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	protected Map<String,BattlePanel> battles = new HashMap<String,BattlePanel>();
 	protected TeamDealer teamDealer = new TeamDealer();
 	protected boolean loadedTeams;
-	//protected Map<String,String> options = new HashMap<>();
-	protected volatile boolean optLogBattle;
 	protected Map<String,BattleLogger> battleLoggers = new HashMap<>();
+	// Client options: must be Objects, not primitives!
+	protected volatile Boolean optLogBattle;
 
 	public PokeponClient(String host,int port) {
 		super(true);
@@ -201,11 +201,11 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	 */
 	public boolean hasOptionEnabled(String opt) {
 		try {
-			Field optField = getClass().getField("opt"+opt.substring(0,1).toUpperCase()+opt.substring(1));
+			Field optField = getClass().getDeclaredField("opt"+opt.substring(0,1).toUpperCase()+opt.substring(1));
 			if(optField.getType() != Boolean.class)
 				return false;
-			return optField.getBoolean(this);
-		} catch(NoSuchFieldException|SecurityException|IllegalArgumentException|IllegalAccessException e) {
+			return (boolean)optField.get(this);
+		} catch(NoSuchFieldException|SecurityException|ClassCastException|IllegalAccessException e) {
 			printDebug("[PokeponClient.hasOptionEnabled("+opt+")] exception: "+e);
 		}
 		return false;

@@ -223,13 +223,14 @@ public class MessageManager {
 	}
 
 	/** Prints a 'header' in a nice format, boxed by char:
-	 * e.g. if char='*', print a 'string' like this:
+	 * e.g if char='*', print a 'string' like this:
+	 * <pre>
 	 *      ************************
 	 *      *                      *
 	 *      *        STRING        *
 	 *      *                      *
 	 *      ************************
-	 *
+	 * </pre>
 	 * @param text An array of Strings, where each element is a different row of the header
 	 * @param d (Optional) The box delimiter (default: '*')
 	 * @param stream (Optional) A PrintStream where to output (default: System.out)

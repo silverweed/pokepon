@@ -275,14 +275,16 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	 * request will cancel the previous one.
 	 * 
 	 */
-	public synchronized void scheduleBattle(Connection client1,Connection client2,Format format) {
-		if(verbosity >= 2) printDebug(client1.getName()+" sent a battle request to "+client2.getName());
+	public synchronized boolean scheduleBattle(Connection client1,Connection client2,Format format) {
 		if(battles.size() >= maxBattles) {
 			if(verbosity >= 0)
-				printDebug("[PokeponServer] Dropping battle request "+client1.getName()+" -> "+client2.getName()+
+				printDebug("Dropping battle request "+client1.getName()+" -> "+client2.getName()+
 					": too many active battles ("+battles.size()+" / "+maxBattles+")");
-			return;
+			client1.sendMsg(CMN_PREFIX+
+				"html <font color=\"#FF2222\">Reached battles limit: cannot accept more battles. Please retry later.</font>");
+			return false;
 		}
+		if(verbosity >= 2) printDebug(client1.getName()+" sent a battle request to "+client2.getName());
 		if(battleSchedule.isScheduled(client2.getName(), client1.getName(), false)) {
 			// retreive this battle's format
 			Format fmt = battleSchedule.getFormat(client2.getName(),client1.getName());
@@ -306,6 +308,8 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 			battleSchedule.put(client1.getName(),client2.getName(),format);
 			client2.sendMsg(CMN_PREFIX+"btlreq "+client1.getName());
 		}
+
+		return true;
 	}
 
 	/** Check and remove battleSchedule entries client1 -&gt; client2 and client2 -&gt; client1; if neither found, return false. */

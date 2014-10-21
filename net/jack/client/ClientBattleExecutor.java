@@ -35,7 +35,7 @@ class ClientBattleExecutor extends ClientConnectionExecutor {
 		if(connection.getVerbosity() >= 3) printDebug("btlID="+btlID+",token="+Arrays.asList(token));
 
 		if(pClient.getBattle(btlID) != null) {
-			if(pClient.getOptions().containsKey("logBattle") && pClient.getOptions().get("logBattle").equals("true"))
+			if(pClient.hasOptionEnabled("logBattle"))
 				pClient.logBattleLine(msg);	
 			pClient.getBattle(btlID).interpret(token[1]);
 		}

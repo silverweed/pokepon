@@ -105,7 +105,8 @@ public class BasicServer implements Server {
 		}
 
 		if(ss.isBound()) {
-			printDebug("Successfully bound socket to [" + ss.getInetAddress().getHostName() + "] " + ss.getInetAddress().getHostAddress() + ":" + ss.getLocalPort());
+			printDebug("Successfully bound socket to [" + ss.getInetAddress().getHostName() + "] " +
+				ss.getInetAddress().getHostAddress() + ":" + ss.getLocalPort());
 		} else {
 			throw new RuntimeException("Error: couldn't bind socket to port " + port);
 		}
@@ -129,7 +130,8 @@ public class BasicServer implements Server {
 		}
 
 		if(ss.isBound()) {
-			printDebug("Successfully bound socket to [" + ss.getInetAddress().getHostName() + "] " + ss.getInetAddress().getHostAddress() + ":" + ss.getLocalPort());
+			printDebug("Successfully bound socket to [" + ss.getInetAddress().getHostName() + "] " +
+				ss.getInetAddress().getHostAddress() + ":" + ss.getLocalPort());
 		} else {
 			throw new RuntimeException("Error: couldn't bind socket to port " + port);
 		}

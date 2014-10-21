@@ -23,7 +23,7 @@
 
 - SPEED UP THE GAME IF LAUNCHED FROM JAR! -> Partially fixed
 
-- Implement Weather
+- (Really) Implement Weather
 
 - Sound control in the BattlePanel
 
@@ -39,6 +39,6 @@
 
 - Nicknames: config option to set default nicks, request nick on login feature 
 
-- Whois shouldn't show the IP to clients other than admins
+- Whois shouldn't show the IP to clients other than admins -> atm doesn't send them to anyone
 
 - Implement chat roles! And moderation commands

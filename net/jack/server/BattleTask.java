@@ -880,6 +880,8 @@ public class BattleTask implements Runnable {
 			if(checkWin()) {
 				//TODO: update ladder
 				if(Debug.on) printDebug(this+" Battle is over.");
+				sendB("|html|<font color='gray'>If you have battle logging enabled,<br>type "+
+					CMD_PREFIX+"save to export a battle log.</font>");
 				// allow post-battle chatting: terminate this task only after a client disconnects
 				// or if both remain idle for too long
 				postBattle = true;

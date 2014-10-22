@@ -140,7 +140,8 @@ java pokepon.net.jack.server.PokeponServer [opts] |& tee server.log
 * Isolate the server as much as possible: being in alpha stage, there may be security issues or unknown
 server exploits. Using a Virtual Machine or <a href='https://docker.com'>a Docker container</a> is a
 good security measure. For the latter, a Dockerfile for a PokeponServer is available in <code>data/docker</code> 
-(see the instruction in data/docker/README.md)
+(see the instruction in <a href='https://github.com/silverweed/pokepon/blob/master/data/docker/README.md'>
+data/docker/README.md</a>)
 
 
 How to connect

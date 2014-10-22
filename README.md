@@ -123,6 +123,8 @@ since it'll be much easier to grab the updates:
 * Set the CLASSPATH environment variable to the directory containing the pokepon
 root directory. E.g. if you downloaded the repository in /home/me/, do:
 <pre>export CLASSPATH=/home/me  # only valid on *nix systems</pre>
+* Compile the package (you'll need JDK 1.7 or later):
+<pre>javac "@files.txt" # or 'make', if you have it installed.</pre>
 * Start the server <b>as an unprivileged user</b> with:
 <pre>java pokepon.net.jack.server.PokeponServer [opts]</pre>
 

@@ -28,6 +28,7 @@ import java.net.*;
 public abstract class Connection implements Runnable {
 
 	protected final static int SOCKET_TIMEOUT = 2000; //ms
+	/** Length of history */
 	protected final static int MSG_RETAIN_LIMIT = 50;
 	protected BufferedReader input;
 	protected PrintWriter output;

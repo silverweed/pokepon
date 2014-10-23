@@ -38,7 +38,7 @@ class ServerConnection extends Connection {
 				name = server.defaultNick + "-" + nConn++;
 			else
 				name = socket.getInetAddress().getHostName().split("\\.")[0] + "-" + nConn++;
-			// before noticing other clients about this, verify it in the run() method
+			// before notifying other clients about this, verify it in the run() method
 		} catch(Exception e) {
 			printDebug("Caught exception while constructing Connection: "+e);
 			try {
@@ -62,7 +62,7 @@ class ServerConnection extends Connection {
 	
 	@Override
 	public void run() {
-		/* Shyly try to retreive the client's OS */
+		/* Shyly try to retreive the client's OS (and validate the connection if policy is not permissive) */
 		if(verbosity >= 2) printDebug(name+": Retreiving client OS information...");
 		try {
 			socket.setSoTimeout(SOCKET_TIMEOUT);

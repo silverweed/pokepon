@@ -3,6 +3,7 @@
 package pokepon.net.jack.server;
 
 import pokepon.net.jack.*;
+import pokepon.net.jack.chat.*;
 import static pokepon.util.MessageManager.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -28,6 +29,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	/** Queue used by the ThreadPoolExecutor to store tasks */
 	protected ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(200*maxClients);
 	protected List<Connection> clients = Collections.synchronizedList(new LinkedList<Connection>());
+	protected boolean advancedChat;
 	/** The policy for allowing clients to connect to this server: see server.conf for details */
 	ConnectPolicy connectPolicy = ConnectPolicy.AVERAGE;
 	/** If null, clients will get a default name of the form clientHostname-N, else
@@ -37,6 +39,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	String defaultNick;
 	/** Message to send to users on connection */
 	String welcomeMessage;
+	/** ChatSystem used if advancedChat is set to true */
+	ChatSystem chat;
 	
 	public MultiThreadedServer() throws IOException {
 		this(ServerOptions.construct());
@@ -94,6 +98,10 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			welcomeMessage = opts.welcomeMessage;
 			if(verbosity >= 2) printDebug("[MultiTheadedServer] welcomeMessage set to "+welcomeMessage);
 		}
+		if(opts.advancedChat != null) {
+			advancedChat = opts.advancedChat;
+			if(verbosity >= 2) printDebug("[MultiTheadedServer] advancedChat set to "+advancedChat);
+		}
 		return this;
 	}
 	
@@ -118,12 +126,20 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			consoleMsg("");
 		}
 	}
-	
+
+	@Override
+	public void initialize() throws IOException {
+		super.initialize();
+		if(advancedChat) {
+			chat = new ChatSystem();
+		}
+	}
+
 	@Override
 	public void start() throws IOException {
 		initialize();
 	
-		consoleHeader(new String[] {" Java Awful Client-server Kit ","v 1.0"},'*');
+		consoleHeader(new String[] {" Java Awful Client-server Kit ","v 2.0"},'*');
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
 			Socket newClient = accept();

@@ -3,6 +3,7 @@
 package pokepon.net.jack.server;
 
 import pokepon.net.jack.*;
+import pokepon.net.jack.chat.*;
 import static pokepon.util.MessageManager.*;
 import pokepon.util.*;
 import java.io.*;
@@ -28,7 +29,11 @@ class ServerConnection extends Connection {
 	MultiThreadedServer server;
 	private static int nConn = 1;
 
-	public ServerConnection(MultiThreadedServer server, Socket client, int... verbosityLvl) {
+	public ServerConnection(MultiThreadedServer server, Socket client) {
+		this(server, client, 0);
+	}
+
+	public ServerConnection(MultiThreadedServer server, Socket client, int verbosityLvl) {
 		super(client, verbosityLvl);
 		
 		this.server = server;
@@ -122,16 +127,24 @@ class ServerConnection extends Connection {
 		}
 
 		/* After verifying this client is legit, send users list to client */
+		if(server.chat != null) 
+			server.chat.addUser(new ChatClient(this, new ChatUser(name)));
 		if(verbosity >= 2) printDebug(name+": sending users data to client...");
 		Iterable<Connection> clients = server.getClients();
 		synchronized(clients) {
 			Iterator<Connection> it = clients.iterator();
 			while(it.hasNext()) {
 				Connection conn = it.next();
-				if(conn.getName().equals(name))
+				if(server.chat != null && server.chat.getUser(conn.getName()) != null)
+					sendMsg(CMN_PREFIX+"useradd "+conn.getName()+ 
+						(server.chat != null ? server.chat.getUser(conn.getName()).getRole().getSymbol() : ""));
+				else
+					sendMsg(CMN_PREFIX+"useradd "+conn.getName());
+				/*if(conn.getName().equals(name))
 					sendMsg(CMN_PREFIX+"useradd "+name+" #0000FF");
 				else
 					sendMsg(CMN_PREFIX+"useradd "+conn.getName());
+				*/
 			}
 		}
 		/* Then notify other clients that we've just connected */
@@ -215,9 +228,13 @@ class ServerConnection extends Connection {
 				}
 			}
 		}
-		sendMsg(CMN_PREFIX+"setnick "+newname);
+		if(server.chat != null)
+			if(!server.chat.renameUser(name, newname))
+				printDebug("[ServerConnection] Error: couldn't rename "+name+" to "+newname);
+		sendMsg(CMN_PREFIX+"setnick "+newname + (server.chat != null ? " " + server.chat.getUser(newname).getRole().getSymbol() : ""));
 		sendMsg("Your nick is now "+newname);
-		server.broadcast(null,CMN_PREFIX+"userrnm "+name+" "+newname);
+		server.broadcast(null,CMN_PREFIX+"userrnm "+name+" "+newname
+			+ (server.chat != null ? " " + server.chat.getUser(newname).getRole().getSymbol() : ""));
 		server.broadcast(socket,name+" changed its nick to "+newname);
 		if(verbosity >= 0) printDebug(name+" changed its nick to "+newname);
 		name = newname;

@@ -13,8 +13,12 @@ import java.util.*;
 class ClientConnection extends Connection {
 
 	protected Client client;
-	
-	public ClientConnection(Client client,Socket server,int... verbosityLvl) {
+
+	public ClientConnection(Client client,Socket server) {
+		this(client, server, 0);
+	}
+
+	public ClientConnection(Client client,Socket server,int verbosityLvl) {
 		super(server,verbosityLvl);
 		
 		this.client = client;	

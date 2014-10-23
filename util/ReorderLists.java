@@ -5,7 +5,7 @@ package pokepon.util;
 import java.util.*;
 
 /** Utility class used to sort lists */
-public class ReorderLists {
+public abstract class ReorderLists {
 
 	/** This method reverse-sorts the 3 lists by comparing the values in the third one;
 	 * the lists are considered "associated", so that first[i] is always associated
@@ -33,7 +33,7 @@ public class ReorderLists {
 		      // If the current value from the left list is smaller then the pivot
 		      // element then get the next element from the left list
 			while (list3.get(i).compareTo(pivot) < 0) {
-				i++;
+				++i;
 			}
 			// If the current value from the right list is larger then the pivot
 			// element then get the next element from the right list

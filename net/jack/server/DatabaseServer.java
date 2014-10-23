@@ -3,6 +3,9 @@
 package pokepon.net.jack.server;
 
 import pokepon.net.jack.*;
+import pokepon.net.jack.chat.*;
+import pokepon.util.Meta;
+import static pokepon.util.MessageManager.*;
 import java.net.*;
 import java.io.*;
 import java.nio.*;
@@ -11,8 +14,6 @@ import java.nio.charset.*;
 import java.util.*;
 import java.util.regex.*;
 import java.security.*;
-import pokepon.util.Meta;
-import static pokepon.util.MessageManager.*;
 
 /** A MultiServer with a Database.
  *
@@ -52,6 +53,8 @@ public class DatabaseServer extends MultiThreadedServer {
 		return this;
 	}
 
+	public URL getDatabaseURL() { return dbURL; }
+
 	/** Sets a new database location and (weakly) ensures the file exists by creating it. */
 	public void setDatabaseLocation(String db) throws MalformedURLException {
 		dbURL = new URL(db);
@@ -73,6 +76,10 @@ public class DatabaseServer extends MultiThreadedServer {
 				printDebug("[ ERROR ] Caught IOException while creating database: "+e);
 			}
 		} else if(verbosity >= 1) printDebug("[DatabaseServer] Database file already exists.");
+
+		// if advancedChat is enabled, reload chat entries
+		if(chat != null)
+			chat.reload();
 	}
 
 	public static void main(String[] args) {
@@ -111,11 +118,12 @@ public class DatabaseServer extends MultiThreadedServer {
 					if(verbosity >= 3) printDebug("Read comment: continuing...");
 					continue;
 				}
-				String[] tokens = input.trim().split("\t");
+				String[] tokens = input.trim().split("\\s+");
 				if(verbosity >= 3) printDebug("tokens: "+Arrays.asList(tokens));
-				if(tokens.length == 2) {
-					if(verbosity >= 3) printDebug("Confronting given nick "+nick+" with database entry "+tokens[0]+";\nmatch? = "+tokens[0].equals(nick));
-
+				if(tokens.length >= 2) {
+					if(verbosity >= 3) 
+						printDebug("Confronting given nick "+nick+" with database entry "+
+							tokens[0]+";\nmatch? = "+tokens[0].equals(nick));
 					if(tokens[0].equals(nick)) {	//nick already exists
 						return true;
 					}
@@ -147,9 +155,9 @@ public class DatabaseServer extends MultiThreadedServer {
 					if(verbosity >= 3) printDebug("Read comment: continuing...");
 					continue;
 				}
-				String[] tokens = input.trim().split("\t");
+				String[] tokens = input.trim().split("\\s+");
 				if(verbosity >= 3) printDebug("tokens: "+Arrays.asList(tokens));
-				if(tokens.length == 2) {
+				if(tokens.length >= 2) {
 					nicks.add(tokens[0]);
 				} else {
 					if(verbosity >= 2) printDebug("Error: incorrect database entry: "+Arrays.asList(tokens).toString());
@@ -182,10 +190,12 @@ public class DatabaseServer extends MultiThreadedServer {
 					if(verbosity >= 3) printDebug("Read comment: continuing...");
 					continue;
 				}
-				String[] tokens = input.trim().split("\t");
+				String[] tokens = input.trim().split("\\s+");
 				if(verbosity >= 3) printDebug("tokens: "+Arrays.asList(tokens));
-				if(tokens.length == 2) {
-					if(verbosity >= 3) printDebug("Confronting given nick "+nick+" with database entry "+tokens[0]+";\nmatch? = "+tokens[0].equals(nick));
+				if(tokens.length >= 2) {
+					if(verbosity >= 3) 
+						printDebug("Confronting given nick "+nick+
+							" with database entry "+tokens[0]+";\nmatch? = "+tokens[0].equals(nick));
 					if(tokens[0].equals(nick)) {	//nick exists
 						if(PasswordHash.validatePassword(passwd,tokens[1])) {
 							if(verbosity >= 2) printDebug("Password matched for nick "+nick);
@@ -233,7 +243,17 @@ public class DatabaseServer extends MultiThreadedServer {
 			}
 
 			writer = new PrintWriter(new FileOutputStream(dbName,true));
-			writer.append(nick+"\t"+PasswordHash.createHash(passwd)+"\n");
+
+			// if advancedChat is non-null, store in database this user's role as well.
+			char role = '-';
+			if(chat != null) {
+				if(chat.getUser(nick) != null)
+					role = chat.getUser(nick).getRole().getSymbol();
+				else
+					role = ChatUser.Role.USER.getSymbol();
+			}
+			writer.append(nick+"\t" + PasswordHash.createHash(passwd) + "\t" + role + "\n");
+
 			printDebug("Registered nickname "+nick+" to database.");
 			return 0;
 

@@ -42,9 +42,12 @@ public abstract class Connection implements Runnable {
 			new FixedQueue<Map.Entry<Long,String>>(MSG_RETAIN_LIMIT);
 	private volatile boolean readLocked = false;
 
-	public Connection(Socket socket,int... verbosityLvl) {
-		if(verbosityLvl.length > 0) verbosity = verbosityLvl[0];
-		else verbosity = 0;
+	public Connection(Socket socket) {
+		this(socket, 0);
+	}
+
+	public Connection(Socket socket,int verbosityLvl) {
+		verbosity = verbosityLvl;
 		
 		printDebug("Starting connection with "+socket+" with verbosity "+verbosity+".");
 
@@ -68,23 +71,27 @@ public abstract class Connection implements Runnable {
 	
 	public void addConnectionExecutor(ConnectionExecutor exec) {
 		exec.setConnection(this);
-		executors.add(exec);
+		synchronized(executors) {
+			executors.add(exec);
+		}
 	}
 	
 	public void sendMsg(String msg) {
 		if(verbosity >= 2) printDebug("[Connection ("+name+")] sending msg: "+msg);
-		output.println(msg);
+		synchronized(output) {
+			output.println(msg);
+		}
 	}
 
-	public final String getName() { return name; }
-	public final Socket getSocket() { return socket; }
-	public final Date getConnectionTime() { return connectionTime; }
-	public final PrintWriter getOutputStream() { return output; }
-	public final BufferedReader getInput() { return input; }
-	public final int getVerbosity() { return verbosity; }
-	public final List<ConnectionExecutor> getExecutors() { return executors; }
-	public final String getOS() { return os; }
-	public final FixedQueue<Map.Entry<Long,String>> getLatestMessages() { return latestMessages; }
+	public String getName() { return name; }
+	public synchronized Socket getSocket() { return socket; }
+	public Date getConnectionTime() { return connectionTime; }
+	public synchronized PrintWriter getOutputStream() { return output; }
+	public synchronized BufferedReader getInput() { return input; }
+	public int getVerbosity() { return verbosity; }
+	public synchronized List<ConnectionExecutor> getExecutors() { return executors; }
+	public String getOS() { return os; }
+	public synchronized FixedQueue<Map.Entry<Long,String>> getLatestMessages() { return latestMessages; }
 
 	/** Blocks the connection receiveMsg() method, in order to let other processes to read from its socket. */
 	public final synchronized void lockReading() {
@@ -219,6 +226,5 @@ public abstract class Connection implements Runnable {
 		sb.append("}");
 		return sb.toString();
 	}
-	
 }
 	

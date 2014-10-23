@@ -31,6 +31,7 @@ ability/UpperHoof.java
 battle/Battle.java
 battle/BattleEngine.java
 battle/BattleEvent.java
+battle/BattleLogger.java
 battle/DamageCalculator.java
 battle/EffectDealer.java
 battle/Format.java
@@ -76,6 +77,7 @@ gui/TeamRenderer.java
 gui/TestHPBar.java
 gui/TextBubbleBorder.java
 gui/TransparentLabel.java
+gui/Typechart.java
 gui/animation/Animation.java
 gui/animation/AttackAnimation.java
 gui/animation/Ballistic.java
@@ -223,6 +225,7 @@ net/jack/client/ClientBattleExecutor.java
 net/jack/client/ClientCommunicationsExecutor.java
 net/jack/client/ClientConnection.java
 net/jack/client/ClientConnectionExecutor.java
+net/jack/client/FileBattleLogger.java
 net/jack/client/GUIClient.java
 net/jack/client/GUIExecutor.java
 net/jack/client/PokeponClient.java

@@ -38,17 +38,17 @@ class PokeponClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 		if(cmd.equals("useradd")) {
 			if(token.length < 2) return 1;
 			if(token.length < 3)
-				pClient.userAdd(token[1]);
+				pClient.getChat().userAdd(token[1]);
 			else
-				pClient.userAdd(token[1],token[2]);
+				pClient.getChat().userAdd(token[1],token[2]);
 			return 1;
 		} else if(cmd.equals("userrm")) {
 			if(token.length < 2) return 1;
-			pClient.userRemove(token[1]);
+			pClient.getChat().userRemove(token[1]);
 			return 1;
 		} else if(cmd.equals("userrnm")) {
 			if(token.length < 3) return 1;
-			pClient.userRename(token[1],token[2]);
+			pClient.getChat().userRename(token[1],token[2]);
 			return 1;
 		} else if(cmd.equals("btlreq")) {
 			if(token.length != 2) return 1;

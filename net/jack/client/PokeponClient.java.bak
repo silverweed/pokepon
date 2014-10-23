@@ -33,12 +33,14 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	public final static int MAX_LOADABLE_TEAMS = 20;
 	public final static int DEFAULT_PORT = 12344;
 
-	protected Socket socket;
+	protected Socket s;
 	protected String host = "";
 	protected int port = -1;
 	protected ClientConnection connection;
-	protected PokeponChat chat = new PokeponChat();
+	protected ChatPanel chatP = new ChatPanel();
 	protected ButtonsPanel buttonsP = new ButtonsPanel(this);
+	protected DefaultListModel<String> users = new DefaultListModel<>();
+	protected JList<String> usersL = new JList<>(users);
 	protected Team team;
 	protected String format;
 	protected List<Team> teams = new LinkedList<Team>();
@@ -55,19 +57,30 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 		this.host = host;
 		this.port = port;
 		setLayout(new GridBagLayout());
+		// a spartan but functional GUI.
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = c.gridy = 0;
-		c.weightx = 0.3;
-		c.ipadx = c.ipady = 2;
-		c.anchor = GridBagConstraints.PAGE_START;
-		add(buttonsP, c);
-		c.anchor = GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.BOTH;
+		c.insets = new Insets(1,1,1,1);
+		c.ipadx = 2;
+		c.ipady = 2;
+		c.gridx = 0;
+		//c.gridy = 1;
+		c.weightx = 0.1;
+		add(buttonsP,c);
 		c.gridx = 1;
-		c.gridwidth = 3;
-		c.weightx = 0.7;
+		c.gridheight = 3;
+		c.weightx = 0.8;
 		c.weighty = 1;
-		add(chat, c);
+		//c.gridwidth = 3;
+		c.fill = GridBagConstraints.BOTH;
+		add(chatP,c);
+		c.insets = new Insets(5,1,5,1);
+		c.gridx = 4;
+		c.gridheight = 2;
+		c.weightx = 0.4;
+		//c.gridwidth = 1;
+		//c.weighty = 0.5;
+		add(new JScrollPane(usersL),c);
+		usersL.addMouseListener(usersML);
 
 		// Default options
 		// TODO: create a way to change these
@@ -76,12 +89,12 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 
 	public synchronized void start() throws ConnectException, UnknownHostException {
 		try {
-			socket = new Socket(host,port);
-			chat.initialize(socket);
-			connection = new ClientConnection(this,socket,(Debug.pedantic ? 3 : (Debug.on ? 2 : 1)));
+			s = new Socket(host,port);
+			chatP.initialize(s);
+			connection = new ClientConnection(this,s,(Debug.pedantic ? 3 : (Debug.on ? 2 : 1)));
 			connection.addConnectionExecutor(new ClientBattleExecutor());
 			connection.addConnectionExecutor(new PokeponClientCommunicationsExecutor());
-			connection.setName(chat.getNick());
+			connection.setName(chatP.getNick());
 			Thread connectionThread = new Thread(connection);
 			connectionThread.setName("Pokepon Client Connection");
 			connectionThread.start();
@@ -89,7 +102,7 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 			frame.add(this);
 			frame.addWindowFocusListener(new WindowAdapter() {
 				public void windowGainedFocus(WindowEvent e) {
-					chat.getChatPanel().requestFocusInWindow();
+					chatP.requestFocusInWindow();
 				}
 			});
 			SwingConsole.run(frame,"Pokepon Client");
@@ -107,9 +120,9 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 			printDebug("Caught exception: "+e);
 			e.printStackTrace();
 		} finally {
-			chat.close();
+			chatP.close();
 			try {
-				socket.close();
+				s.close();
 			} catch(Exception e) {
 				printDebug("Exception while closing socket: "+e);
 			}
@@ -150,19 +163,18 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 
 	public ClientConnection getConnection() { return connection; }
 	//public JTextArea getInTxt() { return chatP.getInA(); }
-	public PokeponChat getChat() { return chat; }
 	public void append(String str) { 
-		chat.getChatPanel().append(str); 
+		chatP.append(str); 
 	}
 	public void append(String str, boolean bool) { 
-		chat.getChatPanel().append(str, bool); 
+		chatP.append(str, bool); 
 	}
 	public void setName(String nick) { 
-		chat.setNick(nick);
+		chatP.setNick(nick);
 		connection.setName(nick);
 	}
 	public String getName() {
-		return chat.getNick();
+		return chatP.getNick();
 	}
 	/** Uses reflection to retrieve the value of an option; options all have a name
 	 * like optSomeNameHere, and you can call hasOptionEnabled(someNameHere) to
@@ -194,17 +206,18 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 		return false;
 	}
 
-	public Socket getSocket() { return socket; }
+	public Socket getSocket() { return s; }
 	public void stop() {
 		try {
-			chat.dispose();
-			socket.close();
+			chatP.dispose();
+			s.close();
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
 		System.exit(0);
 	}
-
+	public JList<String> getUsersL() { return usersL; }
+	public DefaultListModel<String> getUsers() { return users; }
 	public synchronized Team getTeam() { return team; }
 	public synchronized List<Team> getTeams() { return teams; }
 	public BattlePanel getBattle(String id) {
@@ -217,6 +230,16 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	public Player getPlayer() { return player; }
 	public synchronized String getFormat() { return format; }
 
+	public void userAdd(String name) {
+		if(connection.getVerbosity() >= 3) printDebug("Called userAdd("+name+")");
+		users.addElement(name);
+	}
+
+	public void userAdd(String name,String color) {
+		if(connection.getVerbosity() >= 3) printDebug("Called userAdd("+name+","+color+")");
+		users.addElement("<html><font color="+color+">"+name+"</font></html>");
+	}
+	
 	public void logBattleLine(final String line) {
 		if(line.charAt(0) != BTL_PREFIX || line.length() < 2) return;
 		BattleLogger logger = battleLoggers.get(Character.toString(line.charAt(1))); 
@@ -224,6 +247,115 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 			logger.addLine(line);
 	}
 
+	/** Renames an user; it can match users whose name is contained within html tags, and the renamed user
+	 * will have the same tags.
+	 */
+	public void userRename(final String old,final String newN) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if(connection.getVerbosity() >= 3) printDebug("Called userRename("+old+","+newN+")");
+				// ugh, Enumerations...just because the API compels us <_<
+				Enumeration<String> us = users.elements();
+				Pattern pattern = Pattern.compile("^(?<starttags><.*>)?(?<main>"+old+")(?<endtags><.*>)?$");
+				if(connection.getVerbosity() >= 3) printDebug("userRename: pattern = "+pattern);
+				while(us.hasMoreElements()) {
+					String nick = us.nextElement();
+					Matcher matcher = pattern.matcher(nick);
+					if(connection.getVerbosity() >= 3) printDebug("userRename: nick = "+nick);
+					if(matcher.matches()) {
+						if(connection.getVerbosity() >= 3) {
+							printDebug("userRename: matched. Groups:"); 
+							printDebug("<starttags> = "+matcher.group("starttags"));
+							printDebug("<main> = "+matcher.group("main"));
+							printDebug("<endtags> = "+matcher.group("endtags"));
+						}
+
+						if(users.removeElement(nick)) {
+							if(matcher.group("starttags") == null || matcher.group("endtags") == null) {
+								if(connection.getVerbosity() >= 3)
+									printDebug("a group is null. New nick is "+newN);
+								users.addElement(newN);
+							} else {
+								if(connection.getVerbosity() >= 3)
+									printDebug("groups are non-null. New nick is "+
+										matcher.group("starttags")+newN+matcher.group("endtags"));
+								users.addElement(matcher.group("starttags")+newN+matcher.group("endtags"));
+							}
+						}
+						return;
+					}
+				}
+			}
+		});
+	}
+
+	/** Removes an user from the list; it can match the user even if its name is within html tags. */
+	public void userRemove(final String name) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if(connection.getVerbosity() >= 3) printDebug("Called userRemove("+name+")");
+				Enumeration<String> us = users.elements();
+				while(us.hasMoreElements()) {
+					String nick = us.nextElement();
+					if(nick.matches("^(<.*>)?"+name+"(<.*>)?$")) {
+						users.removeElement(nick);
+						return;
+					}
+				}
+			}
+		});
+	}
+
+	protected MouseListener usersML = new MouseAdapter() {
+		private JComboBox<String> c;
+		private boolean clicked;
+		public void mouseClicked(MouseEvent e) {
+			if(usersL.getSelectedValue() == null) return;
+			String[] opts;
+			boolean myself = usersL.getSelectedValue().matches("^(<.*>)?"+chatP.getNick()+"(<.*>)?$");
+			if(myself) {
+				opts = new String[] { "exit","whoami","change nick","register" };
+			} else {
+				opts = new String[] { "exit","whois","challenge","whisper" };
+			}
+			int sel = JOptionPane.showOptionDialog(PokeponClient.this,usersL.getSelectedValue(),null,
+					JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE,null,opts,opts[0]);
+					
+			try {
+				PrintWriter pw = new PrintWriter(s.getOutputStream(),true);
+				switch(sel) {
+					case 0:
+						return;
+					case 1:
+						pw.println(CMD_PREFIX+(myself ? "whoami" : "whois "+usersL.getSelectedValue()));
+						break;
+					case 2:
+						if(myself) {
+							String newnick = JOptionPane.showInputDialog("Choose new nick");
+							pw.println(CMD_PREFIX+"nick "+newnick);
+						} else {
+							pw.println(CMD_PREFIX+"battle "+usersL.getSelectedValue());
+						}
+						break;
+					case 3:
+						if(!myself) {
+							String mesg = JOptionPane.showInputDialog("Whisper to "+usersL.getSelectedValue()+":");
+							if(mesg != null) {
+								pw.println(CMD_PREFIX+"pm "+usersL.getSelectedValue()+" "+mesg);
+							}
+						} else {
+							String newnick = JOptionPane.showInputDialog("Choose nick to register",chatP.getNick());
+							if(newnick == null) return;
+							pw.println(CMD_PREFIX+"register "+newnick);
+						}
+						break;
+				}
+
+			} catch(IOException ee) {
+				printDebug("Caught IOException in MouseListener.mouseClicked: "+ee);
+			}
+		}
+	};
 
 	/** This method creates a BattlePanel and pushes it into the battles Map, which
 	 * associates battle IDs with battlePanels. 

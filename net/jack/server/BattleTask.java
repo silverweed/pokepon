@@ -26,6 +26,9 @@ import java.util.concurrent.*;
  */
 public class BattleTask implements Runnable {
 
+	/** When battle ends, if no client sends messages for this number of
+	 * seconds, terminate this BattleTask.
+	 */
 	public static final int POSTBATTLE_SUICIDE_DELAY = 60;
 
 	public BattleTask(final PokeponServer server,String btlID,final Connection c1,final Connection c2) {

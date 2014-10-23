@@ -62,6 +62,7 @@ class ClientConnection extends Connection {
 	}
 				
 	@Override
+	// TODO: client should be able to reconnect without shutting down
 	public synchronized void disconnect() {
 		if(client instanceof PokeponClient) {
 			PokeponClient pClient = (PokeponClient)client;
@@ -74,8 +75,10 @@ class ClientConnection extends Connection {
 			}
 
 		} 
-		if(client instanceof GUIClient)	
-			((GUIClient)client).append("#### SERVER DISCONNECTED ####");
+		if(client instanceof GUIClient)	{
+			((GUIClient)client).append("#### DISCONNECTED FROM SERVER ####");
+			((GUIClient)client).append("To reconnect, quit and restart the client.");
+		}
 
 		super.disconnect();
 	}

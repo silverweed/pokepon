@@ -10,7 +10,37 @@ import java.util.*;
  */
 public class ChatUser {
 
-	public static enum Role { USER, MODERATOR, ADMIN };
+	/** Chat roles */
+	public static enum Role { 
+		USER, MODERATOR, ADMIN;
+		
+		public char getSymbol() {
+			switch(this) {
+				case USER: return '\000';
+				case MODERATOR: return '+';
+				case ADMIN: return '@';
+			}
+			return '\000';
+		}
+
+		public static Role forSymbol(char c) {
+			for(Role r : values())
+				if(r.getSymbol() == c) return r;
+			return null;
+		}
+
+		/** Given a String, if it starts with a character which is a 
+		 * Role symbol, strips it; else, just return the unmodified String.
+		 */
+		public static String stripSymbol(String s) {
+			for(Role r : values()) {
+				if(s.charAt(0) == r.getSymbol())
+					return s.substring(1);
+			}
+			return s;
+		}
+	};
+
 	/** Basic permissions */
 	public static enum Permission {
 		CAN_TALK,
@@ -45,6 +75,11 @@ public class ChatUser {
 
 	public String getName() { return name; }
 	public Role getRole() { return role; }
+	
+	@Override
+	public String toString() {
+		return role.getSymbol() + name;
+	}
 
 	protected Set<Permission> permissions = (Set<Permission>)EnumSet.noneOf(Permission.class);
 	protected Role role;

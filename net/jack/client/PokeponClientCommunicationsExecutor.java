@@ -3,6 +3,7 @@
 package pokepon.net.jack.client;
 
 import pokepon.net.jack.*;
+import pokepon.net.jack.chat.*;
 import pokepon.util.*;
 import pokepon.player.Team;
 import static pokepon.util.MessageManager.*;
@@ -40,15 +41,20 @@ class PokeponClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 			if(token.length < 3)
 				pClient.getChat().userAdd(token[1]);
 			else
-				pClient.getChat().userAdd(token[1],token[2]);
+				pClient.getChat().userAdd(token[1],ChatUser.Role.forSymbol(token[2].charAt(0)));
 			return 1;
 		} else if(cmd.equals("userrm")) {
 			if(token.length < 2) return 1;
 			pClient.getChat().userRemove(token[1]);
 			return 1;
 		} else if(cmd.equals("userrnm")) {
+			/* !userrnm old new [role] */
 			if(token.length < 3) return 1;
-			pClient.getChat().userRename(token[1],token[2]);
+			printDebug("userrnm: tokens = "+Arrays.asList(token)); 
+			if(token.length > 3)
+				pClient.getChat().userRename(token[1], token[2], ChatUser.Role.forSymbol(token[3].charAt(0)));
+			else
+				pClient.getChat().userRename(token[1],token[2]);
 			return 1;
 		} else if(cmd.equals("btlreq")) {
 			if(token.length != 2) return 1;

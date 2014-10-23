@@ -94,6 +94,11 @@ public class ServerOptions {
 		return this;
 	}
 
+	public ServerOptions advancedChat(Boolean b) {
+		advancedChat = b;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{ ");
@@ -129,6 +134,7 @@ public class ServerOptions {
 	String defaultNick;
 	String welcomeMessage;
 	int maxBattles = -1;
+	Boolean advancedChat = null;
 
 
 	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {
@@ -267,6 +273,8 @@ public class ServerOptions {
 					e.printStackTrace();
 					System.exit(2);
 				}
+			} else if(token.matches("^(-C|--advanced-chat)$")) {
+				srvopts.advancedChat = true;
 			} else {
 				if(!token.matches("^(-h|--help)$"))
 					throw new UnknownOptionException(token);

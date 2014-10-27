@@ -136,7 +136,7 @@ class ServerConnection extends Connection {
 			Connection conn = it.next();
 			if(server.chat != null && server.chat.getUser(conn.getName()) != null)
 				sendMsg(CMN_PREFIX+"useradd "+conn.getName()+ 
-					(server.chat != null ? server.chat.getUser(conn.getName()).getRole().getSymbol() : ""));
+					(server.chat != null ? " " + server.chat.getUser(conn.getName()).getRole().getSymbol() : ""));
 			else
 				sendMsg(CMN_PREFIX+"useradd "+conn.getName());
 		}

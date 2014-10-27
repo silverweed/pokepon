@@ -194,7 +194,7 @@ public class PokeponChat extends JPanel implements AutoCloseable, Chat {
 						setForeground(Color.RED);
 						break;
 					case MODERATOR:
-						setForeground(Color.GREEN);
+						setForeground(Color.GREEN.darker());
 						break;
 					default:
 						setForeground(Color.BLACK);

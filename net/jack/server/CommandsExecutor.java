@@ -3,6 +3,7 @@
 package pokepon.net.jack.server;
 
 import pokepon.net.jack.*;
+import pokepon.net.jack.chat.*;
 import pokepon.util.*;
 import static pokepon.util.MessageManager.*;
 import java.util.*;
@@ -46,6 +47,12 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		// refuse to execute command if this connection sent more than ISSUED_CMD_BAN_LIMIT commands in the last minute.
 		int issued = 0;
 		long startTime = -1;
+		ChatUser chatUser = server.chat == null ? null : server.chat.getUser(connection.getName());
+		printDebug("user: "+chatUser+"; permissions: "+chatUser.getPermissions());
+
+		if(chatUser != null && !chatUser.hasPermission(ChatUser.Permission.CAN_ISSUE_COMMANDS))
+			return 1;
+
 		Iterator<Map.Entry<Long,String>> it = connection.getLatestMessages().descendingIterator();
 		while(it.hasNext()) {
 			Map.Entry<Long,String> entry = it.next();
@@ -57,7 +64,9 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				break;
 			++issued;
 		}
-		if(issued >= ISSUED_CMD_BAN_LIMIT - 1) {
+		if(	issued >= ISSUED_CMD_BAN_LIMIT - 1 &&
+			!(chatUser != null && chatUser.hasPermission(ChatUser.Permission.CAN_IGNORE_FLOOD_LIMIT))
+		) {
 			if(connection.getVerbosity() >= 2) 
 				printDebug("[CMDEXEC] connection "+connection.getName() + "issued " + issued +
 					" commands in a minute. Ignoring next commands until queue is emptied.");
@@ -97,15 +106,26 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			for(Connection conn : server.getClients()) {
 				if(conn.getName().equals(token[1])) {
 					StringBuilder sb = new StringBuilder("Info about: "+token[1]+"\n");
-					// TODO: add admin roles and send sensible information only to admins.
-					sb.append("  IP Address:        (not allowed)"/*+conn.getSocket().getInetAddress().getHostAddress()*/+"\n");
-					sb.append("  Hostname:          (not allowed)"/*+conn.getSocket().getInetAddress().getHostName()*/+"\n");
+					sb.append("  IP Address:        " + (chatUser != null && chatUser
+						.hasPermission(ChatUser.Permission.CAN_LOOKUP_IP) 
+							? conn.getSocket().getInetAddress().getHostAddress()
+							: "(not allowed)"
+						) + "\n"
+					);
+					sb.append("  Hostname:          " + (chatUser != null && chatUser 
+						.hasPermission(ChatUser.Permission.CAN_LOOKUP_IP) 
+							? conn.getSocket().getInetAddress().getHostAddress()
+							: "(not allowed)"
+						) + "\n"
+					);
 					sb.append("  Connected since:   "+conn.getConnectionTime()+"\n");
-					sb.append("  Connection time:   "+secondsToDate(-conn.getConnectionTime().getTime()/1000+(new Date()).getTime()/1000)+"\n");
+					sb.append("  Connection time:   "+secondsToDate(-conn.getConnectionTime().getTime()/1000+
+						(new Date()).getTime()/1000)+"\n");
 					sb.append("  Operating System:  "+conn.getOS()+"\n");
 					if(server instanceof DatabaseServer) {
 						try {
-							sb.append("  Nick registered:   "+(((DatabaseServer)server).nickExists(token[1]) ? "yes" : "no")+"\n");
+							sb.append("  Nick registered:   "+(((DatabaseServer)server)
+								.nickExists(token[1]) ? "yes" : "no")+"\n");
 						} catch(FileNotFoundException e) {
 							printDebug("Caught exception in CommandsExecutor.execute(whois): "+e);
 							connection.sendMsg("[Server database error]");
@@ -122,7 +142,8 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			sb.append("  IP Address:        "+connection.getSocket().getInetAddress().getHostAddress()+"\n");
 			sb.append("  Hostname:          "+connection.getSocket().getInetAddress().getHostName()+"\n");
 			sb.append("  Connected since:   "+connection.getConnectionTime()+"\n");
-			sb.append("  Connection time:   "+secondsToDate(-connection.getConnectionTime().getTime()/1000+(new Date()).getTime()/1000)+"\n");
+			sb.append("  Connection time:   "+secondsToDate(-connection.getConnectionTime().getTime()/1000+
+				(new Date()).getTime()/1000)+"\n");
 			connection.sendMsg(CMN_PREFIX+"youros");
 			String os = "Unknown";
 			try {
@@ -133,7 +154,8 @@ class CommandsExecutor extends ServerConnectionExecutor {
 					os = os.replaceFirst(CMN_PREFIX+"myos ","");
 					if(connection.getVerbosity() >= 3) printDebug("os is now: "+os);
 				} else {
-					if(connection.getVerbosity() >= 1) printDebug("Received unexpected string: "+os+" from "+connection.getSocket());
+					if(connection.getVerbosity() >= 1) 
+						printDebug("Received unexpected string: "+os+" from "+connection.getSocket());
 					os = "Unknown";
 				}
 			} catch(java.net.SocketTimeoutException e) {
@@ -153,7 +175,8 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			sb.append("  Operating System:  "+os+"\n");
 			if(server instanceof DatabaseServer) {
 				try {
-					sb.append("  Nick registered:   "+(((DatabaseServer)server).nickExists(connection.getName()) ? "yes" : "no")+"\n");
+					sb.append("  Nick registered:   "+(((DatabaseServer)server)
+						.nickExists(connection.getName()) ? "yes" : "no")+"\n");
 				} catch(FileNotFoundException e) {
 					printDebug("Caught exception in CommandsExcecutor.execute(whoami): "+e);
 					connection.sendMsg("[Server database error]");
@@ -166,7 +189,8 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			if(server instanceof BasicServer) {
 				sb.append("  IP Address:   "+((BasicServer)server).getServerSocket().getInetAddress().getHostAddress()+"\n");
 				sb.append("  Hostname:   "+((BasicServer)server).getServerSocket().getInetAddress().getHostName()+"\n");
-				sb.append("  Uptime:   "+secondsToDate(-((BasicServer)server).getConnectionTime().getTime()/1000+(new Date()).getTime()/1000)+"\n");
+				sb.append("  Uptime:   "+secondsToDate(-((BasicServer)server).getConnectionTime().getTime()/1000+
+					(new Date()).getTime()/1000)+"\n");
 			}
 			if(server instanceof DatabaseServer) {
 				sb.append("  ChatSystem enabled: "+((DatabaseServer)server).advancedChat+"\n");

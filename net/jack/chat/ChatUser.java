@@ -52,7 +52,8 @@ public class ChatUser {
 		CAN_BAN_IP,
 		CAN_KICK_USERS,
 		CAN_KICK_MODERATORS,
-		CAN_KICK_ADMINS
+		CAN_KICK_ADMINS,
+		CAN_IGNORE_FLOOD_LIMIT
 	};
 
 	public ChatUser(String name) {
@@ -75,10 +76,14 @@ public class ChatUser {
 
 	public String getName() { return name; }
 	public Role getRole() { return role; }
+	public boolean hasPermission(Permission p) { 
+		return permissions.contains(p);
+	}
+	public Set<Permission> getPermissions() { return permissions; }
 	
 	@Override
 	public String toString() {
-		return role.getSymbol() + name;
+		return role == Role.USER ? name : role.getSymbol() + name;
 	}
 
 	protected Set<Permission> permissions = (Set<Permission>)EnumSet.noneOf(Permission.class);

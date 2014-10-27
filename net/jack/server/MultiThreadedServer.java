@@ -55,19 +55,17 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				if(r instanceof Connection) {
 					Connection c = (Connection)r;
 					if(verbosity >= 1) printDebug("Closing connection with "+c.getName()+" ("+c.getSocket()+").");
-					synchronized(clients) {
-						if(clients.remove((Connection)r) && verbosity >= 1) {
-							printDebug("Connection "+c.getName()+" removed from clients list.");
-						}
-						if(verbosity >= 1) {
-							if(clients.size() < 10)
-								printDebug("clients: "+clients+" ("+clients.size()+" / "+maxClients+")");
-							else 
-								printDebug("clients: "+clients.size()+" / "+maxClients);
-							printDebug("Threads num: "+pool.getPoolSize());
-							printDebug("Currently active: "+pool.getActiveCount());
-							printDebug("Max Thread Num so far: "+pool.getLargestPoolSize());
-						}
+					if(clients.remove((Connection)r) && verbosity >= 1) {
+						printDebug("Connection "+c.getName()+" removed from clients list.");
+					}
+					if(verbosity >= 1) {
+						if(clients.size() < 10)
+							printDebug("clients: "+clients+" ("+clients.size()+" / "+maxClients+")");
+						else 
+							printDebug("clients: "+clients.size()+" / "+maxClients);
+						printDebug("Threads num: "+pool.getPoolSize());
+						printDebug("Currently active: "+pool.getActiveCount());
+						printDebug("Max Thread Num so far: "+pool.getLargestPoolSize());
 					}
 				}
 			}
@@ -151,9 +149,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			Connection newConnection = new ServerConnection(this,newClient,verbosity);
 			newConnection.addConnectionExecutor(new CommandsExecutor());
 			newConnection.addConnectionExecutor(new CommunicationsExecutor());
-			synchronized(clients) {
-				clients.add(newConnection);
-			}
+			clients.add(newConnection);
 			pool.execute(newConnection);
 			if(verbosity >= 2) printDebug("Constructed connection.");
 		}
@@ -171,11 +167,9 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	}
 	
 	public boolean isConnected(String name) {
-		synchronized(clients) {
-			Iterator<Connection> it = clients.iterator();
-			while(it.hasNext())
-				if(it.next().getName().equals(name)) return true;
-		}
+		Iterator<Connection> it = clients.iterator();
+		while(it.hasNext())
+			if(it.next().getName().equals(name)) return true;
 		return false;
 	}
 
@@ -183,18 +177,16 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	public void broadcast(Socket client,String msg) {
 		if(verbosity >= 1) printDebug("["+serverName+"] Broadcasting message: "+msg);
 		if(verbosity >= 3) printDebug("clients: "+clients);
-		synchronized(clients) {
-			Iterator<Connection> it = clients.iterator();
-			while(it.hasNext()) {
-				Connection conn = it.next();
-				if(verbosity >= 3) printDebug("Connection: "+conn);
-				if(client != null && conn.getSocket().equals(client)) {
-					if(verbosity >= 3) printDebug("continuing.");
-					continue;
-				}
-				if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
-				conn.getOutputStream().println(msg);
+		Iterator<Connection> it = clients.iterator();
+		while(it.hasNext()) {
+			Connection conn = it.next();
+			if(verbosity >= 3) printDebug("Connection: "+conn);
+			if(client != null && conn.getSocket().equals(client)) {
+				if(verbosity >= 3) printDebug("continuing.");
+				continue;
 			}
+			if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
+			conn.getOutputStream().println(msg);
 		}
 	}
 	

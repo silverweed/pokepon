@@ -131,21 +131,19 @@ class ServerConnection extends Connection {
 			server.chat.addUser(new ChatClient(this, new ChatUser(name)));
 		if(verbosity >= 2) printDebug(name+": sending users data to client...");
 		Iterable<Connection> clients = server.getClients();
-		synchronized(clients) {
-			Iterator<Connection> it = clients.iterator();
-			while(it.hasNext()) {
-				Connection conn = it.next();
-				if(server.chat != null && server.chat.getUser(conn.getName()) != null)
-					sendMsg(CMN_PREFIX+"useradd "+conn.getName()+ 
-						(server.chat != null ? server.chat.getUser(conn.getName()).getRole().getSymbol() : ""));
-				else
-					sendMsg(CMN_PREFIX+"useradd "+conn.getName());
-				/*if(conn.getName().equals(name))
-					sendMsg(CMN_PREFIX+"useradd "+name+" #0000FF");
-				else
-					sendMsg(CMN_PREFIX+"useradd "+conn.getName());
-				*/
-			}
+		Iterator<Connection> it = clients.iterator();
+		while(it.hasNext()) {
+			Connection conn = it.next();
+			if(server.chat != null && server.chat.getUser(conn.getName()) != null)
+				sendMsg(CMN_PREFIX+"useradd "+conn.getName()+ 
+					(server.chat != null ? server.chat.getUser(conn.getName()).getRole().getSymbol() : ""));
+			else
+				sendMsg(CMN_PREFIX+"useradd "+conn.getName());
+			/*if(conn.getName().equals(name))
+				sendMsg(CMN_PREFIX+"useradd "+name+" #0000FF");
+			else
+				sendMsg(CMN_PREFIX+"useradd "+conn.getName());
+			*/
 		}
 		/* Then notify other clients that we've just connected */
 		if(verbosity >= 1) printDebug("[Connection] Constructed connection with "+socket+" (name: "+name+")");
@@ -217,15 +215,13 @@ class ServerConnection extends Connection {
 		}
 		
 		Iterable<Connection> clients = server.getClients();
-		synchronized(clients) {
-			Iterator<Connection> it = clients.iterator();
-			while(it.hasNext()) {
-				Connection conn = it.next();
-				if(conn.getName().equals(newname)) {
-					if(verbosity >= 1) printDebug(name+" requested already-in-use nick "+newname);
-					sendMsg("Nickname already in use.");
-					return false;
-				}
+		Iterator<Connection> it = clients.iterator();
+		while(it.hasNext()) {
+			Connection conn = it.next();
+			if(conn.getName().equals(newname)) {
+				if(verbosity >= 1) printDebug(name+" requested already-in-use nick "+newname);
+				sendMsg("Nickname already in use.");
+				return false;
 			}
 		}
 		if(server.chat != null)
@@ -272,13 +268,11 @@ class ServerConnection extends Connection {
 			((PokeponServer)server).destroyAllBattles(name);
 		if(server instanceof MultiThreadedServer) {
 			List<Connection> clients = ((MultiThreadedServer)server).getClients();
-			synchronized(clients) {
-				if(clients.remove(this)) {
-					if(verbosity >= 2)
-						printDebug("ServerConnection "+name+" removed from clients list.");
-				} else {
-					printDebug("[ServerConnection "+name+"] Failed to remove myself from clients list!");
-				}
+			if(clients.remove(this)) {
+				if(verbosity >= 2)
+					printDebug("ServerConnection "+name+" removed from clients list.");
+			} else {
+				printDebug("[ServerConnection "+name+"] Failed to remove myself from clients list!");
 			}
 		}
 		super.disconnect();

@@ -84,14 +84,14 @@ public abstract class Connection implements Runnable {
 	}
 
 	public String getName() { return name; }
-	public synchronized Socket getSocket() { return socket; }
+	public Socket getSocket() { return socket; }
 	public Date getConnectionTime() { return connectionTime; }
-	public synchronized PrintWriter getOutputStream() { return output; }
-	public synchronized BufferedReader getInput() { return input; }
+	public PrintWriter getOutputStream() { return output; }
+	public BufferedReader getInput() { return input; }
 	public int getVerbosity() { return verbosity; }
-	public synchronized List<ConnectionExecutor> getExecutors() { return executors; }
+	public List<ConnectionExecutor> getExecutors() { return executors; }
 	public String getOS() { return os; }
-	public synchronized FixedQueue<Map.Entry<Long,String>> getLatestMessages() { return latestMessages; }
+	public FixedQueue<Map.Entry<Long,String>> getLatestMessages() { return latestMessages; }
 
 	/** Blocks the connection receiveMsg() method, in order to let other processes to read from its socket. */
 	public final synchronized void lockReading() {

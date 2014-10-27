@@ -74,7 +74,7 @@ public class ChatSystem {
 			if(Debug.on) {
 				printDebug("[ChatSystem.reload] OK - entries reloaded successfully.");
 				printDebug("Chat Roles: {");
-				Map<String,ChatUser.Role> sorted = new TreeMap<>(registered).descendingMap();
+				Map<String,ChatUser.Role> sorted = new TreeMap<>(registered);
 				for(Map.Entry<String,ChatUser.Role> entry : sorted.entrySet())
 					if(entry.getValue() != ChatUser.Role.USER)
 						printDebug("  - "+entry.getKey()+": "+entry.getValue());

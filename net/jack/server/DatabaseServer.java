@@ -114,6 +114,7 @@ public class DatabaseServer extends MultiThreadedServer {
 			String input = null;
 			while((input = scanner.readLine()) != null) {
 				if(verbosity >= 3) printDebug("read line: "+input);
+				if(input.length() < 1) continue;
 				if(input.charAt(0) == '#') {
 					if(verbosity >= 3) printDebug("Read comment: continuing...");
 					continue;
@@ -151,6 +152,7 @@ public class DatabaseServer extends MultiThreadedServer {
 			String input = null;
 			while((input = scanner.readLine()) != null) {
 				if(verbosity >= 3) printDebug("read line: "+input);
+				if(input.length() < 1) continue;
 				if(input.charAt(0) == '#') {
 					if(verbosity >= 3) printDebug("Read comment: continuing...");
 					continue;
@@ -186,6 +188,7 @@ public class DatabaseServer extends MultiThreadedServer {
 
 			while((input = scanner.readLine()) != null) {
 				if(verbosity >= 3) printDebug("read line: "+input);
+				if(input.length() < 1) continue;
 				if(input.charAt(0) == '#') {
 					if(verbosity >= 3) printDebug("Read comment: continuing...");
 					continue;

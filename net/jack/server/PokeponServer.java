@@ -72,12 +72,10 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
 			Socket newClient = accept();
-			synchronized(clients) {
-				if(clients.size() >= maxClients) {
-					if(verbosity >= 1) printDebug("Client number exceeded: dropping connection from "+newClient+"...");
-					ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
-					continue;
-				}
+			if(clients.size() >= maxClients) {
+				if(verbosity >= 1) printDebug("Client number exceeded: dropping connection from "+newClient+"...");
+				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
+				continue;
 			}
 			welcomer.offer(newClient);
 		}
@@ -223,9 +221,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 			newConnection.addConnectionExecutor(new BattleExecutor());
 			newConnection.addConnectionExecutor(new PokeponCommandsExecutor());
 			newConnection.addConnectionExecutor(new PokeponCommunicationsExecutor());
-			synchronized(clients) {
-				clients.add(newConnection);
-			}
+			clients.add(newConnection);
 			pool.execute(newConnection);
 			if(verbosity >= 1) printDebug("Constructed connection.");
 			if(verbosity >= 2) {

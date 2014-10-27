@@ -17,7 +17,7 @@ import java.io.*;
  * @author Giacomo Parolini
  */
 
-class PokeponClientCommunicationsExecutor extends ClientCommunicationsExecutor {
+class PokeponClientCommunicationsExecutor extends ChatClientCommunicationsExecutor {
 
 	protected PokeponClient pClient;
 
@@ -36,27 +36,7 @@ class PokeponClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 		
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token));
 
-		if(cmd.equals("useradd")) {
-			if(token.length < 2) return 1;
-			if(token.length < 3)
-				pClient.getChat().userAdd(token[1]);
-			else
-				pClient.getChat().userAdd(token[1],ChatUser.Role.forSymbol(token[2].charAt(0)));
-			return 1;
-		} else if(cmd.equals("userrm")) {
-			if(token.length < 2) return 1;
-			pClient.getChat().userRemove(token[1]);
-			return 1;
-		} else if(cmd.equals("userrnm")) {
-			/* !userrnm old new [role] */
-			if(token.length < 3) return 1;
-			printDebug("userrnm: tokens = "+Arrays.asList(token)); 
-			if(token.length > 3)
-				pClient.getChat().userRename(token[1], token[2], ChatUser.Role.forSymbol(token[3].charAt(0)));
-			else
-				pClient.getChat().userRename(token[1],token[2]);
-			return 1;
-		} else if(cmd.equals("btlreq")) {
+		if(cmd.equals("btlreq")) {
 			if(token.length != 2) return 1;
 			int choice = JOptionPane.showConfirmDialog(pClient,
 				token[1]+" challenged you!\nAccept?",token[1]+" challenged you to a battle!",JOptionPane.YES_OPTION);	
@@ -97,34 +77,17 @@ class PokeponClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 			if(pClient.getTeam() == null) 
 				connection.sendMsg(CMN_PREFIX+"null");
 			else {
-				//FIXME? - seems to work now
 				connection.sendMsg(CMN_PREFIX+"team"); //first message is parsed by PokeponCommunicationsExecutor
 				connection.sendMsg(CMN_PREFIX+"beginteam"); // others from TeamRetreiver
-				/*try {
-					if(!connection.getInput().readLine().equals(CMN_PREFIX+"next"))
-						return 1;*/	
-					Team team = pClient.getTeam();
-					for(String data : team.getTeamData()) {	
-						for(String line : data.split("\n")) {
-							connection.sendMsg(CMN_PREFIX+"te "+line);
-							/*if(!connection.getInput().readLine().equals(CMN_PREFIX+"next")) {
-								break;
-							}*/
-						}
+				Team team = pClient.getTeam();
+				for(String data : team.getTeamData()) {	
+					for(String line : data.split("\n")) {
+						connection.sendMsg(CMN_PREFIX+"te "+line);
 					}
-				/*} catch(IOException e) {
-					printDebug("Exception while sending team: "+e);
-					return 1;
-				}*/
+				}
 				connection.sendMsg(CMN_PREFIX+"endteam");
 			}
 			return 1;
-		} else if(cmd.equals("drop")) {
-			if(token.length > 1)
-				pClient.append(ConcatenateArrays.merge(token,1));
-			else
-				pClient.append("Server dropped connection.");
-			return -1;
 		} else if(cmd.equals("spawnbtl")) {
 			/* |spawnbtl [format] [bgNum] [bgmNum] */
 			if(token.length < 2) return 1;
@@ -160,43 +123,13 @@ class PokeponClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 			pClient.append("Couldn't start battle" + (token.length > 1 ? ": "+ConcatenateArrays.merge(token,1) : "."));
 			return 1;
 
-		} else if(cmd.startsWith("popup")) {
-			/* !popup[-err|-warn] [Title] Actual message<br>with br tags instead<br>of newlines. */
+		} else if(cmd.equals("htmlconv")) {
 			if(token.length < 2) return 1;
-			int type = -1;
-			if(cmd.equals("popup"))
-				type = JOptionPane.PLAIN_MESSAGE;
-			else if(cmd.equals("popup-warn"))
-				type = JOptionPane.WARNING_MESSAGE;
-			else if(cmd.equals("popup-err"))
-				type = JOptionPane.ERROR_MESSAGE;
-			else return 1;
-			String title = "Message from the server";
-			String mesg = "";
-			Matcher matcher = Pattern.compile("^(?<title>\\[.*\\])\\s*(?<msg>.*)$").matcher(ConcatenateArrays.merge(token,1));
-			if(matcher.matches()) {
-				if(Debug.pedantic)
-					printDebug("[PKPCMNEXEC] matcher matches.\ntitle="+matcher.group("title")+"\nmsg="+matcher.group("msg"));
-				if(matcher.group("title") != null)
-					title = matcher.group("title");
-				if(matcher.group("msg") != null)
-					mesg = matcher.group("msg");
-			} else if(Debug.on) {
-				printDebug("[PKPCMNEXEC] matcher not matched.");
-			}
-
-			JOptionPane.showMessageDialog((JPanel)pClient,
-							mesg.replaceAll("<br>","\n"),
-							title,
-							type);
+			pClient.append(Meta.toLocalURL(ConcatenateArrays.merge(token,1)),false);
 			return 1;
 		} else if(cmd.equals("html") || cmd.equals("motd")) {
 			if(token.length < 2) return 1;
 			pClient.append(ConcatenateArrays.merge(token,1),false);
-			return 1;
-		} else if(cmd.equals("htmlconv")) {
-			if(token.length < 2) return 1;
-			pClient.append(Meta.toLocalURL(ConcatenateArrays.merge(token,1)),false);
 			return 1;
 		}
 		else return super.execute(msg);

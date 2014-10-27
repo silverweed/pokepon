@@ -139,11 +139,6 @@ class ServerConnection extends Connection {
 					(server.chat != null ? server.chat.getUser(conn.getName()).getRole().getSymbol() : ""));
 			else
 				sendMsg(CMN_PREFIX+"useradd "+conn.getName());
-			/*if(conn.getName().equals(name))
-				sendMsg(CMN_PREFIX+"useradd "+name+" #0000FF");
-			else
-				sendMsg(CMN_PREFIX+"useradd "+conn.getName());
-			*/
 		}
 		/* Then notify other clients that we've just connected */
 		if(verbosity >= 1) printDebug("[Connection] Constructed connection with "+socket+" (name: "+name+")");
@@ -224,15 +219,18 @@ class ServerConnection extends Connection {
 				return false;
 			}
 		}
+		// change chat user name and role
 		if(server.chat != null)
 			if(!server.chat.renameUser(name, newname))
 				printDebug("[ServerConnection] Error: couldn't rename "+name+" to "+newname);
+		// notify clients about the change
 		sendMsg(CMN_PREFIX+"setnick "+newname + (server.chat != null ? " " + server.chat.getUser(newname).getRole().getSymbol() : ""));
 		sendMsg("Your nick is now "+newname);
 		server.broadcast(null,CMN_PREFIX+"userrnm "+name+" "+newname
 			+ (server.chat != null ? " " + server.chat.getUser(newname).getRole().getSymbol() : ""));
 		server.broadcast(socket,name+" changed its nick to "+newname);
 		if(verbosity >= 0) printDebug(name+" changed its nick to "+newname);
+		// change this connection's name
 		name = newname;
 		return true;			
 	}

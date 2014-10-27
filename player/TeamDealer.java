@@ -194,7 +194,7 @@ public class TeamDealer {
 			if(Debug.pedantic) printDebug("Parsed: team name");
 			team.setName(ConcatenateArrays.merge(token,2));
 		} else if(token[0].equals("Level:")) {
-			if(Debug.on) printDebug("Parsed: level");
+			if(Debug.pedantic) printDebug("Parsed: level");
 			try {
 				pony.setLevel(Integer.parseInt(token[1]));
 			} catch(Exception e) { 

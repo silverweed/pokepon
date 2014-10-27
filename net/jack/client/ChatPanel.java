@@ -88,7 +88,6 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 		} catch(IOException e) {}
 	}
 
-	//public JTextArea getInA() { return inA; }
 	public void append(String str) {
 		append(str, true);
 	}

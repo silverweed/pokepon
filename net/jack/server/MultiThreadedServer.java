@@ -186,7 +186,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				continue;
 			}
 			if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
-			conn.getOutputStream().println(msg);
+			conn.getOutput().println(msg);
 		}
 	}
 	
@@ -209,6 +209,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		s.println("- maxClients: "+maxClients);
 		s.println("- connectPolicy: "+connectPolicy);
 		s.println("- welcomeMessage: "+welcomeMessage);
+		s.println("- advancedChat: "+advancedChat);
 	}
 
 	protected static void printUsage() {

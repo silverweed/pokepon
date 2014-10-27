@@ -122,19 +122,35 @@ public class ChatSystem {
 	}
 	
 	public boolean renameUser(String old, String newn) {
-		for(ChatClient c : clients)
+		Iterator<ChatClient> it = clients.iterator();
+		ChatClient c = null;
+		boolean found = false;
+		while(it.hasNext()) {
+			c = it.next();
 			if(c.getUser().getName().equals(old)) {
-				c.getUser().setName(newn);
-				if(Debug.on) printDebug("[ChatSystem.renameUser] name: "+newn+", role: "+registered.get(newn));
-				if(registered.containsKey(newn)) {
-					if(Debug.on) printDebug("[ChatSystem.renameUser("+newn+")] name is registered: assigning role "+registered.get(newn));
-					c.getUser().setRole(registered.get(newn));
-				} else {
-					c.getUser().setRole(ChatUser.Role.USER);
-				}
-				return true;
+				it.remove();
+				found = true;
+				break;
 			}
-		return false;
+		}
+		if(!found) return false;
+		if(registered.containsKey(newn)) {
+			ChatUser usr = null;
+			switch(registered.get(newn)) {
+				case ADMIN:
+					usr = new ChatAdmin(newn);
+					break;
+				case MODERATOR:
+					usr = new ChatModerator(newn);
+					break;
+				default:
+					usr = new ChatUser(newn);
+			}
+			clients.add(new ChatClient(c.getConnection(), usr));
+		} else {
+			clients.add(new ChatClient(c.getConnection(), new ChatUser(newn)));
+		}
+		return true;
 	}
 
 	public int connectedUsers() { return clients.size(); }

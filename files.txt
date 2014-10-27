@@ -218,10 +218,15 @@ move/hazard/WildWeedHazard.java
 net/jack/Connection.java
 net/jack/ConnectionExecutor.java
 net/jack/PasswordHash.java
+net/jack/chat/Chat.java
 net/jack/chat/ChatAdmin.java
+net/jack/chat/ChatClient.java
 net/jack/chat/ChatModerator.java
+net/jack/chat/ChatSystem.java
 net/jack/chat/ChatUser.java
 net/jack/client/BasicClient.java
+net/jack/client/ChatClient.java
+net/jack/client/ChatClientCommunicationsExecutor.java
 net/jack/client/ChatPanel.java
 net/jack/client/Client.java
 net/jack/client/ClientBattleExecutor.java
@@ -229,8 +234,6 @@ net/jack/client/ClientCommunicationsExecutor.java
 net/jack/client/ClientConnection.java
 net/jack/client/ClientConnectionExecutor.java
 net/jack/client/FileBattleLogger.java
-net/jack/client/GUIClient.java
-net/jack/client/GUIExecutor.java
 net/jack/client/PokeponChat.java
 net/jack/client/PokeponClient.java
 net/jack/client/PokeponClientCommunicationsExecutor.java

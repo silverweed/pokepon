@@ -152,10 +152,10 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 	//public JTextArea getInTxt() { return chatP.getInA(); }
 	public PokeponChat getChat() { return chat; }
 	public void append(String str) { 
-		chat.append(str); 
+		chat.getChatPanel().append(str); 
 	}
 	public void append(String str, boolean escapeHTML) { 
-		chat.append(str, escapeHTML); 
+		chat.getChatPanel().append(str, escapeHTML); 
 	}
 	public void setName(String nick) { 
 		chat.setNick(nick);

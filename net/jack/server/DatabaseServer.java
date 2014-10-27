@@ -295,6 +295,13 @@ public class DatabaseServer extends MultiThreadedServer {
 		s.println("- database: "+dbURL);
 	}
 
+	@Override
+	public void initialize() throws IOException {
+		super.initialize();
+		if(advancedChat)
+			chat = new ChatSystem(this);
+	}
+
 	protected static void printUsage() {
 		System.out.println("Usage: "+DatabaseServer.class.getSimpleName()+" [address (- for localhost)] [port] [verbosity]");
 		System.exit(0);

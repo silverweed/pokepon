@@ -28,7 +28,7 @@ import java.lang.reflect.*;
  *
  * @author silverweed
  */
-public class PokeponClient extends JPanel implements GUIClient, TestingClass {
+public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 
 	public final static int MAX_LOADABLE_TEAMS = 20;
 	public final static int DEFAULT_PORT = 12344;
@@ -154,8 +154,8 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 	public void append(String str) { 
 		chat.getChatPanel().append(str); 
 	}
-	public void append(String str, boolean bool) { 
-		chat.getChatPanel().append(str, bool); 
+	public void append(String str, boolean escapeHTML) { 
+		chat.getChatPanel().append(str, escapeHTML); 
 	}
 	public void setName(String nick) { 
 		chat.setNick(nick);
@@ -304,9 +304,7 @@ public class PokeponClient extends JPanel implements GUIClient, TestingClass {
 		synchronized(teams) {
 			int i = 0;
 			for(File f : teamDealer.listSaveFiles()) {
-				printDebug("f = "+f);
 				Team tmp = new Team();
-				printDebug("tmp.members = "+tmp.members());
 				if(	teams.size() < MAX_LOADABLE_TEAMS &&
 					teamDealer.load(tmp,Meta.getSaveURL().getPath()+Meta.DIRSEP+f.getPath()) &&
 					tmp.members() > 0

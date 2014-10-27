@@ -35,7 +35,7 @@ class ClientConnection extends Connection {
 			 */
 			String msg = null;
 			outer:
-			while((msg = input.readLine()).charAt(0) == CMN_PREFIX) {
+			while((msg = input.readLine()) != null && msg.charAt(0) == CMN_PREFIX) {
 				middle:
 				for(int i = executors.size()-1; i > -1; --i) {
 					int result = executors.get(i).execute(msg);
@@ -57,6 +57,7 @@ class ClientConnection extends Connection {
 			}
 		} catch(Exception e) {
 			printDebug("Caught exception in ClientConnection.run() <setup>: "+e);
+			e.printStackTrace();
 			printDebug(name+" disconnecting.");
 			disconnect();
 			return;
@@ -79,10 +80,8 @@ class ClientConnection extends Connection {
 			}
 
 		} 
-		if(client instanceof GUIClient)	{
-			((GUIClient)client).append("#### DISCONNECTED FROM SERVER ####");
-			((GUIClient)client).append("To reconnect, quit and restart the client.");
-		}
+		client.append("#### DISCONNECTED FROM SERVER ####");
+		client.append("To reconnect, quit and restart the client.");
 
 		super.disconnect();
 	}
@@ -109,16 +108,7 @@ class ClientConnection extends Connection {
 				return 1;
 			}
 		
-			if(verbosity >= 3) printDebug("[DefaultConnExec] client is GUIClient? "+(client instanceof GUIClient));
-			try {
-				if(client instanceof GUIClient) 
-					((GUIClient)client).append(msg);
-				else
-					System.out.println(msg);
-
-			} catch(Exception e) {
-				printDebug("[ClientConnection] Caught exception while printing message: "+e);
-			}
+			client.append(msg);
 			return 1;
 		}
 	}	

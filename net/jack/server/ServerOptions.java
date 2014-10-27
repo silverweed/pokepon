@@ -274,7 +274,15 @@ public class ServerOptions {
 					System.exit(2);
 				}
 			} else if(token.matches("^(-C|--advanced-chat)$")) {
-				srvopts.advancedChat = true;
+				try {
+					String val = opts.remove(0);
+					if(val != null && (val.equalsIgnoreCase("false") || val.equalsIgnoreCase("no")))
+						srvopts.advancedChat = false;
+					else
+						srvopts.advancedChat = true;
+				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
+					srvopts.advancedChat = true;
+				}
 			} else {
 				if(!token.matches("^(-h|--help)$"))
 					throw new UnknownOptionException(token);

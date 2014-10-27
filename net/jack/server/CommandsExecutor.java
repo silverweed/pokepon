@@ -168,6 +168,9 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				sb.append("  Hostname:   "+((BasicServer)server).getServerSocket().getInetAddress().getHostName()+"\n");
 				sb.append("  Uptime:   "+secondsToDate(-((BasicServer)server).getConnectionTime().getTime()/1000+(new Date()).getTime()/1000)+"\n");
 			}
+			if(server instanceof DatabaseServer) {
+				sb.append("  ChatSystem enabled: "+((DatabaseServer)server).advancedChat+"\n");
+			}
 			sb.append("  Operating System:   "+System.getProperty("os.name")+" "+System.getProperty("os.version")+"\n");
 			connection.sendMsg(sb.toString());
 			return 1;

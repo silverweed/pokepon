@@ -27,7 +27,8 @@ public class ChatSystem {
 	 * 	username	passwordhash	chatrole
 	 * where 'chatrole' is a string beginning with the symbol of one of the 
 	 * ChatUser.Role elements; if the third column is missing, the role is
-	 * defaulted to USER.
+	 * defaulted to USER; when a user is then renamed, assign him a role if
+	 * the name is in this map.
 	 * @return true if database was readable and the map was loaded correctly, false otherwise
 	 */
 	public boolean reload() {
@@ -46,13 +47,13 @@ public class ChatSystem {
 			try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(db)))) {
 				String input = null;
 				while((input = scanner.readLine()) != null) {
-					if(input.charAt(0) == '#') {
+					if(input.length() < 1 || input.charAt(0) == '#') {
 						continue;
 					}
 					String[] token = input.trim().split("\\s+");
 					if(Debug.pedantic) printDebug("tokens: "+Arrays.asList(token));
 					if(token.length >= 3) {
-						ChatUser.Role r = ChatUser.Role.forSymbol(token[3].charAt(0));
+						ChatUser.Role r = ChatUser.Role.forSymbol(token[2].charAt(0));
 						if(r == null) r = ChatUser.Role.USER;
 						registered.put(token[0], r);
 					} else if(token.length == 2) {
@@ -70,7 +71,15 @@ public class ChatSystem {
 				e.printStackTrace();
 				return false;
 			} 
-			if(Debug.on) printDebug("[ChatSystem.reload] OK - entries reloaded successfully.");
+			if(Debug.on) {
+				printDebug("[ChatSystem.reload] OK - entries reloaded successfully.");
+				printDebug("Chat Roles: {");
+				Map<String,ChatUser.Role> sorted = new TreeMap<>(registered).descendingMap();
+				for(Map.Entry<String,ChatUser.Role> entry : sorted.entrySet())
+					if(entry.getValue() != ChatUser.Role.USER)
+						printDebug("  - "+entry.getKey()+": "+entry.getValue());
+				printDebug("}");
+			}
 			return true;
 		} catch(URISyntaxException ee) {
 			printDebug("[ChatSystem.reload] Exception: "+ee);
@@ -117,10 +126,12 @@ public class ChatSystem {
 			if(c.getUser().getName().equals(old)) {
 				c.getUser().setName(newn);
 				if(Debug.on) printDebug("[ChatSystem.renameUser] name: "+newn+", role: "+registered.get(newn));
-				if(registered.containsKey(newn))
+				if(registered.containsKey(newn)) {
+					if(Debug.on) printDebug("[ChatSystem.renameUser("+newn+")] name is registered: assigning role "+registered.get(newn));
 					c.getUser().setRole(registered.get(newn));
-				else
+				} else {
 					c.getUser().setRole(ChatUser.Role.USER);
+				}
 				return true;
 			}
 		return false;

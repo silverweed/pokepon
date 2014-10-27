@@ -11,5 +11,5 @@ public interface Client {
 
 	public void setName(String name);
 	public String getName();
-
+	public void append(String str);
 }

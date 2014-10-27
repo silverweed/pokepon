@@ -6,6 +6,8 @@ import pokepon.battle.Battle;
 import pokepon.pony.Pony;
 import java.util.*;
 import java.io.PrintStream;
+import java.nio.*;
+import java.nio.charset.*;
 
 /** Class that provides an abstraction level for communication
  * between battle classes and UI.
@@ -289,5 +291,15 @@ public class MessageManager {
 			.replaceAll("/","&#47;")
 			// remove "zalgo" effect (thanks, Zarel)
 			.replaceAll("[\u0300-\u036f\u0483-\u0489\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{3,}","");
+	}
+
+	public static byte[] charsToBytes(char[] chars) {
+		CharBuffer charBuffer = CharBuffer.wrap(chars);
+		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
+		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(),
+		byteBuffer.position(), byteBuffer.limit());
+		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
+		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
+		return bytes;
 	}
 }

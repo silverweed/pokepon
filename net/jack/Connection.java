@@ -86,7 +86,7 @@ public abstract class Connection implements Runnable {
 	public String getName() { return name; }
 	public Socket getSocket() { return socket; }
 	public Date getConnectionTime() { return connectionTime; }
-	public PrintWriter getOutputStream() { return output; }
+	public PrintWriter getOutput() { return output; }
 	public BufferedReader getInput() { return input; }
 	public int getVerbosity() { return verbosity; }
 	public List<ConnectionExecutor> getExecutors() { return executors; }
@@ -144,7 +144,7 @@ public abstract class Connection implements Runnable {
 				wait();
 				if(verbosity >= 1) printDebug("["+name+"] notified: waking up...");
 			}
-			if(verbosity >= 2) printDebug("["+name+"] Reading line...");
+			if(verbosity >= 3) printDebug("["+name+"] Reading line...");
 			try {
 				msg = input.readLine();
 			} catch(SocketTimeoutException e) {

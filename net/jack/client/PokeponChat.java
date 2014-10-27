@@ -18,12 +18,10 @@ import java.util.regex.*;
  *
  * @author silverweed
  */
-public class PokeponChat extends JPanel implements AutoCloseable {
+public class PokeponChat extends JPanel implements AutoCloseable, Chat {
 
 	protected ChatPanel chatP = new ChatPanel();
 	protected DefaultListModel<ChatUser> users = new DefaultListModel<>();
-	// TODO TODO: add a ListCellRenderer which renders the colors and the roles of
-	// users instead of hardcoding HTML in the elements themselves!
 	protected JList<ChatUser> usersL = new JList<>(users);
 	protected Socket socket;
 
@@ -62,9 +60,9 @@ public class PokeponChat extends JPanel implements AutoCloseable {
 		userAdd(name, ChatUser.Role.USER);
 	}
 
-	public void userAdd(String name, ChatUser.Role role) {
+	public void userAdd(final String name, ChatUser.Role role) {
 		if(role == null) role = ChatUser.Role.USER;
-		if(Debug.pedantic) printDebug("Called userAdd("+name+","+role+")");
+		if(Debug.on) printDebug("Called userAdd("+name+","+role+")");
 		users.addElement(new ChatUser(name, role));
 	}
 
@@ -80,43 +78,17 @@ public class PokeponChat extends JPanel implements AutoCloseable {
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				if(Debug.pedantic) printDebug("Called userRename("+old+","+newN+")");
+				if(Debug.on) printDebug("Called userRename("+old+","+newN+")");
 				// ugh, Enumerations...just because the API compels us <_<
 				Enumeration<ChatUser> us = users.elements();
-				Pattern pattern = Pattern.compile("^(?<starttags><.*>)?(?<main>"+old+")(?<endtags><.*>)?$");
-				if(Debug.pedantic) printDebug("userRename: pattern = "+pattern);
 				while(us.hasMoreElements()) {
 					ChatUser u = us.nextElement();
 					if(u.getName().equals(old)) {
 						u.setName(newN);
 						u.setRole(role);
+						usersL.repaint();
 						return;
 					}
-					//String nick = us.nextElement();
-					/*Matcher matcher = pattern.matcher(nick);
-					if(Debug.pedantic) printDebug("userRename: nick = "+nick);
-					if(matcher.matches()) {
-						if(Debug.pedantic) {
-							printDebug("userRename: matched. Groups:"); 
-							printDebug("<starttags> = "+matcher.group("starttags"));
-							printDebug("<main> = "+matcher.group("main"));
-							printDebug("<endtags> = "+matcher.group("endtags"));
-						}
-
-						if(users.removeElement(nick)) {
-							if(matcher.group("starttags") == null || matcher.group("endtags") == null) {
-								if(Debug.pedantic)
-									printDebug("a group is null. New nick is "+newN);
-								users.addElement(role.getSymbol()+newN);
-							} else {
-								if(Debug.pedantic)
-									printDebug("groups are non-null. New nick is "+
-										matcher.group("starttags")+newN+matcher.group("endtags"));
-								users.addElement(matcher.group("starttags")+role.getSymbol()+newN+matcher.group("endtags"));
-							}
-						}
-						return;
-					}*/
 				}
 			}
 		});
@@ -132,24 +104,9 @@ public class PokeponChat extends JPanel implements AutoCloseable {
 					ChatUser u = us.nextElement();
 					if(u.getName().equals(name)) {
 						users.removeElement(u);
+						usersL.repaint(); // just for insurance
 						return;
 					}
-					//String nick = us.nextElement();
-					/*
-					String symbols = "";
-					for(ChatUser.Role r : ChatUser.Role.values()) {
-						if(r.getSymbol() == '^' || r.getSymbol() == '\\' || r.getSymbol() == ']'
-							|| r.getSymbol() == '-'
-						) {
-							symbols += "\\" + r.getSymbol();
-						} else {
-							symbols += r.getSymbol();
-						}
-					}
-					if(nick.matches("^(<.*>)?(["+symbols+"])?"+name+"(<.*>)?$")) {
-						users.removeElement(nick);
-						return;
-					}*/
 				}
 			}
 		});
@@ -164,7 +121,7 @@ public class PokeponChat extends JPanel implements AutoCloseable {
 		public void mouseClicked(MouseEvent e) {
 			if(usersL.getSelectedValue() == null) return;
 			String[] opts;
-			boolean myself = usersL.getSelectedValue().getName().equals(chatP.getNick()); //matches("^(<.*>)?"+chatP.getNick()+"(<.*>)?$");
+			boolean myself = usersL.getSelectedValue().getName().equals(chatP.getNick()); 
 			if(myself) {
 				opts = new String[] { "exit","whoami","change nick","register" };
 			} else {
@@ -217,6 +174,7 @@ public class PokeponChat extends JPanel implements AutoCloseable {
 		chatP.close();
 	}
 
+	/** Renders the users list elements */
 	class UsersListRenderer extends JLabel implements ListCellRenderer<ChatUser> {
 
 		public UsersListRenderer() {}
@@ -230,8 +188,23 @@ public class PokeponChat extends JPanel implements AutoCloseable {
 			setText(value.toString());
 			if(value.getName().equals(getNick()))
 				setForeground(Color.BLUE);
+			else
+				switch(value.getRole()) {
+					case ADMIN:
+						setForeground(Color.RED);
+						break;
+					case MODERATOR:
+						setForeground(Color.GREEN);
+						break;
+					default:
+						setForeground(Color.BLACK);
+				}
+			
+
 			if(cellHasFocus)
 				setBackground(list.getSelectionBackground());
+			else
+				setBackground(Color.WHITE);
 
 			return this;
 		}

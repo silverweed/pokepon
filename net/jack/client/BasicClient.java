@@ -79,7 +79,7 @@ public class BasicClient implements Client {
 			String userInput;
 			while((userInput = stdIn.readLine()) != null) {
 				if(userInput.length() == 0) continue;
-				out.println(userInput);
+				append(userInput);
 			}
 			
 		} catch(ConnectException e) {
@@ -119,6 +119,11 @@ public class BasicClient implements Client {
 	public String getName() {
 		return myNick;
 	}
+
+	public void append(String str) {
+		out.println(str);
+	}
+		
 
 	private String hostname = "";
 	private int port = -1;

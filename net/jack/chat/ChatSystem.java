@@ -107,6 +107,10 @@ public class ChatSystem {
 		return null;
 	}
 
+	public Iterable<ChatClient> getClients() {
+		return clients;
+	}
+
 	public ChatClient getClient(String name) {
 		for(ChatClient c : clients)
 			if(c.getUser().getName().equals(name))

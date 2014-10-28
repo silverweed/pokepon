@@ -165,10 +165,18 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 									MessageDigest mDigest = MessageDigest.getInstance("SHA-1");
 									mDigest.update(Charset.forName("UTF-8")
 											.encode(CharBuffer.wrap(tkn[2].toCharArray())).array());
-									tkn[2] = new String(mDigest.digest());
+									StringBuilder sb = new StringBuilder("");
+									for(byte b : mDigest.digest()) {
+										char c = (char)b;
+										if(c == '\n' || c == '\f' || c == '\r')
+											c = 'x';
+										sb.append(c);
+									}
+									tkn[2] = sb.toString();
 									synchronized(out) {
 										out.println(ConcatenateArrays.merge(tkn)+"\n");
 									}
+									sb.setLength(0);
 									mDigest.reset();
 								} catch(NoSuchAlgorithmException ee) {
 									append("[error] no such algorithm: "+ee);

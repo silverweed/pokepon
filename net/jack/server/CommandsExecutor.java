@@ -6,6 +6,7 @@ import pokepon.net.jack.*;
 import pokepon.net.jack.chat.*;
 import pokepon.util.*;
 import static pokepon.util.MessageManager.*;
+import static pokepon.net.jack.chat.ChatUser.Permission.*;
 import java.util.*;
 import java.io.*;
 
@@ -44,15 +45,15 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		if(connection.getVerbosity() >= 2) printDebug("Called CommandsExecutor.execute(msg="+msg+")");
 
 		if(msg.charAt(0) != CMD_PREFIX) return 0;
+
+		ChatUser chatUser = server.chat == null ? null : server.chat.getUser(connection.getName());
+
+		if(chatUser != null && !chatUser.hasPermission(CAN_ISSUE_COMMANDS))
+			return 1;
+
 		// refuse to execute command if this connection sent more than ISSUED_CMD_BAN_LIMIT commands in the last minute.
 		int issued = 0;
 		long startTime = -1;
-		ChatUser chatUser = server.chat == null ? null : server.chat.getUser(connection.getName());
-		printDebug("user: "+chatUser+"; permissions: "+chatUser.getPermissions());
-
-		if(chatUser != null && !chatUser.hasPermission(ChatUser.Permission.CAN_ISSUE_COMMANDS))
-			return 1;
-
 		Iterator<Map.Entry<Long,String>> it = connection.getLatestMessages().descendingIterator();
 		while(it.hasNext()) {
 			Map.Entry<Long,String> entry = it.next();
@@ -65,7 +66,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			++issued;
 		}
 		if(	issued >= ISSUED_CMD_BAN_LIMIT - 1 &&
-			!(chatUser != null && chatUser.hasPermission(ChatUser.Permission.CAN_IGNORE_FLOOD_LIMIT))
+			!(chatUser != null && chatUser.hasPermission(CAN_IGNORE_FLOOD_LIMIT))
 		) {
 			if(connection.getVerbosity() >= 2) 
 				printDebug("[CMDEXEC] connection "+connection.getName() + "issued " + issued +
@@ -107,13 +108,13 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				if(conn.getName().equals(token[1])) {
 					StringBuilder sb = new StringBuilder("Info about: "+token[1]+"\n");
 					sb.append("  IP Address:        " + (chatUser != null && chatUser
-						.hasPermission(ChatUser.Permission.CAN_LOOKUP_IP) 
+						.hasPermission(CAN_LOOKUP_IP) 
 							? conn.getSocket().getInetAddress().getHostAddress()
 							: "(not allowed)"
 						) + "\n"
 					);
 					sb.append("  Hostname:          " + (chatUser != null && chatUser 
-						.hasPermission(ChatUser.Permission.CAN_LOOKUP_IP) 
+						.hasPermission(CAN_LOOKUP_IP) 
 							? conn.getSocket().getInetAddress().getHostAddress()
 							: "(not allowed)"
 						) + "\n"
@@ -208,13 +209,25 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			connection.sendMsg("Number of connected users: "+n);
 			return 1;
 		} else if(cmd.equals("register")) {
+			if(chatUser != null && !chatUser.hasPermission(CAN_REGISTER)) {
+				connection.sendMsg("Sorry, you are not allowed to register on this server.");
+				return 1;
+			}
 			return registerNick(token);
 		} else if(cmd.equals("nick")) {
+			if(chatUser != null && !chatUser.hasPermission(CAN_CHANGE_NICK)) {
+				connection.sendMsg("Sorry, you are not allowed to change nickname on this server.");
+				return 1;
+			}
 			return assignNick(token);
 		} else if(cmd.equals("disconnect")) {
 			connection.sendMsg(CMN_PREFIX+"disconnect");
 			return 1;
 		} else if(cmd.equals("pm") || cmd.equals("whisper")) {
+			if(chatUser != null && !chatUser.hasPermission(CAN_WHISPER)) {
+				connection.sendMsg("Sorry, you are not allowed to whisper on this server.");
+				return 1;
+			}
 			if(token.length < 3) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"pm <user> <msg>.");
 				return 1;

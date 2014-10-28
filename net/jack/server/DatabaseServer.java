@@ -67,7 +67,8 @@ public class DatabaseServer extends MultiThreadedServer {
 				Files.write(Paths.get(dbName),
 					Arrays.asList(new String[] { 
 						"# Pokepon Server database",
-						"# Created: " + new Date()
+						"# Created: " + new Date(),
+						"# <name> <password-hash> <role>"
 					}), 
 					Charset.forName("UTF-8")
 				);

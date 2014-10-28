@@ -148,6 +148,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			}
 			Connection newConnection = new ServerConnection(this,newClient,verbosity);
 			newConnection.addConnectionExecutor(new CommandsExecutor());
+			if(advancedChat)
+				newConnection.addConnectionExecutor(new ChatCommandsExecutor());
 			newConnection.addConnectionExecutor(new CommunicationsExecutor());
 			clients.add(newConnection);
 			pool.execute(newConnection);
@@ -189,7 +191,37 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			conn.getOutput().println(msg);
 		}
 	}
-	
+
+	/** Forces an user to be disconnected from this server; useful with the advancedChat system. */
+	public boolean kickUser(String name, String kicker) {
+		Iterator<Connection> it = clients.iterator();
+		while(it.hasNext()) {
+			Connection conn = it.next();
+			if(conn.getName().equals(name)) {
+				if(kicker != null)
+					conn.sendMsg(CMN_PREFIX+"html <b><em><font color='red'>"+kicker+" kicked you out from the server.</font></em></b>");
+				else
+					conn.sendMsg(CMN_PREFIX+"html <b><em><font color='red'>You were kicked out from the server.</font></em></b>");
+				conn.sendMsg(CMN_PREFIX+"disconnect");
+				conn.disconnect();
+				broadcast(null, name+" was kicked out of the server" + (kicker != null ? " by "+kicker : "")+".");
+				if(verbosity >= 2) 
+					printDebug("["+serverName+"] kicked "+name+" out of the server." + (kicker != null ? 
+						"(kicked by "+kicker+")" : ""));
+				return true;
+			}
+		} 
+		if(verbosity >= 2) {
+			printDebug("["+serverName+"] kick attempt to "+name+" failed: client not found."+(kicker != null ?
+				" (kick attempted by "+kicker+")" : ""));
+		}
+		return false;
+	}
+
+	public boolean kickUser(String name) {
+		return kickUser(name, null);
+	}
+
 	@Override
 	public void close() {
 		if(clients.size() > 0) broadcast(null,"*** SERVER SHUTTING DOWN NOW ***");

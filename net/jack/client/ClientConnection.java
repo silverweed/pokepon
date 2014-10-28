@@ -42,7 +42,6 @@ class ClientConnection extends Connection {
 					inner:
 					switch(result) {
 						case -1:
-							disconnect();
 							throw new ConnectException();
 						case 0:
 							break inner;

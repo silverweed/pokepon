@@ -150,9 +150,7 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 				case KeyEvent.VK_ENTER:
 					if(inputF.getText() != null && inputF.getText().length() > 0) {
 						// if not a command, echo it on screen before sending it
-						if(inputF.getText().charAt(0) != CMD_PREFIX) 
-							append(nick+" said: "+inputF.getText());
-						else {
+						if(inputF.getText().charAt(0) == CMD_PREFIX) {
 							String[] tkn = inputF.getText().split("\\s+");
 							// these commands require a parameter to be hashed before sending it
 							if(	(tkn[0].equals(CMD_PREFIX+"nick") || 

@@ -44,43 +44,52 @@ public class DatabaseServer extends MultiThreadedServer {
 	public DatabaseServer loadOptions(ServerOptions opts) {
 		super.loadOptions(opts);
 		if(verbosity >= 2) printDebug("[DatabaseServer] Called loadOptions");
-		try {
-			if(opts.database != null)
-				setDatabaseLocation(opts.database);
-		} catch(MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+		if(opts.database != null)
+			setDatabaseLocation(opts.database);
 		return this;
 	}
 
 	public URL getDatabaseURL() { return dbURL; }
 
-	/** Sets a new database location and (weakly) ensures the file exists by creating it. */
-	public void setDatabaseLocation(String db) throws MalformedURLException {
-		dbURL = new URL(db);
-		dbName = dbURL.getPath();
-		if(verbosity >= 1) printDebug("[DatabaseServer] Set database location to "+dbURL);
-		if(!Files.exists(Paths.get(dbName))) {
-			try {
-				Files.createDirectories(Paths.get(dbName).getParent());
-				Files.createFile(Paths.get(dbName));
-				Files.write(Paths.get(dbName),
-					Arrays.asList(new String[] { 
-						"# Pokepon Server database",
-						"# Created: " + new Date(),
-						"# <name> <password-hash> <role>"
-					}), 
-					Charset.forName("UTF-8")
-				);
-				if(verbosity >= 1) printDebug("[DatabaseServer] Created database file.");
-			} catch(IOException e) {
-				printDebug("[ ERROR ] Caught IOException while creating database: "+e);
+	/** Sets a new database location and ensures the file exists by creating it;
+	 * if errors occur, the old database is kept (if existing).
+	 * @return true if database was changed successfully, false otherwise.
+	 */
+	public boolean setDatabaseLocation(String db) {
+		if(verbosity >= 1) printDebug("[DatabaseServer] Setting database location to "+db);
+		try {
+			URL tmpdbURL = new URL(db);
+			String tmpdbName = tmpdbURL.getPath();
+			if(!Files.exists(Paths.get(tmpdbName))) {
+				try {
+					Files.createDirectories(Paths.get(tmpdbName).getParent());
+					Files.createFile(Paths.get(tmpdbName));
+					Files.write(Paths.get(tmpdbName),
+						Arrays.asList(new String[] { 
+							"# Pokepon Server database",
+							"# Created: " + new Date(),
+							"# <name> <password-hash> <role>"
+						}), 
+						Charset.forName("UTF-8")
+					);
+					if(verbosity >= 1) printDebug("[DatabaseServer] Created database file.");
+					dbURL = tmpdbURL;
+					dbName = tmpdbName;
+					return true;
+				} catch(IOException e) {
+					printDebug("[ ERROR ] Caught IOException while creating database: "+e);
+					return false;
+				}
+			} else {
+				if(verbosity >= 1) printDebug("[DatabaseServer] Database file already exists.");
+				dbURL = tmpdbURL;
+				dbName = tmpdbName;
+				return true;
 			}
-		} else if(verbosity >= 1) printDebug("[DatabaseServer] Database file already exists.");
-
-		// if advancedChat is enabled, reload chat entries
-		if(chat != null)
-			chat.reload();
+		} catch(MalformedURLException ee) {
+			printDebug("[DatabaseServer.setDatabaseLocation] Malformed URL: "+ee);
+			return false;
+		}
 	}
 
 	public static void main(String[] args) {

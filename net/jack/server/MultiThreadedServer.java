@@ -29,6 +29,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	/** Queue used by the ThreadPoolExecutor to store tasks */
 	protected ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(200*maxClients);
 	protected List<Connection> clients = Collections.synchronizedList(new LinkedList<Connection>());
+	protected Set<String> bannedIP = new HashSet<>();
 	protected boolean advancedChat;
 	/** The policy for allowing clients to connect to this server: see server.conf for details */
 	ConnectPolicy connectPolicy = ConnectPolicy.AVERAGE;
@@ -146,6 +147,11 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
 				continue;
 			}
+			if(bannedIP.contains(newClient.getInetAddress().getHostAddress())) {
+				if(verbosity >= 1) printDebug("Dropping connection with banned IP: "+newClient);
+				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Your IP is banned from this server.");
+				continue;
+			}
 			Connection newConnection = new ServerConnection(this,newClient,verbosity);
 			newConnection.addConnectionExecutor(new CommandsExecutor());
 			if(advancedChat)
@@ -167,6 +173,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				return c;
 		return null;
 	}
+
+	public Set<String> getBannedIP() { return bannedIP; }
 	
 	public boolean isConnected(String name) {
 		Iterator<Connection> it = clients.iterator();
@@ -220,6 +228,16 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 
 	public boolean kickUser(String name) {
 		return kickUser(name, null);
+	}
+
+	public void banIP(String ip) {
+		bannedIP.add(ip);
+		if(verbosity >= 1) printDebug("["+serverName+"] Banned IP: "+ip);
+	}
+
+	public void unbanIP(String ip) {
+		if(bannedIP.remove(ip))
+			if(verbosity >= 1) printDebug("["+serverName+"] Unbanned IP: "+ip);
 	}
 
 	@Override

@@ -248,13 +248,14 @@ class ServerConnection extends Connection {
 				if(verbosity >= 3) printDebug("Message length = 0. Not broadcasting.");
 				return 1;
 			}
+			// check if this user is muted
+			if(server.chat != null && !server.chat.hasPermission(name, ChatUser.Permission.CAN_TALK)) {
+				sendMsg("You are not allowed to talk on this server.");
+				return 1;
+			}
 			
 			if(verbosity >= 0) printMsg(name+" said: "+msg);
-			try {
-				server.broadcast(socket,name+" said: "+msg);
-			} catch(Exception e) {
-				printDebug("Caught exception while pushing message: "+e);
-			}
+			server.broadcast(null, name+" said: "+msg);
 			return 1;
 		}
 	}

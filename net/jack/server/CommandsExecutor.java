@@ -88,6 +88,10 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				connection.sendMsg("This command is not supported by this server implementation.");
 				return 1;
 			}
+			if(server.chat != null && !chatUser.hasPermission(CAN_LIST_REGISTERED_USERS)) {
+				connection.sendMsg("You are not allowed to list registered users.");
+				return 1;
+			}
 			try {
 				connection.sendMsg("Registered users:");
 				List<String> nicks = ((DatabaseServer)server).getNicks();

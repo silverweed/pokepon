@@ -29,6 +29,12 @@ public class ChatUser {
 			return null;
 		}
 
+		public static Role forName(String name) {
+			for(Role r : values())
+				if(r.toString().toLowerCase().equals(name.toLowerCase())) return r;
+			return null;
+		}
+
 		/** Given a String, if it starts with a character which is a 
 		 * Role symbol, strips it; else, just return the unmodified String.
 		 */
@@ -47,7 +53,10 @@ public class ChatUser {
 		CAN_WHISPER,
 		CAN_CHANGE_NICK,
 		CAN_REGISTER,
+		CAN_LIST_REGISTERED_USERS,
+		CAN_LIST_ROLES,
 		CAN_LOOKUP_IP,
+		CAN_LOOKUP_BANNED_IP,
 		CAN_ISSUE_COMMANDS,
 		CAN_BAN_IP,
 		CAN_KICK_USERS,
@@ -56,7 +65,12 @@ public class ChatUser {
 		CAN_MUTE_UNMUTE_ADMINS,
 		CAN_KICK_MODERATORS,
 		CAN_KICK_ADMINS,
-		CAN_IGNORE_FLOOD_LIMIT
+		CAN_PROMOTE_TO_MODERATOR,
+		CAN_PROMOTE_TO_ADMIN,
+		CAN_DEMOTE_MODERATORS,
+		CAN_DEMOTE_ADMINS,
+		CAN_IGNORE_FLOOD_LIMIT,
+		CAN_MANIPULATE_DB
 	};
 
 	public ChatUser(String name) {
@@ -72,17 +86,38 @@ public class ChatUser {
 		permissions.add(Permission.CAN_CHANGE_NICK);
 		permissions.add(Permission.CAN_ISSUE_COMMANDS);
 		permissions.add(Permission.CAN_REGISTER);
+		permissions.add(Permission.CAN_LIST_REGISTERED_USERS);
+		permissions.add(Permission.CAN_LIST_ROLES);
 	}
 
 	public void setName(String n) { name = n; }
 	public void setRole(Role r) { role = r; }
+	public void copyRoleFrom(ChatUser u) {
+		permissions.clear();
+		permissions.addAll(u.permissions);
+		role = u.role;
+	}
 
 	public String getName() { return name; }
 	public Role getRole() { return role; }
-	public boolean hasPermission(Permission p) { 
-		return permissions.contains(p);
+	/** @return true if user has AT LEAST one of the listed permissions, false otherwise */
+	public boolean hasPermission(Permission p, Permission... ps) { 
+		boolean b = permissions.contains(p);
+		for(Permission pp : ps)
+			b |= permissions.contains(pp);
+		return b;
 	}
 	public Set<Permission> getPermissions() { return permissions; }
+	public void removePermission(Permission p, Permission... ps) {
+		permissions.remove(p);
+		for(Permission pp : ps)
+			permissions.remove(pp);
+	}
+	public void addPermission(Permission p, Permission... ps) {
+		permissions.add(p);
+		for(Permission pp : ps)
+			permissions.add(pp);
+	}
 	
 	@Override
 	public String toString() {

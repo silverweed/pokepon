@@ -77,6 +77,11 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
 				continue;
 			}
+			if(bannedIP.contains(newClient.getInetAddress().getHostAddress())) {
+				if(verbosity >= 1) printDebug("Dropping connection with banned IP: "+newClient);
+				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Your IP is banned from this server.");
+				continue;
+			}
 			welcomer.offer(newClient);
 		}
 	}
@@ -398,6 +403,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		"\t--min-nick-len <integer>:       set the minimum accepted nickname length\n"+
 		"\t--max-nick-len <integer>:       longer nicknames will be truncated to this length\n"+
 		"\t--max-battles <integer>:        set the limit of concurrent battles allowed by the server.\n"+
+		"\t-C,--advanced-chat [no]:        enable/disable chat roles and the advanced chat system.\n"+
 		"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");
 		System.exit(0);
 	}

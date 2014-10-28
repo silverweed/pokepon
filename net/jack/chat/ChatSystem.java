@@ -15,10 +15,19 @@ import java.net.*;
  */
 public class ChatSystem {
 
-	public ChatSystem() {}
+	public ChatSystem() {
+		this(null);
+	}
+
 	public ChatSystem(DatabaseServer server) {
+		for(ChatUser.Role r : ChatUser.Role.values()) {
+			globalPermissions.put(r, new EnumMap<ChatUser.Permission,Boolean>(ChatUser.Permission.class));
+			for(ChatUser.Permission p : ChatUser.Permission.values())
+				globalPermissions.get(r).put(p, null);
+		}
 		this.server = server;
-		reload();
+		if(server != null) 
+			reload();
 	}
 
 	/** If a DatabaseServer was given to this ChatSystem, read its database and
@@ -73,18 +82,24 @@ public class ChatSystem {
 			} 
 			if(Debug.on) {
 				printDebug("[ChatSystem.reload] OK - entries reloaded successfully.");
-				printDebug("Chat Roles: {");
-				Map<String,ChatUser.Role> sorted = new TreeMap<>(registered);
-				for(Map.Entry<String,ChatUser.Role> entry : sorted.entrySet())
-					if(entry.getValue() != ChatUser.Role.USER)
-						printDebug("  - "+entry.getKey()+": "+entry.getValue());
-				printDebug("}");
+				printDebug(getRolesTable());
 			}
 			return true;
 		} catch(URISyntaxException ee) {
 			printDebug("[ChatSystem.reload] Exception: "+ee);
 			return false;
 		}
+	}
+
+	/** Returns a string describing the currently registered roles. */
+	public String getRolesTable() {
+		StringBuilder sb = new StringBuilder("Chat Roles: {\n");
+		Map<String,ChatUser.Role> sorted = new TreeMap<>(registered);
+		for(Map.Entry<String,ChatUser.Role> entry : sorted.entrySet())
+			if(entry.getValue() != ChatUser.Role.USER)
+				sb.append("  - "+entry.getKey()+": "+entry.getValue()+"\n");
+		sb.append("}\n");
+		return sb.toString();
 	}
 
 	public void addUser(ChatClient c) {
@@ -125,6 +140,31 @@ public class ChatSystem {
 		return null;
 	}
 	
+	public Map<ChatUser.Role,Map<ChatUser.Permission,Boolean>> getGlobalPermissions() {
+		return globalPermissions;
+	}
+
+	public void addGlobalPermission(ChatUser.Role role, ChatUser.Permission perm, boolean b) {
+		globalPermissions.get(role).put(perm, b);
+	}
+
+	public void removeGlobalPermission(ChatUser.Role role, ChatUser.Permission perm) {
+		globalPermissions.get(role).put(perm, null);
+	}
+
+	/** Checks if a user with name 'name' has permission 'perm';
+	 * first check if a global permission is set for the user's role,
+	 * and return it if so; else, just return the user.hasPermission().
+	 */
+	public boolean hasPermission(String name, ChatUser.Permission perm) {
+		ChatUser usr = getUser(name);
+		if(usr == null) return false;
+		if(globalPermissions.get(usr.getRole()).get(perm) != null) {
+			return globalPermissions.get(usr.getRole()).get(perm);
+		}
+		return usr.hasPermission(perm);
+	}
+
 	public boolean renameUser(String old, String newn) {
 		Iterator<ChatClient> it = clients.iterator();
 		ChatClient c = null;
@@ -162,4 +202,6 @@ public class ChatSystem {
 	private List<ChatClient> clients = new LinkedList<>();
 	private DatabaseServer server;
 	private Map<String,ChatUser.Role> registered = new HashMap<>();
+	private Map<ChatUser.Role,Map<ChatUser.Permission,Boolean>> globalPermissions = 
+		new EnumMap<ChatUser.Role,Map<ChatUser.Permission,Boolean>>(ChatUser.Role.class);
 }

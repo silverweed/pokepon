@@ -276,7 +276,7 @@ class GUILauncher extends JFrame {
 					
 					if(Debug.on) printDebug("Opts: "+opts);
 
-					server.configure(new String[0], opts);
+					server.configure(opts.confFile != null ? new String[] { opts.confFile } : new String[0], opts);
 
 					new Thread() {
 						public void run() {

@@ -4,6 +4,7 @@ package pokepon.net.jack.server;
 
 import pokepon.net.jack.*;
 import pokepon.net.jack.chat.*;
+import pokepon.util.*;
 import static pokepon.util.MessageManager.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -131,6 +132,14 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		super.initialize();
 		if(advancedChat) {
 			chat = new ChatSystem();
+
+			// FIXME
+			String chatConf = (Meta.LAUNCHED_FROM_JAR
+						? Meta.getDataURL()
+						: Meta.getNetURL()
+					).getPath() + Meta.DIRSEP + "chat.conf";
+			Meta.ensureFileExists(chatConf, Meta.getNetURL().getPath() + Meta.DIRSEP + "chat.conf");
+			chat.loadConfFromFile(chatConf);
 		}
 	}
 

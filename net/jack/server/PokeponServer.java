@@ -410,30 +410,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 
 	/** Creates a default conf file from net/server.conf (if not existing) */
 	public static void createDefaultConf() {
-		if(Meta.LAUNCHED_FROM_JAR && !Files.exists(Paths.get(confFile))) {
-			if(Debug.on) printDebug("[PokeponServer] "+confFile+" does not exist: creating a default one.");
-			InputStream stream = PokeponServer.class.getResourceAsStream(Meta.complete2(Meta.NET_DIR)+"/server.conf");
-			if(stream == null) {
-				printDebug("[ WARNING ] default server.conf not found. Won't create a default conf file.");
-			} else {
-				int readBytes;
-				byte[] buffer = new byte[4096];
-				try (OutputStream outStream = new FileOutputStream(new File(confFile))) {
-					while((readBytes = stream.read(buffer)) > 0) {
-						outStream.write(buffer, 0, readBytes);
-					}
-					if(Debug.on) printDebug("[PokeponServer] created default conf file.");
-				} catch(IOException e) {
-					e.printStackTrace();
-				} finally {
-					try {
-						stream.close();
-					} catch(IOException ignore) {}
-				}
-			}
-		} else {
-			if(Meta.LAUNCHED_FROM_JAR && Debug.on) printDebug("[PokeponServer] config file exists: "+confFile+".");
-		}
+		Meta.ensureFileExists(confFile, Meta.complete2(Meta.NET_DIR)+"/server.conf");
 	}
 
 	/** Ensures conf file exists, reads pre config from CLI, config from conf file and CLI config;

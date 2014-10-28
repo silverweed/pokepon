@@ -279,6 +279,36 @@ public class Meta {
 		} else return dirpath;
 	}
 
+	/** Checks if a given file exists and, if not, create it by copying a default template from resouces;
+	 * used to create default conf files.
+	 */
+	public static void ensureFileExists(String file, String template) {
+		if(LAUNCHED_FROM_JAR && !Files.exists(Paths.get(file))) {
+			if(Debug.on) printDebug("[Meta] "+file+" does not exist: creating a default one.");
+			InputStream stream = Meta.class.getResourceAsStream(template);
+			if(stream == null) {
+				printDebug("[ WARNING ] template for "+ template + " not found. Won't create a default "+file+".");
+			} else {
+				int readBytes;
+				byte[] buffer = new byte[4096];
+				try (OutputStream outStream = new FileOutputStream(new File(file))) {
+					while((readBytes = stream.read(buffer)) > 0) {
+						outStream.write(buffer, 0, readBytes);
+					}
+					if(Debug.on) printDebug("[Meta] created default file "+file+" from "+template+".");
+				} catch(IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						stream.close();
+					} catch(IOException ignore) {}
+				}
+			}
+		} else {
+			if(Meta.LAUNCHED_FROM_JAR && Debug.on) printDebug("[Meta] file exists: "+file+".");
+		}
+	}
+
 	/** Path of the Pokepon root directory, relative to the java classpath */
 	public final static String POKEPON_ROOTDIR = "pokepon";
 	// These are relative to POKEPON_ROOTDIR

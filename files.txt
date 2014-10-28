@@ -241,6 +241,7 @@ net/jack/server/BasicNameValidatingServer.java
 net/jack/server/BasicServer.java
 net/jack/server/BattleExecutor.java
 net/jack/server/BattleTask.java
+net/jack/server/ChatCommandsExecutor.java
 net/jack/server/CommandsExecutor.java
 net/jack/server/CommunicationsExecutor.java
 net/jack/server/DatabaseServer.java

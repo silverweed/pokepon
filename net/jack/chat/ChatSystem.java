@@ -30,6 +30,156 @@ public class ChatSystem {
 			reload();
 	}
 
+	/** Reads a file and changes default roles' permissions accordingly;
+	 * the conf file consists in several `stanzas' defining roles' permissions
+	 * in this way:
+	 * <pre>&at;role
+	 *   * PERMISSION_1
+	 *   * PERMISSION_2
+	 * </pre>
+	 * redefines `role`'s permissions to be ONLY the listed ones;
+	 * <pre>+role
+	 *   + ADDED_PERMISSION
+	 *   - REMOVED_PERMISSION
+	 * </pre>
+	 * takes the pre-existing permissions for `role` and adds or removes listed ones.
+	 */
+	public boolean loadConfFromFile(String filename) {
+		File file = new File(filename);
+		if(!file.canRead()) {
+			printDebug("[ChatSystem] cannot read conf file: "+filename);
+			return false;
+		}
+		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+			String input = null;
+			ChatUser.Role stanzaRole = null;
+			// -: none, +: extend, @: rewrite
+			char stanzaType = '-';
+			while((input = scanner.readLine()) != null) {
+				input = input.trim();
+				if(Debug.pedantic) printDebug("read line: "+input);
+				if(input.length() < 1 || input.charAt(0) == '#') 
+					continue;
+				String[] token = input.split("\\s+");
+				if(Debug.pedantic) printDebug("tokens: "+Arrays.asList(token));
+				
+				if(token[0].charAt(0) == '@') {
+					if(token[0].length() < 2) {
+						printDebug("[ChatSystem] Invalid line in conf file: "+input);
+						continue;
+					}
+					stanzaRole = ChatUser.Role.forName(token[0].substring(1));
+					if(stanzaRole == null) {
+						// TODO: define custom roles
+						printDebug("[ChatSystem] Role not found: "+token[0].substring(1));
+						continue;
+					}
+					switch(stanzaRole) {
+						case ADMIN:
+							ChatAdmin.defaultPermissions.clear();
+							break;
+						case MODERATOR:
+							ChatModerator.defaultPermissions.clear();
+							break;
+						case USER:
+							ChatUser.defaultPermissions.clear();
+							break;
+					}
+					stanzaType = '@';
+
+				} else if(token[0].charAt(0) == '+') {
+					if(token[0].length() > 1) {
+						// new stanza
+						stanzaRole = ChatUser.Role.forName(token[0].substring(1));
+						if(stanzaRole == null) {
+							// TODO: define custom roles
+							printDebug("[ChatSystem] Role not found: "+token[0].substring(1));
+							continue;
+						}
+						stanzaType = '+';
+						continue;
+					} else if(stanzaRole != null && stanzaType == '+') {
+						// extend role by adding permission
+						if(token.length != 2) {
+							printDebug("[ChatSystem] Malformed line in conf: "+input);
+							continue;
+						}
+						ChatUser.Permission perm = ChatUser.Permission.forName(token[1]);
+						if(perm == null) {
+							printDebug("[ChatSystem] Unknown permission: "+token[1]);
+							continue;
+						}
+						switch(stanzaRole) {
+							case ADMIN:
+								ChatAdmin.defaultPermissions.add(perm);
+								break;
+							case MODERATOR:
+								ChatModerator.defaultPermissions.add(perm);
+								break;
+							case USER:
+								ChatUser.defaultPermissions.add(perm);
+								break;
+						}
+					} else {
+						printDebug("[ChatSystem] Line out of stanza: "+input);
+						continue;
+					}
+				} else if(token[0].equals("-") || token[0].equals("*")) {
+					// extend role by removing permission
+					if(stanzaRole == null) {
+						printDebug("[ChatSystem] Line out of stanza: "+input);
+						continue;
+					}
+					if(token[0].equals("-") && stanzaType == '@' || token[0].equals("*") && stanzaType == '+') {
+						printDebug("[ChatSystem] Invalid instruction in stanza "+stanzaType + stanzaRole+": "+input);
+						continue;
+					}
+					ChatUser.Permission perm = ChatUser.Permission.forName(token[1]);
+					if(perm == null) {
+						printDebug("[ChatSystem] Unknown permission: "+token[1]);
+						continue;
+					}
+					switch(stanzaRole) {
+						case ADMIN:
+							if(token[0].equals("-"))
+								ChatAdmin.defaultPermissions.remove(perm);
+							else
+								ChatAdmin.defaultPermissions.add(perm);
+							break;
+						case MODERATOR:
+							if(token[0].equals("-"))
+								ChatModerator.defaultPermissions.remove(perm);
+							else
+								ChatModerator.defaultPermissions.add(perm);
+							break;
+						case USER:
+							if(token[0].equals("-"))
+								ChatUser.defaultPermissions.remove(perm);
+							else
+								ChatUser.defaultPermissions.add(perm);
+							break;
+					}
+				} else {
+					printDebug("[ChatSystem] Invalid line in conf: "+input);
+					continue;
+				}
+			}
+			if(Debug.on) {
+				printDebug("After reading conf file, chat permissions are:");
+				printDebug("ADMIN: "+ChatAdmin.defaultPermissions);
+				printDebug("MODERATOR: "+ChatModerator.defaultPermissions);
+				printDebug("USER: "+ChatUser.defaultPermissions);
+			}
+
+		} catch(FileNotFoundException e) {
+			printDebug("[ChatSystem.loadConfFromFile("+filename+")] File not found: "+filename);
+		} catch(Exception e) {
+			printDebug("Caught exception in nickExists: "+e);
+			e.printStackTrace();
+		} 
+		return true;
+	}
+
 	/** If a DatabaseServer was given to this ChatSystem, read its database and
 	 * fill a map { user: role } accordingly to its entries;
 	 * the db should contain lines like:
@@ -139,7 +289,7 @@ public class ChatSystem {
 				return c.getUser();
 		return null;
 	}
-	
+
 	public Map<ChatUser.Role,Map<ChatUser.Permission,Boolean>> getGlobalPermissions() {
 		return globalPermissions;
 	}

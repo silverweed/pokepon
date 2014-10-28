@@ -70,8 +70,25 @@ public class ChatUser {
 		CAN_DEMOTE_MODERATORS,
 		CAN_DEMOTE_ADMINS,
 		CAN_IGNORE_FLOOD_LIMIT,
-		CAN_MANIPULATE_DB
+		CAN_MANIPULATE_DB;
+
+		public static Permission forName(String name) {
+			for(Permission p : values())
+				if(p.toString().equals(name)) return p;
+			return null;
+		}
 	};
+
+	public static Set<Permission> defaultPermissions = (EnumSet<Permission>)EnumSet.noneOf(Permission.class);
+	static {
+		defaultPermissions.add(Permission.CAN_TALK);
+		defaultPermissions.add(Permission.CAN_WHISPER);
+		defaultPermissions.add(Permission.CAN_CHANGE_NICK);
+		defaultPermissions.add(Permission.CAN_ISSUE_COMMANDS);
+		defaultPermissions.add(Permission.CAN_REGISTER);
+		defaultPermissions.add(Permission.CAN_LIST_REGISTERED_USERS);
+		defaultPermissions.add(Permission.CAN_LIST_ROLES);
+	}
 
 	public ChatUser(String name) {
 		this(name, Role.USER);
@@ -80,14 +97,8 @@ public class ChatUser {
 	public ChatUser(String name, Role role) {
 		this.name = name;
 		this.role = role;
-
-		permissions.add(Permission.CAN_TALK);
-		permissions.add(Permission.CAN_WHISPER);
-		permissions.add(Permission.CAN_CHANGE_NICK);
-		permissions.add(Permission.CAN_ISSUE_COMMANDS);
-		permissions.add(Permission.CAN_REGISTER);
-		permissions.add(Permission.CAN_LIST_REGISTERED_USERS);
-		permissions.add(Permission.CAN_LIST_ROLES);
+		
+		permissions.addAll(defaultPermissions);
 	}
 
 	public void setName(String n) { name = n; }

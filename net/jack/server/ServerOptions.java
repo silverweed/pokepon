@@ -120,21 +120,21 @@ public class ServerOptions {
 		return sb.toString();
 	}
 
-	int port = -1;
-	Integer verbosity = null;
-	String address;
-	int maxNickLen = -1;
-	int minNickLen = -1;
-	String serverName;
-	int maxClients = -1;
-	String database;
-	Set<String> forbiddenNames;
-	String confFile;
-	MultiThreadedServer.ConnectPolicy connPolicy = null;
-	String defaultNick;
-	String welcomeMessage;
-	int maxBattles = -1;
-	Boolean advancedChat = null;
+	public int port = -1;
+	public Integer verbosity = null;
+	public String address;
+	public int maxNickLen = -1;
+	public int minNickLen = -1;
+	public String serverName;
+	public int maxClients = -1;
+	public String database;
+	public Set<String> forbiddenNames;
+	public String confFile;
+	public MultiThreadedServer.ConnectPolicy connPolicy = null;
+	public String defaultNick;
+	public String welcomeMessage;
+	public int maxBattles = -1;
+	public Boolean advancedChat = null;
 
 
 	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {

@@ -9,10 +9,12 @@ import java.util.*;
  * @author Giacomo Parolini
  */
 public class ChatAdmin extends ChatUser {
+	
+	public static Set<Permission> defaultPermissions = (EnumSet<Permission>)EnumSet.allOf(Permission.class);
 
 	public ChatAdmin(String name) {
 		super(name, Role.ADMIN);
 		
-		permissions.addAll(EnumSet.allOf(Permission.class));
+		permissions.addAll(defaultPermissions);
 	}
 }

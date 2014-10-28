@@ -220,6 +220,8 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 			Connection newConnection = new ServerConnection(PokeponServer.this, newClient, verbosity);
 			newConnection.addConnectionExecutor(new BattleExecutor());
 			newConnection.addConnectionExecutor(new PokeponCommandsExecutor());
+			if(PokeponServer.this.chat != null)
+				newConnection.addConnectionExecutor(new ChatCommandsExecutor());
 			newConnection.addConnectionExecutor(new PokeponCommunicationsExecutor());
 			clients.add(newConnection);
 			pool.execute(newConnection);

@@ -39,6 +39,8 @@
 
 - Nicknames: config option to set default nicks, request nick on login feature 
 
-- Whois shouldn't show the IP to clients other than admins -> atm doesn't send them to anyone
+- Whois shouldn't show the IP to clients other than admins -> Fixed
 
 - Implement chat roles! And moderation commands
+
+- Prevent server to broadcast the hashed password characters after validating login!

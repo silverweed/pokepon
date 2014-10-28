@@ -65,9 +65,17 @@ class ClientCommunicationsExecutor extends ClientConnectionExecutor {
 					// Hash password before sending it (server will re-hash it with a random salt)
 					MessageDigest mDigest = MessageDigest.getInstance("SHA-1");
 					mDigest.update(Charset.forName("UTF-8").encode(CharBuffer.wrap(passwd)).array());
-					connection.sendMsg(CMN_PREFIX+"passwd "+new String(mDigest.digest()));
+					StringBuilder sb = new StringBuilder(CMN_PREFIX+"passwd ");
+					// Workaround to ensure we don't send EOL that get misinterpreted by readLine().
+					for(byte b : mDigest.digest()) {
+						char c = (char)b;
+						if(c == '\n' || c == '\f' || c == '\r') 
+							c = 'x';
+						sb.append(c);
+					}
+					connection.sendMsg(sb.toString());
 					mDigest.reset();
-					System.gc();	
+					sb.setLength(0);
 				} catch(NoSuchAlgorithmException e) {
 					connection.sendMsg(CMN_PREFIX+"abort");
 					printDebug("Couldn't hash password: "+e);

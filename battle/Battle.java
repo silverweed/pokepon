@@ -12,7 +12,9 @@ import java.io.*;
 import java.util.concurrent.*;
 import java.util.*;
 
-/** The main class and entry point for battle.
+/** The main class and entry point for battle, used to retrieve teams
+ * before the battle control is handed to BattleTask; also used to defined
+ * the battle constant values.
  *
  * @author Giacomo Parolini
  */
@@ -76,7 +78,7 @@ public class Battle {
 
 		} else {
 			// concurrently retreive teams
-			printDebug("[BATTLE "+p1+","+p2+"]: Retrieving teams...");
+			if(Debug.on) printDebug("[BATTLE "+p1+","+p2+"]: Retrieving teams...");
 			List<Callable<Boolean>> tr = new ArrayList<Callable<Boolean>>();
 			tr.add(new TeamRetreiver(c1,p1));
 			tr.add(new TeamRetreiver(c2,p2));
@@ -111,7 +113,7 @@ public class Battle {
 				c2.sendMsg(BTL_PREFIX+"ko");
 				return false;
 			}
-			printDebug("[BATTLE "+c1.getName()+" ~ "+c2.getName()+"] Teams retreived correctly.");
+			if(Debug.on) printDebug("[BATTLE "+c1.getName()+" ~ "+c2.getName()+"] Teams retreived correctly.");
 		}
 
 		return true;
@@ -133,10 +135,6 @@ public class Battle {
 		return rng;
 	}
 
-/*	public BattleEngine getBattleEngine() {
-		return engine;
-	}
-*/
 	public boolean setActivePony(int num,int i) {
 		if(num == 1) return p1.getTeam().setActivePony(i);
 		else if(num == 2) return p2.getTeam().setActivePony(i);
@@ -149,38 +147,6 @@ public class Battle {
 		else throw new IllegalArgumentException("[Battle.setActivePony()]: num is "+num);
 	}
 
-	/** Simulates a battle (not used) */
-	public void start() {
-		if(Debug.on) {
-			printDebug("Started battle between "+p1+" and "+p2);
-			printDebug("Teams: \nP1: "+p1.getTeam()+"\nP2: "+p2.getTeam());
-		}
-		p1.getTeam().setActivePony(0);
-		p2.getTeam().setActivePony(0);
-		
-		//BattleTurn turn = new BattleTurn(p1,p2,weather);
-		/*BattleTurn turn = new BattleTester(p1,p2,weather);
-
-		do {
-			winner = turn.performTurn();
-		} while(winner == 0);
-
-		switch(winner) {
-			case -1:
-				printMsg("Battle is draw between "+p1+" and "+p2+"!");
-				break;
-			case 1:
-				printMsg(p1+" is the winner!");
-				break;
-			case 2:
-				printMsg(p2+" is the winner!");
-				break;
-			default:
-				throw new RuntimeException("winner is "+winner+"!");
-		}*/
-	}
-
-
 	/////////////// PRIVATE METHODS / FIELDS ////////////////
 
 	private Player p1;
@@ -190,6 +156,5 @@ public class Battle {
 	private WeatherHolder weather = new WeatherHolder(Weather.CLEAR,0);
 	private int winner;
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
-	//private BattleEngine engine;
 	private Random rng = new Random();
 }

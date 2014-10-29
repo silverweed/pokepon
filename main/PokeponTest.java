@@ -69,8 +69,7 @@ public class PokeponTest implements TestingClass {
 
 		
 		Battle battle = new Battle(p1,p2);
-		battle.start();
-		
+		//battle.start();
 	}
 }
 

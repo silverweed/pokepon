@@ -8,7 +8,7 @@ import pokepon.main.TestingClass;
 import static pokepon.util.MessageManager.*;
 import java.util.*;
 
-/** This class contains definition of Types and static methods to
+/** This class contains relations among Types and static methods to
  * get weaknesses / resistances / etc; 
  *
  * @author Giacomo Parolini

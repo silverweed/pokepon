@@ -19,20 +19,20 @@ import java.util.*;
 
 class DamageCalculator {
 	
-	////////////////// PACKAGE-ACCESS METHODS / FIELDS ////////////////////
+	////////////////// PUBLIC METHODS / FIELDS ////////////////////
 	
 	/** Default constructor: if no RNG is passed, create a new one. */
-	DamageCalculator() {
+	public DamageCalculator() {
 		if(Debug.on) printDebug("[DC] called default constructor");
 		setRNG();
 	}
 	
-	DamageCalculator(long seed) {
+	public DamageCalculator(long seed) {
 		if(Debug.on) printDebug("[DC] called constructor with seed "+seed);
 		setRNG(seed);
 	}
 	
-	DamageCalculator(Random rng) {
+	public DamageCalculator(Random rng) {
 		if(Debug.on) printDebug("[DC] called constructor with rng");
 		this.rng = rng;
 		if(rng == null) throw new RuntimeException("[DC] ERROR! rng is null!");
@@ -49,10 +49,12 @@ class DamageCalculator {
 	 * @param selfHit Whether the attack is a self-hit or not (default: false)
 	 * @return Damage inflicted
 	 */
-	static int calculateBattleDamage(Move move,final BattleEngine be,boolean selfHit) {
+	public static int calculateBattleDamage(Move move,final BattleEngine be,boolean selfHit) {
 		if(move == null) printDebug("[DC]: MOVE IS NULL!");
+		
 		//uses the same formula as Pokemon
-		//First: calculate Modifier
+
+		/* First: calculate Modifier */
 
 		Pony attacker = be.getAttacker();
 		Pony defender = (selfHit ? be.getAttacker() : be.getDefender());
@@ -280,7 +282,7 @@ class DamageCalculator {
 			if(Debug.pedantic) printDebug("target spdef = "+def+" (mod: "+defender.spdefMod()+", base spdef = "+defender.getBaseStat("spdef")+")");
 		}
 	
-		//Damage = ( (2*Level+10)/250 * Atk/Def * Base + 2) * Modifier
+		// Damage = ( (2*Level+10)/250 * Atk/Def * Base + 2) * Modifier
 		int damage = (int)(((2f * attacker.getLevel() + 10f) / 250f * atk/def * move.getDamage() + 2f) * modifier);
 		if(Debug.on) printDebug("[DC] damage = [(2 * "+attacker.getLevel()+" + 10) / 250 * "+atk+"/"+def+" * "+move.getDamage()+" + 2] * "+modifier+" = "+damage+" (from: "+move.getName()+")");
 		if(sturdy && defender.hp() == defender.maxhp() && damage >= defender.maxhp()) {

@@ -23,6 +23,7 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 	protected static final int ISSUED_CMD_BAN_LIMIT = 40;
 	protected static StringBuilder help = new StringBuilder("");
 	static {
+		help.append("Advanced chat commands:\n");
 		help.append(CMD_PREFIX+"role [user] - prints an user's role (default: your role).\n");
 		help.append(CMD_PREFIX+"roles - lists all assigned roles.\n");
 		help.append(CMD_PREFIX+"kick <user> - kicks an user out of this server.\n");

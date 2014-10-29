@@ -133,13 +133,17 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		if(advancedChat) {
 			chat = new ChatSystem();
 
-			// FIXME
-			String chatConf = (Meta.LAUNCHED_FROM_JAR
-						? Meta.getDataURL()
-						: Meta.getNetURL()
-					).getPath() + Meta.DIRSEP + "chat.conf";
-			Meta.ensureFileExists(chatConf, Meta.getNetURL().getPath() + Meta.DIRSEP + "chat.conf");
-			chat.loadConfFromFile(chatConf);
+			try {
+				String chatConf = (Meta.LAUNCHED_FROM_JAR
+							? Meta.getDataURL()
+							: Meta.getNetURL()
+						).getPath() + Meta.DIRSEP + "chat.conf";
+				Meta.ensureFileExists(chatConf, Meta.complete2(Meta.NET_DIR) + Meta.DIRSEP + "chat.conf");
+				chat.loadConfFromFile(chatConf);
+			} catch(Exception e) {
+				printDebug("[MultiThreadedServer] Exception while creating chat conf:");
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -269,6 +273,15 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		s.println("- connectPolicy: "+connectPolicy);
 		s.println("- welcomeMessage: "+welcomeMessage);
 		s.println("- advancedChat: "+advancedChat);
+	}
+
+	@Override
+	public void printConfiguration() {
+		super.printConfiguration();
+		printMsg("- maxClients: "+maxClients);
+		printMsg("- connectPolicy: "+connectPolicy);
+		printMsg("- welcomeMessage: "+welcomeMessage);
+		printMsg("- advancedChat: "+advancedChat);
 	}
 
 	protected static void printUsage() {

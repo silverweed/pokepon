@@ -225,7 +225,14 @@ public class BasicServer implements Server {
 	}
 
 	public void printConfiguration() {
-		printConfiguration(System.out);
+		printMsg("························");
+		printMsg("· Server configuration ·");
+		printMsg("························");
+		printMsg("- address: "+myAddress);
+		printMsg("- port: "+port);
+		printMsg("- serverName: "+serverName);
+		printMsg("- verbosity: "+verbosity);
+		printMsg("- confFile: "+confFile);
 	}
 
 	/** Read command-line arguments and process all those that should be processed

@@ -163,13 +163,35 @@ class GUILauncher extends JFrame {
 				c.gridwidth = 1;
 				msgPanel.add(changeConfBtn, c);
 
-				c.gridwidth = 2;
+				c.gridwidth = 3;
 				c.gridx = 1;
 				msgPanel.add(confPath, c);
 
 				final JTextField srvIp = new JTextField(20), srvPort = new JTextField(6),
 						srvName = new JTextField(20), srvMaxClients = new JTextField(4),
-						srvDB = new JTextField(25);
+						srvDB = new JTextField(25), srvMaxBattles = new JTextField(4),
+						srvMOTD = new JTextField(25), srvDefaultNick = new JTextField(20);
+				final ButtonGroup chatBGroup = new ButtonGroup();
+				final JRadioButton chatOn = new JRadioButton("ON"), chatOff = new JRadioButton("OFF"),
+						chatDefault = new JRadioButton("Use default");
+				// advanced chat
+				chatBGroup.add(chatOn);
+				chatBGroup.add(chatOff);
+				chatBGroup.add(chatDefault);
+				chatDefault.setSelected(true);
+				c.gridwidth = 1;
+				c.gridx = 0;
+				++c.gridy;
+				c.anchor = GridBagConstraints.EAST;
+				msgPanel.add(new JLabel("Enable chat roles: "), c);
+				++c.gridx;
+				c.gridwidth = 1;
+				c.anchor = GridBagConstraints.WEST;
+				msgPanel.add(chatOn, c);
+				++c.gridx;
+				msgPanel.add(chatOff, c);
+				++c.gridx;
+				msgPanel.add(chatDefault, c);
 				// ip
 				c.gridwidth = 1;
 				++c.gridy;
@@ -178,7 +200,7 @@ class GUILauncher extends JFrame {
 				msgPanel.add(new JLabel("IP: "), c);
 				srvPort.setText(""+BasicServer.DEFAULT_PORT);
 				c.gridx = 1;
-				c.gridwidth = 2;
+				c.gridwidth = 3;
 				c.anchor = GridBagConstraints.WEST;
 				msgPanel.add(srvIp, c);
 				try {
@@ -191,11 +213,11 @@ class GUILauncher extends JFrame {
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("Port: "), c);
 				c.gridx = 1;
-				c.gridwidth = 2;
+				c.gridwidth = 3;
 				c.anchor = GridBagConstraints.WEST;
 				msgPanel.add(srvPort, c);
 				++c.gridy;
-				c.gridwidth = 3;
+				c.gridwidth = 4;
 				msgPanel.add(new JLabel("<html>(<i>Optional parameters</i>)</html>"), c);
 				// name
 				c.gridx = 0;
@@ -204,7 +226,7 @@ class GUILauncher extends JFrame {
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("Name: "), c);
 				c.gridx = 1;
-				c.gridwidth = 2;
+				c.gridwidth = 3;
 				c.anchor = GridBagConstraints.WEST;
 				msgPanel.add(srvName, c);
 				// max clients
@@ -214,9 +236,19 @@ class GUILauncher extends JFrame {
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("Max clients: "), c);
 				c.gridx = 1;
-				c.gridwidth = 2;
+				c.gridwidth = 3;
 				c.anchor = GridBagConstraints.WEST;
 				msgPanel.add(srvMaxClients, c);
+				// max battles
+				c.gridx = 0;
+				++c.gridy;
+				c.gridwidth = 1;
+				c.anchor = GridBagConstraints.EAST;
+				msgPanel.add(new JLabel("Max battles: "), c);
+				c.gridx = 1;
+				c.gridwidth = 3;
+				c.anchor = GridBagConstraints.WEST;
+				msgPanel.add(srvMaxBattles, c);
 				// database
 				c.gridx = 0;
 				++c.gridy;
@@ -224,9 +256,29 @@ class GUILauncher extends JFrame {
 				c.anchor = GridBagConstraints.EAST;
 				msgPanel.add(new JLabel("Database: "), c);
 				c.gridx = 1;
-				c.gridwidth = 2;
+				c.gridwidth = 3;
 				c.anchor = GridBagConstraints.WEST;
 				msgPanel.add(srvDB, c);
+				// welcome message
+				c.gridx = 0;
+				++c.gridy;
+				c.gridwidth = 1;
+				c.anchor = GridBagConstraints.EAST;
+				msgPanel.add(new JLabel("Welcome msg: "), c);
+				c.gridx = 1;
+				c.gridwidth = 3;
+				c.anchor = GridBagConstraints.WEST;
+				msgPanel.add(srvMOTD, c);
+				// default users nick
+				c.gridx = 0;
+				++c.gridy;
+				c.gridwidth = 1;
+				c.anchor = GridBagConstraints.EAST;
+				msgPanel.add(new JLabel("Default nick: "), c);
+				c.gridx = 1;
+				c.gridwidth = 3;
+				c.anchor = GridBagConstraints.WEST;
+				msgPanel.add(srvDefaultNick, c);
 
 				int sel = JOptionPane.showOptionDialog(
 						GUILauncher.this,
@@ -269,8 +321,14 @@ class GUILauncher extends JFrame {
 						opts.serverName(srvName.getText());
 					if(srvMaxClients.getText().length() > 0)
 						opts.maxClients(Integer.parseInt(srvMaxClients.getText()));
+					if(srvMaxBattles.getText().length() > 0)
+						opts.maxBattles(Integer.parseInt(srvMaxBattles.getText()));
 					if(srvDB.getText().length() > 0)
 						opts.database(srvDB.getText());
+					if(srvMOTD.getText().length() > 0)
+						opts.welcomeMessage(srvMOTD.getText());
+					if(srvDefaultNick.getText().length() > 0)
+						opts.defaultNick(srvDefaultNick.getText());
 					if(!confPath.getText().equals(BasicServer.DEFAULT_CONF_FILE))
 						opts.confFile(confPath.getText());
 					

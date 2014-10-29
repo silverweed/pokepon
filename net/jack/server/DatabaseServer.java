@@ -306,6 +306,12 @@ public class DatabaseServer extends MultiThreadedServer {
 	}
 
 	@Override
+	public void printConfiguration() {
+		super.printConfiguration();
+		printMsg("- database: "+dbURL);
+	}
+
+	@Override
 	public void initialize() throws IOException {
 		super.initialize();
 		if(advancedChat)

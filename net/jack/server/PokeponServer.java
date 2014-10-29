@@ -68,7 +68,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 
 		consoleHeader(new String[]{" "+serverName.toUpperCase()+" "," running on: "+myAddress+":"+port+" "},'*');
 		printConfiguration();
-		consoleMsg("························");
+		printMsg("························");
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
 			Socket newClient = accept();
@@ -410,7 +410,12 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 
 	/** Creates a default conf file from net/server.conf (if not existing) */
 	public static void createDefaultConf() {
-		Meta.ensureFileExists(confFile, Meta.complete2(Meta.NET_DIR)+"/server.conf");
+		try {
+			Meta.ensureFileExists(confFile, Meta.complete2(Meta.NET_DIR)+"/server.conf");
+		} catch(Exception e) {
+			printDebug("[PokeponServer] Exception while creating server.conf:");
+			e.printStackTrace();
+		}
 	}
 
 	/** Ensures conf file exists, reads pre config from CLI, config from conf file and CLI config;
@@ -435,9 +440,15 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	}
 
 	@Override
-	public void printConfiguration(PrintStream s) {
+	public void printConfiguration(final PrintStream s) {
 		super.printConfiguration(s);
 		s.println("- maxBattles: "+maxBattles);
+	}
+
+	@Override
+	public void printConfiguration() {
+		super.printConfiguration();
+		printMsg("- maxBattles: "+maxBattles);
 	}
 
 	public static void main(String[] args) {

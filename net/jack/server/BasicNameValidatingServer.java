@@ -83,6 +83,14 @@ public class BasicNameValidatingServer extends BasicServer implements NameValida
 		s.println("- forbiddenNames: "+forbiddenNames);
 	}
 
+	@Override
+	public void printConfiguration() {
+		super.printConfiguration();
+		printMsg("- minNickLen: "+minNickLen);
+		printMsg("- maxNickLen: "+maxNickLen);
+		printMsg("- forbiddenNames: "+forbiddenNames);
+	}
+
 	/** You can put strings (even regexes) in this list in order to forbid nicknames */
 	protected Set<String> forbiddenNames = new HashSet<String>();
 }

@@ -31,7 +31,7 @@ public class MessageProxy {
 		_defaultCloseOperation = defaultCloseOperation;
 		pane.setEditable(false);
 		pane.setContentType("text/html");
-		pane.setFont(new Font(Font.SANS_SERIF,Font.PLAIN,GUIGlobals.FONT_SIZE));
+		pane.setFont(new Font(Font.MONOSPACED,Font.PLAIN,GUIGlobals.FONT_SIZE));
 		pane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,Boolean.TRUE);
 		doc = (HTMLDocument)pane.getStyledDocument();
 		scrollbar = new JScrollPane(pane);

@@ -64,7 +64,6 @@ class TeamRetreiver implements Callable<Boolean> {
 						return;
 					}
 					reading = true;
-					//c.sendMsg(CMN_PREFIX+"next");
 					continue;
 				}
 				if(!reading) {
@@ -82,7 +81,6 @@ class TeamRetreiver implements Callable<Boolean> {
 					continue;
 				}
 				teamDealer.parseSaveDataLine(line.split(" ",2)[1],p.getTeam());	
-				//c.sendMsg(CMN_PREFIX+"next");
 			}
 			// we should return via endteam
 			result = false;
@@ -90,6 +88,7 @@ class TeamRetreiver implements Callable<Boolean> {
 			printDebug("Error retreiving team: "+e);
 			result = false;
 		} finally {
+			// return incoming messages' control to ServerConnection
 			c.unlockReading();
 		}
 	}

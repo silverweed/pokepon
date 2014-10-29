@@ -78,7 +78,7 @@ public class BattleTest implements TestingClass {
 
 		Battle battle = new Battle(p[0],p[1]);
 		
-		battle.start();
+		//battle.start();
 
 		System.exit(0);
 		//p1.getPony(0).printInfo();

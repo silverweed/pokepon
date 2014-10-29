@@ -9,7 +9,7 @@ to which several players can connect with their Clients and battle each other.
 Download
 -----------------------------------------------------
 If you just want the executable JAR file, use this download link:
-<a href='http://inle.freeserver.me/pokepon/downloads/pokepon-0.01.jar'>Poképon 0.01</a>
+[Poképon 0.01]('http://inle.freeserver.me/pokepon/downloads/pokepon-0.01.jar')
 (warning: the pre-packaged game probably won't be the latest version).
 
 Launching the game
@@ -17,7 +17,7 @@ Launching the game
 Being written in Java, Poképon is compatible with any Java-endued OS, like
 Linux, Windows and MacOS.
 The simplest way to launch the game is to double-click pokepon.jar,
-or to type in some terminal <code>java -jar /path/to/pokepon.jar</code>.
+or to type in some terminal `java -jar /path/to/pokepon.jar`.
 In case the game doesn't start upon double-clicking, try right-clicking
 it and select "Open with Java JDK 7" or something alike.
 Java 1.7 or later is required to play Poképon.
@@ -49,13 +49,14 @@ Building
 You don't need to build anything if you just wanna play, but in case you
 want to do some experimentation, get a JDK 1.7 or later and ensure that
 the pokepon parent directory is in your CLASSPATH environment variable.
-<code>javac "@files.txt"</code> or <code>make</code> (if you have Make
-installed of course) can be used to compile all the game classes.
+`javac "@files.txt"` or `make` (if you have Make installed of course) 
+can be used to compile all the game classes.
 
-An utility <code>create_pokepon_jar.sh</code> can be found in data/
+An utility `create_pokepon_jar.sh` can be found in `data/`
 but can only be used within a Unix shell. The script should be launched
 from the parent directory of the pokepon root. For example:
-<pre>$ pwd
+```bash
+$ pwd
 /path/to/pokepon
 $ cd ..
 $ ls
@@ -64,7 +65,7 @@ $ bash ./pokepon/data/create_pokepon_jar.sh
 ... (some output from jar)
 $ ls
 pokepon/   pokepon.jar
-</pre>
+```
 
 Server Setup
 -----------------------------------------------------
@@ -77,20 +78,26 @@ simply click "OK" without touching it (the only thing you may be forced to
 change is the server IP, in case the game cannot guess the correct one).
 
 As an alternative, the server can be started in batch mode via the command
-<code>java -jar /path/to/pokepon.jar server [opts]</code>
+```bash
+java -jar /path/to/pokepon.jar server [opts]
+```
 
-(The flag <code>-h</code> can be used to obtain a quick summary of the server
+(The flag `-h` can be used to obtain a quick summary of the server
 options).
 
 If the server was started from the JAR package, the configuration file
 it will use can be found in:
 * Linux / Mac
-<pre>~/.pokepon/server.conf</pre>
+```
+~/.pokepon/server.conf
+```
 
 * Windows
-<pre>%APPDATA%/pokepon/server.conf</pre>
+```
+%APPDATA%/pokepon/server.conf
+```
 
-Else it will use <code>pokepon/net/server.conf</code>.
+Else it will use `pokepon/net/server.conf`.
 
 The configuration file itself contains explanation about the possible options.
 
@@ -100,9 +107,9 @@ and then hashed again with a random salt by the server, so don't attempt to
 change them manually: if you need to change an user's password, delete the
 record altogether and re-register).
 If the server was started from the JAR package, the database file can be found in
-the same directory as the conf file (<code>~/.pokepon/server.db</code> or
-</code>%APPDATA%/pokepon/server.db</code>), else it will reside in 
-<code>pokepon/data/server.db</code>).
+the same directory as the conf file (`~/.pokepon/server.db` or
+`%APPDATA%/pokepon/server.db`), else it will reside in 
+`pokepon/data/server.db`).
 
 Both the configuration file and the database will be recreated every time
 the server cannot find them in the expected locations, so if you want a
@@ -117,53 +124,69 @@ version of the game, which is slightly faster accessing Java classes than the
 JAR. In that case, these are the instructions to follow:
 * Download the game, either the Zip archive or using Git. The latter is preferred,
 since it'll be much easier to grab the updates:
-<pre>git clone https://github.com/silverweed/pokepon.git</pre>
+```bash
+git clone https://github.com/silverweed/pokepon.git
+```
 * Set the CLASSPATH environment variable to the directory containing the pokepon
 root directory. E.g. if you downloaded the repository in /home/me/, do:
-<pre>export CLASSPATH=/home/me  # only valid on *nix systems</pre>
+```bash
+export CLASSPATH=/home/me  # only valid on *nix systems
+```
 * Compile the package (you'll need JDK 1.7 or later):
-<pre>javac "@files.txt" # or 'make', if you have it installed.</pre>
+```bash
+javac "@files.txt" # or 'make', if you have it installed.
+```
 * Start the server <b>as an unprivileged user</b> with:
-<pre>java pokepon.net.jack.server.PokeponServer [opts]</pre>
+```bash
+java pokepon.net.jack.server.PokeponServer [opts]
+```
 
-<b>Tips</b>
+### Tips
 * Use the default port: it'll be easier for clients to connect to your server if they
 don't have to remember a custom port.
-* To keep a server log (on *nix):
-<pre>java pokepon.net.jack.server.PokeponServer [opts] &> server.log
+* To keep a server log (on \*nix):
+```bash
+java pokepon.net.jack.server.PokeponServer [opts] &> server.log
+```
 -OR-
+```bash
 java pokepon.net.jack.server.PokeponServer [opts] |& tee server.log
-</pre>
-* It's not recommended setting the <code>max-clients</code> option to a higher value than the default one
+```
+* It's not recommended setting the `max-clients` option to a higher value than the default one
 * Isolate the server as much as possible: being in alpha stage, there may be security issues or unknown
-server exploits. Using a Virtual Machine or <a href='https://docker.com'>a Docker container</a> is a
-good security measure. For the latter, a Dockerfile for a PokeponServer is available in <code>data/docker</code> 
-(see the instruction in <a href='https://github.com/silverweed/pokepon/blob/master/data/docker/README.md'>
-data/docker/README.md</a>)
+server exploits. Using a Virtual Machine or [a Docker container]('https://docker.com') is a
+good security measure. For the latter, a Dockerfile for a PokeponServer is available in `data/docker` 
+(see the instruction in [data/docker/README.md]('https://github.com/silverweed/pokepon/blob/master/data/docker/README.md'))
 
 
 How to connect
 --------------------------------------------------------
 To connect to a running Poképon Server start the Client, either from
 the graphical launcher or issuing the command 
-<code>java -jar /path/to/pokepon.jar client &lt;serverIP&gt;</code>
+```bash
+java -jar /path/to/pokepon.jar client &lt;serverIP&gt;
+```
 
 The client is effectively a chat endued with some extra features, most notably
 a Teambuilder, which can be used to create, save, load and edit teams.
 
 The teams are saved as text files in the following directory:
 * Linux / Mac
-<pre>~/.pokepon/teams</pre>
+```
+~/.pokepon/teams
+```
 
 * Windows
-<pre>%APPDATA%/pokepon/teams</pre>
+```
+%APPDATA%/pokepon/teams
+```
 
 These text files can be safely edited as long as you use the correct syntax
 (which you can infer from an auto-generated save file). If you like the Vim
 editor, syntax highlighting files are available in the game repository, 
 under data/vim.
 
-Protip: the <code>/help</code> command can be used to obtain a list of the
+Protip: the `/help` command can be used to obtain a list of the
 available chat commands. 
 
 Battling
@@ -193,7 +216,7 @@ specifications in a text area.
 At the moment, this interface is not very user-friendly, but it's not too
 complicated either:
 
-a 'rule' is a line with the format <code>X:name</code>, where 'X' is a letter
+a 'rule' is a line with the format `X:name`, where 'X' is a letter
 specifying what kind of restriction you're applying (whether you're banning
 a pony, a move, an item, an ability, a combo or if you're specifying a special
 format), and 'name' is the name of the pony/item/etc you're banning.
@@ -206,16 +229,16 @@ The letters are as follows:
 * S (or nothing): specify a special format (see later)
 
 Using one of the first 4 letters is immediate: if, for instance, you want to ban
-Twilight Sparkle, just add the line <code>p:Twilight Sparkle</code> followed by
+Twilight Sparkle, just add the line `p:Twilight Sparkle` followed by
 a newline. Use the exact number of spaces in the pony/item/etc's name.
 
 Banning a 'combo' means you specify a set of 'simple rules' (i.e. a rule using one
 of the first 4 letters), and their intersection gets banned. For instance, you may
 want to prevent players to use Princess Celestia with the move Friendship Cannon.
 The format of a combo restriction rule is:
-<pre>c:{X:name, Y:name, ...}</pre>
+`c:{X:name, Y:name, ...}`
 In the case described above, you should then insert the line: 
-<code>c:{p:Princess Celestia, m:Friendship Cannon}</code>
+`c:{p:Princess Celestia, m:Friendship Cannon}`
 
 A 'special format' is a predefined rule which cannot be described by the simple
 rules. The available special formats are:
@@ -234,6 +257,11 @@ see TODO); if you find a new one, you're encouraged to report it in the 'issues'
 section on GitHub (https://github.com/silverweed/Pokepon/issues). If you don't
 want to get a GitHub account, please mail me at silverweed1991@gmail.com.
 
+Chat System
+-----------------------------------------------------------------
+For details about the embedded chat system, see 
+[here]('https://github.com/silverweed/pokepon/blob/master/net/jack/chat/README.md')
+
 License
 -----------------------------------------------------------------
 Poképon is free software distributed under the GNU General Public License
@@ -245,7 +273,7 @@ Credits
 -----------------------------------------------------------------
 * The currently used game sprites are mostly taken from Desktop Ponies
 * Several game fx are from 
-  <a href='https://github.com/zarel/Pokemon-Showdown'>Pokémon Showdown</a>
+  [Pokémon Showdown]('https://github.com/zarel/Pokemon-Showdown')
 * Other credits are reported in data/credits.txt
 * Special thanks to Bram Moolenaar for creating Vim, which I used for
   writing the entire Poképon code.

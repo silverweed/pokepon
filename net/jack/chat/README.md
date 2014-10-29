@@ -10,9 +10,9 @@ which allows differentiating clients' capabilities in the chat.
 Chat Roles
 ---------------------------------------------------
 There are (currently) three chat roles:
-1. USER
-2. MODERATOR
-3. ADMIN
+1. USER  
+2. MODERATOR  
+3. ADMIN  
 
 By default, *USERs* have the thinnest set of permissions, while *ADMIN* has 
 the most extended (usually, all permissions).

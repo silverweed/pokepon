@@ -9,7 +9,7 @@ which allows differentiating clients' capabilities in the chat.
 
 Chat Roles
 ---------------------------------------------------
-There are (currently) three chat roles:
+There are (currently) three chat roles:  
 1. USER  
 2. MODERATOR  
 3. ADMIN  

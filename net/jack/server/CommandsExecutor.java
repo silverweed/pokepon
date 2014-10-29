@@ -24,7 +24,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 	protected static final int ISSUED_CMD_BAN_LIMIT = 40;
 	protected static StringBuilder help = new StringBuilder("");
 	static {
-		help.append("Available commands:\n");
+		help.append("Commands:\n");
 		help.append(CMD_PREFIX+"help - get this help\n");
 		help.append(CMD_PREFIX+"nick <nick> [passwd] - change your nick (password is required if nick is registered).\n");
 		help.append(CMD_PREFIX+"register <nick> <passwd> - register nick in server database.\n");

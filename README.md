@@ -9,7 +9,7 @@ to which several players can connect with their Clients and battle each other.
 Download
 -----------------------------------------------------
 If you just want the executable JAR file, use this download link:
-[Poképon 0.01]('http://inle.freeserver.me/pokepon/downloads/pokepon-0.01.jar')
+[Poképon 0.01](http://inle.freeserver.me/pokepon/downloads/pokepon-0.01.jar)
 (warning: the pre-packaged game probably won't be the latest version).
 
 Launching the game
@@ -154,9 +154,9 @@ java pokepon.net.jack.server.PokeponServer [opts] |& tee server.log
 ```
 * It's not recommended setting the `max-clients` option to a higher value than the default one
 * Isolate the server as much as possible: being in alpha stage, there may be security issues or unknown
-server exploits. Using a Virtual Machine or [a Docker container]('https://docker.com') is a
+server exploits. Using a Virtual Machine or [a Docker container](https://docker.com) is a
 good security measure. For the latter, a Dockerfile for a PokeponServer is available in `data/docker` 
-(see the instruction in [data/docker/README.md]('https://github.com/silverweed/pokepon/blob/master/data/docker/README.md'))
+(see the instruction in [data/docker/README.md](https://github.com/silverweed/pokepon/blob/master/data/docker/README.md))
 
 
 How to connect
@@ -260,7 +260,7 @@ want to get a GitHub account, please mail me at silverweed1991@gmail.com.
 Chat System
 -----------------------------------------------------------------
 For details about the embedded chat system, see 
-[here]('https://github.com/silverweed/pokepon/blob/master/net/jack/chat/README.md')
+[here](https://github.com/silverweed/pokepon/blob/master/net/jack/chat/README.md)
 
 License
 -----------------------------------------------------------------
@@ -273,7 +273,7 @@ Credits
 -----------------------------------------------------------------
 * The currently used game sprites are mostly taken from Desktop Ponies
 * Several game fx are from 
-  [Pokémon Showdown]('https://github.com/zarel/Pokemon-Showdown')
+  [Pokémon Showdown](https://github.com/zarel/Pokemon-Showdown)
 * Other credits are reported in data/credits.txt
 * Special thanks to Bram Moolenaar for creating Vim, which I used for
   writing the entire Poképon code.

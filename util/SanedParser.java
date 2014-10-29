@@ -54,6 +54,5 @@ public class SanedParser extends Parser {
 		} 
 
 		if(Debug.on) printDebug("Parsing finished.");
-		
 	}
 }

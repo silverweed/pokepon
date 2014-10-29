@@ -24,7 +24,6 @@ public class CLITeamBuilder extends TeamBuilder {
 		initializeCommands();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void buildTeam() {
 		
 		consoleMsg("@----------------------------------------------------------------@");
@@ -159,7 +158,6 @@ public class CLITeamBuilder extends TeamBuilder {
 		cmd.put("?","get this help");
 		cmd.put("exit","");
 		cmd.put("quit","");
-		if(Debug.on) cmd.put("args","show parser arguments (debug)");
 	}
 
 	/** Lists all classes derived from Pony in PONY_DIR */
@@ -184,21 +182,6 @@ public class CLITeamBuilder extends TeamBuilder {
 			return;
 		}
 
-		/* creating new parser to parse inputs */
-		Map<String,Integer> commands = new LinkedHashMap<String,Integer>();
-		commands.put("name",1);
-		commands.put("level",1);
-		commands.put("move",1);
-		commands.put("nature",0);
-		commands.put("ability",0);
-		commands.put("iv",2);
-		commands.put("ev",2);
-		commands.put("happiness",1);
-		commands.put("info",0);
-		commands.put("?",0);
-		commands.put("done",-1);
-		Parser parser2 = new SanedParser(commands);
-		
 		consoleMsg("\n------------------------------------------");
 		consoleMsg("Now editing pony >> "+pony.getFullName()+" <<");
 		consoleMsg("------------------------------------------");
@@ -217,11 +200,11 @@ public class CLITeamBuilder extends TeamBuilder {
 		consoleFormat("  %-10s\n------------------------------------------\n","done");
 		
 		do {
-			parser2.clear();
-			switch(promptPlayer(parser2,commands,"[editing "+pony.getName()+"]")) {
+			editParser.clear();
+			switch(promptPlayer(editParser,commands,"[editing "+pony.getName()+"]")) {
 				case 0:	{ //name
 					StringBuilder sb = new StringBuilder("");
-					for(String s : parser2.getArgs()) {
+					for(String s : editParser.getArgs()) {
 						sb.append(s);
 					}
 					pony.setNickname(sb.toString());	//note that also accepts whitespaces 
@@ -230,7 +213,7 @@ public class CLITeamBuilder extends TeamBuilder {
 				}
 				case 1:	//level
 					try {
-						pony.setLevel(Integer.parseInt(parser2.popFirstArg()));
+						pony.setLevel(Integer.parseInt(editParser.popFirstArg()));
 					} catch(Exception e) {
 						printDebug("Caught exception: "+e);
 					}
@@ -239,7 +222,7 @@ public class CLITeamBuilder extends TeamBuilder {
 				case 2:	{ //move
 					int num = -1;
 					try {
-						num = Integer.parseInt(parser2.popFirstArg()) - 1;
+						num = Integer.parseInt(editParser.popFirstArg()) - 1;
 					} catch(Exception e) {
 						printDebug("Caught exception: "+e);
 					}
@@ -336,14 +319,14 @@ public class CLITeamBuilder extends TeamBuilder {
 					break;
 				}
 				case 5:	{ //IV
-					String iv = parser2.popFirstArg();
+					String iv = editParser.popFirstArg();
 					if(!Arrays.asList(Pony.statNames()).contains(iv)) {
 						consoleMsg("Invalid argument: "+iv);
 						return;
 					}
 					int num2 = 0;
 					try {
-						num2 = Integer.parseInt(parser2.popFirstArg());
+						num2 = Integer.parseInt(editParser.popFirstArg());
 					} catch(Exception e) {
 						printDebug("Caught exception while parsing IV args: "+e);
 					}
@@ -353,14 +336,14 @@ public class CLITeamBuilder extends TeamBuilder {
 					break;
 				}
 				case 6: { //EV
-					String ev = parser2.popFirstArg();
+					String ev = editParser.popFirstArg();
 					if(!Arrays.asList(Pony.statNames()).contains(ev)) {
 						consoleMsg("Invalid argument: "+ev);
 						return;
 					}
 					int num3 = 0;
 					try {
-						num3 = Integer.parseInt(parser2.popFirstArg());
+						num3 = Integer.parseInt(editParser.popFirstArg());
 					} catch(Exception e) {
 						printDebug("Caught exception while parsing EV args: "+e);
 					}
@@ -373,7 +356,7 @@ public class CLITeamBuilder extends TeamBuilder {
 				}
 				case 7:	//happiness
 					try {
-						pony.setHappiness(Integer.parseInt(parser2.popFirstArg()));
+						pony.setHappiness(Integer.parseInt(editParser.popFirstArg()));
 					} catch(Exception e) {
 						printDebug("Caught exception: "+e);
 					}
@@ -403,7 +386,6 @@ public class CLITeamBuilder extends TeamBuilder {
 		} while(true);
 	}
 
-	/* More general-purpose code used by the class */
 	/** Prints a given Map in a certain fashion. */
 	private void printCommands(Map<String,String> cmds) {
 		for(Map.Entry<String,String> entry : cmds.entrySet()) {
@@ -489,8 +471,23 @@ public class CLITeamBuilder extends TeamBuilder {
 		}
 	}
 		
+	private static Map<String,Integer> commands = new LinkedHashMap<String,Integer>();
+	static {
+		commands.put("name",1);
+		commands.put("level",1);
+		commands.put("move",1);
+		commands.put("nature",0);
+		commands.put("ability",0);
+		commands.put("iv",2);
+		commands.put("ev",2);
+		commands.put("happiness",1);
+		commands.put("info",0);
+		commands.put("?",0);
+		commands.put("done",-1);
+	}
 	private Scanner scan;
 	private Map<String,String> cmd = new LinkedHashMap<String,String>();
-	CLITBParser parser = new CLITBParser();
+	private CLITBParser parser = new CLITBParser();
 	private TeamDealer teamDealer = new TeamDealer();
+	private Parser editParser = new SanedParser(commands);
 }

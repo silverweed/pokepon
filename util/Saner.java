@@ -38,16 +38,20 @@ public class Saner {
 		return sane(str,knownClasses);
 	}
 
+	public static String sane(String str,Iterable<String> known) {
+		return sane(str, known, false);
+	}
+
 	/** @param str The string to convert in a known one 
 	 * @param known A class providing an iterator over known strings (typically, a Set)
-	 * @param skipTryZero (Optional): skip try #0 (i.e. confronting case-insensitive-ly)
+	 * @param skipTryZero (Optional): skip try #0 (i.e. confronting case-insensitive-ly); default: false
 	 */
-	public static String sane(String str,Iterable<String> known,boolean... skipTryZero) {
-		if(Debug.pedantic) printDebug("Called sane("+str+", "+known+", "+(skipTryZero.length>0 ? skipTryZero[0] : "")+")");
-		if(skipTryZero.length > 0 && skipTryZero[0] == true) {
+	public static String sane(String str,Iterable<String> known,boolean skipTryZero) {
+		if(Debug.pedantic) printDebug("Called sane("+str+", "+known+", "+skipTryZero+")");
+		if(!skipTryZero) {
 			/* TRY #0: Simply confront not case-sensitive-ly */
 			for(String s : known) {
-				if(Debug.on) printDebugnb("(Try#0): Comparing "+s+" to "+str+" ...");
+				if(Debug.pedantic) printDebugnb("(Try#0): Comparing "+s+" to "+str+" ...");
 				if(s.equalsIgnoreCase(str)) {
 					if(Debug.pedantic) printDebug("Matched.");
 					else if(Debug.on) printDebug("Matched "+s+" with "+str+" at Try#0");

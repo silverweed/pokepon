@@ -46,17 +46,34 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	
 	public static URL EMPTY_TOKEN_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
 	public static URL UNKNOWN_PONY_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
-	public static final String[] BG_IMG_URL = new String[] {
-							"equestria_background_by_cl0setbr0ny.png",
-							"equestria_at_night_by_darcowalways.png"
-							};
+	public static final String[] BG_IMG_URL = {
+						"equestria_background_by_cl0setbr0ny.png",
+						"equestria_at_night_by_darcowalways.png"
+						};
+	// Pelipper ftw
 	public static final URL[] PLACEHOLDER_URL = {
-							BattlePanel.class.getResource(Meta.complete2(Meta.SPRITE_DIR)+"/Placeholder/stand_left.gif"),
-							BattlePanel.class.getResource(Meta.complete2(Meta.SPRITE_DIR)+"/Placeholder/stand_right.gif")
-							};
+						BattlePanel.class.getResource(Meta.complete2(Meta.SPRITE_DIR)+"/Placeholder/stand_left.gif"),
+						BattlePanel.class.getResource(Meta.complete2(Meta.SPRITE_DIR)+"/Placeholder/stand_right.gif")
+						};
 
 	/** Type of event for the appendEvent method */
-	private static enum EventType { CHAT, JOIN, LEAVE, RULE, SWITCH, MOVE, TURN, BATTLE, BOOST, EMPHASIZED, ERROR, CRITICAL, STATUS, HTML, INFO };
+	private static enum EventType { 
+					CHAT,
+					JOIN,
+					LEAVE,
+					RULE,
+					SWITCH,
+					MOVE,
+					TURN,
+					BATTLE,
+					BOOST,
+					EMPHASIZED,
+					ERROR,
+					CRITICAL,
+					STATUS,
+					HTML,
+					INFO 
+					};
 	/** Type of result for the resultAnim method */
 	private static enum ResultType { GOOD, BAD, NEUTRAL };
 
@@ -89,6 +106,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private static final Integer HPBAR_LAYER = 5;
 	private static final Integer MESSAGE_LAYER = 6;
 
+	/// INSTANCE FIELDS ///
 	private Player p1;
 	private Player p2;
 	/** if true, the TeamMenuPanel won't spoil opponent ponies */
@@ -101,6 +119,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private BattleLogger battleLogger;
 	/** ID used by both the client and the server to uniquely identify the battle */
 	private String battleID;
+	/** The team menu shown in the side bars */
 	private TeamMenuPanel teamMenu1;
 	private TeamMenuPanel teamMenu2;
 	private volatile boolean battleStarted;
@@ -138,7 +157,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private JTextPane eventA = new JTextPane();
 	/** HTMLDocument of eventA */
 	private HTMLDocument eventD;
-	//private JTextArea eventA = new JTextArea(40,40);
 	/** Chat input text field */
 	private JTextField inputF = new JTextField(40);
 	// sprites
@@ -161,10 +179,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	 */
 	private Color hpBarTxtColor = Color.BLACK;
 	// hazards
-	/** hazards.get(0): on ally side; [1]: on opponent side */
+	/** hazards[0]: on ally side; [1]: on opponent side */
 	private List<Map<String,Integer>> hazards = new ArrayList<Map<String,Integer>>();
+	/** map of (lists of) hazard tokens; e.g SharpNails may have a list of up to 3 tokens. */
 	private List<Map<String,List<JLabel>>> hazardTokens = new ArrayList<Map<String,List<JLabel>>>();
-	// BGM
+	/** Looper handling the BGM */
 	private Looper looper;
 	// resultAnim delayers
 	ExecutorService resultAnimExec = Executors.newSingleThreadExecutor();
@@ -174,6 +193,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	// persistent effects
 	/** array (0: ally, 1: opp) of maps [peName, peSprite] */
 	private List<Map<String,JLabel>> persEffectsSprite = new ArrayList<>();
+	/** The format of this battle */
 	private String format;
 
 	/** This gets called by all the constructors to initialize some objects which cannot be constructed inline */
@@ -246,7 +266,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						(int)(screenSize.height*0.75)));
 		}
 		try {
-			//int rand = (new Random()).nextInt(BG_IMG_URL.length);
 			if(bgNum < 0) {
 				bgNum = 0;
 				printDebug("[BP.initialize()] bgNum is negative! Changing it to 0.");
@@ -359,12 +378,15 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 	}
 
+	/** @return A Point with the coordinates of the ally sprite */
 	private Point allyLocation() {
 		if(allySprite != null)
 			return new Point(FIELD_X + 30, FIELD_HEIGHT - allySprite.getHeight() - 30);
 		else
 			return new Point(FIELD_X + 30, FIELD_HEIGHT - 130);
 	}
+
+	/** @return A Point with the coordinates of the opponent sprite */
 	private Point oppLocation() {
 		if(oppSprite != null)
 			return new Point(FIELD_WIDTH - FIELD_X - oppSprite.getWidth() - 30, 30);
@@ -372,13 +394,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			return new Point(FIELD_WIDTH - FIELD_X - 130, 30);
 	}
 
-	private Point allyLocation(JLabel sprite) {
+	private Point allyLocation(final JLabel sprite) {
 		if(sprite != null && sprite.getIcon() != null)
 			return new Point(FIELD_X + 30, FIELD_HEIGHT - sprite.getIcon().getIconHeight() - 30);
 		else
 			return new Point(FIELD_X + 30, FIELD_HEIGHT - 130);
 	}
-	private Point oppLocation(JLabel sprite) {
+	private Point oppLocation(final JLabel sprite) {
 		if(sprite != null && sprite.getIcon() != null)
 			return new Point(FIELD_WIDTH - FIELD_X - sprite.getIcon().getIconWidth() - 30, 30);
 		else
@@ -399,7 +421,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				setOpponentBounds(sprite);
-				if(Debug.pedantic) printDebug("oppSide: "+sprite.getBounds()+"");
+				if(Debug.pedantic) printDebug("oppSide: "+sprite.getBounds());
 				fieldP.add(sprite,PONY_LAYER);
 				oppSprite = new TransparentLabel(sprite);
 				oppSprite.addMouseListener(new PonySpriteListener(false));
@@ -435,7 +457,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				setAllyBounds(sprite);
-				if(Debug.pedantic) printDebug("allySide: "+sprite.getBounds()+"");
+				if(Debug.pedantic) printDebug("allySide: "+sprite.getBounds());
 				fieldP.add(sprite,PONY_LAYER);
 				allySprite = new TransparentLabel(sprite);
 				allySprite.addMouseListener(new PonySpriteListener(true));
@@ -600,7 +622,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				return;
 			}
 			showBottomAlert("Choose a pony to switch in");
-			StringBuilder sb = new StringBuilder("<font color=#40576A size=3><b>"+p1.getName()+"'s team:</b><br><span style=\"color:#445566;display:block;\">");
+			StringBuilder sb = new StringBuilder("<font color=#40576A size=3><b>"+p1.getName()+
+				"'s team:</b><br><span style=\"color:#445566;display:block;\">");
 			for(Pony p : p1.getTeam().getAllPonies())
 				sb.append(p.getName()+" / ");
 			sb.delete(sb.length()-2,sb.length());
@@ -745,7 +768,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 					SwingUtilities.invokeAndWait(new Runnable() {
 						public void run() {
-							//newActive.setNickname(token[3]);
 							try {
 								if(token.length > 4) 
 									newActive.setMaxHp(Integer.parseInt(token[4]));
@@ -873,7 +895,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						if(move == null) {
 							throw new NullPointerException("Move is null in BP.interpret(setmv)!");
 						}
-						if(Debug.on) printDebug("Set move["+movenum+"] of "+p1.getTeam().getPony(ponynum)+" to "+move.getName()+" (type: "+move.getType()+
+						if(Debug.on) 
+							printDebug("Set move["+movenum+"] of "+p1.getTeam().getPony(ponynum)+
+									" to "+move.getName()+" (type: "+move.getType()+
 									",color: "+move.getType().getBGColor()+", "+move.getType().getFGColor()+")");
 						if(token.length > 4) {
 							try {
@@ -2251,6 +2275,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 								appendEvent(EventType.EMPHASIZED,token[2]+" disappeared from your " +
 									(side == 1 ? "opponent's " : "") + "field!");
 						} else {
+							// remove all hazards
 							for(List<JLabel> list : hazardTokens.get(side).values()) {
 								for(JLabel lab : list) {
 									lab.setVisible(false);
@@ -2285,6 +2310,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			printDebug("[BattlePanel]: Unknown command: "+line);
 		}
 
+		// FIXME: this may probably be just called on |turn: verify and fix
 		if(!(token[0].equals("chat") || token[0].equals("html") || token[0].equals("htmlconv"))) {
 			// reset move selections
 			SwingUtilities.invokeLater(new Runnable() {

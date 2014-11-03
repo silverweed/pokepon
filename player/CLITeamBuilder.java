@@ -5,6 +5,7 @@ package pokepon.player;
 import pokepon.pony.*;
 import pokepon.ability.*;
 import pokepon.move.*;
+import pokepon.item.*;
 import pokepon.util.*;
 import static pokepon.util.MessageManager.*;
 import static pokepon.util.Meta.*;
@@ -318,7 +319,35 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					break;
 				}
-				case 5:	{ //IV
+				case 5: { // item
+					consoleMsg("Select item among these:");
+					int j= 0;
+					for(String it : allItems) {
+						consoleFormat("%-25s ",it);
+					}
+				
+					String in = getInput("\n"+"CLITB[editing "+pony.getName()+"#item] > ");
+					
+					if(in == null) break;
+
+					String selectedItem = Saner.sane(in,allItems,true);
+
+					if(selectedItem == null) {
+						consoleMsg("Item not selected.");
+						break;
+					}
+					
+					try {
+						Item item = ItemCreator.create(selectedItem);
+						if(item == null) break;
+						pony.setItem(item);
+						if(Debug.on) printDebug("Set pony's item to "+item);
+					} catch(ReflectiveOperationException e) {
+						printDebug("Error creating item "+selectedItem+": "+e);
+					}
+					break;
+				}
+				case 6:	{ //IV
 					String iv = editParser.popFirstArg();
 					if(!Arrays.asList(Pony.statNames()).contains(iv)) {
 						consoleMsg("Invalid argument: "+iv);
@@ -335,7 +364,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					pony.printStats();
 					break;
 				}
-				case 6: { //EV
+				case 7: { //EV
 					String ev = editParser.popFirstArg();
 					if(!Arrays.asList(Pony.statNames()).contains(ev)) {
 						consoleMsg("Invalid argument: "+ev);
@@ -354,7 +383,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					pony.printStats();
 					break;	
 				}
-				case 7:	//happiness
+				case 8:	//happiness
 					try {
 						pony.setHappiness(Integer.parseInt(editParser.popFirstArg()));
 					} catch(Exception e) {
@@ -362,10 +391,10 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					consoleMsg(pony.getNickname() + "'s happiness is now "+pony.getHappiness()+".");
 					break;		
-				case 8:	//info
+				case 9:	//info
 					pony.printInfo(true);
 					break;
-				case 9:	//help
+				case 10: //help
 					consoleMsg("\n------------------------------------------\nCommands:");
 					consoleFormat("  %-10s < string >\n","name");
 					consoleFormat("  %-10s < 0 - %d >\n","level",Pony.MAX_LEVEL);
@@ -380,7 +409,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					consoleFormat("  %-10s\n------------------------------------------\n","done");
 					break;
 
-				case 10: //done
+				case 11: //done
 					return;
 			}
 		} while(true);
@@ -478,6 +507,7 @@ public class CLITeamBuilder extends TeamBuilder {
 		commands.put("move",1);
 		commands.put("nature",0);
 		commands.put("ability",0);
+		commands.put("item",0);
 		commands.put("iv",2);
 		commands.put("ev",2);
 		commands.put("happiness",1);
@@ -490,4 +520,5 @@ public class CLITeamBuilder extends TeamBuilder {
 	private CLITBParser parser = new CLITBParser();
 	private TeamDealer teamDealer = new TeamDealer();
 	private Parser editParser = new SanedParser(commands);
+	private List<String> allItems = ClassFinder.findSubclassesNames(Meta.complete(ITEM_DIR),Item.class);
 }

@@ -6,11 +6,7 @@ fi
 [[ -f pokepon.jar ]] && rm -f pokepon.jar
 [[ -f manifest.mf ]] && rm -f manifest.mf
 echo 'Name: pokepon
-Specification-Title: Pokepon - a Pokemon-like battle simulator with ponies
-Spefification-Version: 0.01 (pre-alpha)
-Specification-Vendor: silverweed91
-Implementation-Title: pokepon
-Implementation-Vendor: silverweed91
+Created-By: silverweed91
 Main-Class: pokepon.main.QuickLauncher
 ' > manifest.mf
 TMPFILE=$(mktemp -u)

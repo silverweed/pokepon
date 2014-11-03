@@ -1,3 +1,24 @@
+=== DONE ===
+
+- Moves which drop stats after usage should not drop them on 'immune' -> Done
+
+- Implement 'export log' feature -> Done (partially, may do something nicer in future)
+
+- 'Fainted' messages should be sent only once by the server! -> Probably fixed
+
+- Toxic activates even when the pony is already fainted -> Fixed
+
+- Heavy Massage not removing statuses? -> Fixed
+
+- Whois shouldn't show the IP to clients other than admins -> Fixed
+
+- Implement chat roles! And moderation commands -> Done
+
+- Prevent server to broadcast the hashed password characters after validating login! -> Fixed
+
+- forcedToSwitch should sometimes be set only on damage (immunity prevents it) -> Fixed
+
+=== TODO ===
 - Fix HPBar: the labels are sometimes misaligned depending on the length
   of the pony's name
 
@@ -19,28 +40,10 @@
 
 - Implement multiple (simultaneous or consecutive) animations -> Consecutive done
 
-- forcedToSwitch should sometimes be set only on damage (immunity prevents it)
-
 - SPEED UP THE GAME IF LAUNCHED FROM JAR! -> Partially fixed
 
 - (Really) Implement Weather
 
 - Sound control in the BattlePanel
 
-- Moves which drop stats after usage should not drop them on 'immune' -> Done
-
-- Implement 'export log' feature
-
-- 'Fainted' messages should be sent only once by the server! -> Probably fixed
-
-- Toxic activates even when the pony is already fainted -> Fixed
-
-- Heavy Massage not removing statuses? -> Fixed
-
 - Nicknames: config option to set default nicks, request nick on login feature 
-
-- Whois shouldn't show the IP to clients other than admins -> Fixed
-
-- Implement chat roles! And moderation commands
-
-- Prevent server to broadcast the hashed password characters after validating login!

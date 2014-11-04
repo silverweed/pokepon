@@ -24,8 +24,16 @@ public class EerieSonata extends Move {
 		description = "";
 		briefDesc = "10% to petrify the target.";
 
-		animation.put("name","Direct");
-		animation.put("sprite","note.png");
+		animation.put("name", "Compound");
+		animation.put("anims", java.util.Arrays.asList("Direct","Whirl"));
+		animation.put("1:sprite","note.png");
+		animation.put("1:initialPoint", "ally");
+		animation.put("1:finalPoint", "opp");
+		animation.put("1:bounceBack", false);
+		animation.put("1:persistent", false);
+		animation.put("2:sprite", "note.png");
+		animation.put("2:center","opp +50X +50Y");
+		animation.put("2:radius",50);
 		
 		targetPetrify = 0.1f;
 	}

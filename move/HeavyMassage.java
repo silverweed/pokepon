@@ -28,6 +28,9 @@ public class HeavyMassage extends Move {
 		briefDesc = "Power doubles if enemy is statused.<br>Enemy heals from status.";
 
 		healTargetStatus = 1f;
+
+		animation.put("name", "Ballistic");
+		animation.put("sprite", "user");
 	}
 	
 	public HeavyMassage(Pony p) {

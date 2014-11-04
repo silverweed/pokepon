@@ -1028,6 +1028,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							printDebug("Animation interrupted.");
 						}
 					}
+					if(anim != null && anim.getSprite() != allySprite && anim.getSprite() != oppSprite && !anim.isPersistent()) {
+						fieldP.remove(anim.getSprite());
+					}
 					if(animsopts.get(i).get("postWait") != null) {
 						try {
 							Thread.sleep((int)animsopts.get(i).get("postWait"));
@@ -2868,7 +2871,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		printMsg("Battle #"+battleID+" terminated.");
 	}
 
-	// FIXME: riguardami!
 	@SuppressWarnings("unchecked")
 	private BasicAnimation createAnimation(Map<String,Object> opts,final String side,final boolean avoid) {
 		if(!opts.containsKey("name") || !opts.containsKey("sprite")) return null;

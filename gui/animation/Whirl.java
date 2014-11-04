@@ -9,9 +9,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.*;
 
-/** An animation that mimics the Pok&#233mon Showdown 'shake' animation.
+/** An animation that makes the sprite whirl around a given point.
  * 
- * @author silverweed
+ * @author 
  */
 public class Whirl extends BasicAnimation {
 
@@ -20,9 +20,10 @@ public class Whirl extends BasicAnimation {
 	private int shakes = 1;
 	private float t = 0;
 	private int period = 400;
+	int radius = 30;
 
 	@SuppressWarnings("unchecked")
-	/** @param opts Opts: shakes */ 
+	/** @param opts Opts: shakes, center, radius */ 
 	public Whirl(final JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
 		if(delay == -1) delay = 10;
@@ -31,13 +32,19 @@ public class Whirl extends BasicAnimation {
 		for(Map.Entry<String,Object> entry : opts.entrySet()) {
 			if(entry.getKey().equals("shakes")) {
 				shakes = (Integer)entry.getValue();
+			} else if(entry.getKey().equals("center")) {
+				java.awt.Point pt = parseShift((String)entry.getValue());
+				initialX = (int)pt.getX();
+				initialY = (int)pt.getY();
+			} else if(entry.getKey().equals("radius")) {
+				radius = (Integer)entry.getValue();
 			}
 		}
+		sprite.setLocation(initialX-radius, initialY);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		int radius = 30;
 		double omega = 2*Math.PI/period;
 		int x = sprite.getX(), y = sprite.getY();
 	

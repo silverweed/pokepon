@@ -28,7 +28,6 @@ public class Subjection extends Ability {
 		if(pony == null)
 			throw new NullPointerException("Pony is null for ability Subjection!");
 		
-		printDebug("ACTIVATED: "+activated);
 		if(activated) return;
 
 		// we must find out if we're currently on 'ally' or 'opponent' side
@@ -58,6 +57,5 @@ public class Subjection extends Ability {
 	@Override
 	public void onSwitchOut(final BattleEngine be) {
 		activated = false;
-		printDebug("ACTIVATED: RESET");
 	}
 }

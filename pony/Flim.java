@@ -41,6 +41,8 @@ public class Flim extends Pony {
 		learnableMoves.put("Magic Blast",20);
 		learnableMoves.put("Applebuck",35);
 		learnableMoves.put("Scorching Beam",45);
+
+		possibleAbilities[0] = "Escapist";
 	}
 
 }

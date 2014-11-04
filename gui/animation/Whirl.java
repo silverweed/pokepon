@@ -11,7 +11,7 @@ import java.util.*;
 
 /** An animation that makes the sprite whirl around a given point.
  * 
- * @author 
+ * @author , silverweed
  */
 public class Whirl extends BasicAnimation {
 
@@ -20,7 +20,7 @@ public class Whirl extends BasicAnimation {
 	private int shakes = 1;
 	private float t = 0;
 	private int period = 400;
-	int radius = 30;
+	private int radius = 30;
 
 	@SuppressWarnings("unchecked")
 	/** @param opts Opts: shakes, center, radius */ 

@@ -117,10 +117,30 @@ public class CLITeamBuilder extends TeamBuilder {
 							consoleMsg("No save files in "+Meta.getSaveURL().getPath());
 							break;
 						} 
+						Collections.sort(saveFiles);
+						int i = 1;
 						for(File f : saveFiles) {
-							consoleMsg(hideExtension(f.toString()));
+							consoleMsg(i++ + "- " + hideExtension(f.toString()));
 						}
-						input = getInput("Select a file > ");
+						// accept both the number of file in list or a filename.
+						// Note that a file named as a number won't be loaded this way,
+						// but must be loaded with `CLITB > load 1` or with an explicit
+						// `1.pkp`.
+						do {
+							input = getInput("Select a file > ");
+							try {
+								int j = Integer.parseInt(input);
+								if(j >= i || j < 1) {
+									consoleMsg("Invalid number. Insert a number between 1 and " + (i - 1) +
+										" or the name of a save file.");
+								} else {
+									input = saveFiles.get(j - 1).getPath();
+									break;
+								}
+							} catch(IllegalArgumentException ee) {
+								break;
+							}
+						} while(true);
 					}
 					String loadPath = (input.startsWith("/") ? input : Meta.getSaveURL().getPath()
 						+ Meta.DIRSEP + input) + (input.endsWith(teamDealer.SAVE_EXT) ? "" :
@@ -163,17 +183,10 @@ public class CLITeamBuilder extends TeamBuilder {
 
 	/** Lists all classes derived from Pony in PONY_DIR */
 	private void listPonies() {
-		List<Class<?>> lc = ClassFinder.findSubclasses(Meta.complete(PONY_DIR),Pony.class);
+		List<String> lc = ClassFinder.findSubclassesNames(Meta.complete(PONY_DIR),Pony.class);
 		consoleMsg("Found "+lc.size()+" ponies:");
 		int i = 0;
-		for(Class<?> c : lc) {
-			try {
-				consoleFormat("%-20s",c.getSimpleName());
-				if(++i % 5 == 0) consoleMsg("");
-			} catch(Exception e) {
-				printDebug("Caught exception in listPonies: "+e);
-			}
-		}
+		consoleFixedTable(lc, 5);
 	}		
 
 	@SuppressWarnings("unchecked")
@@ -294,6 +307,7 @@ public class CLITeamBuilder extends TeamBuilder {
 				case 4:	{ //ability
 					consoleMsg("Select ability among these:");
 					int j= 0;
+					// use this instead of consoleTable because we only expect at most 3 entries
 					for(String ab : pony.getPossibleAbilities()) {
 						consoleFormat("%-25s ",ab);
 					}
@@ -322,9 +336,7 @@ public class CLITeamBuilder extends TeamBuilder {
 				case 5: { // item
 					consoleMsg("Select item among these:");
 					int j= 0;
-					for(String it : allItems) {
-						consoleFormat("%-25s ",it);
-					}
+					consoleTable(allItems, 5);
 				
 					String in = getInput("\n"+"CLITB[editing "+pony.getName()+"#item] > ");
 					
@@ -429,7 +441,7 @@ public class CLITeamBuilder extends TeamBuilder {
 		try {
 			in = scan.nextLine();
 		} catch(NoSuchElementException e) {
-			printDebug("quitting...");
+			consoleMsg("quitting...");
 			System.exit(-1);
 		} catch(Exception e) {
 			printDebug("Caught exception: "+e);

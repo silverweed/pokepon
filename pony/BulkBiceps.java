@@ -17,6 +17,7 @@ public class BulkBiceps extends Pony {
 		
 		name = "Bulk Biceps";
 		type[0] = Type.PASSION;
+		type[1] = Type.KINDNESS;
 
 		race = Race.PEGASUS;
 		sex = Sex.MALE;
@@ -40,5 +41,8 @@ public class BulkBiceps extends Pony {
 		learnableMoves.put("Dodge",1);
 		learnableMoves.put("Hind Kick",23);
 		learnableMoves.put("Inner Focus",30);
+
+		possibleAbilities[0] = "Compassion";
+		possibleAbilities[1] = "Tough Body";
 	}
 }

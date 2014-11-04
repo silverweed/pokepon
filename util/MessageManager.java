@@ -168,7 +168,6 @@ public class MessageManager {
 			}
 			System.out.println("");
 		}
-		System.out.println("");
 	}
 
 	public static <T> void consoleFixedTable(Collection<T> c,int cols) {

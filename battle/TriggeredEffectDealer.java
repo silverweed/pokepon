@@ -54,7 +54,9 @@ public abstract class TriggeredEffectDealer extends EffectDealer {
 	/** This is triggered right after damage application, if move hit */
 	public void afterMoveHit(final BattleEngine be) {}
 
-	/** This is triggered after the move usage (this gets called for both sides after each move usage) */
+	/** This is triggered after the move usage (this gets called for both sides after each move usage,
+	 * even if move didn't hit)
+	 */
 	public void afterMoveUsage(final BattleEngine be) {}
 	
 	/** This is triggered right before ending the turn. */

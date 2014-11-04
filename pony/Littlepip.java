@@ -54,5 +54,6 @@ public class Littlepip extends Pony {
 		
 		possibleAbilities[0] = "Leadership";
 		possibleAbilities[1] = "Die Hard";
+		possibleAbilities[2] = "Tough Body";
 	}
 }

@@ -42,5 +42,6 @@ public class MaudPie extends Pony {
 
 		possibleAbilities[0] = "Indifference";
 		possibleAbilities[1] = "Sense Of Danger";
+		possibleAbilities[2] = "Tough Body";
 	}
 }

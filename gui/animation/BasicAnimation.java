@@ -33,6 +33,9 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 	protected Rectangle originalBounds;
 	protected boolean rewind;
 	protected Point rewindTo;
+	/** The number of cycles used by the animation to complete; total duration
+	 * of the animation will be delay * numIterations.
+	 */
 	protected float numIterations = 10f;
 
 	@SuppressWarnings("unchecked")

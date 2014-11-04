@@ -25,6 +25,16 @@ public class Bizaam extends Move {
 		priority = 0;
 		description = "Channel the hype! Gets more powerful when you feel better.";
 		briefDesc = "+20/-20 for each positive/negative modifier (min. 20).<br>+10% to confuse for each 40 extra damage.";
+
+		animation.put("name", "Compound");
+		animation.put("anims", java.util.Arrays.asList("Shake","Direct"));
+		animation.put("1:sprite","user");
+		animation.put("1:shakes", 6);
+		animation.put("1:delay", 10);
+		animation.put("2:sprite", "electroball.png");
+		animation.put("2:initialPoint","ally");
+		animation.put("2:finalPoint","opp");
+		animation.put("2:bounceBack", false);
 	}
 
 	public Bizaam(Pony p) {

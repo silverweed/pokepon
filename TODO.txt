@@ -18,6 +18,8 @@
 
 - forcedToSwitch should sometimes be set only on damage (immunity prevents it) -> Fixed
 
+- Add drain animation to Wild Weed (also check for bugs when pony is fainted) -> Done
+
 === TODO ===
 - Fix HPBar: the labels are sometimes misaligned depending on the length
   of the pony's name
@@ -35,8 +37,6 @@
 
 - 'Repeat' bug: sometimes locks the wrong move / allows using blocking
   moves like Love Burst several times in a row
-
-- Add drain animation to Wild Weed (also check for bugs when pony is fainted)
 
 - Implement multiple (simultaneous or consecutive) animations -> Consecutive done
 

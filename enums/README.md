@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <th>Def V<br>Atk &gt;</th>
+    <th>Atk &gt;<br>Def V</th>
     <th>Chaos</th>
     <th>Gener.</th>
     <th>Hones.</th>

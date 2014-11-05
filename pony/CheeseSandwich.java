@@ -31,6 +31,7 @@ public class CheeseSandwich extends Pony {
 		baseSpeed = 130;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Jingle",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Get Hype",1);
 		learnableMoves.put("Mirror Pond",1);

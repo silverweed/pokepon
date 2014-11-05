@@ -30,6 +30,7 @@ public class PinkiePie extends Pony {
 		baseSpeed = 140;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Jingle",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Get Hype",1);
 		learnableMoves.put("Mirror Pond",1);

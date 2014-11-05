@@ -32,6 +32,8 @@ public class SweetieBelle extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Dissonance",1);
+		learnableMoves.put("Jingle",1);
+		learnableMoves.put("Lullaby",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Get Hype",1);
 		learnableMoves.put("Nap",1);

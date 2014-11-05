@@ -191,6 +191,8 @@ available chat commands.
 
 Battling
 ----------------------------------------------------------
+*Hint: typechart is [here](https://github.com/silverweed/pokepon/blob/master/enums/README.md)*
+
 You can challenge other players connected to your server in 3 ways:
 * simply click on the player's name in the right panel of the chat and
   select 'Challenge'

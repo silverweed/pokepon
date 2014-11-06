@@ -1,4 +1,5 @@
 ability/Ability.java
+ability/Appeal.java
 ability/Ataraxy.java
 ability/Boasting.java
 ability/BruteForce.java
@@ -9,6 +10,7 @@ ability/Determination.java
 ability/Devotion.java
 ability/DieHard.java
 ability/DragonScales.java
+ability/Escapist.java
 ability/HighScorer.java
 ability/Indifference.java
 ability/Integrity.java
@@ -27,6 +29,7 @@ ability/SolarMagic.java
 ability/SpellRefractory.java
 ability/Stubborn.java
 ability/Subjection.java
+ability/ToughBody.java
 ability/UpperHoof.java
 battle/Battle.java
 battle/BattleEngine.java
@@ -91,7 +94,14 @@ item/AlicornAmulet.java
 item/ChoiceBoots.java
 item/ChoiceBridle.java
 item/ChoiceSaddle.java
+item/DiamondRing.java
+item/FashionScarf.java
+item/FlightGoggles.java
+item/GoldenLyre.java
 item/Item.java
+item/MagicTiara.java
+item/PartyHat.java
+item/Scooter.java
 item/SpareSnacks.java
 item/ZapAppleJuice.java
 main/BattleTest.java
@@ -146,7 +156,9 @@ move/HollerOut.java
 move/HopefulStrike.java
 move/HornBeam.java
 move/InnerFocus.java
+move/Jingle.java
 move/Joke.java
+move/KineticStrike.java
 move/LoveAndCare.java
 move/LoveBurst.java
 move/Lullaby.java

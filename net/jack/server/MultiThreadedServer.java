@@ -43,6 +43,10 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	String welcomeMessage;
 	/** ChatSystem used if advancedChat is set to true */
 	ChatSystem chat;
+	/** If a connection gives more than this number of commands in a minute,
+	 * ignore following.
+	 */
+	int cmdBanLimit = 40;
 	
 	public MultiThreadedServer() throws IOException {
 		this(ServerOptions.construct());
@@ -102,6 +106,11 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			advancedChat = opts.advancedChat;
 			if(verbosity >= 2) printDebug("[MultiTheadedServer] advancedChat set to "+advancedChat);
 		}
+		if(opts.cmdBanLimit != null) {
+			cmdBanLimit = opts.cmdBanLimit;
+			if(verbosity >= 2) printDebug("[MultiTheadedServer] cmdBanLimit set to "+cmdBanLimit);
+		}
+
 		return this;
 	}
 	
@@ -273,6 +282,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		s.println("- connectPolicy: "+connectPolicy);
 		s.println("- welcomeMessage: "+welcomeMessage);
 		s.println("- advancedChat: "+advancedChat);
+		s.println("- cmdBanLimit: "+cmdBanLimit);
 	}
 
 	@Override
@@ -282,6 +292,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		printMsg("- connectPolicy: "+connectPolicy);
 		printMsg("- welcomeMessage: "+welcomeMessage);
 		printMsg("- advancedChat: "+advancedChat);
+		printMsg("- cmdBanLimit: "+cmdBanLimit);
 	}
 
 	protected static void printUsage() {

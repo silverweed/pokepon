@@ -17,11 +17,7 @@ import java.io.*;
  * @author silverweed
  */
 class CommandsExecutor extends ServerConnectionExecutor {
-	
-	/** If a connection gives more than this number of commands in a minute,
-	 * ignore following.
-	 */
-	protected static final int ISSUED_CMD_BAN_LIMIT = 40;
+
 	protected static StringBuilder help = new StringBuilder("");
 	static {
 		help.append("Commands:\n");
@@ -51,29 +47,31 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		if(chatUser != null && !chatUser.hasPermission(CAN_ISSUE_COMMANDS))
 			return 1;
 
-		// refuse to execute command if this connection sent more than ISSUED_CMD_BAN_LIMIT commands in the last minute.
-		int issued = 0;
-		long startTime = -1;
-		Iterator<Map.Entry<Long,String>> it = connection.getLatestMessages().descendingIterator();
-		while(it.hasNext()) {
-			Map.Entry<Long,String> entry = it.next();
-			if(startTime == -1) {
-				startTime = entry.getKey();
-				continue;
+		// refuse to execute command if this connection sent more than server.cmdBanLimit commands in the last minute.
+		// (server.cmdBanLimit < 0 implies 'no check')
+		if(server.cmdBanLimit > -1) {
+			int issued = 0;
+			long startTime = -1;
+			Iterator<Map.Entry<Long,String>> it = connection.getLatestMessages().descendingIterator();
+			while(it.hasNext()) {
+				Map.Entry<Long,String> entry = it.next();
+				if(startTime == -1) {
+					startTime = entry.getKey();
+					continue;
+				}
+				if(startTime - entry.getKey() > 60 * 1000)
+					break;
+				++issued;
 			}
-			if(startTime - entry.getKey() > 60 * 1000)
-				break;
-			++issued;
+			if(	issued >= server.cmdBanLimit &&
+				!(chatUser != null && chatUser.hasPermission(CAN_IGNORE_FLOOD_LIMIT))
+			) {
+				if(connection.getVerbosity() >= 2) 
+					printDebug("[CMDEXEC] connection "+connection.getName() + " issued " + issued +
+						" commands in a minute. Ignoring next commands until queue is emptied.");
+				return 1;
+			}
 		}
-		if(	issued >= ISSUED_CMD_BAN_LIMIT - 1 &&
-			!(chatUser != null && chatUser.hasPermission(CAN_IGNORE_FLOOD_LIMIT))
-		) {
-			if(connection.getVerbosity() >= 2) 
-				printDebug("[CMDEXEC] connection "+connection.getName() + "issued " + issued +
-					" commands in a minute. Ignoring next commands until queue is emptied.");
-			return 1;
-		}
-			
 		
 		String[] token = msg.substring(1).split(" ");
 		String cmd = token[0];

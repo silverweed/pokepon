@@ -17,15 +17,13 @@ import java.io.*;
  */
 class ChatCommandsExecutor extends ServerConnectionExecutor {
 
-	/** If a connection gives more than this number of commands in a minute,
-	 * ignore following.
-	 */
-	protected static final int ISSUED_CMD_BAN_LIMIT = 40;
 	protected static StringBuilder help = new StringBuilder("");
 	static {
 		help.append("Advanced chat commands:\n");
 		help.append(CMD_PREFIX+"role [user] - prints an user's role (default: your role).\n");
 		help.append(CMD_PREFIX+"roles - lists all assigned roles.\n");
+		help.append(CMD_PREFIX+"perm [user] - prints an user's permissions (default: yours).\n");
+		help.append(CMD_PREFIX+"perms - lists all existing permissions.\n");
 		help.append(CMD_PREFIX+"kick <user> - kicks an user out of this server.\n");
 		help.append(CMD_PREFIX+"mute [user|group] - prevents the selected user / group from talking.\n");
 		help.append(CMD_PREFIX+"unmute <user> - unmutes the selected user.\n");
@@ -54,30 +52,31 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 		if(!chatUser.hasPermission(CAN_ISSUE_COMMANDS))
 			return 1;
 
-		// refuse to execute command if this connection sent more than ISSUED_CMD_BAN_LIMIT commands in the last minute.
-		int issued = 0;
-		long startTime = -1;
-		Iterator<Map.Entry<Long,String>> it = connection.getLatestMessages().descendingIterator();
-		while(it.hasNext()) {
-			Map.Entry<Long,String> entry = it.next();
-			if(startTime == -1) {
-				startTime = entry.getKey();
-				continue;
+		// refuse to execute command if this connection sent more than server.cmdBanLimit commands in the last minute.
+		if(server.cmdBanLimit > -1) {
+			int issued = 0;
+			long startTime = -1;
+			Iterator<Map.Entry<Long,String>> it = connection.getLatestMessages().descendingIterator();
+			while(it.hasNext()) {
+				Map.Entry<Long,String> entry = it.next();
+				if(startTime == -1) {
+					startTime = entry.getKey();
+					continue;
+				}
+				if(startTime - entry.getKey() > 60 * 1000)
+					break;
+				++issued;
 			}
-			if(startTime - entry.getKey() > 60 * 1000)
-				break;
-			++issued;
-		}
-		if(	issued >= ISSUED_CMD_BAN_LIMIT - 1 &&
-			!chatUser.hasPermission(CAN_IGNORE_FLOOD_LIMIT)
-		) {
-			if(connection.getVerbosity() >= 2) 
-				printDebug("[CMDEXEC] connection "+connection.getName() + "issued " + issued +
-					" commands in a minute. Ignoring next commands until queue is emptied.");
-			return 1;
+			if(	issued >= server.cmdBanLimit &&
+				!chatUser.hasPermission(CAN_IGNORE_FLOOD_LIMIT)
+			) {
+				if(connection.getVerbosity() >= 2) 
+					printDebug("[CMDEXEC] connection "+connection.getName() + " issued " + issued +
+						" commands in a minute. Ignoring next commands until queue is emptied.");
+				return 1;
+			}
 		}
 			
-		
 		String[] token = msg.substring(1).split(" ");
 		String cmd = token[0];
 	
@@ -88,11 +87,15 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 			connection.sendMsg(help.toString());
 			return 0; // if there are other CommandsExecutors, send their help msg too.
 		} else if(cmd.equals("role")) {
+			if(token.length > 2) {
+				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"role [user]");
+				return 1;
+			}
 			if(token.length < 2) {
 				String roleStr = getRoleString(chatUser);
 				connection.sendMsg(CMN_PREFIX+"html Your role is "+roleStr);
 				return 1;
-			} else if(token.length < 3) {
+			} else {
 				ChatUser cu = server.chat.getUser(token[1]);
 				if(cu != null) {
 					String roleStr = getRoleString(cu);
@@ -241,10 +244,12 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 				connection.sendMsg("You are not allowed to ban IPs from this server.");
 				return 1;
 			}
+			StringBuilder sb = new StringBuilder("");
 			for(int i = 1; i < token.length; ++i) {
 				server.banIP(token[i]);
-				connection.sendMsg("Banned IP "+token[i]);
+				sb.append("Banned IP "+token[i]+"\n");
 			}
+			connection.sendMsg(sb.toString());
 			return 1;
 		} else if(cmd.equals("unban")) {
 			if(token.length < 2) {
@@ -255,10 +260,12 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 				connection.sendMsg("You are not allowed to unban IPs from this server.");
 				return 1;
 			}
+			StringBuilder sb = new StringBuilder("");
 			for(int i = 1; i < token.length; ++i) {
 				server.unbanIP(token[i]);
-				connection.sendMsg("Unbanned IP "+token[i]);
+				sb.append("Unbanned IP "+token[i]+"\n");
 			}
+			connection.sendMsg(sb.toString());
 			return 1;
 		} else if(cmd.equals("banned")) {
 			if(!chatUser.hasPermission(CAN_LOOKUP_BANNED_IP)) {
@@ -266,17 +273,20 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 				return 1;
 			}
 			if(token.length > 1) {
+				StringBuilder sb = new StringBuilder("");
 				for(int i = 1; i < token.length; ++i) {
 					if(server.getBannedIP().contains(token[i]))
-						connection.sendMsg(token[i] + " is BANNED");
+						sb.append(token[i] + " is BANNED\n");
 					else
-						connection.sendMsg(token[i] + " is NOT banned.");
+						sb.append(token[i] + " is NOT banned.\n");
 				}
+				connection.sendMsg(sb.toString());
 				return 1;
 			}
-			connection.sendMsg("-- Banned IP:");
+			StringBuilder sb = new StringBuilder("-- Banned IP:");
 			for(String ip : server.getBannedIP())
-				connection.sendMsg(ip);
+				sb.append(ip+"\n");
+			connection.sendMsg(sb.toString());
 			return 1;
 		} else if(cmd.equals("database")) {
 			if(!chatUser.hasPermission(CAN_MANIPULATE_DB)) {
@@ -393,6 +403,44 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 					server.broadcast(null, chatUser + " changed " + usr.getName() + "'s role to " + role);
 					server.broadcast(null, CMN_PREFIX+"userrnm "+usr.getName()+" "+usr.getName()+" "+role.getSymbol());
 			}
+			return 1;
+		} else if(cmd.equals("perm")) {
+			if(token.length > 2) {
+				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"perm [user]");
+				return 1;
+			}
+			if(token.length < 2) {
+				StringBuilder sb = new StringBuilder("Your permissions are:\n");
+				for(ChatUser.Permission perm : chatUser.getPermissions()) {
+					sb.append("  - "+perm+"\n");
+				}
+				connection.sendMsg(sb.toString());
+				return 1;
+			} else {
+				if(!chatUser.hasPermission(CAN_LOOKUP_PERMISSIONS)) {
+					connection.sendMsg("You cannot list other users' permissions.");
+					return 1;
+				}
+				ChatUser cu = server.chat.getUser(token[1]);
+				if(cu == null) {
+					connection.sendMsg("User "+token[1]+" not found.");
+					return 1;
+				}
+				StringBuilder sb = new StringBuilder(cu+"'s permissions are:\n");
+				for(ChatUser.Permission perm : cu.getPermissions()) {
+					sb.append("  - "+perm+"\n");
+				}
+				connection.sendMsg(sb.toString());
+			}
+		} else if(cmd.equals("perms")) {
+			if(token.length > 1) {
+				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"perms");
+				return 1;
+			}
+			StringBuilder sb = new StringBuilder("-- All permissions:\n");
+			for(ChatUser.Permission perm : ChatUser.Permission.values())
+				sb.append("  - "+perm+"\n");
+			connection.sendMsg(sb.toString());
 			return 1;
 		}
 		// let someone else process this command

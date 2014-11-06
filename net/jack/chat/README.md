@@ -35,6 +35,7 @@ Here is the full list of permissions defined by the Chat System:
 | *(all users defaults)*     |
 | CAN_LOOKUP_IP              |
 | CAN_LOOKUP_BANNED_IP       |
+| CAN_LOOKUP_PERMISSIONS     |
 | CAN_BAN_IP                 |
 | CAN_KICK_USERS             |
 | CAN_MUTE_UNMUTE_USERS      |

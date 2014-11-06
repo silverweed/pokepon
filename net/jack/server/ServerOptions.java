@@ -99,6 +99,11 @@ public class ServerOptions {
 		return this;
 	}
 
+	public ServerOptions cmdBanLimit(int cbl) {
+		cmdBanLimit = cbl;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{ ");
@@ -114,6 +119,7 @@ public class ServerOptions {
 		if(connPolicy != null) sb.append("connectPolicy: "+connPolicy+", ");
 		if(welcomeMessage != null) sb.append("welcomeMessage: "+welcomeMessage+", ");
 		if(maxBattles != -1) sb.append("maxBattles: "+maxBattles+", ");
+		if(cmdBanLimit != null) sb.append("cmdBanLimit: "+cmdBanLimit+", ");
 		sb.delete(sb.length()-1, sb.length());
 		sb.append(" }");
 
@@ -135,6 +141,7 @@ public class ServerOptions {
 	public String welcomeMessage;
 	public int maxBattles = -1;
 	public Boolean advancedChat = null;
+	public Integer cmdBanLimit = null;
 
 
 	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {
@@ -282,6 +289,14 @@ public class ServerOptions {
 						srvopts.advancedChat = true;
 				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
 					srvopts.advancedChat = true;
+				}
+			} else if(token.equals("--cmd-ban-limit")) {
+				try {
+					srvopts.cmdBanLimit = Integer.parseInt(opts.remove(0));
+				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
+					printDebug("[ ERROR ] expected integer after 'cmd-ban-limit' option.");
+					e.printStackTrace();
+					System.exit(2);
 				}
 			} else {
 				if(!token.matches("^(-h|--help)$"))

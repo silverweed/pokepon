@@ -52,7 +52,15 @@ public class PokeponChat extends JPanel implements AutoCloseable, Chat {
 	}
 
 	public String getNick() { return chatP.getNick(); }
-	public void setNick(String n) { chatP.setNick(n); }
+	public synchronized void setNick(final String n) { 
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				chatP.setNick(n);
+				usersL.validate();
+				usersL.repaint();
+			}
+		});
+	}
 	public ChatPanel getChatPanel() { return chatP; }
 	public String[] getUsers() { return (String[])users.toArray(); }
 

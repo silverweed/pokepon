@@ -404,6 +404,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		"\t--max-nick-len <integer>:       longer nicknames will be truncated to this length\n"+
 		"\t--max-battles <integer>:        set the limit of concurrent battles allowed by the server.\n"+
 		"\t-C,--advanced-chat [no]:        enable/disable chat roles and the advanced chat system.\n"+
+		"\t--cmd-ban-limit <integer>:      set maximum commands a client can issue in a minute (-1 = infinite).\n"+
 		"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");
 		System.exit(0);
 	}

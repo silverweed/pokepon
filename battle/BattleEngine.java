@@ -1206,60 +1206,92 @@ public class BattleEngine {
 		// Side effects (special conditions etc)
 		// defender
 		if(!defender.isKO() && !defender.hasNegativeCondition() && !defender.hasSubstitute()) {
+			float ignore = 0f;
+			for(EffectDealer ed : defender.getEffectDealers()) {
+				ignore += ed.preventNegativeConditions();
+			}
 			if(rng.nextFloat() < dealer.getTargetParalysis() && checkProtect(dealer)) {
-				printEffectMsg("enemy ",defender,"paralyzed");
-				defender.setParalyzed(true);
+				if(rng.nextFloat() > ignore) {
+					if(battleTask != null)
+						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become paralyzed!");
+				} else {
+					printEffectMsg("enemy ",defender,"paralyzed");
+					defender.setParalyzed(true);
+				}
 			}
-			if(rng.nextFloat() < dealer.getTargetPoison() && checkProtect(dealer)) {
-				printEffectMsg("enemy ",defender,"poisoned");
-				defender.setPoisoned(true);
+			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetPoison() && checkProtect(dealer)) {
+				if(rng.nextFloat() > ignore) {
+					if(battleTask != null)
+						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become poisoned!");
+				} else {
+					printEffectMsg("enemy ",defender,"poisoned");
+					defender.setPoisoned(true);
+				}
 			}
-			if(rng.nextFloat() < dealer.getTargetToxic() && checkProtect(dealer)) {
-				printEffectMsg("enemy ",defender,"badly poisoned");
-				defender.setIntoxicated(true);
+			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetToxic() && checkProtect(dealer)) {
+				if(rng.nextFloat() > ignore) {
+					if(battleTask != null)
+						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become poisoned!");
+				} else {
+					printEffectMsg("enemy ",defender,"badly poisoned");
+					defender.setIntoxicated(true);
+				}
 			}
-			if(rng.nextFloat() < dealer.getTargetBurn() && checkProtect(dealer)) {
-				printEffectMsg("enemy ",defender,"burned");
-				defender.setBurned(true);
+			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetBurn() && checkProtect(dealer)) {
+				if(rng.nextFloat() > ignore) {
+					if(battleTask != null)
+						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become burned!");
+				} else {
+					printEffectMsg("enemy ",defender,"burned");
+					defender.setBurned(true);
+				}
 			}
-			if(rng.nextFloat() < dealer.getTargetSleep() && checkProtect(dealer)) {
-				printEffectMsg("enemy ",defender,"asleep");
-				defender.setAsleep(true);
-				defender.sleepCounter = rng.nextInt(Battle.MAX_SLEEP_DURATION);	//sleep lasts 1-X turns.
+			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetSleep() && checkProtect(dealer)) {
+				if(rng.nextFloat() > ignore) {
+					if(battleTask != null)
+						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become asleep!");
+				} else {
+					printEffectMsg("enemy ",defender,"asleep");
+					defender.setAsleep(true);
+					defender.sleepCounter = rng.nextInt(Battle.MAX_SLEEP_DURATION + 1);	//sleep lasts 1-X turns.
+				}
 			}
-			if(rng.nextFloat() < dealer.getTargetPetrify() && checkProtect(dealer)) {
-				printEffectMsg("enemy ",defender,"petrified");
-				defender.setPetrified(true);
+			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetPetrify() && checkProtect(dealer)) {
+				if(rng.nextFloat() > ignore) {
+					if(battleTask != null)
+						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become petrified!");
+				} else {
+					printEffectMsg("enemy ",defender,"petrified");
+					defender.setPetrified(true);
+				}
 			}
 		}
 
 		// attacker
 		if(!attacker.isKO()) {
-			if(!attacker.hasNegativeCondition()) {
-				if(rng.nextFloat() < dealer.getUserParalysis()) {
-					printEffectMsg("",attacker,"paralyzed");
-					attacker.setParalyzed(true);
-				}
-				if(rng.nextFloat() < dealer.getUserPoison()) {
-					printEffectMsg("",attacker,"poisoned");
-					attacker.setPoisoned(true);
-				}
-				if(rng.nextFloat() < dealer.getUserToxic()) {
-					printEffectMsg("",attacker,"badly poisoned");
-					attacker.setIntoxicated(true);
-				}
-				if(rng.nextFloat() < dealer.getUserBurn()) {
-					printEffectMsg("",attacker,"burned");
-					attacker.setBurned(true);
-				}
-				if(rng.nextFloat() < dealer.getUserSleep()) {
-					printEffectMsg("",attacker,"asleep");
-					attacker.setAsleep(true);
-				}
-				if(rng.nextFloat() < dealer.getUserPetrify()) {
-					printEffectMsg("",attacker,"petrified");
-					attacker.setPetrified(true);
-				}
+			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserParalysis()) {
+				printEffectMsg("",attacker,"paralyzed");
+				attacker.setParalyzed(true);
+			}
+			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserPoison()) {
+				printEffectMsg("",attacker,"poisoned");
+				attacker.setPoisoned(true);
+			}
+			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserToxic()) {
+				printEffectMsg("",attacker,"badly poisoned");
+				attacker.setIntoxicated(true);
+			}
+			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserBurn()) {
+				printEffectMsg("",attacker,"burned");
+				attacker.setBurned(true);
+			}
+			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserSleep()) {
+				printEffectMsg("",attacker,"asleep");
+				attacker.setAsleep(true);
+			}
+			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserPetrify()) {
+				printEffectMsg("",attacker,"petrified");
+				attacker.setPetrified(true);
 			}
 			if(rng.nextFloat() < dealer.getUserConfusion() && !attacker.isConfused()) {
 				printEffectMsg("",attacker,"confused");

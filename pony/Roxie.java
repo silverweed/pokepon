@@ -44,5 +44,7 @@ public class Roxie extends Pony {
 		learnableMoves.put("Sneak Attack",28);
 		learnableMoves.put("Raging Spree",30);
 		learnableMoves.put("Glomp",33);
+
+		possibleAbilities[0] = "Appeal";
 	}
 }

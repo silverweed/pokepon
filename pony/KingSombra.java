@@ -5,8 +5,7 @@ package pokepon.pony;
 import pokepon.enums.*;
 
 /** King Sombra
- * 	excels in Special Attack and Attack, and has good speed;
- *	lacks defenses and HP.
+ * 	excels in Special Attack and Attack, and has very good speed.
  *
  * @author Giacomo Parolini
  */
@@ -29,6 +28,7 @@ public class KingSombra extends Pony {
 		baseSpeed = 100;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Kinetic Strike",1);
 		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Sonic Barrier",1);
@@ -49,5 +49,4 @@ public class KingSombra extends Pony {
 		possibleAbilities[0] = "Subjection";
 		possibleAbilities[1] = "Spell Refractory";
 	}
-
 }

@@ -49,5 +49,7 @@ public class ButtonsMom extends Pony {
 		learnableMoves.put("Treat",1);
 		learnableMoves.put("Hopeful Strike",1);
 		learnableMoves.put("Dodge",1);
+
+		possibleAbilities[0] = "Appeal";
 	}
 }

@@ -24,8 +24,10 @@ public class WhirlingHoof extends Move {
 		description = "A rapid spinning attack damages your opponent and removes hazards from your field.";
 		briefDesc = "Removes hazards from ally field.";
 
-		animation.put("name","Ballistic2");
+		animation.put("name","Compound");
+		animation.put("anims",java.util.Arrays.asList("Whirl","Ballistic2"));
 		animation.put("sprite","user");
+		animation.put("persistent",true);
 
 		removesAllyHazards = true;
 	}

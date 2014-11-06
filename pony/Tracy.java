@@ -44,5 +44,7 @@ public class Tracy extends Pony {
 		learnableMoves.put("Dissonance",1);
 		learnableMoves.put("Chaos Burst",1);
 		learnableMoves.put("Bully",1);
+
+		possibleAbilities[0] = "Aversion";
 	}
 }

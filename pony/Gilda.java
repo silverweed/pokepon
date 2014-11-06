@@ -45,5 +45,6 @@ public class Gilda extends Pony {
 
 		/* possibleAbilities */
 		possibleAbilities[0] = "Subjection";
+		possibleAbilities[1] = "Aversion";
 	}
 }

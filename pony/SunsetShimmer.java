@@ -42,5 +42,6 @@ public class SunsetShimmer extends Pony {
 		learnableMoves.put("Glowing Laser",60);
 
 		possibleAbilities[0] = "Shining Coat";
+		possibleAbilities[1] = "Aversion";
 	}
 }

@@ -22,6 +22,7 @@ public class Littlepip extends Pony {
 
 		race = Race.UNICORN;
 		sex = Sex.FEMALE;
+
 		canon = false;
 
 		baseHp = 89;
@@ -32,6 +33,7 @@ public class Littlepip extends Pony {
 		baseSpeed = 74;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Kinetic Strike",1);
 		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);

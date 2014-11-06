@@ -44,5 +44,6 @@ public class FleurDeLis extends Pony {
 
 		possibleAbilities[0] = "Shining Coat";
 		possibleAbilities[1] = "Lovebird";
+		possibleAbilities[2] = "Appeal";
 	}
 }

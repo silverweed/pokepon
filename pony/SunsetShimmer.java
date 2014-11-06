@@ -31,6 +31,8 @@ public class SunsetShimmer extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Magic Blast",1);
+		learnableMoves.put("Dark Magic",1);
+		learnableMoves.put("Charge",1);
 		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);

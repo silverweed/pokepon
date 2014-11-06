@@ -133,6 +133,7 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public boolean preventsCriticalHits() { return preventsCriticalHits; }
 	public boolean negateSecondaryDamage() { return negateSecondaryDamage; }
 	public boolean effectsAlwaysApply() { return effectsAlwaysApply; }
+	public float preventNegativeConditions() { return preventNegativeConditions; }
 	
 	// protective effects
 	/** Multiplies damage coming from type t by its return value */
@@ -230,6 +231,7 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	protected boolean preventsCriticalHits;
 	protected boolean negateSecondaryDamage;
 	protected boolean effectsAlwaysApply;
+	protected float preventNegativeConditions;
 
 	
 	/* Healing effects */

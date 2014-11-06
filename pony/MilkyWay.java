@@ -49,5 +49,8 @@ public class MilkyWay extends Pony {
 		learnableMoves.put("Glomp",1);
 		learnableMoves.put("Dodge",1);
 		learnableMoves.put("Stealth Diamonds",1);
+		learnableMoves.put("Spa Treatment",1);
+
+		possibleAbilities[0] = "Appeal";
 	}
 }

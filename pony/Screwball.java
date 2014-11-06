@@ -40,5 +40,6 @@ public class Screwball extends Pony {
 		learnableMoves.put("Chaos Burst",20);
 
 		/* abilities */
+		possibleAbilities[0] = "Escapist";
 	}
 }

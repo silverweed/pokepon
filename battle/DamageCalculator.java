@@ -230,7 +230,7 @@ class DamageCalculator {
 		if(isCritical) {
 			boolean prevents = false;
 			for(EffectDealer ed : defender.getEffectDealers())
-				if(ed.preventsCriticalHits()) {
+				if(ed.ignoreCriticalHits()) {
 					prevents = true;
 					break;
 				}

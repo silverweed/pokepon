@@ -88,6 +88,23 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public float healUserStatus() { return healUserStatus; }
 	public float healTargetStatus() { return healTargetStatus; }
 	
+	// ignore effects
+	public boolean ignoreWeaknesses() { return ignoreWeaknesses; }
+	public boolean ignoreResistances() { return ignoreResistances; }
+	public boolean ignoreImmunities() { return ignoreImmunities; }
+	public boolean ignoreBoosts(final String toWhat) { return false; }
+	public boolean ignoreNegativeBoosts(final String toWhat) { return false; }
+	public boolean preventsUserOHKO() { return preventsUserOHKO; }
+	public boolean preventsTargetOHKO() { return preventsTargetOHKO; }
+	public boolean ignoreStatusDrop() { return ignoreStatusDrop; }
+	public boolean ignoreStatusChange() { return ignoreStatusChange; }
+	public boolean ignoreCriticalHits() { return ignoreCriticalHits; }
+	public boolean ignoreSecondaryDamage() { return ignoreSecondaryDamage; }
+	public boolean ignoreProtection() { return ignoreProtection; }
+	/** Probability to prevent negative condition */
+	public float preventNegativeCondition() { return preventNegativeCondition(null); }
+	public float preventNegativeCondition(final String which) { return 0f; }
+
 	// additional effects
 	public float getRecoil() { return recoil; }
 	public int damageUser() { return damageUser; }
@@ -95,16 +112,10 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public float damageUserPerc() { return damageUserPerc; }
 	public float damageTargetPerc() { return damageTargetPerc; }
 	public boolean invertWeaknessAndResistance() { return invertWeaknessAndResistance; }
-	public boolean ignoreWeaknesses() { return ignoreWeaknesses; }
-	public boolean ignoreResistances() { return ignoreResistances; }
-	public boolean ignoreImmunities() { return ignoreImmunities; }
-	public boolean ignoreBoosts(String what) { return false; }
-	public boolean ignoreNegativeBoosts(String what) { return false; }
 	public WeatherHolder changeWeather() { return changeWeather; }
 	public boolean transformsUser() { return transformsUser; }
 	public boolean transformsTarget() { return transformsTarget; }
 	public Pony transformInto(final BattleEngine be) { return null; }
-	public boolean ignoreProtection() { return ignoreProtection; }
 	public boolean maximizeHits() { return maximizeHits; }
 	public boolean protectUser() { return protectUser; }
 	public boolean tauntTarget() { return tauntTarget; }
@@ -125,15 +136,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public Pony transformTargetInto(final BattleEngine be) { return null; }
 	public boolean removesAllyHazards() { return removesAllyHazards; }
 	public boolean removesEnemyHazards() { return removesEnemyHazards; }
-	public boolean preventsUserOHKO() { return preventsUserOHKO; }
-	public boolean preventsTargetOHKO() { return preventsTargetOHKO; }
 	public boolean spawnSubstitute() { return spawnSubstitute; }
-	public boolean ignoreStatusDrop() { return ignoreStatusDrop; }
-	public boolean ignoreStatusChange() { return ignoreStatusChange; }
-	public boolean preventsCriticalHits() { return preventsCriticalHits; }
-	public boolean negateSecondaryDamage() { return negateSecondaryDamage; }
 	public boolean effectsAlwaysApply() { return effectsAlwaysApply; }
-	public float preventNegativeConditions() { return preventNegativeConditions; }
 	
 	// protective effects
 	/** Multiplies damage coming from type t by its return value */
@@ -202,6 +206,18 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	protected SimpleEntry<Integer,Float> targetAccuracy = addEntry(0,0f);
 	protected SimpleEntry<Integer,Float> targetEvasion = addEntry(0,0f);
 	
+	/* Ignore effects */
+	protected boolean ignoreWeaknesses;
+	protected boolean ignoreResistances;
+	protected boolean ignoreImmunities; 
+	protected boolean ignoreStatusDrop;
+	protected boolean ignoreStatusChange;
+	protected boolean ignoreCriticalHits;
+	protected boolean ignoreSecondaryDamage;
+	protected boolean ignoreProtection;
+	protected boolean preventsUserOHKO;
+	protected boolean preventsTargetOHKO;
+
 	/* Additional Effects */
 	protected float recoil;
 	protected int damageUser;
@@ -209,12 +225,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	protected float damageUserPerc;
 	protected float damageTargetPerc;
 	protected boolean invertWeaknessAndResistance;
-	protected boolean ignoreWeaknesses;
-	protected boolean ignoreResistances;
-	protected boolean ignoreImmunities; 
 	protected boolean transformsUser;
 	protected boolean transformsTarget;
-	protected boolean ignoreProtection;
 	protected boolean removesAllyHazards;
 	protected boolean removesEnemyHazards;
 	protected boolean maximizeHits;
@@ -223,16 +235,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	protected WeatherHolder changeWeather;
 	protected byte forceUserSwitch;
 	protected byte forceTargetSwitch;
-	protected boolean preventsUserOHKO;
-	protected boolean preventsTargetOHKO;
 	protected boolean spawnSubstitute;
-	protected boolean ignoreStatusDrop;
-	protected boolean ignoreStatusChange;
-	protected boolean preventsCriticalHits;
-	protected boolean negateSecondaryDamage;
 	protected boolean effectsAlwaysApply;
-	protected float preventNegativeConditions;
-
 	
 	/* Healing effects */
 	protected float healUser;	//user regains HP

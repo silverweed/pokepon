@@ -46,6 +46,8 @@ public class NeonLights extends Pony {
 		learnableMoves.put("Dissonance",1);
 		learnableMoves.put("Bass Drop",36);
 		learnableMoves.put("Bass Cannon",50);
+
+		possibleAbilities[0] = "Nocturnality";
 	}
 
 }

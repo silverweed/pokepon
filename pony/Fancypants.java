@@ -39,5 +39,7 @@ public class Fancypants extends Pony {
 		learnableMoves.put("Sonic Barrier",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Dodge",1);
+
+		possibleAbilities[0] = "Nocturnality";
 	}
 }

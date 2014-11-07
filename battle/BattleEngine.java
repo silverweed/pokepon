@@ -1186,14 +1186,30 @@ public class BattleEngine {
 				tryStatChange(defender,"Evasion",boost);
 			}
 			if(rng.nextFloat() < dealer.getTargetConfusion() && !defender.isConfused() && checkProtect(dealer)) {
-				printEffectMsg("enemy ",defender,"confused");
-				defender.setConfused(true);
-				defender.confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);	//confusion lasts 1-Y turns.
-				if(Debug.on) printDebug("Confusion count = "+defender.confusionCounter);
+				float ignore = 0f;
+				for(EffectDealer ed : defender.getEffectDealers())
+					ignore += ed.preventNegativeCondition("cnf");
+				if(rng.nextFloat() > ignore) {
+					if(battleTask != null)
+						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become confused!");
+				} else {
+					printEffectMsg("enemy ",defender,"confused");
+					defender.setConfused(true);
+					defender.confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);	//confusion lasts 1-Y turns.
+					if(Debug.on) printDebug("Confusion count = "+defender.confusionCounter);
+				}
 			}
 			if(rng.nextFloat() < dealer.getTargetFlinch() && checkProtect(dealer)) {
-				printEffectMsg("enemy ",defender,"flinched");
-				defender.setFlinched(true);
+				float ignore = 0f;
+				for(EffectDealer ed : defender.getEffectDealers())
+					ignore += ed.preventNegativeCondition("flinch");
+				if(rng.nextFloat() > ignore) {
+					if(battleTask != null)
+						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't flinch!");
+				} else {
+					printEffectMsg("enemy ",defender,"flinched");
+					defender.setFlinched(true);
+				}
 			}
 			if(rng.nextFloat() < dealer.healTargetStatus() && defender.hasNegativeCondition()) {
 				defender.healStatus();
@@ -1206,11 +1222,10 @@ public class BattleEngine {
 		// Side effects (special conditions etc)
 		// defender
 		if(!defender.isKO() && !defender.hasNegativeCondition() && !defender.hasSubstitute()) {
-			float ignore = 0f;
-			for(EffectDealer ed : defender.getEffectDealers()) {
-				ignore += ed.preventNegativeConditions();
-			}
 			if(rng.nextFloat() < dealer.getTargetParalysis() && checkProtect(dealer)) {
+				float ignore = 0f;
+				for(EffectDealer ed : defender.getEffectDealers())
+					ignore += ed.preventNegativeCondition("par");
 				if(rng.nextFloat() > ignore) {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become paralyzed!");
@@ -1220,6 +1235,9 @@ public class BattleEngine {
 				}
 			}
 			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetPoison() && checkProtect(dealer)) {
+				float ignore = 0f;
+				for(EffectDealer ed : defender.getEffectDealers())
+					ignore += ed.preventNegativeCondition("psn");
 				if(rng.nextFloat() > ignore) {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become poisoned!");
@@ -1229,6 +1247,9 @@ public class BattleEngine {
 				}
 			}
 			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetToxic() && checkProtect(dealer)) {
+				float ignore = 0f;
+				for(EffectDealer ed : defender.getEffectDealers())
+					ignore += ed.preventNegativeCondition("psn");
 				if(rng.nextFloat() > ignore) {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become poisoned!");
@@ -1238,6 +1259,9 @@ public class BattleEngine {
 				}
 			}
 			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetBurn() && checkProtect(dealer)) {
+				float ignore = 0f;
+				for(EffectDealer ed : defender.getEffectDealers())
+					ignore += ed.preventNegativeCondition("brn");
 				if(rng.nextFloat() > ignore) {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become burned!");
@@ -1247,6 +1271,9 @@ public class BattleEngine {
 				}
 			}
 			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetSleep() && checkProtect(dealer)) {
+				float ignore = 0f;
+				for(EffectDealer ed : defender.getEffectDealers())
+					ignore += ed.preventNegativeCondition("slp");
 				if(rng.nextFloat() > ignore) {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become asleep!");
@@ -1257,6 +1284,9 @@ public class BattleEngine {
 				}
 			}
 			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetPetrify() && checkProtect(dealer)) {
+				float ignore = 0f;
+				for(EffectDealer ed : defender.getEffectDealers())
+					ignore += ed.preventNegativeCondition("ptr");
 				if(rng.nextFloat() > ignore) {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become petrified!");

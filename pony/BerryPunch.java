@@ -43,5 +43,6 @@ public class BerryPunch extends Pony {
 		learnableMoves.put("Venom Potion",30);
 
 		possibleAbilities[0] = "Simplicity";
+		possibleAbilities[1] = "Nocturnality";
 	}
 }

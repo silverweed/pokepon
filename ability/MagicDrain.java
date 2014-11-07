@@ -8,7 +8,8 @@ import pokepon.net.jack.*;
 import static pokepon.util.MessageManager.*;
 
 /** MagicDrain
- * Ignores stats negative boosts.
+ * OP ability which boosts a stat or heals user at each turn end
+ * depending on enemy's Race; Tirek's signature ability.
  *
  * @author silverweed
  */
@@ -24,6 +25,9 @@ public class MagicDrain extends Ability {
 	public void onTurnEnd(final BattleEngine be) {
 		if(pony == null)
 			throw new NullPointerException("Pony is null for MagicDrain!");
+		
+		// don't trigger if the pony was switched in this turn
+		if(pony.activeTurns < 1) return;
 
 		Pony oppP = be.getTeam(be.getOppositeSide(pony)).getActivePony();
 		Connection ally = be.getConnection(be.getSide(pony));

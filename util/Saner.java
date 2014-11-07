@@ -24,7 +24,7 @@ public class Saner {
 
 	/** @param str The string to convert in a legit classname
 	 * @param path The path where to search the classes to compare with str
-	 * @param base (Optional): compare only with subclasses of class base.
+	 * @param baseClass (Optional): compare only with subclasses of class base.
 	 */
 	public static String sane(String str,String path,Class<?> baseClass) {
 

@@ -14,7 +14,6 @@ import java.lang.reflect.*;
  *
  * @author Giacomo Parolini
  */
- 
 public class Team implements Iterable<Pony> {
 
 	////////////// CONSTANT VALUES /////////////////
@@ -493,7 +492,8 @@ public class Team implements Iterable<Pony> {
 				if(Debug.on) printDebug(pony.getName()+": moves: "+pony.getMoves());
 				if(pony.getPossibleAbilities().size() != 0) {
 					try {
-						pony.setAbility(AbilityCreator.create(pony.getPossibleAbilities().get((new Random()).nextInt(pony.getPossibleAbilities().size()))));
+						pony.setAbility(AbilityCreator.create(pony.getPossibleAbilities().get(
+							(new Random()).nextInt(pony.getPossibleAbilities().size()))));
 						if(Debug.on) printDebug(pony.getName()+": set ability to "+pony.getAbility());
 					} catch(ReflectiveOperationException e) {
 						printDebug("[randomTeam]: Exception while creating ability: "+e);
@@ -501,7 +501,6 @@ public class Team implements Iterable<Pony> {
 				}
 			}
 		}
-
 		return team;
 	}
 

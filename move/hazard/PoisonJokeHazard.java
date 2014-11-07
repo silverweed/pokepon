@@ -44,7 +44,7 @@ public class PoisonJokeHazard extends Hazard {
 		}
 
 		for(EffectDealer ed : pony.getEffectDealers())
-			if(ed.negateSecondaryDamage())
+			if(ed.ignoreSecondaryDamage())
 				return;
 
 		switch(pony.getRace()) {

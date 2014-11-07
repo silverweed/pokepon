@@ -19,6 +19,12 @@ public class Determination extends Ability {
 	}
 
 	@Override
+	public float preventNegativeCondition(final String which) {
+		if(which.equals("flinch")) return 1f;
+		return 0f;
+	}
+
+	/*@Override
 	public void afterMoveUsage(final BattleEngine be) {
 		if(pony == null)
 			throw new NullPointerException("Pony is null for ability Determination!");
@@ -34,5 +40,5 @@ public class Determination extends Ability {
 						"'s determination prevents it from flinching!");
 			}
 		}
-	}		
+	}*/
 }

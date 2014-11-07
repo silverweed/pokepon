@@ -8,6 +8,7 @@ pokepon.main
 pokepon.move
 pokepon.move.hazard
 pokepon.net.jack
+pokepon.net.jack.chat
 pokepon.net.jack.client
 pokepon.net.jack.server
 pokepon.player

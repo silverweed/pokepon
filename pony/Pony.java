@@ -950,7 +950,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return deathScheduled;
 	}
 
-	// COUNTERS //
+	// COUNTERS (public for convenience) //
 	public int deathCounter;
 	public int toxicCounter;
 	public int protectCounter;
@@ -1576,11 +1576,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public int knownMoves() {
 		int known = 0;
 		for(int i = 0; i < MOVES_PER_PONY; ++i) {
-			if(move[i] != null) {
-				++known;
-			}
+			if(move[i] != null) ++known;
 		}
-
 		return known;
 	}
 

@@ -50,6 +50,6 @@ public class PrincessLuna extends Pony {
 
 		/* possibleAbilities */
 		possibleAbilities[0] = "Subjection";
+		possibleAbilities[1] = "Nocturnality";
 	}
-
 }

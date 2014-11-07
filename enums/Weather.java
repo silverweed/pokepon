@@ -10,7 +10,7 @@ public enum Weather {
 
 	CLEAR("Clear"),		// no weather
 	SUNNY("Sunny"),
-	DARK("Dark"),		//reduces accuracy of everypony but DARK and SHADOW types by 1.
+	DARK("Dark"),		//reduces accuracy of everypony but NIGHT and SHADOW types by 1.
 	CHAOTIC("Chaotic"),	//inverts weaknesses and resistances. Immunities become 4x weaknesses.
 	STORMY("Stormy");	//damages everypony but alicorns (more damage to pegasi/gryphons) 
 

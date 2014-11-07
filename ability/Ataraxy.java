@@ -16,6 +16,6 @@ public class Ataraxy extends Ability {
 		super("Ataraxy");
 		briefDesc = "This pony can only take damage from damaging moves.";
 		
-		negateSecondaryDamage = true;
+		ignoreSecondaryDamage = true;
 	}
 }

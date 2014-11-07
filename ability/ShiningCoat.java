@@ -16,6 +16,6 @@ public class ShiningCoat extends Ability {
 		super("Shining Coat");
 		briefDesc = "Prevents critical hits.";
 
-		preventsCriticalHits = true;
+		ignoreCriticalHits = true;
 	}
 }

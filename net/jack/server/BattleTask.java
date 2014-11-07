@@ -780,7 +780,7 @@ public class BattleTask implements Runnable {
 				Connection thatC = i == 1 ? c2 : c1;
 				boolean preventsSec = false;
 				for(EffectDealer ed : ap.getEffectDealers()) 
-					if(ed.negateSecondaryDamage()) {
+					if(ed.ignoreSecondaryDamage()) {
 						preventsSec = true;
 						break;
 					}

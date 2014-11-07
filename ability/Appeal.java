@@ -17,8 +17,11 @@ public class Appeal extends Ability {
 
 	public Appeal() {
 		super("Appeal");
-		briefDesc = "This pony has 50% chance to avoid negative conditions.";
-		
-		preventNegativeConditions = 0.5f;
+		briefDesc = "This pony has 50% chance to avoid negative conditions.";	
+	}
+	
+	@Override
+	public float preventNegativeCondition(final String which) {
+		return 0.5f;
 	}
 }

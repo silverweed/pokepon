@@ -1,6 +1,7 @@
 ability/Ability.java
 ability/Appeal.java
 ability/Ataraxy.java
+ability/Aversion.java
 ability/Boasting.java
 ability/BruteForce.java
 ability/ChaosMagic.java
@@ -20,6 +21,7 @@ ability/MagicDrain.java
 ability/MagicHeal.java
 ability/Mastery.java
 ability/Mildness.java
+ability/Nocturnality.java
 ability/Optimism.java
 ability/SelfConfidence.java
 ability/SenseOfDanger.java

@@ -43,7 +43,7 @@ public class StealthDiamondsHazard extends Hazard {
 		}
 
 		for(EffectDealer ed : pony.getEffectDealers())
-			if(ed.negateSecondaryDamage())
+			if(ed.ignoreSecondaryDamage())
 				return;
 
 		float perc = 12.5f;

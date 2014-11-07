@@ -52,7 +52,7 @@ public class WildWeedHazard extends Hazard {
 			return;
 		}
 		for(EffectDealer ed : be.getTeam(side).getActivePony().getEffectDealers())
-			if(ed.negateSecondaryDamage())
+			if(ed.ignoreSecondaryDamage())
 				return;
 		int dmg = be.getTeam(side).getActivePony().damagePerc(12.5f);
 		Connection ally = be.getConnection(side), opp = be.getConnection(side == 1 ? 2 : 1);

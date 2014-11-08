@@ -22,6 +22,7 @@ public class Bully extends Move {
 		
 		type = Type.SHADOW;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		baseDamage = 0;
 		maxpp = pp = 25;
 		accuracy = 100;

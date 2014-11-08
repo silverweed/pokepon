@@ -20,6 +20,7 @@ public class Snuggle extends Move {
 		
 		type = Type.LOVE;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 16;
 		baseDamage = 35;
 		accuracy = 100;

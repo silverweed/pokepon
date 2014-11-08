@@ -174,6 +174,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	// hpbars
 	private HPBar allyHPBar;
 	private HPBar oppHPBar;
+	/** Effective stats (except HP) of ally pony (used in PonySpriteListener) */
+	private int[] ponyEffStats = { 0, 0, 0, 0, 0 };
 	/** This color depends on the background image (for dark backgrounds we set this to
 	 * white).
 	 */
@@ -510,6 +512,15 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 		return -1;
 	}
+
+	public int findIndexOf(int num,Pony pony) {
+		Player pl = (num == 1 ? p1 : (num == 2 ? p2 : null));
+		if(pl == null) throw new RuntimeException("findIndexOf: num is "+num);
+		for(int i = 0; i < pl.getTeam().members(); ++i) {
+			if(pl.getTeam().getPony(i) == pony) return i;
+		}
+		return -1;
+	}		
 
 	public void setBattleLogger(final BattleLogger logger) {
 		battleLogger = logger;
@@ -875,6 +886,23 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				e.printStackTrace();
 				printDebug("Caused by: "+e.getCause());
 				return;
+			}
+		
+		} else if(token[0].equals("stats") && token.length > 5) {
+			/* |stats|atk|def|spatk|spdef|speed */
+			String[] stats = "Atk Def Spa SpD Spe".split(" ");
+			for(int i = 1; i < 6; ++i) {
+				try {
+					int s = Integer.parseInt(token[i]);
+					if(s < 1) {
+						printDebug("[BP.interpret(stats)] Invalid stat received: "+s);
+						continue;
+					}
+					ponyEffStats[i-1] = s;
+				} catch(IllegalArgumentException ee) {
+					printDebug("[BP.interpret(stats)] Exception while parsing token["+i+"]: "+ee);
+					continue;
+				}
 			}
 		
 		} else if(token[0].equals("setmv") && token.length > 3) {
@@ -2496,6 +2524,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 		private void showToolTip(MouseEvent e) {
 			Pony pony = isAlly ? allyPony : oppPony;
+			int ponynum = findIndexOf(1, allyPony);
 			if(pony == null) return;
 			String possibleAbs = "";
 			if(!isAlly) 
@@ -2505,22 +2534,60 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					else
 						possibleAbs = ab;
 				}
+			StringBuilder statsString = new StringBuilder("");
+			if(isAlly) {
+				// show ally stats
+				String[] stat = "Atk Def SpA SpD Spe".split(" ");
+				for(int i = 0; i < 5; ++i) {
+					if(ponyEffStats[i] != 0)
+						statsString.append(ponyEffStats[i] + stat[i] + " / ");
+					else
+						statsString.append("??? "+stat[i]+" / ");
+				}
+				statsString.delete(statsString.length() - 2, statsString.length());
+			} else {
+				// show range of possible enemy speed	
+				if(oppPony != null) {
+					int baseSpe = oppPony.getBaseSpeed();
+					int minSpe = (int)((2 * baseSpe * oppPony.getLevel() / 100 + 5) * 0.9);
+					int maxSpe = (int)(((Pony.MAX_IV + 2 * baseSpe + Pony.MAX_EV / 4) * oppPony.getLevel() / 100 + 5) * 1.1);
+					statsString.append(minSpe+" to "+maxSpe+" Spe (before items/abilities/modifiers)");
+				}
+			}
 			toolTip.setTipText(
-				"<html><body style=\"font-family:"+GUIGlobals.FONT_FAMILY+"\"<b>"+pony+"</b><br>"+
-				(isAlly ? "HP: "+pony.getHp()+"<br>" : "") +
-				"Type: "+pony.getTypingHTMLTokens()+"<br>"+
-				(isAlly ? "Ability: <b>"+(pony.getAbility() == null ? "" : pony.getAbility())+"</b><br>" :
-					"Possible abilities:<br><b>"+possibleAbs.trim()+"</b><br>")+
-				(isAlly ? "Item: <b>"+(pony.getItem() == null ? "" : pony.getItem())+"</b><br>" : "")+
+				"<html><body style=\"font-family:"+GUIGlobals.FONT_FAMILY+"\">"+
+				"<b>"+pony.getName()+"</b> "+
+				(pony.getSex() == Pony.Sex.FEMALE 
+					? "<small style=\"color:#C57575\">&#9792;</small>" 
+					: "<small style=\"color:#7575C0\">&#9794;</small>"
+				)+" <small>L"+pony.getLevel()+"</small><br>"+
+				pony.getTypingHTMLTokens()+"<br>"+
+				"<p><small>HP: "+(int)(pony.getHpPerc()*100)+"%"+(isAlly ? " ("+pony.getHp()+")" : "")+"</small></p>"+
+				"<p>"+(isAlly 
+					? "Ability: <b>"+
+						(pony.getAbility() == null 
+							? "" 
+							: pony.getAbility()
+						)+"</b>"
+					: "Possible abilities:&nbsp;"+possibleAbs.trim()
+				)+"</p>"+
+				"<p>"+(isAlly 
+					? "Item: <b>"+(pony.getItem() == null 
+						? "" 
+						: pony.getItem()
+					)+"</b>" 
+					: ""
+				)+"</p>"+
 				(pony.hasNegativeCondition() ? 
-				"Status: "+ 
+				"<p>Status: "+ 
 				(pony.isKO() ? "KO" :
 				pony.isBurned() ? "brn" :
 				pony.isAsleep() ? "slp" :
 				pony.isParalyzed() ? "par" :
 				pony.isIntoxicated() ? "tox" :
 				pony.isPoisoned() ? "psn" :
-				pony.isPetrified() ? "ptr" : "ok") : "")+
+				pony.isPetrified() ? "ptr" : "ok") + "</p>" : "")+
+				"<p>"+statsString+"</p>"+
 				"</body></html>"
 			);
 			
@@ -2531,7 +2598,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				y = (int)allySprite.getLocationOnScreen().getY() - 120;
 			} else {
 				x = (int)oppSprite.getLocationOnScreen().getX() - 160;
-				y = (int)oppSprite.getLocationOnScreen().getY() - 20;
+				y = (int)oppSprite.getLocationOnScreen().getY() - 50;
 			}
 			popup = popupFactory.getPopup((isAlly ? allySprite : oppSprite),toolTip,x,y);
 			popup.show();

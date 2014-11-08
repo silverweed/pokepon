@@ -18,6 +18,7 @@ public class NastyPlot extends Move {
 		
 		type = Type.SHADOW;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 10;
 		baseDamage = 100;
 		accuracy = 90;

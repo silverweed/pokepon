@@ -19,6 +19,7 @@ public class Charge extends Move {
 		
 		type = Type.HONESTY;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 15;
 		baseDamage = 80;
 		accuracy = 95;

@@ -17,6 +17,7 @@ public class Applebuck extends Move {
 		super("Applebuck");
 		type = Type.HONESTY;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 25;
 		baseDamage = 70;
 		accuracy = 100;

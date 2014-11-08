@@ -72,6 +72,7 @@ public abstract class Move extends EffectDealer {
 	public int getId() { return id; }
 	public Type getType() { return type; }
 	public MoveType getMoveType() { return moveType; }
+	public boolean isContactMove() { return contactMove; }
 	public int getPP() { return pp; }
 	public int getMaxPP() { return maxpp; }
 	/** @return True if move has all PP, False otherwise. */
@@ -243,6 +244,7 @@ public abstract class Move extends EffectDealer {
 	protected int id; // currently unused
 	protected Type type;
 	protected MoveType moveType;	
+	protected boolean contactMove;
 	protected int pp;
 	protected int maxpp;
 	protected int baseDamage;

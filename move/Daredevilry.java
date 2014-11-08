@@ -18,6 +18,7 @@ public class Daredevilry extends Move {
 		
 		type = Type.SPIRIT;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 15;
 		baseDamage = 120;
 		accuracy = 100;

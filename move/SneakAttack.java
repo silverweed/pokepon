@@ -17,6 +17,7 @@ public class SneakAttack extends Move {
 		super("Sneak Attack");
 		type = Type.NIGHT;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 25;
 		baseDamage = 40;
 		accuracy = 100;

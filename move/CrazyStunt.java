@@ -23,6 +23,7 @@ public class CrazyStunt extends Move {
 		
 		type = Type.PASSION;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 20;
 		baseDamage = 130;
 		accuracy = 85;

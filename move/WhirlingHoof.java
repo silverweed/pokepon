@@ -17,6 +17,7 @@ public class WhirlingHoof extends Move {
 		super("Whirling Hoof");
 		type = Type.PASSION;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 35;
 		baseDamage = 20;
 		accuracy = 100;

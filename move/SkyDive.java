@@ -17,6 +17,7 @@ public class SkyDive extends Move {
 		super("Sky Dive");
 		type = Type.LOYALTY;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 30;
 		baseDamage = 90;
 		accuracy = 100;

@@ -19,6 +19,7 @@ public class Struggle extends Move {
 		
 		type = Type.HONESTY;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = -1; //-1 means infinite PPs.
 		baseDamage = 40;
 		accuracy = -1;

@@ -18,6 +18,7 @@ public class Rectify extends Move {
 		
 		type = Type.LIGHT;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 15;
 		baseDamage = 90;
 		accuracy = 90;

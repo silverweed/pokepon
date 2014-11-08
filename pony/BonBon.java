@@ -44,6 +44,6 @@ public class BonBon extends Pony {
 		learnableMoves.put("Tackle",1);
 
 		possibleAbilities[0] = "Self Confidence";
+		possibleAbilities[1] = "Hot Headed";
 	}
-
 }

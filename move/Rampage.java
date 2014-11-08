@@ -21,6 +21,7 @@ public class Rampage extends Move {
 		
 		type = Type.CHAOS;
 		moveType = Move.MoveType.STATUS;
+		contactMove = true;
 		maxpp = pp = 10;
 		accuracy = -1;
 		priority = 0;

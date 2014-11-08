@@ -19,6 +19,7 @@ public class Tackle extends Move {
 		
 		type = Type.HONESTY;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 35;
 		baseDamage = 50;
 		accuracy = 100;

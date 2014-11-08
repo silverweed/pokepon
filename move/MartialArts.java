@@ -18,6 +18,7 @@ public class MartialArts extends Move {
 		
 		type = Type.SPIRIT;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 15;
 		baseDamage = 90;
 		accuracy = 100;

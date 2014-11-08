@@ -17,6 +17,7 @@ public class HopefulStrike extends Move {
 		super("Hopeful Strike");
 		type = Type.LOVE;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 15;
 		baseDamage = 75;
 		accuracy = 100;

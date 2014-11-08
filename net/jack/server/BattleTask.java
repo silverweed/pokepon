@@ -1036,6 +1036,7 @@ public class BattleTask implements Runnable {
 		}
 	}
 
+	/** Do all actions that need to happen when a player switches */
 	private void switchRoutine(int pl, int num) {
 		Connection plC = pl == 1 ? c1 : c2;
 		Connection othC = pl == 1 ? c2 : c1;
@@ -1070,7 +1071,9 @@ public class BattleTask implements Runnable {
 			// update battle engine
 			engine.updateActive();
 			if(Debug.pedantic) printDebug("[BT] engine updated. Triggering \"onSwitchIn\" for p"+pl+"...");
-			battle.getPlayer(pl).getActivePony().trigger("onSwitchIn",engine);
+			switched.trigger("onSwitchIn",engine);
+			// update client's allyPony stats
+			sendB(pl == 1 ? c1 : c2, "|stats|"+switched.atk()+"|"+switched.def()+"|"+switched.spatk()+"|"+switched.spdef()+"|"+switched.speed());
 		} else {
 			printDebug(this+" error - switch failed.");
 			sendB("|error|Couldn't switch to pony "+battle.getTeam(pl).getPony(num).getNickname());

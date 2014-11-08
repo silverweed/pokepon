@@ -68,6 +68,7 @@ class MoveButton extends GradientButton {
 				"Damage: <b>"+(move.getBaseDamage() <= 0 ? "-" : move.getBaseDamage())+"</b><br>"+
 				"Accuracy: <b>"+(move.getAccuracy() < 0 ? "-" : move.getAccuracy())+"</b><br>"+
 				move.getBriefDescription()+"<br>"+
+				(move.isContactMove() ? "Makes contact.<br>" : "")+
 				(move.getBasePriority() != 0 ? move.getBasePriority()+" priority" : "");
 		}
 		@Override

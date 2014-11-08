@@ -21,6 +21,7 @@ public class SurpriseHit extends Move {
 		
 		type = Type.NIGHT;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 8;
 		baseDamage = 80;
 		accuracy = 100;

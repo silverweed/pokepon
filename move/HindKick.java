@@ -18,6 +18,7 @@ public class HindKick extends Move {
 		
 		type = Type.SPIRIT;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 15;
 		baseDamage = 80;
 		accuracy = 95;

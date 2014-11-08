@@ -17,6 +17,7 @@ public class RockCrush extends Move {
 		
 		type = Type.HONESTY;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 15;
 		baseDamage = 110;
 		accuracy = 75;

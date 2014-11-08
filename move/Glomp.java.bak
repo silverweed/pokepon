@@ -19,7 +19,6 @@ public class Glomp extends Move {
 		
 		type = Type.LOVE;
 		moveType = Move.MoveType.PHYSICAL;
-		contactMove = true;
 		maxpp = pp = 15;
 		baseDamage = 85;
 		accuracy = 100;

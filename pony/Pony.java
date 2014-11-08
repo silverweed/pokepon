@@ -883,6 +883,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		taunted = false;
 		trapped = false;
 		lockedOnMove = false;
+		if(ability != null)
+			ability.reset();
 		for(Move m : move)
 			if(m != null)
 				m.reset();

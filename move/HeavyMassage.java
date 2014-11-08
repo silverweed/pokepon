@@ -20,6 +20,7 @@ public class HeavyMassage extends Move {
 		
 		type = Type.KINDNESS;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 25;
 		baseDamage = 70;
 		accuracy = 100;

@@ -19,6 +19,7 @@ public class BindUp extends Move {
 		
 		type = Type.GENEROSITY;
 		moveType = Move.MoveType.PHYSICAL;
+		contactMove = true;
 		maxpp = pp = 20;
 		baseDamage = 50;
 		accuracy = 100;

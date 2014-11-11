@@ -285,6 +285,7 @@ Credits
 * The currently used game sprites are mostly taken from Desktop Ponies
 * Several game fx are from 
   [Pokémon Showdown](https://github.com/zarel/Pokemon-Showdown)
+* Some of the typings take inspiration from [Ponymon](http://ponymondawndusk.wikia.com/wiki/Ponymon_Dawn/Dusk_Wiki)
 * Other credits are reported in data/credits.txt
 * Special thanks to Bram Moolenaar for creating Vim, which I used for
   writing the entire Poképon code.

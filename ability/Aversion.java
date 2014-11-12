@@ -8,7 +8,7 @@ import pokepon.move.*;
 import static pokepon.util.MessageManager.*;
 
 /** Aversion
- * Whenever this pony is damaged by a physical attack, opponent loses 1/8 HP.
+ * Whenever this pony is damaged by a contact move, opponent loses 1/8 HP.
  *
  * @author Giacomo Parolini
  */
@@ -17,13 +17,13 @@ public class Aversion extends Ability {
 
 	public Aversion() {
 		super("Aversion");
-		briefDesc = "Damages opponent by 1/8 HP when hit by a physical move.";
+		briefDesc = "Damages opponent by 1/8 HP when hit by a contact move.";
 	}
 
 	@Override
 	public void afterMoveHit(final BattleEngine be) {
 		if(	pony == be.getDefender() && 
-			be.getCurrentMove().getMoveType() == Move.MoveType.PHYSICAL &&
+			be.getCurrentMove().isContactMove() &&
 			be.getInflictedDamage() > 0
 		) {
 			int damage = be.getAttacker().damagePerc(12.5f);

@@ -40,7 +40,7 @@ public class Mustache extends Move {
 	public boolean validConditions(final BattleEngine be) {
 		if(be.getDefender() != null && be.getDefender().getSex() == Pony.Sex.FEMALE) {
 			damageBoost = (int)(baseDamage * 0.5);
-			targetAtk = targetDef = targetSpatk = targetSpdef = targetAccuracy = targetEvasion = null;
+			targetAtk = targetDef = targetSpatk = targetSpdef = targetAccuracy = targetEvasion = addEntry(0,0f);
 			switch(be.getRNG().nextInt(7)) {
 				case 0:
 					targetAtk = addEntry(-1, 0.2f);
@@ -66,7 +66,7 @@ public class Mustache extends Move {
 			}
 		} else {
 			damageBoost = 0;
-			targetAtk = targetDef = targetSpatk = targetSpdef = targetSpeed = targetAccuracy = targetEvasion = null;
+			targetAtk = targetDef = targetSpatk = targetSpdef = targetSpeed = targetAccuracy = targetEvasion = addEntry(0,0f);
 		}
 		return true;
 	}

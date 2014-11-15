@@ -2540,7 +2540,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				String[] stat = "Atk Def SpA SpD Spe".split(" ");
 				for(int i = 0; i < 5; ++i) {
 					if(ponyEffStats[i] != 0)
-						statsString.append(ponyEffStats[i] + stat[i] + " / ");
+						statsString.append(ponyEffStats[i] + " " + stat[i] + " / ");
 					else
 						statsString.append("??? "+stat[i]+" / ");
 				}

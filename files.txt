@@ -13,6 +13,7 @@ ability/DieHard.java
 ability/DragonScales.java
 ability/Escapist.java
 ability/HighScorer.java
+ability/HotHeaded.java
 ability/Indifference.java
 ability/Integrity.java
 ability/Leadership.java
@@ -112,6 +113,7 @@ main/ColorsTest.java
 main/Coverage.java
 main/FastPonydex.java
 main/GUILauncher.java
+main/ListTypings.java
 main/PokeponLauncher.java
 main/PokeponTest.java
 main/QuickLauncher.java
@@ -342,6 +344,7 @@ pony/ScrewLoose.java
 pony/Screwball.java
 pony/ShiningArmor.java
 pony/SilverSpoon.java
+pony/Snails.java
 pony/Soarin.java
 pony/Spike.java
 pony/Spitfire.java

@@ -444,6 +444,8 @@ public class BattleTask implements Runnable {
 						engine.updateActive();
 						if(Debug.pedantic) printDebug("[BT] engine updated. Triggering \"onSwitchIn\" for p"+pl+"...");
 						battle.getPlayer(pl).getActivePony().trigger("onSwitchIn",engine);
+						// update client's allyPony stats
+						sendB(thisC, "|stats|"+switched.atk()+"|"+switched.def()+"|"+switched.spatk()+"|"+switched.spdef()+"|"+switched.speed());
 						// if last move used had copyVolatiles = true, copy them now on the new AP:
 						if(engine.getCurrentMove() != null && engine.getCurrentMove().copyVolatiles() && volatiles != null) {
 							switched.setVolatiles(volatiles);	
@@ -739,14 +741,14 @@ public class BattleTask implements Runnable {
 				
 				// scheduledMove[second-1] may be null in case of forced switch: in this case, or
 				// if the second pony to go is already KO, the turn ends here.
-				if(!engine.getDefender().isFainted() && scheduledMove[second-1] != null) {
+				if(!engine.getDefender().isFainted()) {
 					// this can happen if first player used a >= +7 priority move (e.g. Stalking)
 					if(event[second - 1] == Event.SWITCH) {
 						if(Debug.pedantic) printDebug("event[second("+second+")] = SWITCH");
 						switchRoutine(second, scheduledSwitchNum[second-1]);
 						battle.getTeam(second).getActivePony().trigger("afterSwitchIn",engine);
 						engine.triggerEvent("afterSwitchIn");
-					} else {
+					} else if(scheduledMove[second - 1] != null) {
 						engine.swapSides();
 
 						engine.ponyUseMove(scheduledMove[second-1]);

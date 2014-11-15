@@ -38,9 +38,16 @@ public class SwingConsole {
 
 	/** Don't manually set size, but pack. */
 	public static void run(final JFrame f,final String title) {
+		run(f, title, true);
+	}
+
+	public static void run(final JFrame f,final String title, final boolean exitOnClose) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				if(exitOnClose)
+					f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				else
+					f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				f.setTitle(title);
 				f.pack();
 				f.setVisible(true);

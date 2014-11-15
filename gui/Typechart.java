@@ -4,6 +4,8 @@ package pokepon.gui;
 
 import pokepon.enums.Type;
 import pokepon.battle.*;
+import pokepon.util.*;
+import static pokepon.util.MessageManager.*;
 import java.awt.*;
 import java.awt.geom.*;
 import javax.swing.*;
@@ -29,6 +31,12 @@ public class Typechart extends JPanel implements pokepon.main.TestingClass {
 			}
 		});
 		JLabel corner = new RoundedLabel("");
+		try {
+			corner.setIcon(new ImageIcon(getClass().getResource(Meta.complete2(Meta.RESOURCE_DIR)+"/misc/corner_typechart.png")));
+		} catch(NullPointerException e) {
+			printDebug("[Typechart] File not found: ");
+			e.printStackTrace();
+		}
 		corner.setOpaque(true);
 		add(corner);
 		for(Type t : types) {
@@ -70,9 +78,13 @@ public class Typechart extends JPanel implements pokepon.main.TestingClass {
 	}
 
 	public void display() {
+		display(true);
+	}
+
+	public void display(boolean exitOnClose) {
 		JFrame f = new JFrame();
 		f.add(this);
-		SwingConsole.run(f, "Pokepon Typechart");
+		SwingConsole.run(f, "Pokepon Typechart", exitOnClose);
 	}
 
 	public static void main(String[] args) {
@@ -85,6 +97,11 @@ public class Typechart extends JPanel implements pokepon.main.TestingClass {
 			setOpaque(true);
 			setPreferredSize(LABEL_SIZE);
 			setHorizontalAlignment(CENTER);
+		}
+
+		public RoundedLabel(Icon image) {
+			super(image);
+			setPreferredSize(LABEL_SIZE);
 		}
 	}
 }

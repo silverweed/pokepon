@@ -459,7 +459,11 @@ class GUILauncher extends JFrame {
 		},
 		chartListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				(new Typechart()).display();
+				new Thread() {
+					public void run() {
+						(new Typechart()).display(false);
+					}
+				}.start();
 			}
 		};
 		/*dexListener = new ActionListener() {

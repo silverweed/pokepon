@@ -26,6 +26,7 @@ To connect to a running server, click "Client" and insert the server IP
 (the port is usually the default one, unless the server mantainer has
 decided otherwise).
 
+Here is a list of public Poképon Servers to which anyone can connect:
 <table>
   <tr>
     <th colspan=2>List of public Poképon Servers</th>
@@ -164,7 +165,7 @@ How to connect
 To connect to a running Poképon Server start the Client, either from
 the graphical launcher or issuing the command 
 ```bash
-java -jar /path/to/pokepon.jar client &lt;serverIP&gt;
+java -jar /path/to/pokepon.jar client <serverIP>
 ```
 
 The client is effectively a chat endued with some extra features, most notably

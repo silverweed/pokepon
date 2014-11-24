@@ -7,7 +7,7 @@ import pokepon.battle.*;
 import pokepon.pony.Pony;
 
 /**
- * Special move which may petrify the opponent.
+ * A more powerful version of Eerie Sonata.
  *
  * @author Giacomo Parolini
  */

@@ -34,6 +34,7 @@ public class ChiefThunderhooves extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",1);
+		learnableMoves.put("Drum Bang",1);
 		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Wild Weed",1);

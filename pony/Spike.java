@@ -30,6 +30,7 @@ public class Spike extends Pony {
 		baseSpeed = 60;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Drum Bang",1);
 		learnableMoves.put("Mustache",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Wild Weed",1);

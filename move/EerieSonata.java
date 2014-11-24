@@ -6,7 +6,7 @@ import pokepon.enums.*;
 import pokepon.pony.Pony;
 
 /**
- * Inflicts good physical damage.
+ * Inflicts special damage and may petrify.
  *
  * @author 
  */
@@ -17,11 +17,11 @@ public class EerieSonata extends Move {
 		super("Eerie Sonata");
 		type = Type.MUSIC;
 		moveType = Move.MoveType.SPECIAL;
-		maxpp = pp = 16;
-		baseDamage = 90;
+		maxpp = pp = 20;
+		baseDamage = 70;
 		accuracy = 100;
 		priority = 0;
-		description = "";
+		description = "A disturbing tone creeps out the opponent. Has a chance to petrify.";
 		briefDesc = "10% to petrify the target.";
 
 		animation.put("name", "Compound");

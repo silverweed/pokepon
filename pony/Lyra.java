@@ -43,6 +43,7 @@ public class Lyra extends Pony {
 		learnableMoves.put("Lullaby",20);
 		learnableMoves.put("Freeze Spell",38);
 		learnableMoves.put("Horn Beam",44);
+		learnableMoves.put("Overture",49);
 	}
 
 }

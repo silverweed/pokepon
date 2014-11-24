@@ -32,6 +32,7 @@ public class MaudPie extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Rock Throw",1);
+		learnableMoves.put("Drum Bang",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Daredevilry",1);

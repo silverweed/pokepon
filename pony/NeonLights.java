@@ -30,6 +30,7 @@ public class NeonLights extends Pony {
 		baseSpeed = 89;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Drum Bang",1);
 		learnableMoves.put("Surprise Hit",1);
 		learnableMoves.put("Repeat",1);
 		learnableMoves.put("Magic Blast",1);

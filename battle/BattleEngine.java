@@ -283,7 +283,6 @@ public class BattleEngine {
 				battleTask.sendB(opp,"|par|opp");
 			}
 			if(echoBattle) printMsg(attacker.getNickname()+" is paralyzed and can't move!");
-			attacker.setBlocked(false);
 			move.reset();
 			return;
 		} else if(staysPetrified(attacker)) {
@@ -292,7 +291,6 @@ public class BattleEngine {
 				battleTask.sendB(opp,"|ptr|opp");
 			}
 			if(echoBattle) printMsg(attacker.getNickname()+" is petrified and can't move!");
-			attacker.setBlocked(false);
 			move.reset();
 			return;
 		} else if(attacker.isFlinched()) {
@@ -302,7 +300,6 @@ public class BattleEngine {
 			}
 			if(echoBattle) printMsg(attacker.getNickname()+" is flinched and can't move!");
 			attacker.setFlinched(false);
-			attacker.setBlocked(false);
 			move.reset();
 			return;
 		} else if(staysAsleep(attacker)) {
@@ -311,7 +308,6 @@ public class BattleEngine {
 				battleTask.sendB(opp,"|slp|opp");
 			}
 			if(echoBattle) printMsg(attacker.getNickname()+" is fast asleep.");
-			attacker.setBlocked(false);
 			move.reset();
 			return;
 		} else if(attacker.isTaunted() && move.getMoveType() == Move.MoveType.STATUS) {
@@ -368,7 +364,6 @@ public class BattleEngine {
 					}
 					return;
 				}
-				attacker.setBlocked(false);
 				move.reset();
 				return;
 			}
@@ -508,8 +503,8 @@ public class BattleEngine {
 			int hits = 1;
 			/* If multiple hits move, first decide the hits count. */
 			if(move.getHits() > 1) {
-				if(	(attacker.getItem() != null && attacker.getItem().maximizeHits()) ||
-					(attacker.getAbility() != null && attacker.getAbility().maximizeHits())
+				if(	(!attacker.cannotUseItems() && attacker.getItem() != null && attacker.getItem().maximizeHits()) ||
+					(!attacker.hasAbilityDisabled() && attacker.getAbility() != null && attacker.getAbility().maximizeHits())
 				) 
 					hits = move.getHits();
 				else
@@ -898,13 +893,14 @@ public class BattleEngine {
 		return (random > probability);
 	}
 	
-	private void printBoostMsg(String side,Pony pony,String stat,int value) {
-		String name = side + pony.getNickname();
-		pony.boost(Pony.toBriefStat(stat),value);
+	private void boostStat(boolean isally, Pony pony, String stat, int value) {
+		String name = (isally ? "" : "enemy ") + pony.getNickname();
+		pony.boost(stat, value);
 		if(battleTask != null) {
-			battleTask.sendB(ally,"|boost|"+(side.equals("") ? "ally" : "opp")+"|"+stat+"|"+value);
-			battleTask.sendB(opp,"|boost|"+(side.equals("") ? "opp" : "ally")+"|"+stat+"|"+value);
+			battleTask.sendB(ally,"|boost|"+(isally ? "ally" : "opp")+"|"+stat+"|"+value);
+			battleTask.sendB(opp,"|boost|"+(isally ? "opp" : "ally")+"|"+stat+"|"+value);
 		}
+		stat = Pony.toLongStat(stat);
 		if(echoBattle) {
 			if(value > 2) {
 				printMsg("Hey, "+name+"'s "+stat+" rose drastically!");
@@ -1128,62 +1124,62 @@ public class BattleEngine {
 			// Stats Modifiers
 			if(rng.nextFloat() < dealer.boostUserAtk().getValue()) {
 				int boost = dealer.boostUserAtk().getKey();
-				tryStatChange(attacker,"Attack",boost);
+				tryStatChange(attacker,"atk",boost);
 			}
 			if(rng.nextFloat() < dealer.boostUserDef().getValue()) {
 				int boost = dealer.boostUserDef().getKey();
-				tryStatChange(attacker,"Defense",boost);
+				tryStatChange(attacker,"def",boost);
 			}
 			if(rng.nextFloat() < dealer.boostUserSpatk().getValue()) {
 				int boost = dealer.boostUserSpatk().getKey();
-				tryStatChange(attacker,"Special Attack",boost);
+				tryStatChange(attacker,"spatk",boost);
 			}
 			if(rng.nextFloat() < dealer.boostUserSpdef().getValue()) {
 				int boost = dealer.boostUserSpdef().getKey();
-				tryStatChange(attacker,"Special Defense",boost);
+				tryStatChange(attacker,"spdef",boost);
 			}
 			if(rng.nextFloat() < dealer.boostUserSpeed().getValue()) {
 				int boost = dealer.boostUserSpeed().getKey();
-				tryStatChange(attacker,"Speed",boost);
+				tryStatChange(attacker,"speed",boost);
 			}
 			if(rng.nextFloat() < dealer.boostUserAccuracy().getValue()) {
 				int boost = dealer.boostUserAccuracy().getKey();
-				tryStatChange(attacker,"Accuracy",boost);
+				tryStatChange(attacker,"accuracy",boost);
 			}
 			if(rng.nextFloat() < dealer.boostUserEvasion().getValue()) {
 				int boost = dealer.boostUserEvasion().getKey();
-				tryStatChange(attacker,"Evasion",boost);
+				tryStatChange(attacker,"evasion",boost);
 			}
 		}
 		if(!defender.isKO() && !defender.hasSubstitute()) {
 			// effects to defender apply only if it isn't protected.
 			if(rng.nextFloat() < dealer.boostTargetAtk().getValue() && checkProtect(dealer)) {
 				int boost = dealer.boostTargetAtk().getKey();
-				tryStatChange(defender,"Attack",boost);
+				tryStatChange(defender,"atk",boost);
 			}
 			if(rng.nextFloat() < dealer.boostTargetDef().getValue() && checkProtect(dealer)) {
 				int boost = dealer.boostTargetDef().getKey();
-				tryStatChange(defender,"Defense",boost);
+				tryStatChange(defender,"def",boost);
 			}
 			if(rng.nextFloat() < dealer.boostTargetSpatk().getValue() && checkProtect(dealer)) {
 				int boost = dealer.boostTargetSpatk().getKey();
-				tryStatChange(defender,"Special Attack",boost);
+				tryStatChange(defender,"spatk",boost);
 			}
 			if(rng.nextFloat() < dealer.boostTargetSpdef().getValue() && checkProtect(dealer)) {
 				int boost = dealer.boostTargetSpdef().getKey();
-				tryStatChange(defender,"Special Defense",boost);
+				tryStatChange(defender,"spdef",boost);
 			}
 			if(rng.nextFloat() < dealer.boostTargetSpeed().getValue() && checkProtect(dealer)) {
 				int boost = dealer.boostTargetSpeed().getKey();
-				tryStatChange(defender,"Speed",boost);
+				tryStatChange(defender,"speed",boost);
 			}
 			if(rng.nextFloat() < dealer.boostTargetAccuracy().getValue() && checkProtect(dealer)) {
 				int boost = dealer.boostTargetAccuracy().getKey();
-				tryStatChange(defender,"Accuracy",boost);
+				tryStatChange(defender,"accuracy",boost);
 			}
 			if(rng.nextFloat() < dealer.boostTargetEvasion().getValue() && checkProtect(dealer)) {
 				int boost = dealer.boostTargetEvasion().getKey();
-				tryStatChange(defender,"Evasion",boost);
+				tryStatChange(defender,"evasion",boost);
 			}
 			if(rng.nextFloat() < dealer.getTargetConfusion() && !defender.isConfused() && checkProtect(dealer)) {
 				float ignore = 0f;
@@ -1643,7 +1639,7 @@ public class BattleEngine {
 			}
 		}
 		if(!immune) {
-			printBoostMsg((pony == defender ? "enemy " : ""),pony,stat,boost);
+			boostStat(pony == attacker, pony, stat, boost);
 		} else {
 			if(battleTask != null)
 				battleTask.sendB("|battle|"+pony.getNickname()+" ignores the stat change!");

@@ -2096,7 +2096,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						}
 						if(allyPony != null) 
 							synchronized(allyPony) {
-								allyPony.setFainted(true);
+								allyPony.setFainted();
 							}
 						moveP.setVisible(false);
 						for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
@@ -2123,7 +2123,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						}
 						if(oppPony != null) 
 							synchronized(oppPony) {
-								oppPony.setFainted(true);
+								oppPony.setFainted();
 							}
 					}
 				});

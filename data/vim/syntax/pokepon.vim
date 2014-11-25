@@ -58,5 +58,3 @@ hi link pkpTeamName Identifier
 
 
 let b:current_syntax = "pokepon"
-
-

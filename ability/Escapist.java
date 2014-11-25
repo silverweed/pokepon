@@ -27,7 +27,7 @@ public class Escapist extends Ability {
 			pony.getWeaknesses().containsKey(be.getCurrentMove().getType()) &&
 			pony.evasionMod() < 6
 		) {
-			pony.boostEvasion(1);
+			pony.boost("evasion", 1);
 			if(be.getBattleTask() != null) {
 				be.getBattleTask().sendB(be.getAlly(),"|boost|ally|eva|1");
 				be.getBattleTask().sendB(be.getOpp(),"|boost|opp|eva|1");

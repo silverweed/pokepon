@@ -201,18 +201,110 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 	};
 
+	/** This class represents pony temporary statuses, which get reset when it's withdrawn. */
 	public class Volatiles {
-		public int atkModifier;
-		public int defModifier;
-		public int spatkModifier;
-		public int spdefModifier;
-		public int speedModifier;
-		public int evasionModifier;
-		public int accuracyModifier;
-		public boolean confused;
+		public class Modifiers implements Iterable<Map.Entry<String, Integer>> {
+			public int atk, def, spatk, spdef, speed, evasion, accuracy;
+			@Override
+			public Iterator<Map.Entry<String, Integer>> iterator() {
+				return new Iterator<Map.Entry<String, Integer>>() {
+					private int idx = 0;
+					@Override
+					public Map.Entry<String, Integer> next() {
+						switch(idx++) {
+							case 0: return new AbstractMap.SimpleEntry<String,Integer>("atk", atk);
+							case 1: return new AbstractMap.SimpleEntry<String,Integer>("def", def);
+							case 2: return new AbstractMap.SimpleEntry<String,Integer>("spatk", spatk);
+							case 3: return new AbstractMap.SimpleEntry<String,Integer>("spdef", spdef);
+							case 4: return new AbstractMap.SimpleEntry<String,Integer>("speed", speed);
+							case 5: return new AbstractMap.SimpleEntry<String,Integer>("evasion", evasion);
+							case 6: return new AbstractMap.SimpleEntry<String,Integer>("accuracy", accuracy);
+							default: throw new NoSuchElementException();
+						}
+					}
+					@Override
+					public boolean hasNext() { return idx < 7; }
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+				};
+			}
+			public void copy(Modifiers m) {
+				atk = m.atk;
+				def = m.def;
+				spatk = m.spatk;
+				spdef = m.spdef;
+				speed = m.speed;
+				evasion = m.evasion;
+				accuracy = m.accuracy;
+			}
+			public int get(String s) {
+				if(toBriefStat(s).equals("Atk")) return atk;
+				else if(toBriefStat(s).equals("Def")) return def;
+				else if(toBriefStat(s).equals("SpA")) return spatk;
+				else if(toBriefStat(s).equals("Spd")) return spdef;
+				else if(toBriefStat(s).equals("Spe")) return speed;
+				else if(toBriefStat(s).equals("Eva")) return evasion;
+				else if(toBriefStat(s).equals("Acc")) return accuracy;
+				else return 0;
+			}
+			public void set(String s, int value) {
+				if(toBriefStat(s).equals("Atk")) atk = value;
+				else if(toBriefStat(s).equals("Def")) def = value;
+				else if(toBriefStat(s).equals("SpA")) spatk = value;
+				else if(toBriefStat(s).equals("SpD")) spdef = value;
+				else if(toBriefStat(s).equals("Spe")) speed = value;
+				else if(toBriefStat(s).equals("Eva")) evasion = value;
+				else if(toBriefStat(s).equals("Acc")) accuracy = value;
+			}
+			public int boost(String s, int value) {
+				int mod = get(s);
+				mod += value;
+				if(mod > 6) mod = 6;
+				else if(mod < -6) mod = -6;
+				set(s, mod);
+				return mod;
+			}
+			public void reset() {
+				atk = def = spatk = spdef = speed = evasion = accuracy = 0;
+			}
+
+		} // end class Modifiers
+
+		public void reset() {
+			modifiers.reset();
+			effectiveness.clear();
+			deathScheduled = false;
+			taunted = false;
+			trapped = false;
+			lockedOnMove = false;
+			substitute = false;
+			abilityDisabled = false;
+			cannotUseItems = false;
+		}
+		/** Copies all volatiles from another Volatiles instance */
+		public void copy(Volatiles vol) {
+			modifiers.copy(vol.modifiers);
+			substitute = vol.substitute;
+			deathScheduled = vol.deathScheduled;
+			taunted = vol.taunted;
+			trapped = vol.trapped;
+			lockedOnMove = vol.lockedOnMove;
+			abilityDisabled = vol.abilityDisabled;
+			cannotUseItems = vol.cannotUseItems;
+			effectiveness = new EnumMap<Type,Float>(vol.effectiveness);
+		}
+
+		Modifiers modifiers = new Modifiers();
+		public boolean deathScheduled;
 		public boolean taunted;
+		public boolean trapped;
+		public boolean lockedOnMove;
 		public boolean substitute;
-		public EnumMap<Type,Float> volatileEffectiveness = new EnumMap<>(Type.class);
+		private boolean abilityDisabled;
+		private boolean cannotUseItems;
+		public EnumMap<Type,Float> effectiveness = new EnumMap<>(Type.class);
 	}
 
 	////////////// PUBLIC METHODS / FIELDS /////////////////
@@ -304,12 +396,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			backSprite = other.backSprite;
 			type = other.type;
 			race = other.race;
-			// FIXME: y u no work??
-			atkModifier = other.atkModifier;
-			defModifier = other.defModifier;
-			spatkModifier = other.spatkModifier;
-			spdefModifier = other.spdefModifier;
-			speedModifier = other.speedModifier;
+			volatiles.modifiers.copy(other.volatiles.modifiers);
 			for(int i = 0; i < MOVES_PER_PONY; ++i)
 				move[i] = other.move[i];
 			transformed = true;
@@ -540,18 +627,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	public Volatiles getVolatiles() {
-		Volatiles v = new Volatiles();
-		v.atkModifier = atkModifier;
-		v.defModifier = defModifier;
-		v.spatkModifier = spatkModifier;
-		v.spdefModifier = spdefModifier;
-		v.speedModifier = speedModifier;
-		v.evasionModifier = evasionModifier;
-		v.accuracyModifier = accuracyModifier;
-		v.confused = confused;
-		v.substitute = substitute;
-		v.volatileEffectiveness = new EnumMap<Type,Float>(volatileEffectiveness);
-		return v;
+		return volatiles;
 	}
 
 	// Temporary statuses
@@ -604,24 +680,24 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return isProtected;
 	}
 
-	public boolean isTrapped() {
-		return trapped;
-	}
-
-	public boolean isLockedOnMove() {
-		return lockedOnMove;
-	}
-
 	public String getUnlockPhrase() {
 		return unlockPhrase;
 	}
 
+	public boolean isTrapped() {
+		return volatiles.trapped;
+	}
+
+	public boolean isLockedOnMove() {
+		return volatiles.lockedOnMove;
+	}
+
 	public boolean isTaunted() {
-		return taunted;
+		return volatiles.taunted;
 	}
 
 	public boolean hasSubstitute() {
-		return substitute;
+		return volatiles.substitute;
 	}
 
 	public boolean finishedPP() {
@@ -651,23 +727,23 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	public int atk() {
-		return (int)(((atkIV+2*baseAtk+atkEV/4)*level/100+5)*natureModifier("atk")*getStatMod(atkModifier));
+		return (int)(((atkIV+2*baseAtk+atkEV/4)*level/100+5)*natureModifier("atk")*getStatMod(volatiles.modifiers.atk));
 	}
 
 	public int spatk() {
-		return (int)(((spatkIV+2*baseSpatk+spatkEV/4)*level/100+5)*natureModifier("spatk")*getStatMod(spatkModifier));
+		return (int)(((spatkIV+2*baseSpatk+spatkEV/4)*level/100+5)*natureModifier("spatk")*getStatMod(volatiles.modifiers.spatk));
 	}
 
 	public int def() {
-		return (int)(((defIV+2*baseDef+defEV/4)*level/100+5)*natureModifier("def")*getStatMod(defModifier));
+		return (int)(((defIV+2*baseDef+defEV/4)*level/100+5)*natureModifier("def")*getStatMod(volatiles.modifiers.def));
 	}
 
 	public int spdef() {
-		return (int)(((spdefIV+2*baseSpdef+spdefEV/4)*level/100+5)*natureModifier("spdef")*getStatMod(spdefModifier));
+		return (int)(((spdefIV+2*baseSpdef+spdefEV/4)*level/100+5)*natureModifier("spdef")*getStatMod(volatiles.modifiers.spdef));
 	}
 
 	public int speed() {
-		return (int)(((speedIV+2*baseSpeed+speedEV/4)*level/100+5)*natureModifier("speed")*getStatMod(speedModifier));
+		return (int)(((speedIV+2*baseSpeed+speedEV/4)*level/100+5)*natureModifier("speed")*getStatMod(volatiles.modifiers.speed));
 	}
 
 	public int getBaseHp() {
@@ -748,13 +824,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	// Stats modifiers
 	public String getBoosts() {
 		StringBuilder sb = new StringBuilder("[");
-		if(atkModifier != 0) sb.append("atk:"+atkModifier+",");
-		if(defModifier != 0) sb.append("def:"+defModifier+",");
-		if(spatkModifier != 0) sb.append("spa:"+spatkModifier+",");
-		if(spdefModifier != 0) sb.append("spd:"+spdefModifier+",");
-		if(speedModifier != 0) sb.append("spe:"+speedModifier+",");
-		if(evasionModifier != 0) sb.append("eva:"+evasionModifier+",");
-		if(accuracyModifier != 0) sb.append("acc:"+accuracyModifier+",");
+		for(Map.Entry<String,Integer> entry : volatiles.modifiers)
+			if(entry.getValue() != 0) sb.append(entry.getKey()+":"+entry.getValue()+",");
 		if(sb.length() > 1) 
 			sb.delete(sb.length()-1,sb.length());
 		sb.append("]");
@@ -763,37 +834,49 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public int getBoost(final String s) {
 		if(Debug.on) printDebug("Called getBoost("+s+"). Modifiers = "+getBoosts());
-		if(s.equals("atk")) return atkModifier;
-		else if(s.equals("def")) return defModifier;
-		else if(s.equals("spatk")) return spatkModifier;
-		else if(s.equals("spdef")) return spdefModifier;
-		else if(s.equals("speed")) return speedModifier;
-		else if(s.equals("evasion")) return evasionModifier;
-		else if(s.equals("accuracy")) return accuracyModifier;
-		else return 0;
+		return volatiles.modifiers.get(s);
 	}
 
 	public static String toBriefStat(final String stat) {
 		if(stat.equalsIgnoreCase("hp")) return "HP";
-		else if(stat.equalsIgnoreCase("attack") || stat.equalsIgnoreCase("atk")) return "Atk";
-		else if(stat.equalsIgnoreCase("defense") || stat.equalsIgnoreCase("def")) return "Def";
-		else if(stat.equalsIgnoreCase("spdef") || 
+		if(stat.equalsIgnoreCase("attack") || stat.equalsIgnoreCase("atk")) return "Atk";
+		if(stat.equalsIgnoreCase("defense") || stat.equalsIgnoreCase("def")) return "Def";
+		if(	stat.equalsIgnoreCase("spdef") ||
 			stat.equalsIgnoreCase("specialdefense") || 
-			stat.equalsIgnoreCase("special defense") ||
-			stat.equalsIgnoreCase("spd")) return "SpD";
-		else if(stat.equalsIgnoreCase("spatk") || 
+			stat.equalsIgnoreCase("special defense") || 
+			stat.equalsIgnoreCase("spd")
+		) 
+			return "SpD";
+		if(	stat.equalsIgnoreCase("spatk") || 
 			stat.equalsIgnoreCase("specialattack") ||
 			stat.equalsIgnoreCase("special attack") ||
-			stat.equalsIgnoreCase("spa")) return "SpA";
-		else if(stat.equalsIgnoreCase("speed") || stat.equalsIgnoreCase("spe")) return "Spe";
-		else return "";
+			stat.equalsIgnoreCase("spa")
+		)
+			return "SpA";
+		if(stat.equalsIgnoreCase("speed") || stat.equalsIgnoreCase("spe")) return "Spe";
+		if(stat.equalsIgnoreCase("evasion") || stat.equalsIgnoreCase("eva")) return "Eva";
+		if(stat.equalsIgnoreCase("accuracy") || stat.equalsIgnoreCase("acc")) return "Acc";
+		return "";
 	}
 
-	public int atkMod() { return atkModifier; }
-	public int defMod() { return defModifier; }
-	public int spatkMod() { return spatkModifier; }
-	public int spdefMod() { return spdefModifier; }
-	public int speedMod() { return speedModifier; }
+	public static String toLongStat(final String stat) {
+		String bstat = toBriefStat(stat);
+		if(bstat.equals("HP")) return "HP";
+		if(bstat.equals("Atk")) return "Attack";
+		if(bstat.equals("Def")) return "Defense";
+		if(bstat.equals("SpA")) return "Special Attack";
+		if(bstat.equals("SpD")) return "Special Defense";
+		if(bstat.equals("Spe")) return "Speed";
+		if(bstat.equals("Eva")) return "Evasion";
+		if(bstat.equals("Acc")) return "Accuracy";
+		return "";
+	}
+
+	public int atkMod() { return volatiles.modifiers.atk; }
+	public int defMod() { return volatiles.modifiers.def; }
+	public int spatkMod() { return volatiles.modifiers.spatk; }
+	public int spdefMod() { return volatiles.modifiers.spdef; }
+	public int speedMod() { return volatiles.modifiers.speed; }
 	
 	/** @return Modification of stats */
 	public static float getStatMod(final int mod) {
@@ -816,15 +899,15 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	// "Special" stats: accuracy / evasion
-	public int accuracyMod() { return accuracyModifier; }
-	public int evasionMod() { return evasionModifier; }
+	public int accuracyMod() { return volatiles.modifiers.accuracy; }
+	public int evasionMod() { return volatiles.modifiers.evasion; }
 
 	public float getAccuracy() {
-		return getSpecialStatMod(accuracyModifier);
+		return getSpecialStatMod(volatiles.modifiers.accuracy);
 	}
 
 	public float getEvasion() {
-		return getSpecialStatMod(evasionModifier);
+		return getSpecialStatMod(volatiles.modifiers.evasion);
 	}
 
 	/** @return Modifier for accuracy/evasion */
@@ -850,72 +933,57 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	public void removeNegativeStatModifiers() {
-		if(atkModifier < 0) atkModifier = 0;
-		if(defModifier < 0) defModifier = 0;
-		if(spatkModifier < 0) spatkModifier = 0;
-		if(spdefModifier < 0) spdefModifier = 0;
-		if(speedModifier < 0) speedModifier = 0;
-		if(evasionModifier < 0) evasionModifier = 0;
-		if(accuracyModifier < 0) accuracyModifier = 0;
+		for(Map.Entry<String,Integer> e : volatiles.modifiers) {
+			if(e.getValue() < 0)
+				volatiles.modifiers.set(e.getKey(), 0);
+		}
 	}
 	
 	public void removePositiveStatModifiers() {
-		if(atkModifier > 0) atkModifier = 0;
-		if(defModifier > 0) defModifier = 0;
-		if(spatkModifier > 0) spatkModifier = 0;
-		if(spdefModifier > 0) spdefModifier = 0;
-		if(speedModifier > 0) speedModifier = 0;
-		if(evasionModifier > 0) evasionModifier = 0;
-		if(accuracyModifier > 0) accuracyModifier = 0;
+		for(Map.Entry<String,Integer> e : volatiles.modifiers) {
+			if(e.getValue() > 0)
+				volatiles.modifiers.set(e.getKey(), 0);
+		}
 	}
 
 	public void removeVolatiles() {
-		confused = false;
-		removePositiveStatModifiers();
-		removeNegativeStatModifiers();
-		volatileEffectiveness.clear();
+		// reset volatiles
+		volatiles.reset();
+		// reset counters
 		toxicCounter = 0;
 		protectCounter = 0;
 		deathCounter = 0;
 		tauntCounter = 0;
-		deathScheduled = false;
+		// these volatiles aren't handled by Volatiles class (for now)
 		isProtected = false;
-		taunted = false;
-		trapped = false;
-		lockedOnMove = false;
+		confused = false;
+		// reset ability, item and moves
 		if(ability != null)
 			ability.reset();
+		if(item != null)
+			item.reset();
 		for(Move m : move)
 			if(m != null)
 				m.reset();
 	}
 
 	public void setVolatiles(final Volatiles vol) {
-		atkModifier = vol.atkModifier;	
-		defModifier = vol.defModifier;	
-		spatkModifier = vol.spatkModifier;	
-		spdefModifier = vol.spdefModifier;	
-		speedModifier = vol.speedModifier;	
-		evasionModifier = vol.evasionModifier;	
-		accuracyModifier = vol.accuracyModifier;	
-		confused = vol.confused;
-		substitute = vol.substitute;
-		volatileEffectiveness = new EnumMap<Type,Float>(vol.volatileEffectiveness);
+		volatiles.copy(vol);
 	}
 
 	// Weaknesses/Resistances/Immunities: for these methods, delegate to TypeDealer.
 	/** @return map of { type: damage modifier } */
 	public Map<Type,Integer> getWeaknesses() {
 		Map<Type,Integer> wks = TypeDealer.getWeaknesses(type);
-		for(Type t : volatileEffectiveness.keySet()) {
-			if(volatileEffectiveness.get(t) > 1f) {
+		for(Type t : volatiles.effectiveness.keySet()) {
+			if(volatiles.effectiveness.get(t) > 1f) {
 				if(wks.keySet().contains(t)) 
-					wks.put(t,wks.get(t)*volatileEffectiveness.get(t).intValue());
+					wks.put(t,wks.get(t)*volatiles.effectiveness.get(t).intValue());
 				else
-					wks.put(t,volatileEffectiveness.get(t).intValue());
-			} else if(volatileEffectiveness.get(t) != 0) {
+					wks.put(t,volatiles.effectiveness.get(t).intValue());
+			} else if(volatiles.effectiveness.get(t) != 0) {
 				if(!wks.keySet().contains(t)) continue;
-				wks.put(t,(int)(wks.get(t)/volatileEffectiveness.get(t)));
+				wks.put(t,(int)(wks.get(t)/volatiles.effectiveness.get(t)));
 			}
 		}
 		return wks;
@@ -925,15 +993,15 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public Map<Type,Integer> getResistances() {
 		Map<Type,Integer> res = TypeDealer.getResistances(type);
 
-		for(Type t : volatileEffectiveness.keySet()) {
-			if(volatileEffectiveness.get(t) < 1f) {
+		for(Type t : volatiles.effectiveness.keySet()) {
+			if(volatiles.effectiveness.get(t) < 1f) {
 				if(res.keySet().contains(t)) 
-					res.put(t,(int)(res.get(t)/volatileEffectiveness.get(t)));
+					res.put(t,(int)(res.get(t)/volatiles.effectiveness.get(t)));
 				else
-					res.put(t,(int)(1/volatileEffectiveness.get(t)));
-			} else if(volatileEffectiveness.get(t) != 0) {
+					res.put(t,(int)(1/volatiles.effectiveness.get(t)));
+			} else if(volatiles.effectiveness.get(t) != 0) {
 				if(!res.keySet().contains(t)) continue;
-				res.put(t,(int)(res.get(t)*volatileEffectiveness.get(t)));
+				res.put(t,(int)(res.get(t)*volatiles.effectiveness.get(t)));
 			}
 		}
 		return res;
@@ -942,14 +1010,22 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public Set<Type> getImmunities() {
 		Set<Type> imm = TypeDealer.getImmunities(type);
 
-		for(Type t : volatileEffectiveness.keySet()) 
+		for(Type t : volatiles.effectiveness.keySet()) 
 			imm.add(t);
 
 		return imm;
 	}
 
 	public boolean isDeathScheduled() {
-		return deathScheduled;
+		return volatiles.deathScheduled;
+	}
+
+	public boolean hasAbilityDisabled() {
+		return volatiles.abilityDisabled;
+	}
+
+	public boolean cannotUseItems() {
+		return volatiles.cannotUseItems;
 	}
 
 	// COUNTERS (public for convenience) //
@@ -1229,37 +1305,29 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		flinched = bool;
 	}
 
-	public void setBlocked(boolean bool) {
-		blocked = bool;
-	}
-
-	public void setTrapped(boolean bool) {
-		trapped = bool;
-	}
-
-	public void setLockedOnMove(boolean bool) {
-		lockedOnMove = bool;
-	}
-
 	public void setUnlockPhrase(String phrase) {
 		unlockPhrase = phrase;
 	}
 
+	public void setTrapped(boolean bool) {
+		volatiles.trapped = bool;
+	}
+
+	public void setLockedOnMove(boolean bool) {
+		volatiles.lockedOnMove = bool;
+	}
+
 	public void setTaunted(boolean bool) {
-		taunted = bool;
+		volatiles.taunted = bool;
 	}
 
 	public int setSubstitute(boolean bool) {
-		substitute = bool;
+		volatiles.substitute = bool;
 		return maxhp() / 4;
 	}
 
-	public void setKO(boolean bool) {
+	public void setFainted() {
 		hp = 0;
-	}
-
-	public void setFainted(boolean bool) {
-		setKO(bool);
 	}
 
 	public void resetAllStatus() {
@@ -1274,91 +1342,22 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public void setProtected(boolean bool) {
 		isProtected = bool;
 	}
-
-	
-	// Accuracy / Evasion modifiers
-	
-	public int boostAccuracy(int i) {
-		accuracyModifier += i;
-		if(accuracyModifier > 6) accuracyModifier = 6;
-		else if(accuracyModifier < -6) accuracyModifier = -6;
-		return accuracyModifier;
-	}
-	
-	public int boostEvasion(int i) {
-		evasionModifier += i;
-		if(evasionModifier > 6) evasionModifier = 6;
-		else if(evasionModifier < -6) evasionModifier = -6;
-		return evasionModifier;
-	}
-	
-	public void resetAccuracyModifier() {
-		accuracyModifier = 0;
-	}
-	
-	public void resetEvasionModifier() {
-		evasionModifier = 0;
-	}
 	
 	// Stats modifiers
-	public int boost(String stat,int value) {
-		if(stat.equalsIgnoreCase("atk") || stat.equalsIgnoreCase("attack")) 
-			return boostAtk(value);
-		else if(stat.equalsIgnoreCase("def") || stat.equalsIgnoreCase("defense"))
-			return boostDef(value);
-		else if(stat.equalsIgnoreCase("spa") || stat.equalsIgnoreCase("spatk") || stat.equalsIgnoreCase("special attack"))
-			return boostSpatk(value);
-		else if(stat.equalsIgnoreCase("spd") || stat.equalsIgnoreCase("spdef") || stat.equalsIgnoreCase("special defense"))
-			return boostSpdef(value);
-		else if(stat.equalsIgnoreCase("spe") || stat.equalsIgnoreCase("speed"))
-			return boostSpeed(value);
-		else if(stat.equalsIgnoreCase("eva") || stat.equalsIgnoreCase("evasion"))
-			return boostAccuracy(value);
-		else if(stat.equalsIgnoreCase("acc") || stat.equalsIgnoreCase("accuracy"))
-			return boostEvasion(value);
-		else
-			return 0;
+	public int boost(String stat, int value) {
+		return volatiles.modifiers.boost(stat, value);
 	}
-
-	public int boostAtk(int value) {
-		atkModifier += value;
-		if(atkModifier > 6) atkModifier = 6;
-		else if(atkModifier < -6) atkModifier = -6;
-		return atkModifier;
-	}
-	
-	public int boostDef(int value) {
-		defModifier += value;
-		if(defModifier > 6) defModifier = 6;
-		else if(defModifier < -6) defModifier = -6;
-		return defModifier;
-	}
-	
-	public int boostSpatk(int value) {
-		spatkModifier += value;
-		if(spatkModifier > 6) spatkModifier = 6;
-		else if(spatkModifier < -6) spatkModifier = -6;
-		return spatkModifier;
-	}
-	
-	public int boostSpdef(int value) {
-		spdefModifier += value;
-		if(spdefModifier > 6) spdefModifier = 6;
-		else if(spdefModifier < -6) spdefModifier = -6;
-		return spdefModifier;
-	}
-	
-	public int boostSpeed(int value) {
-		speedModifier += value;
-		if(speedModifier > 6) speedModifier = 6;
-		else if(speedModifier < -6) speedModifier = -6;
-		return speedModifier;
-	}
-
 	public void scheduleDeath(int delay) {
 		if(Debug.on) printDebug("[Pony] Scheduling death for "+this+" in "+delay+" turns.");
-		deathScheduled = true;
+		volatiles.deathScheduled = true;
 		deathCounter= delay;
+	}
+	public void setAbilityDisabled(boolean b) {
+		volatiles.abilityDisabled = b;
+	}
+
+	public void setCannotUseItems(boolean b) {
+		volatiles.cannotUseItems = b;
 	}
 
 	/** Like learnMove(Move,boolean) but with move name. */
@@ -1508,18 +1507,18 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public List<EffectDealer> getEffectDealers() {
 		List<EffectDealer> eds = new ArrayList<>();
-		if(ability != null)
+		if(ability != null && !volatiles.abilityDisabled)
 			eds.add(ability);
-		if(item != null)
+		if(item != null && !volatiles.cannotUseItems)
 			eds.add(item);
 		return eds;
 	}
 
 	public List<TriggeredEffectDealer> getTriggeredEffectDealers() {
 		List<TriggeredEffectDealer> eds = new ArrayList<>();
-		if(ability != null)
+		if(ability != null && !volatiles.abilityDisabled)
 			eds.add(ability);
-		if(item != null)
+		if(item != null && !volatiles.cannotUseItems)
 			eds.add(item);
 		return eds;
 	}
@@ -1583,7 +1582,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return known;
 	}
 
-	public Map<Type,Float> getVolatileEffectiveness() { return volatileEffectiveness; }
+	public Map<Type,Float> getVolatileEffectiveness() { return volatiles.effectiveness; }
 
 	/** Returns a string with all relevant internal data in a format adapt to be
 	 * written directly to a save file (in a PokemonShowdown-like fashion)
@@ -1673,11 +1672,11 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	public void addVolatileEffectiveness(final Type t, final float mul) {
-		volatileEffectiveness.put(t, mul);
+		volatiles.effectiveness.put(t, mul);
 	}
 
 	public Float removeVolatileEffectiveness(final Type t) {
-		return volatileEffectiveness.remove(t);
+		return volatiles.effectiveness.remove(t);
 	}
 
 	public void addStatus(final Status status) {
@@ -1949,9 +1948,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	protected int baseDef;
 	protected int baseSpdef;
 	protected int baseSpeed;
-	
-	// temporary modifiers
-	protected EnumMap<Type,Float> volatileEffectiveness = new EnumMap<Type,Float>(Type.class);
 
 	// etc
 	protected boolean canon = true;
@@ -1999,13 +1995,12 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	/** Keep a reference to self team. */
 	private Team team;
 	private Move lastMoveUsed;
-	private boolean deathScheduled;
 	private boolean manualMaxHp;
 	private int maxHp;	//used only if manualMaxHp is true.
 	private boolean transformed;
 	private Pony original;
 	private String unlockPhrase;
-
+	private Volatiles volatiles = new Volatiles();
 
 	// status
 	private boolean active;
@@ -2020,12 +2015,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	
 	private boolean flinched;
 	private boolean isProtected;
-	private boolean blocked;
-	private boolean trapped;
-	private boolean lockedOnMove;
-	private boolean taunted;
-	private boolean substitute;
-
 	
 	// IV	
 	private int hpIV;
@@ -2042,15 +2031,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	private int spatkEV;
 	private int spdefEV;
 	private int speedEV;
-	
-	// modifiers
-	private int accuracyModifier;
-	private int evasionModifier;
-	private int atkModifier;
-	private int defModifier;
-	private int spatkModifier;
-	private int spdefModifier;
-	private int speedModifier;
 	
 	// these are more an easter egg than actually useful content
 	private static HashMap<String,String[]> IVPhrases = new HashMap<String,String[]>();

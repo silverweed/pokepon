@@ -37,7 +37,7 @@ Here is a list of public Poképon Servers to which anyone can connect:
   </tr>
   <tr>
     <td>lyrawearspants.com</td>
-    <td>@RedEnchilada</td>
+    <td>RedEnchilada</td>
   </tr>
   <tr>
     <td colspan=2><em><small>Want to host a server? Feel free <br>
@@ -298,5 +298,5 @@ the owner of said artwork).
 
 Author & Mantainers
 -----------------------------------------------------------------
-* Author: Giacomo Parolini [@silverweed]
-* Public server hosting: @RedEnchilada
+* Author: Giacomo Parolini [silverweed]
+* Public server hosting: RedEnchilada

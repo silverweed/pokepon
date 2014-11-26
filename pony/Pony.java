@@ -137,8 +137,9 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		ZEBRA("Zebra"),
 		MYTHICBEAST("Mythic Beast"), 
 		GRYPHON("Gryphon"),
-		BUFFALO("Buffalo"),
-		DIAMONDDOG("Diamond Dog");
+		UNGULATE("Ungulate"), // this counts as Buffalo/Mule/Donkey/...
+		DIAMONDDOG("Diamond Dog"),
+		BREEZIE("Breezie");
 
 		private final String name;
 
@@ -176,12 +177,12 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		public static Status forName(final String name) {
 			if(name.length() == 3) {
 				if(name.equalsIgnoreCase("par")) return Status.PARALYZED;
-				else if(name.equalsIgnoreCase("cnf")) return Status.CONFUSED;
-				else if(name.equalsIgnoreCase("psn")) return Status.POISONED;
-				else if(name.equalsIgnoreCase("tox")) return Status.INTOXICATED;
-				else if(name.equalsIgnoreCase("brn")) return Status.BURNED;
-				else if(name.equalsIgnoreCase("slp")) return Status.ASLEEP;
-				else if(name.equalsIgnoreCase("ptr")) return Status.PETRIFIED;
+				if(name.equalsIgnoreCase("cnf")) return Status.CONFUSED;
+				if(name.equalsIgnoreCase("psn")) return Status.POISONED;
+				if(name.equalsIgnoreCase("tox")) return Status.INTOXICATED;
+				if(name.equalsIgnoreCase("brn")) return Status.BURNED;
+				if(name.equalsIgnoreCase("slp")) return Status.ASLEEP;
+				if(name.equalsIgnoreCase("ptr")) return Status.PETRIFIED;
 			}
 
 			for(Status s : values()) 
@@ -241,13 +242,13 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			}
 			public int get(String s) {
 				if(toBriefStat(s).equals("Atk")) return atk;
-				else if(toBriefStat(s).equals("Def")) return def;
-				else if(toBriefStat(s).equals("SpA")) return spatk;
-				else if(toBriefStat(s).equals("Spd")) return spdef;
-				else if(toBriefStat(s).equals("Spe")) return speed;
-				else if(toBriefStat(s).equals("Eva")) return evasion;
-				else if(toBriefStat(s).equals("Acc")) return accuracy;
-				else return 0;
+				if(toBriefStat(s).equals("Def")) return def;
+				if(toBriefStat(s).equals("SpA")) return spatk;
+				if(toBriefStat(s).equals("Spd")) return spdef;
+				if(toBriefStat(s).equals("Spe")) return speed;
+				if(toBriefStat(s).equals("Eva")) return evasion;
+				if(toBriefStat(s).equals("Acc")) return accuracy;
+				return 0;
 			}
 			public void set(String s, int value) {
 				if(toBriefStat(s).equals("Atk")) atk = value;
@@ -257,6 +258,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 				else if(toBriefStat(s).equals("Spe")) speed = value;
 				else if(toBriefStat(s).equals("Eva")) evasion = value;
 				else if(toBriefStat(s).equals("Acc")) accuracy = value;
+				else printDebug("[Pony] Warning: called set("+s+") ?");
 			}
 			public int boost(String s, int value) {
 				int mod = get(s);
@@ -563,7 +565,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		if(name.equalsIgnoreCase("spatk")) return spatk();
 		if(name.equalsIgnoreCase("spdef")) return spdef();
 		if(name.equalsIgnoreCase("speed")) return speed();
-		else return -1;
+		return -1;
 	}
 
 	/** Utility method to retreive a stat by number (starting from 0) */
@@ -588,7 +590,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		if(name.equalsIgnoreCase("spdef")) return baseSpdef;
 		if(name.equalsIgnoreCase("speed")) return baseSpeed;
 		if(name.equalsIgnoreCase("bst")) return bst();
-		else return -1;
+		return -1;
 	}
 
 	/** Utility method to retreive a base stat by number */
@@ -777,12 +779,12 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	// IVs and EVs
 	public int getIV(final String stat) {
 		if(stat.equals("hp")) return hpIV;
-		else if(stat.equals("atk")) return atkIV;
-		else if(stat.equals("def")) return defIV;
-		else if(stat.equals("spatk")) return spatkIV;
-		else if(stat.equals("spdef")) return spdefIV;
-		else if(stat.equals("speed")) return speedIV;
-		else return 0;
+		if(stat.equals("atk")) return atkIV;
+		if(stat.equals("def")) return defIV;
+		if(stat.equals("spatk")) return spatkIV;
+		if(stat.equals("spdef")) return spdefIV;
+		if(stat.equals("speed")) return speedIV;
+		return 0;
 	}
 
 	public int[] getIVs() {
@@ -802,12 +804,12 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public int getEV(final String stat) {
 		if(stat.equals("hp")) return hpEV;
-		else if(stat.equals("atk")) return atkEV;
-		else if(stat.equals("def")) return defEV;
-		else if(stat.equals("spatk")) return spatkEV;
-		else if(stat.equals("spdef")) return spdefEV;
-		else if(stat.equals("speed")) return speedEV;
-		else return 0;
+		if(stat.equals("atk")) return atkEV;
+		if(stat.equals("def")) return defEV;
+		if(stat.equals("spatk")) return spatkEV;
+		if(stat.equals("spdef")) return spdefEV;
+		if(stat.equals("speed")) return speedEV;
+		return 0;
 	}
 
 	public int getTotalEVs() {
@@ -1564,7 +1566,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	/** Overriding of toString method */
 	public String toString() {
 		if(nickname == null) return name + " (Lv "+level+")";
-		else return (nickname.equals(name) ? name+" (Lv "+level+")" : nickname+" {"+name+"} (Lv "+level+")");
+		return (nickname.equals(name) ? name+" (Lv "+level+")" : nickname+" {"+name+"} (Lv "+level+")");
 	}
 	
 	/** This is public for convenience */
@@ -1653,8 +1655,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	/** Comparator implementation: sort by level and, within each level, by name */
 	public int compareTo(final Pony p) {
 		if(level > p.level) return 1;
-		else if(level < p.level) return -1;
-		else return name.compareTo(p.name);
+		if(level < p.level) return -1;
+		return name.compareTo(p.name);
 	}
 		
 	/** @return String with max IV (random if tie) */
@@ -1823,103 +1825,103 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			//+Atk -Def
 			case PROUD:
 				if(stat.equals("atk")) return 1.1f;
-				else if(stat.equals("def")) return 0.9f;
-				else return 1;
+				if(stat.equals("def")) return 0.9f;
+				return 1;
 			//+Atk -SpA
 			case PRAGMATIC:
 				if(stat.equals("atk")) return 1.1f;
-				else if(stat.equals("spatk")) return 0.9f;
-				else return 1;
+				if(stat.equals("spatk")) return 0.9f;
+				return 1;
 			//+Atk -SpD
 			case SELFISH:
 				if(stat.equals("atk")) return 1.1f;
-				else if(stat.equals("spdef")) return 0.9f;
-				else return 1;
+				if(stat.equals("spdef")) return 0.9f;
+				return 1;
 			//+Atk -Spe
 			case BLACKHEARTED:
 				if(stat.equals("atk")) return 1.1f;
-				else if(stat.equals("speed")) return 0.9f;
-				else return 1;
+				if(stat.equals("speed")) return 0.9f;
+				return 1;
 			//+Def -Atk
 			case SHY:
 				if(stat.equals("def")) return 1.1f;
-				else if(stat.equals("atk")) return 0.9f;
-				else return 1;
+				if(stat.equals("atk")) return 0.9f;
+				return 1;
 			//+Def -Spa
 			case PATIENT:
 				if(stat.equals("def")) return 1.1f;
-				else if(stat.equals("spatk")) return 0.9f;
-				else return 1;
+				if(stat.equals("spatk")) return 0.9f;
+				return 1;
 			//+Def -SpD
 			case DEPENDABLE:
 				if(stat.equals("def")) return 1.1f;
-				else if(stat.equals("spdef")) return 0.9f;
-				else return 1;
+				if(stat.equals("spdef")) return 0.9f;
+				return 1;
 			//+Def -Spe
 			case TACITURN:
 				if(stat.equals("def")) return 1.1f;
-				else if(stat.equals("speed")) return 0.9f;
-				else return 1;
+				if(stat.equals("speed")) return 0.9f;
+				return 1;
 			//+SpA -Atk
 			case EGGHEAD:
 				if(stat.equals("spatk")) return 1.1f;
-				else if(stat.equals("atk")) return 0.9f;
-				else return 1;
+				if(stat.equals("atk")) return 0.9f;
+				return 1;
 			//+SpA -Def
 			case SOLITARY:
 				if(stat.equals("spatk")) return 1.1f;
-				else if(stat.equals("def")) return 0.9f;
-				else return 1;
+				if(stat.equals("def")) return 0.9f;
+				return 1;
 			//+SpA -SpD
 			case RANDOM:
 				if(stat.equals("spatk")) return 1.1f;
-				else if(stat.equals("spdef")) return 0.9f;
-				else return 1;			
+				if(stat.equals("spdef")) return 0.9f;
+				return 1;			
 			//+SpA -Spe
 			case BOOKWORM:
 				if(stat.equals("spatk")) return 1.1f;
-				else if(stat.equals("speed")) return 0.9f;
-				else return 1;			
+				if(stat.equals("speed")) return 0.9f;
+				return 1;			
 			//+SpD -Atk
 			case FABULOUS:
 				if(stat.equals("spdef")) return 1.1f;
-				else if(stat.equals("atk")) return 0.9f;
-				else return 1;
+				if(stat.equals("atk")) return 0.9f;
+				return 1;
 			//+SpD -Def
 			case SILLY:
 				if(stat.equals("spdef")) return 1.1f;
-				else if(stat.equals("def")) return 0.9f;
-				else return 1;
+				if(stat.equals("def")) return 0.9f;
+				return 1;
 			//+SpD -SpA
 			case RADIANT:
 				if(stat.equals("spdef")) return 1.1f;
-				else if(stat.equals("spatk")) return 0.9f;
-				else return 1;
+				if(stat.equals("spatk")) return 0.9f;
+				return 1;
 			//+SpD -Spe
 			case MYSTERIOUS:
 				if(stat.equals("spdef")) return 1.1f;
-				else if(stat.equals("speed")) return 0.9f;
-				else return 1;
+				if(stat.equals("speed")) return 0.9f;
+				return 1;
 			//+Spe -Atk
 			case STYLISH:
 				if(stat.equals("speed")) return 1.1f;
-				else if(stat.equals("atk")) return 0.9f;
-				else return 1;
+				if(stat.equals("atk")) return 0.9f;
+				return 1;
 			//+Spe -Def
 			case AWESOME:
 				if(stat.equals("speed")) return 1.1f;
-				else if(stat.equals("def")) return 0.9f;
-				else return 1;
+				if(stat.equals("def")) return 0.9f;
+				return 1;
 			//+Spe -SpA
 			case COOL:
 				if(stat.equals("speed")) return 1.1f;
-				else if(stat.equals("spatk")) return 0.9f;
-				else return 1;
+				if(stat.equals("spatk")) return 0.9f;
+				return 1;
 			//+Spe -SpD
 			case RADICAL:
 				if(stat.equals("speed")) return 1.1f;
-				else if(stat.equals("spdef")) return 0.9f;
-				else return 1;
+				if(stat.equals("spdef")) return 0.9f;
+				return 1;
 			default:
 				return 1;	
 		}

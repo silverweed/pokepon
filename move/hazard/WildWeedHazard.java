@@ -21,6 +21,7 @@ public class WildWeedHazard extends Hazard {
 
 		maxLayers = 1;
 		token = "energyball.png";
+		isVolatile = true;
 	}
 
 	@Override
@@ -29,7 +30,6 @@ public class WildWeedHazard extends Hazard {
 			"Your opponent is surrounded by Wild Weeds!",
 			"Your pony is surrounded by Wild Weeds!"
 		};
-			
 	}
 	
 	@Override

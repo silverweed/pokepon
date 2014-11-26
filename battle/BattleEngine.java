@@ -791,11 +791,11 @@ public class BattleEngine {
 		Iterator<Hazard> it = getHazards(side).iterator();
 		while(it.hasNext()) {
 			Hazard hz = it.next();
-			if(hz.getName().equals("Wild Weed")) {
+			if(hz.isVolatile()) { 
 				it.remove();
 				if(battleTask != null) {
-					battleTask.sendB(getConnection(side),"|rmhazard|ally|Wild Weed|quiet");
-					battleTask.sendB(getConnection(side == 1 ? 2 : 1),"|rmhazard|opp|Wild Weed|quiet");
+					battleTask.sendB(getConnection(side),"|rmhazard|ally|"+hz.getName()+"|quiet");
+					battleTask.sendB(getConnection(side == 1 ? 2 : 1),"|rmhazard|opp|"+hz.getName()+"|quiet");
 				}
 				break;
 			}

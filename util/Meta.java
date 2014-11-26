@@ -23,7 +23,11 @@ import pokepon.item.Item;
  */
 public class Meta {
 	public static final char DIRSEP = '/'; // probably superfluous
-	protected static Path cwd;  // current working directory
+	/** Working directory of the pokepon class tree; if game is launched from JAR,
+	 * this is the directory where the JAR resides; else, it is the directory containing
+	 * 'pokepon'.
+	 */
+	private static Path cwd;  
 	static {
 		String tmp = Meta.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		// Strip the leading slash if on windows
@@ -32,20 +36,23 @@ public class Meta {
 		}
 		cwd = Paths.get(tmp);
 	}
-	protected static URL cwdURL;
+	private static URL cwdURL;
 	public static final boolean LAUNCHED_FROM_JAR = cwd.toString().endsWith(".jar");
+	/** Are we on Windows or on POSIX os? */
+	public static final boolean IS_WINDOWS = System.getProperty("os.name").toUpperCase().contains("WIN");
 	/**  Directory containing variable data (teams, confs, ...) */
-	public static final String APPDATA_DIR = (System.getProperty("os.name").toUpperCase().contains("WIN")
+	public static final String APPDATA_DIR = (IS_WINDOWS
 						? System.getenv("APPDATA") + DIRSEP
 						: System.getenv("HOME") + DIRSEP + ".")
 						+ "pokepon";
 	static {
 		// if launched from a jar, use the parent as cwd
-		if(cwd.toString().endsWith(".jar"))
+		if(LAUNCHED_FROM_JAR)
 			cwd = cwd.getParent();
 		if(Debug.on) printDebug("[Meta] cwd: "+cwd+"\nLaunched from jar: "+LAUNCHED_FROM_JAR);
 	}
-	protected static String cwdStr = "file://"+cwd.toString();
+	private static String cwdStr = "file://"+cwd.toString();
+	private static final Pattern LOCAL_URL_PATTERN = Pattern.compile("^[^\\[]*(?:\\[(?<sub>[^\\]]+): (?<sprite>[^\\]]+)\\])+?.*$");
 
 	public static URL getCwd() {
 		if(cwdURL != null) return cwdURL;
@@ -155,7 +162,7 @@ public class Meta {
 		return getSubURL(AUDIO_DIR);
 	}
 
-	/** Returns the URL of the battle records directory */
+	/** Returns the URL of the battle records directory. THIS IS IN APPDATA */
 	public static URL getBattleRecordsURL() {
 		return LAUNCHED_FROM_JAR ? getAppDataURL(BATTLE_RECORDS_DIR) : getSubURL("data" + DIRSEP + BATTLE_RECORDS_DIR);
 	}
@@ -180,10 +187,10 @@ public class Meta {
 	 */
 	public static String getPackage(String className) {
 		if(findSubclassesNames(complete(PONY_DIR),Pony.class).contains(className)) return "pony";
-		else if(findSubclassesNames(complete(MOVE_DIR),Move.class).contains(className)) return "move";
-		else if(findSubclassesNames(complete(ABILITY_DIR),Ability.class).contains(className)) return "ability";
-		else if(findSubclassesNames(complete(ITEM_DIR),Item.class).contains(className)) return "item";
-		else return null;
+		if(findSubclassesNames(complete(MOVE_DIR),Move.class).contains(className)) return "move";
+		if(findSubclassesNames(complete(ABILITY_DIR),Ability.class).contains(className)) return "ability";
+		if(findSubclassesNames(complete(ITEM_DIR),Item.class).contains(className)) return "item";
+		return null;
 	}
 		
 	/** Takes a path name and appends it to POKEPON_ROOTDIR to return a valid "relatively absolute" path
@@ -194,11 +201,10 @@ public class Meta {
 	}
 
 	/** This is used to cross-platform-ly locate resources in JAR file; to safely find a
-	 * resource, do: Meta.complete2(Meta.SOME_DIR)+"/"+resourceName;
+	 * resource, do: getClass().getResource(Meta.complete2(Meta.SOME_DIR)+"/"+resourceName);
 	 */
 	public static String complete2(String path) {
 		String cmp = DIRSEP + complete(path);
-		//printDebug("cmp = "+cmp);	
 		if(cmp.matches("^/[A-Z]:/.*")) return cmp.substring(1);
 		else return cmp;
 	}
@@ -208,8 +214,7 @@ public class Meta {
 	 * @return The converted string
 	 */
 	public static String toLocalURL(String msg) {
-		Pattern pattern = Pattern.compile("^[^\\[]*(?:\\[(?<sub>[^\\]]+): (?<sprite>[^\\]]+)\\])+?.*$");
-		Matcher matcher = pattern.matcher(msg);
+		Matcher matcher = LOCAL_URL_PATTERN.matcher(msg);
 		String replaced = msg;
 		if(Debug.on) printDebug("[Meta.toLocalURL] Text = "+msg);
 		int cycles = 0;
@@ -252,13 +257,16 @@ public class Meta {
 				}
 			}
 			if(Debug.pedantic) printDebug("[Meta.toLocalURL] Replaced = "+replaced);
-			matcher = pattern.matcher(replaced);
+			matcher = LOCAL_URL_PATTERN.matcher(replaced);
 			++cycles;
 		}
 		if(Debug.on) printDebug("[Meta.toLocalURL] replaced:\n"+replaced);
 		return replaced;
 	}
 
+	/** Searches for the directory 'dirPath'; if not found, tries to create it, then returns
+	 * a File object for that directory.
+	 */
 	public static File ensureDirExists(String dirPath) {
 		File dirpath = new File(dirPath); 
 		if(!dirpath.isDirectory()) {
@@ -279,8 +287,10 @@ public class Meta {
 		} else return dirpath;
 	}
 
-	/** Checks if a given file exists and, if not, create it by copying a default template from resouces;
+	/** Checks if a given file exists and, if not, create it by copying a default template from resources;
 	 * used to create default conf files.
+	 * @param file The path of the file that needs to exist
+	 * @param template The path of the template for the file
 	 */
 	public static void ensureFileExists(String file, String template) {
 		if(LAUNCHED_FROM_JAR && !Files.exists(Paths.get(file))) {

@@ -47,14 +47,14 @@ Here is a list of public Poképon Servers to which anyone can connect:
 
 Building
 -----------------------------------------------------
-You don't need to build anything if you just wanna play, but in case you
-want to do some experimentation, get a JDK 1.7 or later and ensure that
+If you want the bleeding-edge version of the game (beware: it won't necessarily be
+stable), or in case you want to do some experimentation, get a JDK 1.7 or later and ensure that
 the pokepon parent directory is in your CLASSPATH environment variable.
-`javac "@files.txt"` or `make` (if you have Make installed of course) 
-can be used to compile all the game classes.
+To compile all the game classes, do `javac "@files.txt"` or, if you have Make
+installed, `make`.
 
-An utility `create_pokepon_jar.sh` can be found in `data/`
-but can only be used within a Unix shell. The script should be launched
+An utility `create_pokepon_jar.sh` can be found in `data/` to create a
+new JAR from the compiled classes, but requires Bash. The script should be launched
 from the parent directory of the pokepon root. For example:
 ```bash
 $ pwd
@@ -85,6 +85,9 @@ java -jar /path/to/pokepon.jar server [opts]
 
 (The flag `-h` can be used to obtain a quick summary of the server
 options).
+
+If you're using the unpackaged version of the game, the script `run.sh` can
+be used as a shortcut launcher on \*nix environments.
 
 If the server was started from the JAR package, the configuration file
 it will use can be found in:

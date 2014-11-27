@@ -25,9 +25,9 @@ public class SeaBreeze extends Pony {
 		baseHp = 35;
 		baseAtk = 75;
 		baseDef = 35;
-		baseSpatk = 90;
+		baseSpatk = 95;
 		baseSpdef = 35;
-		baseSpeed = 190; 
+		baseSpeed = 125; 
 
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",1);
@@ -45,5 +45,6 @@ public class SeaBreeze extends Pony {
 
 		possibleAbilities[0] = "Stubborn";
 		possibleAbilities[1] = "Devotion";
+		possibleAbilities[2] = "Swiftness";
 	}
 }

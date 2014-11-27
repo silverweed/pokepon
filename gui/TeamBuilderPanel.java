@@ -402,10 +402,15 @@ public class TeamBuilderPanel extends Ponydex {
 			ability.setText("");
 			item.setText("");
 		} else {
-			if(pony.getAbility() == null)
-				ability.setText("");
-			else
+			if(pony.getAbility() == null) {
+				// if possibleAbilities is non-empty, set first possible ability as default.
+				if(pony.getPossibleAbilities().size() > 0)
+					ability.setText(pony.getPossibleAbilities().get(0));
+				else
+					ability.setText("");
+			} else {
 				ability.setText(pony.getAbility().getName());
+			}
 			if(pony.getItem() == null)
 				item.setText("");
 			else
@@ -416,6 +421,3 @@ public class TeamBuilderPanel extends Ponydex {
 		movePrev.showPreview(null);
 	}
 }
-
-
-

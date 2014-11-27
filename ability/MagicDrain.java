@@ -47,21 +47,23 @@ public class MagicDrain extends Ability {
 				break;
 			case GRYPHON:
 			case PEGASUS:
+			case BREEZIE:
 				be.tryStatChange(pony,"speed",1);
 				break;
 			case MYTHICBEAST:
 				be.tryStatChange(pony,"spdef",1);
 				break;
-			case BUFFALO:
+			case UNGULATE:
 				be.tryStatChange(pony,"def",1);
 				break;
-			case ZEBRA:
+			case ZEBRA: {
 				int healed = pony.increaseHpPerc(12.5f);
 				if(be.getBattleTask() != null) {
 					be.getBattleTask().sendB(ally,"|damage|ally|"+healed+"|"+getPhrase());
 					be.getBattleTask().sendB(opp,"|damage|opp|"+healed+"|"+getPhrase());
 				}
 				break;
+			}
 			case ALICORN:
 				be.tryStatChange(pony,"spatk",1);
 				be.tryStatChange(pony,"spdef",1);
@@ -73,5 +75,4 @@ public class MagicDrain extends Ability {
 	public String getPhrase() {
 		return "[pony] drains magic from the enemy!";
 	}
-
 }

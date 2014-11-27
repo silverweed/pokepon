@@ -32,6 +32,7 @@ public class PrincessErroria extends Pony {
 		baseSpeed = 15;
 
 		/* learnableMoves ... */
+		learnableMoves.put("Flit About",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Trailblazer",1);
 		learnableMoves.put("Stare",1);

@@ -23,6 +23,7 @@ public abstract class Hazard extends TriggeredEffectDealer {
 	
 	public int getLayers() { return layers; }
 	public int getMaxLayers() { return maxLayers; }
+	public boolean isVolatile() { return isVolatile; }
 	public void addLayer() { 
 		if(layers < maxLayers)
 			++layers;
@@ -55,4 +56,6 @@ public abstract class Hazard extends TriggeredEffectDealer {
 	protected int side;
 	/** Filename of the token image (path relative to Tokens directory) */
 	protected String token;
+	/** If true, this hazard disappears when the pony on its side leaves the field. */
+	protected boolean isVolatile;
 }	

@@ -554,7 +554,8 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 				"Possible rule formats are:<br>"+
 				"p:Name Of Pony<br>m:Name Of Move<br>i:Name Of Item<br>a:Name Of Ability<br>"+
 				"c:{p:Name Of Pony,m:Name Of Move,[...]} (bans the described combo)<br>"+
-				":speciesclause / :canon / :itemclause<br></html>");
+				":speciesclause / :canon / :itemclause<br>"+
+				"<br>(e.g. `p:Twilight Sparkle` -&gt; bans Twilight Sparkle)</html>");
 				p.add(l,c);
 				JButton b = new JButton("<html>More info on <font color=\"#000099\">"+
 					"<u>"+helpURL+"</u></font></html>");

@@ -97,12 +97,14 @@ item/AlicornAmulet.java
 item/ChoiceBoots.java
 item/ChoiceBridle.java
 item/ChoiceSaddle.java
+item/DarkCloak.java
 item/DiamondRing.java
 item/FashionScarf.java
 item/FlightGoggles.java
 item/GoldenLyre.java
 item/Item.java
 item/MagicTiara.java
+item/MysticMask.java
 item/PartyHat.java
 item/Scooter.java
 item/SpareSnacks.java
@@ -146,6 +148,7 @@ move/EerieSonata.java
 move/Enlighten.java
 move/Entrench.java
 move/EternalNight.java
+move/FlitAbout.java
 move/FreezeSpell.java
 move/FriendshipCannon.java
 move/FurryCoat.java
@@ -282,7 +285,6 @@ pony/AppleBloom.java
 pony/Applejack.java
 pony/Aryanne.java
 pony/BabsSeed.java
-pony/Bellesmith.java
 pony/BerryPunch.java
 pony/BigMacintosh.java
 pony/BonBon.java
@@ -328,7 +330,6 @@ pony/NeonLights.java
 pony/NightmareMoon.java
 pony/NurseRedheart.java
 pony/Octavia.java
-pony/Pilate.java
 pony/PinkiePie.java
 pony/Pipsqueak.java
 pony/Pony.java
@@ -342,6 +343,7 @@ pony/Roxie.java
 pony/Scootaloo.java
 pony/ScrewLoose.java
 pony/Screwball.java
+pony/SeaBreeze.java
 pony/ShiningArmor.java
 pony/SilverSpoon.java
 pony/Snails.java

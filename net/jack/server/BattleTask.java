@@ -445,7 +445,8 @@ public class BattleTask implements Runnable {
 						if(Debug.pedantic) printDebug("[BT] engine updated. Triggering \"onSwitchIn\" for p"+pl+"...");
 						battle.getPlayer(pl).getActivePony().trigger("onSwitchIn",engine);
 						// update client's allyPony stats
-						sendB(thisC, "|stats|"+switched.atk()+"|"+switched.def()+"|"+switched.spatk()+"|"+switched.spdef()+"|"+switched.speed());
+						sendB(thisC, "|stats|"+switched.atk()+"|"+switched.def()+"|"+
+							switched.spatk()+"|"+switched.spdef()+"|"+switched.speed());
 						// if last move used had copyVolatiles = true, copy them now on the new AP:
 						if(engine.getCurrentMove() != null && engine.getCurrentMove().copyVolatiles() && volatiles != null) {
 							switched.setVolatiles(volatiles);	

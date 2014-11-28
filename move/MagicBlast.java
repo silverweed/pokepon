@@ -30,7 +30,7 @@ public class MagicBlast extends Move {
 		animation.put("bounceBack",false);
 		animation.put("sprite","shadowball.png");
 
-		isBeamMove = true;
+		beamMove = true;
 	}
 	
 	public MagicBlast(Pony p) {

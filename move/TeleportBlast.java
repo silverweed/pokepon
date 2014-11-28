@@ -32,7 +32,7 @@ public class TeleportBlast extends Move {
 
 		// forces switch to chosen ally on damage
 		forceUserSwitch = 1;	
-		isBeamMove = true;
+		beamMove = true;
 	}
 
 	public TeleportBlast(Pony p) {

@@ -31,7 +31,7 @@ public class ScorchingBeam extends Move {
 		animation.put("bounceBack",false);
 
 		targetBurn = 0.3f;
-		isBeamMove = true;
+		beamMove = true;
 	}
 	
 	public ScorchingBeam(Pony p) {

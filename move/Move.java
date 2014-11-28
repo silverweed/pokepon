@@ -2,10 +2,6 @@
 
 package pokepon.move;
 
-/** The abstract class for Moves.
- * @author Giacomo Parolini
- */
-
 import pokepon.enums.*;
 import pokepon.move.hazard.*;
 import pokepon.pony.*;
@@ -16,6 +12,9 @@ import static pokepon.util.MessageManager.*;
 import java.net.*;
 import java.util.*;
 
+/** The abstract class for Moves.
+ * @author Giacomo Parolini
+ */
 public abstract class Move extends EffectDealer {
 
 	public static final int MAX_NAME_LENGTH = 20;
@@ -37,7 +36,7 @@ public abstract class Move extends EffectDealer {
 			return getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+"/moves/movetypes/"+name+".png");
 		}
 
-		public static MoveType forName(String name) {
+		public static MoveType forName(final String name) {
 			for(MoveType m : values())
 				if(name.equalsIgnoreCase(m.name))
 					return m;
@@ -148,7 +147,7 @@ public abstract class Move extends EffectDealer {
 	public String locksTargetOn() { return locksTargetOn; }
 
 	/// miscellaneous
-	public boolean isBeamMove() { return isBeamMove; }
+	public boolean isBeamMove() { return beamMove; }
 
 	@Override
 	public void reset() {
@@ -212,19 +211,9 @@ public abstract class Move extends EffectDealer {
 		damageBoost = boost;
 	}
 
-	/* These two are superfluous (counters are public) */
-	public void setCountDelay(int count) {
-		countDelay = count;
-	}
-
 	public void setBonusPriority(byte tmpP) {
 		bonusPriority = tmpP;
 	}
-	
-	public void setCountDuration(int count) {
-		countDuration = count;
-	}
-	/**/
 	
 	public void deductPP() {
 		if(pp > 0) --pp;
@@ -244,7 +233,6 @@ public abstract class Move extends EffectDealer {
 	protected int id; // currently unused
 	protected Type type;
 	protected MoveType moveType;	
-	protected boolean contactMove;
 	protected int pp;
 	protected int maxpp;
 	protected int baseDamage;
@@ -285,5 +273,6 @@ public abstract class Move extends EffectDealer {
 	protected boolean useTargetSpdef;
 
 	/* Miscellaneous  */
-	protected boolean isBeamMove;
+	protected boolean contactMove;
+	protected boolean beamMove;
 }

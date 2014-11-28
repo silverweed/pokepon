@@ -18,32 +18,36 @@ import java.util.*;
  */
 public class DataDealer {
 
-	private List<String> knownClasses;
-	private List<String> knownTypeNames;
+	private static List<String> knownClasses = new ArrayList<>();
+	private static List<String> knownPonies, knownMoves, knownAbilities, knownItems;
+	private static List<String> knownTypeNames;
 
-	/** Constructing the DataDealer allows to load stuff only once */
-	public DataDealer() {
-		knownClasses = ClassFinder.findSubclassesNames(Meta.complete(PONY_DIR),Pony.class);
-		knownClasses.addAll(ClassFinder.findSubclassesNames(Meta.complete(MOVE_DIR),Move.class));
-		knownClasses.addAll(ClassFinder.findSubclassesNames(Meta.complete(ABILITY_DIR),Ability.class));
-		knownClasses.addAll(ClassFinder.findSubclassesNames(Meta.complete(ITEM_DIR),Item.class));
+	static {
+		init();
+	}
+
+	public static void init() {
+		knownPonies = ClassFinder.findSubclassesNames(Meta.complete(PONY_DIR),Pony.class);
+		knownMoves = ClassFinder.findSubclassesNames(Meta.complete(MOVE_DIR),Move.class);
+		knownAbilities = ClassFinder.findSubclassesNames(Meta.complete(ABILITY_DIR),Ability.class);
+		knownItems = ClassFinder.findSubclassesNames(Meta.complete(ITEM_DIR),Item.class);
+		knownClasses.addAll(knownPonies);
+		knownClasses.addAll(knownMoves);
+		knownClasses.addAll(knownAbilities);
+		knownClasses.addAll(knownItems);
 		knownTypeNames = new ArrayList<>();
 		for(Type t : Type.values())
 			knownTypeNames.add(t.toString());
 	}
 	
-	public synchronized String getData(String query) {
+	public String getData(String query) {
 		
 		String name = Saner.sane(query,knownClasses);
-		String _package = Meta.getPackage(name);
 	
-		if(_package == null) 
-			return null;
-
 		StringBuilder sb = new StringBuilder("");
 		// DISCLAIMER!! Since Swing cannot decently render even basic HTML tables, we use a shitty HTML, which
 		// even the Swing library can understand.
-		if(_package.equals("pony")) {
+		if(knownPonies.contains(name)) {
 			try {
 				Pony pony = PonyCreator.create(name);
 
@@ -75,7 +79,7 @@ public class DataDealer {
 				printDebug("[BT.processCommand(data)] Error creating pony "+query);
 				return "|error|Couldn't create pony "+query;
 			}
-		} else if(_package.equals("move")) {
+		} else if(knownMoves.contains(name)) {
 			try {
 				Move move = MoveCreator.create(name);
 
@@ -94,7 +98,7 @@ public class DataDealer {
 				printDebug("[BT.processCommand(data)] Error creating move "+query);
 				return "|error|Couldn't create move "+query;
 			}
-		} else if(_package.equals("ability")) {
+		} else if(knownAbilities.contains(name)) {
 			try {
 				Ability ability = AbilityCreator.create(name);
 
@@ -104,7 +108,7 @@ public class DataDealer {
 				printDebug("[BT.processCommand(data)] Error creating ability "+query);
 				return "|error|Couldn't create ability "+query;
 			}
-		} else if(_package.equals("item")) {
+		} else if(knownItems.contains(name)) {
 			try {
 				Item item = ItemCreator.create(name);
 
@@ -114,13 +118,13 @@ public class DataDealer {
 				printDebug("[BT.processCommand(data)] Error creating item "+query);
 				return "|error|Couldn't create item "+query;
 			}
-		}
+		} else return null;
 
 		return sb.toString();
 	}
 
 	/** @param query type1[,type2] - OR - type1 -&gt; type2[,type3] */
-	public synchronized String getEffectiveness(String query) {
+	public String getEffectiveness(String query) {
 		String[] token = query.split("->",2);
 
 		if(token.length == 1) {
@@ -163,7 +167,7 @@ public class DataDealer {
 		}
 	}
 
-	public synchronized String getEffectiveness(Type[] type) {
+	public String getEffectiveness(Type[] type) {
 		StringBuilder sb = new StringBuilder("");
 		if(type.length == 1 || type[1] == null) {
 			// if only 1 type is given, print both offensive and defensive table
@@ -206,7 +210,7 @@ public class DataDealer {
 	}
 
 	/** @return An HTML string describing the effectiveness of type1 vs type2. */
-	public synchronized String getEffectiveness(Type typeAtk, Type[] typeDef) {
+	public String getEffectiveness(Type typeAtk, Type[] typeDef) {
 		float eff = TypeDealer.getEffectiveness(typeAtk, typeDef);
 		String[] effS = TypeDealer.toEffString(eff);
 		

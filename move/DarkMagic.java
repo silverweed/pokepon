@@ -30,7 +30,7 @@ public class DarkMagic extends Move {
 		animation.put("bounceBack",false);
 
 		targetParalysis = 0.3f;
-		isBeamMove = true;
+		beamMove = true;
 	}
 
 	public DarkMagic(Pony p) {

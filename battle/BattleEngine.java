@@ -339,8 +339,9 @@ public class BattleEngine {
 			}
 			if(rng.nextFloat() < Battle.CHANCE_SELF_DAMAGE_FOR_CONFUSION) {
 				int dmg = attacker.damage(dc.calculateBattleDamage(
-					new Move("Confusion self damage") {
+					new Move("Confusion self damage", attacker) {
 						public int getBaseDamage() { return 40; }
+						public int getDamage() { return 40; }
 						public int getMaxPP() { return 1; }
 						public int getPP() { return maxpp; }
 						public int getAccuracy() { return -1; }

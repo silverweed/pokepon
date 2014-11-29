@@ -47,3 +47,5 @@
 - Sound control in the BattlePanel
 
 - Nicknames: config option to set default nicks, request nick on login feature 
+
+- Check confusion: maybe bugged

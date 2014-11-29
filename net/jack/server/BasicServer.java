@@ -216,7 +216,7 @@ public class BasicServer implements Server {
 	// SERVER CONFIGURATION FUNCTIONS
 	
 	public void printConfiguration(final PrintStream s) {
-		consoleHeader("Server configuration", '·', s, 0);	
+		consoleHeader("Server configuration", '*', s, 0);	
 		s.println("- address: "+myAddress);
 		s.println("- port: "+port);
 		s.println("- serverName: "+serverName);
@@ -225,9 +225,9 @@ public class BasicServer implements Server {
 	}
 
 	public void printConfiguration() {
-		printMsg("························");
-		printMsg("· Server configuration ·");
-		printMsg("························");
+		printMsg("************************");
+		printMsg("* Server configuration *");
+		printMsg("************************");
 		printMsg("- address: "+myAddress);
 		printMsg("- port: "+port);
 		printMsg("- serverName: "+serverName);

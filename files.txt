@@ -32,6 +32,7 @@ ability/SolarMagic.java
 ability/SpellRefractory.java
 ability/Stubborn.java
 ability/Subjection.java
+ability/Swiftness.java
 ability/ToughBody.java
 ability/UpperHoof.java
 battle/Battle.java
@@ -143,6 +144,7 @@ move/DarkMagic.java
 move/DimensionTwist.java
 move/Dissonance.java
 move/Dodge.java
+move/DrumBang.java
 move/DuckFace.java
 move/EerieSonata.java
 move/Enlighten.java

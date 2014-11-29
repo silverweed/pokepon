@@ -6,7 +6,7 @@ import pokepon.battle.*;
 import pokepon.net.jack.*;
 import pokepon.gui.animation.*;
 /**
- * Status move which increases Atk and Def by 1.
+ * Like High Jump Kick.
  *
  * @author Giacomo Parolini
  */

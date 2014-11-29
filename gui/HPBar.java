@@ -656,9 +656,9 @@ class HPBar extends JPanel {
 			index = 3;
 		else if(stat.equalsIgnoreCase("spe") || stat.equalsIgnoreCase("speed"))
 			index = 4;
-		else if(stat.equalsIgnoreCase("evasion"))
+		else if(stat.equalsIgnoreCase("eva") || stat.equalsIgnoreCase("evasion"))
 			index = 5;
-		else if(stat.equalsIgnoreCase("accuracy"))
+		else if(stat.equalsIgnoreCase("acc") || stat.equalsIgnoreCase("accuracy"))
 			index = 6;
 
 		if(index == -1) {

@@ -123,6 +123,10 @@ public class GUITeamBuilder extends TeamBuilder {
 		SwingConsole.run(frame,"Pokepon Teambuilder");
 	}
 
+	public void buildTeam(boolean exitOnClose) {
+		SwingConsole.run(frame,"Pokepon Teambuilder",exitOnClose);
+	}
+
 	public static void main(String[] args) {
 		SwingConsole.run(new GUITeamBuilder().frame,"Pokepon Teambuilder");
 	}

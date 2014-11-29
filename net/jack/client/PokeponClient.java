@@ -642,7 +642,7 @@ class ButtonsPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			consoleMsg("Opening TeamBuilder.\n");
 			client.append("Opening TeamBuilder...");
-			new GUITeamBuilder(client).buildTeam();
+			new GUITeamBuilder(client).buildTeam(false);
 		}
 	};
 	private ActionListener challengeListener = new ActionListener() {

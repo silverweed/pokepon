@@ -27,7 +27,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 		help.append(CMD_PREFIX+"data <name> - show info about pony/move/item/ability.\n");
 		help.append(CMD_PREFIX+"eff <type>[,type2] - show typechart for a type.\n");
 		help.append(CMD_PREFIX+"eff <typeA> -> <typeB>[,typeB2]  - show effectiveness of typeA atk vs typeB defense.\n");
-		help.append(CMD_PREFIX+"save (in battle) - exports current battle log.\n");
+		help.append(CMD_PREFIX+"save (during battle) - exports current battle log.\n");
 		help.append(CMD_PREFIX+"export - alias for "+CMD_PREFIX+"save.\n");
 	}
 

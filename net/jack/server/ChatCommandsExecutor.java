@@ -19,7 +19,6 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 
 	protected static StringBuilder help = new StringBuilder("");
 	static {
-		help.append("Advanced chat commands:\n");
 		help.append(CMD_PREFIX+"role [user] - prints an user's role (default: your role).\n");
 		help.append(CMD_PREFIX+"roles - lists all assigned roles.\n");
 		help.append(CMD_PREFIX+"perm [user] - prints an user's permissions (default: yours).\n");
@@ -84,7 +83,7 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 
 		
 		if(cmd.equals("help")) {
-			connection.sendMsg(help.toString());
+			connection.sendMsg(CMN_PREFIX+"html <b>===== Advanced chat commands: =====</b>\n" + help.toString());
 			return 0; // if there are other CommandsExecutors, send their help msg too.
 		} else if(cmd.equals("role")) {
 			if(token.length > 2) {

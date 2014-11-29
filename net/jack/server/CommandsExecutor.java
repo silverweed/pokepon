@@ -20,7 +20,6 @@ class CommandsExecutor extends ServerConnectionExecutor {
 
 	protected static StringBuilder help = new StringBuilder("");
 	static {
-		help.append("Commands:\n");
 		help.append(CMD_PREFIX+"help - get this help\n");
 		help.append(CMD_PREFIX+"nick <nick> [passwd] - change your nick (password is required if nick is registered).\n");
 		help.append(CMD_PREFIX+"register <nick> <passwd> - register nick in server database.\n");
@@ -31,6 +30,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		help.append(CMD_PREFIX+"pm <user> <msg> - send a PM to an user.\n");
 		help.append(CMD_PREFIX+"whisper <user> <msg> - alias for `pm`.\n");
 		help.append(CMD_PREFIX+"serverinfo - display server information.\n");
+		help.append(CMD_PREFIX+"info - alias for 'serverinfo'.\n");
 		help.append(CMD_PREFIX+"disconnect - disconnect from the server.\n");
 	}
 
@@ -79,7 +79,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token).toString());
 
 		if(cmd.equals("help")) {
-			connection.sendMsg(help.toString());
+			connection.sendMsg(CMN_PREFIX+"html <b>===== Commands: =====</b>\n" + help.toString());
 			return 1;
 		} else if(cmd.equals("list")) {
 			if(!(server instanceof DatabaseServer)) {
@@ -187,7 +187,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			}
 			connection.sendMsg(sb.toString());
 			return 1;
-		} else if(cmd.equals("serverinfo")) {
+		} else if(cmd.equals("serverinfo") || cmd.equals("info")) {
 			StringBuilder sb = new StringBuilder("Info about: "+server.getName()+" (server)\n");
 			if(server instanceof BasicServer) {
 				sb.append("  IP Address:   "+((BasicServer)server).getServerSocket().getInetAddress().getHostAddress()+"\n");

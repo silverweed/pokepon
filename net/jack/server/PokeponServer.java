@@ -69,6 +69,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		consoleHeader(new String[]{" "+serverName.toUpperCase()+" "," running on: "+myAddress+":"+port+" "},'*');
 		printConfiguration();
 		printMsg("························");
+		DataDealer.init();
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
 			Socket newClient = accept();

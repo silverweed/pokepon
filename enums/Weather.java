@@ -10,13 +10,13 @@ public enum Weather {
 
 	CLEAR("Clear"),		// no weather
 	SUNNY("Sunny"),
-	DARK("Dark"),		//reduces accuracy of everypony but NIGHT and SHADOW types by 1.
-	CHAOTIC("Chaotic"),	//inverts weaknesses and resistances. Immunities become 4x weaknesses.
-	STORMY("Stormy");	//damages everypony but alicorns (more damage to pegasi/gryphons) 
+	DARK("Dark"),		// reduces accuracy of everypony but NIGHT and SHADOW types by 1.
+	CHAOTIC("Chaotic"),	// inverts weaknesses and resistances. Immunities become 4x weaknesses.
+	STORMY("Stormy");	// damages everypony but alicorns (more damage to pegasi/gryphons) 
 
 	private String name;
 
-	Weather(String name) {
+	Weather(final String name) {
 		this.name = name;
 	}
 
@@ -25,7 +25,7 @@ public enum Weather {
 		return name;
 	}
 
-	public static Weather forName(String name) {
+	public static Weather forName(final String name) {
 		for(Weather w : values()) {
 			if(w.name.equals(name)) return w;
 		}
@@ -40,4 +40,4 @@ public enum Weather {
 				return "";
 		}
 	}
-};
+}

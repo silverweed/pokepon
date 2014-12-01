@@ -52,5 +52,6 @@ public class Xenith extends Pony {
 
 		possibleAbilities[0] = "Brute Force";
 		possibleAbilities[1] = "Die Hard";
+		possibleAbilities[2] = "Pest Resilience";
 	}
 }

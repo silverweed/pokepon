@@ -43,5 +43,6 @@ public class CarrotTop extends Pony {
 		learnableMoves.put("Crystal Shield",59);
 
 		possibleAbilities[0] = "Ataraxy";
+		possibleAbilities[1] = "Pest Resilience";
 	}
 }

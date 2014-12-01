@@ -318,10 +318,8 @@ public class BattleEngine {
 			}
 		} // TODO: handle blocking moves
 		
-		// else:
-		
 		/* Detract 1 from confusionCounter if attacker was confused. */
-		if(attacker.isConfused()) 
+		if(attacker.isConfused()) {
 			if(--attacker.confusionCounter == 0) {
 				attacker.setConfused(false);
 				if(battleTask != null) {
@@ -329,6 +327,7 @@ public class BattleEngine {
 					battleTask.sendB(opp,"|rmstatus|opp|cnf");
 				}
 			}
+		}
 		
 		/* If still confused, throw coin to see if attacks itself */
 		if(attacker.isConfused()) {
@@ -1246,7 +1245,7 @@ public class BattleEngine {
 			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetToxic() && checkProtect(dealer)) {
 				float ignore = 0f;
 				for(EffectDealer ed : defender.getEffectDealers())
-					ignore += ed.preventNegativeCondition("psn");
+					ignore += ed.preventNegativeCondition("tox");
 				if(rng.nextFloat() < ignore) {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become poisoned!");

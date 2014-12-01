@@ -1356,21 +1356,21 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 
 				if(token[1].equals("ally")) {
-					if(allyHPBar != null) {
-						allyHPBar.boost(token[2],value);
-						if(value > 0)
-							resultAnim(allyLocation(),"+"+value+" "+Pony.toBriefStat(token[2])+"!",ResultType.GOOD);
-						else
-							resultAnim(allyLocation(),value+" "+Pony.toBriefStat(token[2])+"!",ResultType.BAD);
-					}
+					allyPony.boost(token[2], value);
+					if(value > 0)
+						resultAnim(allyLocation(),"+"+value+" "+Pony.toBriefStat(token[2])+"!",ResultType.GOOD);
+					else
+						resultAnim(allyLocation(),value+" "+Pony.toBriefStat(token[2])+"!",ResultType.BAD);
+					if(allyHPBar != null) 
+						allyHPBar.update();
 				} else if(token[1].equals("opp")) {
-					if(oppHPBar != null) {
-						oppHPBar.boost(token[2],value);
-						if(value > 0)
-							resultAnim(oppLocation(),"+"+value+" "+Pony.toBriefStat(token[2])+"!",ResultType.GOOD);
-						else
-							resultAnim(oppLocation(),value+" "+Pony.toBriefStat(token[2])+"!",ResultType.BAD);
-					}
+					oppPony.boost(token[2],value);
+					if(value > 0)
+						resultAnim(oppLocation(),"+"+value+" "+Pony.toBriefStat(token[2])+"!",ResultType.GOOD);
+					else
+						resultAnim(oppLocation(),value+" "+Pony.toBriefStat(token[2])+"!",ResultType.BAD);
+					if(oppHPBar != null) 
+						oppHPBar.update();
 				}
 				if(sb.length() > 0)
 					appendEvent(EventType.BOOST,sb.toString());
@@ -1548,10 +1548,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		} else if(token[0].equals("flinch") && token.length > 1) {
 			/* |flinch|(ally/opp) */
 			if(token[1].equals("ally")) {
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is flinched!");
+				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " flinched and couldn't move!");
 				resultAnim(allyLocation(),"Flinched!");
 			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is flinched!");
+				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " flinched and couldn't move!");
 				resultAnim(oppLocation(),"Flinched!");
 			}
 			try {
@@ -1714,20 +1714,20 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 				switch(status) {
 					case PARALYZED:
-						resultAnim(allyLocation(),status+"!",new Color(0xCFA600));
+						resultAnim(allyLocation(),status+"!", new Color(0xCFA600));
 						break;
 					case POISONED:
 					case INTOXICATED:
-						resultAnim(allyLocation(),status+"!",new Color(0x9900CC));
+						resultAnim(allyLocation(),status+"!", new Color(0x9900CC));
 						break;
 					case BURNED:
-						resultAnim(allyLocation(),status+"!",new Color(0xCC0000));
+						resultAnim(allyLocation(),status+"!", new Color(0xCC0000));
 						break;
 					case PETRIFIED:
-						resultAnim(allyLocation(),status+"!",new Color(0x666699));
+						resultAnim(allyLocation(),status+"!", new Color(0x666699));
 						break;
 					case ASLEEP:
-						resultAnim(allyLocation(),status+"!",new Color(0xA3A3C2));
+						resultAnim(allyLocation(),status+"!", new Color(0xA3A3C2));
 						break;
 					default:
 						resultAnim(allyLocation(),status+"!");

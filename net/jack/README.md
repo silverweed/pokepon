@@ -1,53 +1,10 @@
 Java Awful Client-server Kit 
 ==========================================
-A simple networking framework written from scratch by silverweed. DISCLAIMER: this suite does 
-not provide advanced security features, therefore you should avoid sending sensitive data
-while connected to a Poképon Server.
+A simple networking framework written from scratch by silverweed.  
+DISCLAIMER: this suite does not provide advanced security features, therefore you should avoid sending sensitive data while connected to a Poképon Server.
 
 You can obtain a reliably secure connection using an SSH tunnel to encrypt the
 connection: see the paragraph "Securing the Connection" below.
-
-
-How does it work
-----------------------------------------------
-There are many classes, but most of them are there just to support
-really important ones.
-
-SERVER 
-----------------------------
-
-First of all, there is the Server. The hierarchy is the following:
-
-* BasicServer is the most basilar Server class (implementing the
-   Server interface). 
-   It does not support  multithreading, so it can only accept() and
-   deal with one client a time. This class is not used stand-alone.
-
-* MultiThreadedServer implements a server with multiple connections and uses the Connection
-   mechanism (see later). It also implements NameValidatingServer (an
-   utility interface to provice name validation and blacklisting), by
-   extending BasicNameValidatingServer, which is a simple extension of
-   BasicServer.  This class is the first serious stand-alone useful
-   server.
-
-* A more sophisticated server is implemented in DatabaseServer, which
-   extends MultiThreadedServer and adds database and name registering functionality.
-   This is for now the most evolved server available.
-
-
-CLIENT 
-------------------------------
-
-The Client interface is currently unused; the most basic client available is
-the 
-
-* BasicClient: a fully-functional Command Line client. It uses the
-   Connection system with the Default executor, which just echoes the server's
-   messages.
-
-* A more evolved approach comes from the BasicGUIClient, which is *NOT* a
-   child class of BasicClient, but instead a separate class which also uses the
-   Connection mechanism. 
 
 THE CONNECTION SYSTEM
 ------------------------------

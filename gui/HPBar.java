@@ -38,6 +38,7 @@ class HPBar extends JPanel {
 	private final static int DELAY = 20;
 	private final static String[] STATS = { "Atk", "Def", "SpA", "SpD", "Spe", "Eva", "Acc" };
 
+	/** The Pony instance associated with this HPBar */
 	private Pony pony;
 	private Timer timer;
 	/** This serves the purpose to keep the bar width constant */
@@ -53,11 +54,11 @@ class HPBar extends JPanel {
 	private Set<StatusLabel> statuses = Collections.synchronizedSet(new LinkedHashSet<StatusLabel>());
 	private Set<PseudoStatusLabel> pseudoStatuses = Collections.synchronizedSet(new LinkedHashSet<PseudoStatusLabel>());
 	private Set<GridLabel> allStatuses = Collections.synchronizedSet(new LinkedHashSet<GridLabel>());
+	/** HP percentage */
 	private JLabel perc = new JLabel("100%");
 	private JLabel ponyName;
 	private JLabel ponyLv;
 	/** atk,def,spatk,spdef,speed,evasion,accuracy boosts */
-	private int[] boostTable = new int[7];
 	private PseudoStatusLabel[] boostLabel = new PseudoStatusLabel[7];
 	/** The panel containing the status labels */
 	private JPanel labelPanel = new JPanel(true);
@@ -365,31 +366,6 @@ class HPBar extends JPanel {
 		} else {
 			addPseudoStatus(STATS[statIdx]+" "+Pony.getStatMod(value)+"x", value > 0, 3);
 		}
-
-		/*boostTable[index] += value;
-		if(boostTable[index] > 6) boostTable[index] = 6;
-		else if(boostTable[index] < -6) boostTable[index] = -6;
-
-		if(Debug.pedantic) printDebug("index: "+index+", boostLabel: "+boostLabel[index]);
-		if(boostTable[index] != 0) {
-			String stmod = "Atk Def SpA SpD Spe Eva Acc".split(" ")[index];
-
-			// if stat is already boosted, just change the text
-			if(boostLabel[index] != null) {
-				final int ind = index;
-				final String stm = stmod;
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						boostLabel[ind].setText(stm+" "+Pony.getStatMod(boostTable[ind])+"x");
-						boostLabel[ind].setGood(boostTable[ind] >= 0);
-					}
-				});
-			} else {
-				addPseudoStatus(stmod+" "+Pony.getStatMod(boostTable[index])+"x", boostTable[index] > 0, 3);
-			}
-		} else if(boostLabel[index] != null) {
-			clearLabel(boostLabel[index]);
-		}*/
 	}
 
 	@Override

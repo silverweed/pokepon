@@ -44,5 +44,6 @@ public class BerryPunch extends Pony {
 
 		possibleAbilities[0] = "Simplicity";
 		possibleAbilities[1] = "Nocturnality";
+		possibleAbilities[2] = "Pest Resilience";
 	}
 }

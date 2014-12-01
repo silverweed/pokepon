@@ -1,7 +1,5 @@
 //: util/ClassFinder.java
 
-// FIXME: path resolution won't work on Windows.
-
 package pokepon.util;
 
 import static pokepon.util.MessageManager.*;
@@ -11,74 +9,18 @@ import java.net.URL;
 import java.security.*;
 import java.util.zip.*;
 
-/** Utility class (found on the internet) used to scan all classes
- * within a package; very messy: should rewrite it - or not use it at all.
+/** Utility class (adapted from one found on the internet) used to scan all classes
+ * within a package; 
  *
- * @author sp00m (stackoverflow.com), silverweed
+ * @author silverweed
  */
 public final class ClassFinder {
 
-	/*private final static char DOT = '.';
-	private final static char SLASH = '/';
-	private final static char BACKSLASH = '\\';
-	private final static char SEP;
-	static {
-		//if(System.getProperty("os.name").startsWith("Windows")) SEP = BACKSLASH;
-		//else SEP = SLASH;
-	}*/
 	private final static String CLASS_SUFFIX = ".class";
-	private final static String BAD_PACKAGE_ERROR = "Unable to get resources from path '%s'. Are you sure the given '%s' package exists?";
+	private final static Map<String, List<String>> filesCache = 
+		Collections.synchronizedMap(new HashMap<String, List<String>>());
 
-	/** This function returns a List of all found classes that extend baseClass found in directory path.
-	 * @param path The path where to search (relative to the java classpath)
-	 *@author silverweed
-	 */
-	/*public static List<Class<?>> findSubclasses(String path,Class<?> baseClass) {
-		List<Class<?>> classes = new ArrayList<Class<?>>();
-		try {
-			if(Debug.pedantic) printDebug("findSubClasses - path="+path);
-			File[] files = new File(Meta.getCwd().getPath()+Meta.DIRSEP+path).listFiles();
-
-			if(files == null || files.length == 0) {
-				if(Debug.on) printDebug("[ClassFinder] Warning: found no files in "+Meta.getCwd().getPath()+Meta.DIRSEP+path);
-				return classes;
-			}
-				
-			if(Debug.pedantic) printDebug("[ClassFinder] files found = "+Arrays.asList(files));
-
-			Arrays.sort(files);
-			for(File f : files) {
-				if(Debug.pedantic) printDebug("file: "+f.getName());
-				if(!f.toString().endsWith(".class") || f.toString().matches(".*\\$.+\\.class$")) continue;
-				try {
-					// FIXME ?
-					String classname = f.toString().split("[^a-zA-Z0-9\\.]")[f.toString().split("[^a-zA-Z0-9\\.]").length-1].split("\\.")[0];
-					if(Debug.pedantic) printDebug("findSubClasses: classname="+classname);
-
-					// Get only subclasses of baseClass (exclude baseClass itself) 
-					if(baseClass.isAssignableFrom(Class.forName(path.replace(SEP,'.')+"."+classname)) && ! Class.forName(path.replace(SEP,'.')+"."+classname).equals(baseClass)) {
-						if(Debug.pedantic) printDebug("classname ok: "+f.toString());
-						try { 
-							classes.add(Class.forName(path.replace(SEP,'.')+"."+classname));
-						} catch(Exception e) {
-							printDebug("Caught exception: "+e);
-						}
-					}
-
-				} catch(ArrayIndexOutOfBoundsException|ClassNotFoundException ee) {
-					printDebug("Caught exception in ClassFinder::findSubClasses("+path+","+baseClass+"): "+ ee);
-					ee.printStackTrace();
-				}
-			}
-			
-		} catch(Exception e){
-			printDebug("Caught an exception: "+e);
-			e.printStackTrace();
-		}
-
-		return classes;
-	}*/
-
+	/** Given a path, returns a List of all subclasses of 'baseClass'. */
 	public static List<Class<?>> findSubclasses(String path, Class<?> baseClass) {
 		List<Class<?>> classes = new ArrayList<>();
 		for(String str : allFilesIn(path)) {
@@ -104,9 +46,15 @@ public final class ClassFinder {
 		return list;
 	}
 
-	// XXX: profiling data showed that this method is very time-expensive when LAUNCHED_FROM_JAR == true,
-	// due to repeated calls to ZipInputStream.getNextEntry().
+	/** Given a path, returns a List of basenames of all files in it; for efficiency, file lists are
+	 * cached the first time a new relpath is read and then read from the cache on next requests.
+	 */
 	public static List<String> allFilesIn(final String relpath) {
+		if(filesCache.get(relpath) != null) {
+			if(Debug.on) printDebug("[allFilesIn] reading from cache: "+relpath);
+			return filesCache.get(relpath);
+		}
+
 		List<String> filenames = new ArrayList<>();
 		if(Meta.LAUNCHED_FROM_JAR) {	
 			try {
@@ -115,6 +63,9 @@ public final class ClassFinder {
 					URL jar = src.getLocation();
 					if(Debug.on) printDebug("jar location = "+jar+"; relpath: "+relpath);
 					ZipInputStream zip = new ZipInputStream(jar.openStream());
+					// XXX: this cycle is very time-expensive, so we try to limit its use
+					// as much as possible, both with the cache and by calling this method
+					// as few times as possible.
 					while(true) {
 						ZipEntry e = zip.getNextEntry();
 						if(e == null) break;
@@ -140,45 +91,11 @@ public final class ClassFinder {
 				filenames.add(f.getName());
 		}
 		if(Debug.pedantic) printDebug("filenames = "+filenames);
+		// add entry to the cache
+		synchronized(filesCache) {
+			filesCache.put(relpath, filenames);
+		}
+		if(Debug.on) printDebug("[allFilesIn] added entry to cache: "+relpath);
 		return filenames;
-	}
-
-	/** This function returns a List of all classes within a package.
-	 * @author sp00m 
-	 */
-	public static List<Class<?>> find(final String scannedPackage) {
-		final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		final String scannedPath = scannedPackage.replace(".", ""+Meta.DIRSEP);
-		final Enumeration<URL> resources;
-		try {
-			resources = classLoader.getResources(scannedPath);
-		} catch (IOException e) {
-			throw new IllegalArgumentException(String.format(BAD_PACKAGE_ERROR, scannedPath, scannedPackage), e);
-		}
-		final List<Class<?>> classes = new LinkedList<Class<?>>();
-		while (resources.hasMoreElements()) {
-			final File file = new File(resources.nextElement().getFile());
-			classes.addAll(find(file, new String()));
-		}
-		return classes;
-	}
-
-	/** @author sp00m */
-	public static List<Class<?>> find(final File file, final String scannedPackage) {
-		final List<Class<?>> classes = new LinkedList<Class<?>>();
-		final String resource = scannedPackage + "." + file.getName();
-		if (file.isDirectory()) {
-			for (File nestedFile : file.listFiles()) {
-				classes.addAll(find(nestedFile, resource));
-			}
-		} else if (resource.endsWith(CLASS_SUFFIX)) {
-			final int beginIndex = 1;
-			final int endIndex = resource.length() - CLASS_SUFFIX.length();
-			final String className = resource.substring(beginIndex, endIndex);
-			try {
-				classes.add(Class.forName(className));
-			} catch (ClassNotFoundException ignore) {}
-		}
-		return classes;
 	}
 }

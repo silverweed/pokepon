@@ -404,10 +404,18 @@ public class TeamBuilderPanel extends Ponydex {
 		} else {
 			if(pony.getAbility() == null) {
 				// if possibleAbilities is non-empty, set first possible ability as default.
-				if(pony.getPossibleAbilities().size() > 0)
-					ability.setText(pony.getPossibleAbilities().get(0));
-				else
+				if(pony.getPossibleAbilities().size() > 0) {
+					try {
+						pony.setAbility(AbilityCreator.create(pony.getPossibleAbilities().get(0)));
+						ability.setText(pony.getPossibleAbilities().get(0));
+					} catch(ReflectiveOperationException e) {
+						printDebug("[TBPanel.setPony("+pony+")] Error creating ability:");
+						e.printStackTrace();
+						ability.setText("");
+					}
+				} else {
 					ability.setText("");
+				}
 			} else {
 				ability.setText(pony.getAbility().getName());
 			}

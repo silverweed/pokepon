@@ -23,22 +23,4 @@ public class Determination extends Ability {
 		if(which.equals("flinch")) return 1f;
 		return 0f;
 	}
-
-	/*@Override
-	public void afterMoveUsage(final BattleEngine be) {
-		if(pony == null)
-			throw new NullPointerException("Pony is null for ability Determination!");
-		
-		if(Debug.pedantic) printDebug("[Determination::afterMoveUsage] pony == defender: "+(pony == be.getDefender()));
-		if(be.getDefender() == pony) {
-			if(Debug.pedantic) printDebug("pony is flinched = "+pony.isFlinched());
-			if(pony.isFlinched()) {
-				if(Debug.pedantic) printDebug("pony unflinched.");
-				pony.setFlinched(false);
-				if(be.getBattleTask() != null)
-					be.getBattleTask().sendB("|battle|"+pony.getNickname()+
-						"'s determination prevents it from flinching!");
-			}
-		}
-	}*/
 }

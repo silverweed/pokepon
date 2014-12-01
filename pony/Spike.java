@@ -49,5 +49,6 @@ public class Spike extends Pony {
 		/* Abilities */
 		possibleAbilities[0] = "Dragon Scales";
 		possibleAbilities[1] = "Mildness";
+		possibleAbilities[2] = "Pest Resilience";
 	}
 }

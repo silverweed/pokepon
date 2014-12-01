@@ -61,7 +61,6 @@ gui/GradientButton.java
 gui/GridLabel.java
 gui/HPBar.java
 gui/HoverListener.java
-gui/ImageToolTip.java
 gui/ItemPreviewer.java
 gui/MessageProxy.java
 gui/MoveButton.java
@@ -81,7 +80,6 @@ gui/TeamBuilderPanel.java
 gui/TeamMenuPanel.java
 gui/TeamPanel.java
 gui/TeamRenderer.java
-gui/TestHPBar.java
 gui/TextBubbleBorder.java
 gui/TransparentLabel.java
 gui/Typechart.java
@@ -245,7 +243,6 @@ net/jack/chat/ChatClient.java
 net/jack/chat/ChatModerator.java
 net/jack/chat/ChatSystem.java
 net/jack/chat/ChatUser.java
-net/jack/client/BasicClient.java
 net/jack/client/ChatClient.java
 net/jack/client/ChatClientCommunicationsExecutor.java
 net/jack/client/ChatPanel.java
@@ -317,6 +314,7 @@ pony/Fluttershy.java
 pony/Gilda.java
 pony/GrannySmith.java
 pony/Homage.java
+pony/IronWill.java
 pony/KingSombra.java
 pony/LightningDust.java
 pony/LimestonePie.java

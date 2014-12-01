@@ -60,8 +60,8 @@ public class BattleEngine {
 	public Team getTeam2() { return team2; }
 	public Team getTeam(int pl) {
 		if(pl == 1) return team1;
-		else if(pl == 2) return team2;
-		else return null;
+		if(pl == 2) return team2;
+		return null;
 	}
 	public Team getTeamAttacker() { return teamAttacker; }
 	public Team getTeamDefender() { return teamDefender; }
@@ -73,8 +73,8 @@ public class BattleEngine {
 	public WeatherHolder getWeather() { return weather; }
 	public synchronized Set<Hazard> getHazards(int i) {
 		if(i == 1) return hazards1;
-		else if(i == 2) return hazards2;
-		else return null;
+		if(i == 2) return hazards2;
+		return null;
 	}
 	public synchronized List<Set<Hazard>> getHazards() {
 		List<Set<Hazard>> hz = new ArrayList<Set<Hazard>>();
@@ -96,20 +96,20 @@ public class BattleEngine {
 	}*/
 	public int getSide(Pony pony) {
 		if(team1.contains(pony)) return 1;
-		else if(team2.contains(pony)) return 2;
-		else return 0;
+		if(team2.contains(pony)) return 2;
+		return 0;
 	}
 	public int getOppositeSide(Pony pony) {
 		int side = getSide(pony);
 		if(side == 1) return 2;
-		else if(side == 2) return 1;
-		else return 0;
+		if(side == 2) return 1;
+		return 0;
 	}
 	public Connection getConnection(int pl) {
 		int cur = currentPlayer();
 		if(pl == 1) return cur == 1 ? ally : opp;
-		else if(pl == 2) return cur == 2 ? ally : opp;
-		else return null;
+		if(pl == 2) return cur == 2 ? ally : opp;
+		return null;
 	}
 	public final BattleTask getBattleTask() { return battleTask; }
 	public final Connection getAlly() { return ally; }
@@ -464,8 +464,6 @@ public class BattleEngine {
 				if(battleTask != null) {
 					battleTask.sendB(ally,"|move|ally|"+move.getName()+"|avoid");
 					battleTask.sendB(opp,"|move|opp|"+move.getName()+"|avoid");
-					//battleTask.sendB(ally,"|avoid|opp");
-					//battleTask.sendB(opp,"|avoid|ally");
 				}
 				if(echoBattle) printMsg(defender.getNickname()+" avoids the attack!");
 				move.onMoveFail(this);
@@ -708,6 +706,7 @@ public class BattleEngine {
 			"\nweather= " + weather +
 			"\nweatherDuration= "+ (weather == null ? 0 : weather.count); 
 	}
+
 	////////////////// PRIVATE METHODS / FIELDS /////////////////
 	
 	private boolean fullParalysis(final Pony pony) {
@@ -727,12 +726,13 @@ public class BattleEngine {
 			}
 			if(echoBattle) printMsg(attacker.getNickname()+"'s body's back to normal!");
 			return false;
-		} else return true;
+		} 
+		return true;
 	}
 	
 	private boolean staysAsleep(Pony pony) {
 		/* Detract 1 from sleepCounter if attacker is asleep */
-		if(attacker.isAsleep())
+		if(attacker.isAsleep()) {
 			if(--attacker.sleepCounter <= 0) {
 				attacker.setAsleep(false);
 				if(battleTask != null) {
@@ -741,7 +741,7 @@ public class BattleEngine {
 				}
 				if(echoBattle) printMsg(attacker.getNickname()+" woke up!");
 			}
-			
+		}	
 		return attacker.isAsleep();
 	}
 	
@@ -891,7 +891,7 @@ public class BattleEngine {
 		
 		float random = 100*rng.nextFloat();
 		if(Debug.on) printDebug("[hitcheck] RandomGeneratedNumber: "+random+" vs probability: "+probability);
-		return (random > probability);
+		return random > probability;
 	}
 	
 	private void boostStat(boolean isally, Pony pony, String stat, int value) {

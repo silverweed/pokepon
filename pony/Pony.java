@@ -298,7 +298,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			effectiveness = new EnumMap<Type,Float>(vol.effectiveness);
 		}
 
-		Modifiers modifiers = new Modifiers();
+		public Modifiers modifiers = new Modifiers();
 		public boolean deathScheduled;
 		public boolean taunted;
 		public boolean trapped;

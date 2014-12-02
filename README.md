@@ -14,8 +14,8 @@ If you just want the executable JAR file, use this download link:
 
 Launching the game
 -----------------------------------------------------
-Being written in Java, Poképon is compatible with any Java-endued OS, like
-Linux, Windows and MacOS.
+Being written in Java, Poképon is compatible with any OS supporting a JVM, like
+Linux, BSD, Windows and MacOS.
 The simplest way to launch the game is to double-click pokepon.jar,
 or to type in some terminal `java -jar /path/to/pokepon.jar`.
 In case the game doesn't start upon double-clicking, try right-clicking

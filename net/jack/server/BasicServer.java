@@ -64,7 +64,7 @@ public class BasicServer implements Server {
 			else
 				myAddress = InetAddress.getLocalHost();
 		} catch(IOException e) {
-			throw new RuntimeException(e);
+			printDebug("[BasicServer] WARNING: couldn't resolve address: "+e);
 		}
 		if(opts.serverName != null) {
 			serverName = opts.serverName;

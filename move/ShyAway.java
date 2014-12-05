@@ -5,7 +5,6 @@ package pokepon.move;
 import pokepon.enums.*;
 import pokepon.battle.*;
 import pokepon.pony.Pony;
-import pokepon.gui.animation.*;
 /** 
  * Status move which boosts user's evasion
  *

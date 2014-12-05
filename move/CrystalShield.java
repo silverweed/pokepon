@@ -1,7 +1,6 @@
 //: move/CrystalShield.java
 
 package pokepon.move;
-import pokepon.gui.animation.*;
 
 /**
  * Status move which increases SpD by 2 and may heal status.

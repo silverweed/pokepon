@@ -14,11 +14,10 @@ import java.util.zip.*;
  *
  * @author silverweed
  */
-public final class ClassFinder {
+public class ClassFinder {
 
 	private final static String CLASS_SUFFIX = ".class";
-	private final static Map<String, List<String>> filesCache = 
-		Collections.synchronizedMap(new HashMap<String, List<String>>());
+	private final static Map<String, List<String>> filesCache = Collections.synchronizedMap(new HashMap<String, List<String>>());
 
 	/** Given a path, returns a List of all subclasses of 'baseClass'. */
 	public static List<Class<?>> findSubclasses(String path, Class<?> baseClass) {

@@ -5,7 +5,9 @@ package pokepon.util;
 import java.util.Arrays;
 import java.util.List;
 
-/** Class used to concatenate 2 arrays */
+/** Class used to manipulate arrays with trivial operations that the standard
+ * Java libraries don't support.
+ */
 public class ConcatenateArrays {
 	
 	public static <T> T[] concatenate(T[] first, T[] second) {
@@ -16,24 +18,31 @@ public class ConcatenateArrays {
 	
 	/** Given an array of Strings, returns a single string with array elements
 	 * separated by whitespaces.
+	 * @param array The array to merge into a string
+	 * @param start The index to start from (default: 0)
+	 * @param end The index to end to (default: array.length)
+	 * @param sep The separator to use (default: " ")
 	 */
-	public static String merge(String[] array,int... index) {
+	public static String merge(String[] array, int start, int end, String sep) {
 		if(array == null || array.length == 0) return null;
-		int start = 0;
-		int end = array.length;
-		if(index.length > 0) {
-			start = index[0];
-			if(index.length > 1)
-				end = index[1];
-		}
 		StringBuilder sb = new StringBuilder(array[start]);
-		for(int i = start+1; i < Math.min(array.length,end); ++i)
-			sb.append(" " + array[i]);
-		
+		end = Math.min(array.length, end);
+		for(int i = start + 1; i < end; ++i) {
+			sb.append(sep);
+			sb.append(array[i]);
+		}
 		return sb.toString();
 	}
 
-	public static String merge(List<String> array, int...index) {
-		return merge(array.toArray(new String[0]),index);
+	public static String merge(String[] array, int start, int end) {
+		return merge(array, start, end, " ");
+	}
+
+	public static String merge(String[] array, int start) {
+		return merge(array, start, array.length);
+	}
+
+	public static String merge(String[] array) {
+		return merge(array, 0);
 	}
 }

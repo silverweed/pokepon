@@ -8,9 +8,8 @@ import static pokepon.util.MessageManager.*;
 import pokepon.util.*;
 import pokepon.enums.*;
 import pokepon.net.jack.*;
-import java.io.*;
-import java.util.concurrent.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 /** The main class and entry point for battle, used to retrieve teams
  * before the battle control is handed to BattleTask; also used to defined
@@ -18,7 +17,7 @@ import java.util.*;
  *
  * @author silverweed
  */
-public class Battle {
+public abstract class Battle {
 	
 	////////////// CONSTANT VALUES ////////////////
 	
@@ -43,118 +42,22 @@ public class Battle {
 
 	/////////////// PUBLIC METHODS / FIELDS ////////////////
 
-	/** Constructor used for tests */
-	public Battle(Player p1, Player p2) {
-		this.p1 = p1;
-		this.p2 = p2;
-	}
-
-	/** Constructor used by the Pokepon Server: initialize() must be called before starting battle. */
-	public Battle(Connection c1,Connection c2) {
-		this.c1 = c1;
-		this.c2 = c2;
-		p1 = new Player(c1.getName());
-		p2 = new Player(c2.getName());
-	}
-
 	public boolean initialize() throws InterruptedException {
 		return initialize(false);
 	}
 
-	/** Makes pre-battle preparations: retrieves and validates teams and so on 
-	 * @return true - if initialization succeeded; false - otherwise.
-	 */
-	public boolean initialize(boolean randomBattle) throws InterruptedException {
-		if(randomBattle) {
-			// generate random teams
-			p1.setTeam(Team.randomTeam());
-			p2.setTeam(Team.randomTeam());
-			// set random levels within certain limits
-			for(int i = 0; i < p1.getTeam().members(); ++i) {
-				int lv = 85 + rng.nextInt(16);
-				p1.getTeam().getPony(i).setLevel(lv);
-				p2.getTeam().getPony(i).setLevel(lv);
-			}
+	public abstract boolean initialize(boolean randomBattle) throws InterruptedException;
 
-		} else {
-			// concurrently retreive teams
-			if(Debug.on) printDebug("[BATTLE "+p1+","+p2+"]: Retrieving teams...");
-			List<Callable<Boolean>> tr = new ArrayList<Callable<Boolean>>();
-			tr.add(new TeamRetreiver(c1,p1));
-			tr.add(new TeamRetreiver(c2,p2));
-			List<Future<Boolean>> results = executor.invokeAll(tr);
-			
-			try {
-				if(Debug.pedantic) printDebug("Future.get(1)...");
-				if(!results.get(0).get(15,TimeUnit.SECONDS)) {
-					printDebug(p1.getName()+"'s team not retreived correctly.");
-					printMsg("Error starting battle between "+p1+" and "+p2+": aborting battle.");
-					c1.sendMsg(BTL_PREFIX+"ko");
-					c2.sendMsg(BTL_PREFIX+"ko");
-					return false;
-				}
-				if(Debug.pedantic) printDebug("Future.get(2)...");
-				if(!results.get(1).get(15,TimeUnit.SECONDS)) {
-					printDebug(p2.getName()+"'s team not retreived correctly");
-					printMsg("Error starting battle between "+p1+" and "+p2+": aborting battle.");
-					c1.sendMsg(BTL_PREFIX+"ko");
-					c2.sendMsg(BTL_PREFIX+"ko");
-					return false;
-				}
-			} catch(TimeoutException e) {
-				printDebug("Timeout: "+e);
-				c1.sendMsg(BTL_PREFIX+"ko");
-				c2.sendMsg(BTL_PREFIX+"ko");
-				return false;
-			} catch(ExecutionException e) {
-				printDebug("Caught exception in result.get(): "+e);
-				e.printStackTrace();
-				c1.sendMsg(BTL_PREFIX+"ko");
-				c2.sendMsg(BTL_PREFIX+"ko");
-				return false;
-			}
-			if(Debug.on) printDebug("[BATTLE "+c1.getName()+" ~ "+c2.getName()+"] Teams retreived correctly.");
-		}
-
-		return true;
-	}
-
-	public Player getPlayer(int num) {
-		if(num == 1) return p1;
-		else if(num == 2) return p2;
-		else throw new IllegalArgumentException("[Battle.getPlayer()]: num is "+num);
-	}
-
-	public Team getTeam(int num) {
-		if(num == 1) return p1.getTeam();
-		else if(num == 2) return p2.getTeam();
-		else throw new IllegalArgumentException("[Battle.getTeam()]: num is "+num);
-	}
+	public abstract Player getPlayer(int num);
+	public abstract Team getTeam(int num);
 
 	public final Random getRNG() {
 		return rng;
 	}
 
-	public boolean setActivePony(int num,int i) {
-		if(num == 1) return p1.getTeam().setActivePony(i);
-		else if(num == 2) return p2.getTeam().setActivePony(i);
-		else throw new IllegalArgumentException("[Battle.setActivePony()]: num is "+num);
-	}
-
-	public boolean setActivePony(int num,String name) {
-		if(num == 1) return p1.getTeam().setActivePony(name);
-		else if(num == 2) return p2.getTeam().setActivePony(name);
-		else throw new IllegalArgumentException("[Battle.setActivePony()]: num is "+num);
-	}
-
 	/////////////// PRIVATE METHODS / FIELDS ////////////////
 
-	private Player p1;
-	private Player p2;
-	private Connection c1;
-	private Connection c2;
-	private WeatherHolder weather = new WeatherHolder(Weather.CLEAR,0);
-	private int winner;
-	private ExecutorService executor = Executors.newFixedThreadPool(2);
-	private Random rng = new Random();
+	protected WeatherHolder weather = new WeatherHolder(Weather.CLEAR, 0);
+	protected ExecutorService executor = Executors.newFixedThreadPool(2);
+	protected Random rng = new Random();
 }

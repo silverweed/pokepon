@@ -12,8 +12,7 @@ import static pokepon.util.Meta.*;
 import java.util.*;
 import java.io.*;
 
-/** Child class of TeamBuilder which implements buildTeam via the Command
- * Line Interface.
+/** TeamBuilder which implements buildTeam via the Command Line Interface.
  *
  * @author silverweed
  */
@@ -49,7 +48,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					Pony pony = null;
 					if(parser.getPonyName() == null) {
-						consoleMsg("--pony.not.found: couldn't find valid pony within arguments given.");
+						consoleMsg("--pony not found: couldn't find valid pony within arguments given.");
 						break;
 					} else {
 						if(Debug.on) printDebug("Selected seemingly valid pony: "+parser.getPonyName());
@@ -85,7 +84,7 @@ public class CLITeamBuilder extends TeamBuilder {
 							break;
 						}
 					}
-					if(!found) consoleMsg("--pony.not.found: couldn't find valid pony within arguments given.");
+					if(!found) consoleMsg("--pony not found: couldn't find valid pony within arguments given.");
 					break;
 				}
 				case 3:	//team
@@ -93,7 +92,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					break;
 				case 4:	{ //save
 					String input = null;
-					if((input = ConcatenateArrays.merge(parser.getArgs())) == null) {
+					if((input = ConcatenateArrays.merge(parser.getArgs().toArray(new String[0]))) == null) {
 						input = getInput("Give filename > ");
 					}
 					if(team.getName().equals("Untitled Team")) 
@@ -111,7 +110,7 @@ public class CLITeamBuilder extends TeamBuilder {
 				}
 				case 5:	{ //load
 					String input = null;
-					if((input = ConcatenateArrays.merge(parser.getArgs())) == null) {
+					if((input = ConcatenateArrays.merge(parser.getArgs().toArray(new String[0]))) == null) {
 						List<File> saveFiles = teamDealer.listSaveFiles();
 						if(saveFiles.isEmpty()) {
 							consoleMsg("No save files in "+Meta.getSaveURL().getPath());
@@ -189,7 +188,6 @@ public class CLITeamBuilder extends TeamBuilder {
 		consoleFixedTable(lc, 5);
 	}		
 
-	@SuppressWarnings("unchecked")
 	private void editPony(Pony pony) {
 		if(!team.getAllPonies().contains(pony)) {
 			printDebug("Error: pony "+pony+" not found in team.");
@@ -446,7 +444,6 @@ public class CLITeamBuilder extends TeamBuilder {
 		} catch(Exception e) {
 			printDebug("Caught exception: "+e);
 		}
-		
 		return in;
 	}
 

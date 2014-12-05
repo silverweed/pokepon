@@ -151,7 +151,7 @@ public class TypeDealer implements TestingClass {
 			sb.append(entry.getKey());
 			sb.append(" (");
 			sb.append(entry.getValue());
-			sb.append("x), ");	
+			sb.append("x), ");
 		}
 		
 		sb.delete(sb.length()-2,sb.length());
@@ -240,7 +240,7 @@ public class TypeDealer implements TestingClass {
 			for(Type t2: Type.values()) {
 				System.out.printf("----------");
 			}
-			printMsg((colored ? NOCOL : ""));
+			printMsg(colored ? NOCOL : "");
 		}
 	}
 
@@ -299,7 +299,7 @@ public class TypeDealer implements TestingClass {
 	private static EnumMap<Type,Type[]> resistances = new EnumMap<Type,Type[]>(Type.class);
 	private static EnumMap<Type,Type[]> immunities = new EnumMap<Type,Type[]>(Type.class);
 
-	/* Typechart Static initialization */
+	/* Typechart initialization */
 	static {
 
 		/* Initializating weaknesses/resistances/immunities
@@ -307,52 +307,52 @@ public class TypeDealer implements TestingClass {
 		 * empty arrays to avoid further NullPointerExceptions.
 		 */
 
-		weaknesses.put(Type.MAGIC,	new Type[] { Type.HONESTY, Type.LAUGHTER, Type.SPIRIT });
-		weaknesses.put(Type.LOYALTY, 	new Type[] { Type.MAGIC, Type.CHAOS, Type.HONESTY });
-		weaknesses.put(Type.HONESTY, 	new Type[] { Type.LOYALTY, Type.CHAOS, Type.PASSION });
-		weaknesses.put(Type.LAUGHTER, 	new Type[] { Type.LAUGHTER, Type.GENEROSITY, Type.LOVE, Type.MUSIC });
-		weaknesses.put(Type.KINDNESS, 	new Type[] { Type.LOYALTY, Type.NIGHT });
-		weaknesses.put(Type.GENEROSITY,	new Type[] { Type.LOYALTY, Type.CHAOS });
-		weaknesses.put(Type.CHAOS, 	new Type[] { Type.MAGIC, Type.KINDNESS, Type.PASSION, Type.MUSIC });
-		weaknesses.put(Type.NIGHT, 	new Type[] { Type.LAUGHTER, Type.SPIRIT, Type.LIGHT });
-		weaknesses.put(Type.SHADOW, 	new Type[] { Type.LOVE, Type.PASSION, Type.MUSIC });
-		weaknesses.put(Type.SPIRIT, 	new Type[] { Type.SHADOW, Type.SPIRIT, Type.PASSION });
-		weaknesses.put(Type.LOVE, 	new Type[] { Type.HONESTY, Type.GENEROSITY, Type.PASSION });
-		weaknesses.put(Type.PASSION, 	new Type[] { Type.MAGIC, Type.LOYALTY, Type.KINDNESS, Type.SHADOW, Type.MUSIC });
-		weaknesses.put(Type.MUSIC, 	new Type[] { Type.GENEROSITY, Type.CHAOS, Type.NIGHT });
-		weaknesses.put(Type.LIGHT, 	new Type[] { Type.CHAOS, Type.SHADOW });
+		weaknesses.put(Type.MAGIC,       new Type[] { Type.HONESTY, Type.LAUGHTER, Type.SPIRIT });
+		weaknesses.put(Type.LOYALTY,     new Type[] { Type.MAGIC, Type.CHAOS, Type.HONESTY });
+		weaknesses.put(Type.HONESTY,     new Type[] { Type.LOYALTY, Type.CHAOS, Type.PASSION });
+		weaknesses.put(Type.LAUGHTER,    new Type[] { Type.LAUGHTER, Type.GENEROSITY, Type.LOVE, Type.MUSIC });
+		weaknesses.put(Type.KINDNESS,    new Type[] { Type.LOYALTY, Type.NIGHT });
+		weaknesses.put(Type.GENEROSITY,  new Type[] { Type.LOYALTY, Type.CHAOS });
+		weaknesses.put(Type.CHAOS,       new Type[] { Type.MAGIC, Type.KINDNESS, Type.PASSION, Type.MUSIC });
+		weaknesses.put(Type.NIGHT,       new Type[] { Type.LAUGHTER, Type.SPIRIT, Type.LIGHT });
+		weaknesses.put(Type.SHADOW,      new Type[] { Type.LOVE, Type.PASSION, Type.MUSIC });
+		weaknesses.put(Type.SPIRIT,      new Type[] { Type.SHADOW, Type.SPIRIT, Type.PASSION });
+		weaknesses.put(Type.LOVE,        new Type[] { Type.HONESTY, Type.GENEROSITY, Type.PASSION });
+		weaknesses.put(Type.PASSION,     new Type[] { Type.MAGIC, Type.LOYALTY, Type.KINDNESS, Type.SHADOW, Type.MUSIC });
+		weaknesses.put(Type.MUSIC,       new Type[] { Type.GENEROSITY, Type.CHAOS, Type.NIGHT });
+		weaknesses.put(Type.LIGHT,       new Type[] { Type.CHAOS, Type.SHADOW });
 
 
-		resistances.put(Type.MAGIC, 	new Type[] { Type.MAGIC, Type.CHAOS, Type.SHADOW, Type.LOVE });
-		resistances.put(Type.LOYALTY, 	new Type[] { Type.NIGHT, Type.PASSION });
-		resistances.put(Type.HONESTY, 	new Type[] { Type.HONESTY, Type.LAUGHTER, Type.GENEROSITY, Type.LOVE });
-		resistances.put(Type.LAUGHTER, 	new Type[] { Type.MAGIC, Type.NIGHT });
-		resistances.put(Type.KINDNESS, 	new Type[] { Type.KINDNESS, Type.GENEROSITY, Type.PASSION });
+		resistances.put(Type.MAGIC,      new Type[] { Type.MAGIC, Type.CHAOS, Type.SHADOW, Type.LOVE });
+		resistances.put(Type.LOYALTY,    new Type[] { Type.NIGHT, Type.PASSION });
+		resistances.put(Type.HONESTY,    new Type[] { Type.HONESTY, Type.LAUGHTER, Type.GENEROSITY, Type.LOVE });
+		resistances.put(Type.LAUGHTER,   new Type[] { Type.MAGIC, Type.NIGHT });
+		resistances.put(Type.KINDNESS,   new Type[] { Type.KINDNESS, Type.GENEROSITY, Type.PASSION });
 		resistances.put(Type.GENEROSITY, new Type[] { Type.HONESTY, Type.MUSIC, Type.SPIRIT });
-		resistances.put(Type.CHAOS, 	new Type[] { Type.HONESTY, Type.GENEROSITY, Type.CHAOS, Type.SHADOW, Type.LOVE, Type.LIGHT });
-		resistances.put(Type.NIGHT, 	new Type[] { Type.KINDNESS, Type.CHAOS, Type.NIGHT, Type.SHADOW, Type.PASSION, Type.MUSIC });
-		resistances.put(Type.SHADOW, 	new Type[] { Type.LOYALTY, Type.HONESTY, Type.LAUGHTER, Type.KINDNESS, 
+		resistances.put(Type.CHAOS,      new Type[] { Type.HONESTY, Type.GENEROSITY, Type.CHAOS, Type.SHADOW, Type.LOVE, Type.LIGHT });
+		resistances.put(Type.NIGHT,      new Type[] { Type.KINDNESS, Type.CHAOS, Type.NIGHT, Type.SHADOW, Type.PASSION, Type.MUSIC });
+		resistances.put(Type.SHADOW,     new Type[] { Type.LOYALTY, Type.HONESTY, Type.LAUGHTER, Type.KINDNESS, 
 								Type.GENEROSITY, Type.CHAOS, Type.LIGHT });
-		resistances.put(Type.SPIRIT, 	new Type[] { Type.MAGIC, Type.LAUGHTER, Type.CHAOS });
-		resistances.put(Type.LOVE, 	new Type[] { Type.CHAOS, Type.SPIRIT, Type.LOVE });
-		resistances.put(Type.PASSION, 	new Type[] { Type.HONESTY, Type.LOVE });
-		resistances.put(Type.MUSIC, 	new Type[] { Type.SHADOW, Type.SPIRIT, Type.MUSIC });
-		resistances.put(Type.LIGHT, 	new Type[] { Type.MAGIC, Type.LOYALTY, Type.HONESTY, Type.LAUGHTER, Type.KINDNESS, Type.GENEROSITY });
+		resistances.put(Type.SPIRIT,     new Type[] { Type.MAGIC, Type.LAUGHTER, Type.CHAOS });
+		resistances.put(Type.LOVE,       new Type[] { Type.CHAOS, Type.SPIRIT, Type.LOVE });
+		resistances.put(Type.PASSION,    new Type[] { Type.HONESTY, Type.LOVE });
+		resistances.put(Type.MUSIC,      new Type[] { Type.SHADOW, Type.SPIRIT, Type.MUSIC });
+		resistances.put(Type.LIGHT,      new Type[] { Type.MAGIC, Type.LOYALTY, Type.HONESTY, Type.LAUGHTER, Type.KINDNESS, Type.GENEROSITY });
 
 
-		immunities.put(Type.MAGIC, 	new Type[] {});
-		immunities.put(Type.LOYALTY, 	new Type[] {});
-		immunities.put(Type.HONESTY, 	new Type[] {});
-		immunities.put(Type.LAUGHTER, 	new Type[] { Type.CHAOS });
-		immunities.put(Type.KINDNESS, 	new Type[] {});
-		immunities.put(Type.GENEROSITY,	new Type[] {});
-		immunities.put(Type.CHAOS, 	new Type[] { Type.LOYALTY });
-		immunities.put(Type.NIGHT, 	new Type[] {});
-		immunities.put(Type.SHADOW, 	new Type[] {});
-		immunities.put(Type.SPIRIT, 	new Type[] {});
-		immunities.put(Type.LOVE, 	new Type[] { Type.SHADOW });
-		immunities.put(Type.PASSION, 	new Type[] {});
-		immunities.put(Type.MUSIC, 	new Type[] {});
-		immunities.put(Type.LIGHT, 	new Type[] {});
+		immunities.put(Type.MAGIC,       new Type[] {});
+		immunities.put(Type.LOYALTY,     new Type[] {});
+		immunities.put(Type.HONESTY,     new Type[] {});
+		immunities.put(Type.LAUGHTER,    new Type[] { Type.CHAOS });
+		immunities.put(Type.KINDNESS,    new Type[] {});
+		immunities.put(Type.GENEROSITY,  new Type[] {});
+		immunities.put(Type.CHAOS,       new Type[] { Type.LOYALTY });
+		immunities.put(Type.NIGHT,       new Type[] {});
+		immunities.put(Type.SHADOW,      new Type[] {});
+		immunities.put(Type.SPIRIT,      new Type[] {});
+		immunities.put(Type.LOVE,        new Type[] { Type.SHADOW });
+		immunities.put(Type.PASSION,     new Type[] {});
+		immunities.put(Type.MUSIC,       new Type[] {});
+		immunities.put(Type.LIGHT,       new Type[] {});
 	}
 }

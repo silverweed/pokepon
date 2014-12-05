@@ -6,7 +6,6 @@ import pokepon.enums.*;
 import pokepon.player.*;
 import pokepon.pony.*;
 import pokepon.battle.*;
-import pokepon.gui.animation.*;
 
 /**
  * Status move which reduces enemy's SpD and Spe by 1.

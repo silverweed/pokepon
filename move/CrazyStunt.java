@@ -4,7 +4,6 @@ package pokepon.move;
 
 import pokepon.battle.*;
 import pokepon.net.jack.*;
-import pokepon.gui.animation.*;
 /**
  * Like High Jump Kick.
  *

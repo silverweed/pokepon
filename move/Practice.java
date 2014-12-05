@@ -2,7 +2,6 @@
 
 package pokepon.move;
 
-import pokepon.gui.animation.*;
 /**
  * Status move which increases Atk and Def by 1.
  *

@@ -5,3 +5,12 @@
 *.pkp
 *server.db
 *.log
+gui*
+net/jack/client*
+*bat
+resources*
+sound*
+move/animation*
+player/*TeamBuilder*
+doc*
+data/*/*

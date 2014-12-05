@@ -5,7 +5,6 @@ package pokepon.move;
 import pokepon.enums.*;
 import pokepon.pony.Pony;
 import pokepon.battle.*;
-import pokepon.gui.animation.*;
 /**
  * Status move which raises user's Spatk and Atk
  *

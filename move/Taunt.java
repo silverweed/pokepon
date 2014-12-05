@@ -5,7 +5,6 @@ package pokepon.move;
 import pokepon.enums.*;
 import pokepon.pony.Pony;
 import pokepon.battle.*;
-import pokepon.gui.animation.*;
 
 /** 
  * Like in Pok&#233mon.

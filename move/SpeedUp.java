@@ -1,7 +1,6 @@
 //: move/SpeedUp.java
 
 package pokepon.move;
-import pokepon.gui.animation.*;
 
 /**
  * Status move which increases Speed by 2.

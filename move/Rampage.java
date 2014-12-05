@@ -56,7 +56,7 @@ public class Rampage extends Move {
 						count = 0;
 						return;
 					}
-					if(--count == 0 && !source.isFainted()) {
+					if(--count == 0 && !source.isFainted() && !source.isConfused()) {
 						source.setConfused(true);
 						if(be.getBattleTask() != null) {
 							be.getBattleTask().sendB("|battle|"+source.getNickname()+" is confused due to the fatigue!");
@@ -69,20 +69,6 @@ public class Rampage extends Move {
 		};
 	}
 
-	/*@Override
-	public void prepareDelayEffects(final BattleEngine be) {
-		double rand = Math.random();
-		countDelay = turnDelay = (rand < 0.25 ? 1 : (rand < 0.75 ? 2 : 3));	//confusion after 1-3 turns.
-	}*/
-
-	/** After delay has ended, trigger confusion on user. */
-//	@Override
-/*	public EffectDealer delayEffects() {
-		return new EffectDealer() {
-			public float getUserConfusion() { return 1f; }
-		};
-	}
-*/
 	/** Move will fail if user has already maxed Atk. */
 	@Override
 	public boolean validConditions(final BattleEngine be) {

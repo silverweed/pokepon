@@ -24,6 +24,7 @@ ability/Mastery.java
 ability/Mildness.java
 ability/Nocturnality.java
 ability/Optimism.java
+ability/PestResilience.java
 ability/SelfConfidence.java
 ability/SenseOfDanger.java
 ability/ShiningCoat.java
@@ -36,6 +37,7 @@ ability/Swiftness.java
 ability/ToughBody.java
 ability/UpperHoof.java
 battle/Battle.java
+battle/Battle1v1.java
 battle/BattleEngine.java
 battle/BattleEvent.java
 battle/BattleLogger.java
@@ -108,7 +110,6 @@ item/PartyHat.java
 item/Scooter.java
 item/SpareSnacks.java
 item/ZapAppleJuice.java
-main/BattleTest.java
 main/CheckTypings.java
 main/ColorsTest.java
 main/Coverage.java
@@ -116,7 +117,6 @@ main/FastPonydex.java
 main/GUILauncher.java
 main/ListTypings.java
 main/PokeponLauncher.java
-main/PokeponTest.java
 main/QuickLauncher.java
 main/TeamBuilderTest.java
 main/TestingClass.java

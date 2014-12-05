@@ -23,7 +23,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	public static enum ConnectPolicy {
 		PERMISSIVE, 	// allow all TCP connections
 		AVERAGE,	// disallow HTTP requests (but allow clients like netcat and telnet)
-		PARANOID	// disallow all but requests compliant with J.A.C.K. protocol 
+		PARANOID	// disallow all but requests compliant with our protocol 
 	};
 	protected int maxClients = DEFAULT_MAX_CLIENTS;
 	protected ThreadPoolExecutor pool;

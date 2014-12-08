@@ -30,7 +30,11 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	/** Queue used by the ThreadPoolExecutor to store tasks */
 	protected ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(200*maxClients);
 	protected List<Connection> clients = Collections.synchronizedList(new LinkedList<Connection>());
-	protected Set<String> bannedIP = new HashSet<>();
+	/** Map { ipclass: isBanned }; allows to override rules for ip subclasses, depending on the
+	 * insertion order; for example, if one first bans '*', then unbans '10.0.0.0/24', the server
+	 * will only allow connection from that subnet.
+	 */
+	protected LinkedHashMap<IPClass,Boolean> banRules = new LinkedHashMap<>();
 	protected boolean advancedChat;
 	/** The policy for allowing clients to connect to this server: see server.conf for details */
 	ConnectPolicy connectPolicy = ConnectPolicy.AVERAGE;
@@ -169,7 +173,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
 				continue;
 			}
-			if(bannedIP.contains(newClient.getInetAddress().getHostAddress())) {
+			if(isBanned(newClient.getInetAddress().getHostAddress())) {
 				if(verbosity >= 1) printDebug("Dropping connection with banned IP: "+newClient);
 				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Your IP is banned from this server.");
 				continue;
@@ -196,7 +200,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		return null;
 	}
 
-	public Set<String> getBannedIP() { return bannedIP; }
+	public LinkedHashMap<IPClass,Boolean> getBanRules() { return banRules; }
 	
 	public boolean isConnected(String name) {
 		Iterator<Connection> it = clients.iterator();
@@ -252,18 +256,48 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		return kickUser(name, null);
 	}
 
-	public void banIP(String ip) {
-		bannedIP.add(ip);
+	public void banIP(IPClass ip) {
+		if(!banRules.containsKey(ip))
+			banRules.put(ip, true);
 		if(verbosity >= 1) printDebug("["+serverName+"] Banned IP: "+ip);
 	}
 
-	public void unbanIP(String ip) {
-		if(bannedIP.remove(ip))
+	/** If banRules contains a ban rule for the exact IPClass described by 'ip', remove it;
+	 * else, add a banRule { ip, false } to the rules
+	 */
+	public void unbanIP(IPClass ip) {
+		// special case: unban everything - in this case, just clear the rules, since no entry
+		// means 'no banned IP'
+		if(ip.getClassType() == IPClass.ClassType.EVERYTHING) {
+			banRules.clear();
+			return;
+		}
+		// FIXME: always enters 'else'
+		if(banRules.containsKey(ip) && banRules.get(ip).equals(Boolean.TRUE)) {
+			banRules.remove(ip);
 			if(verbosity >= 1) printDebug("["+serverName+"] Unbanned IP: "+ip);
+		} else {
+			banRules.put(ip, false);
+			if(verbosity >= 1) printDebug("["+serverName+"] Added ALLOW rule for IP: "+ip);
+		}
+	}
+
+	public boolean isBanned(String ip) {
+		boolean banned = false;
+		// iteration will follow insertion order
+		for(Map.Entry<IPClass,Boolean> entry : banRules.entrySet()) 
+			if(entry.getKey().includes(ip))
+				banned = entry.getValue();
+		return banned;
 	}
 
 	@Override
 	public void close() {
+		shutdown();
+	}
+
+	@Override
+	public boolean shutdown() {
 		if(clients.size() > 0) broadcast(null,"*** SERVER SHUTTING DOWN NOW ***");
 		pool.shutdownNow();
 		try {
@@ -271,7 +305,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		} catch(InterruptedException e) {
 			printDebug("Interrupted while awaiting termination.");
 		} finally {
-			shutdown();
+			return super.shutdown();
 		}
 	}
 

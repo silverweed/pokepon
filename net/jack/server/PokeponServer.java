@@ -70,6 +70,58 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		printConfiguration();
 		printMsg("************************");
 		DataDealer.init();
+		Thread serverConsole = new Thread() {
+			Scanner scan = new Scanner(System.in);
+			public void run() {
+				String in = "";
+				while(true) {
+					try {
+						in = scan.nextLine();
+						if(in.length() == 0) continue;
+						if(in.charAt(0) == CMD_PREFIX) in = in.substring(1);
+						String[] token = in.split(" ");
+						if(in.equals("stop"))
+							shutdown();
+						else if(token[0].equals("users"))
+							consoleDebug(clients.toString());
+						else if(token[0].equals("banned")) {
+							if(token.length > 1)
+								for(int i = 1; i < token.length; ++i)
+									consoleDebug("isBanned("+token[i]+"): "+isBanned(token[i]));
+							else
+								consoleDebug(banRules.toString());
+						} else {
+							if(token.length < 2) {
+								consoleDebug("Missing argument(s)");
+								continue;
+							}
+							if(token[0].equals("ban"))
+								for(int i = 1; i < token.length; ++i)
+									banIP(new IPClass(token[i]));
+							else if(token[0].equals("unban"))
+								for(int i = 1; i < token.length; ++i)
+									unbanIP(new IPClass(token[i]));
+							else if(token[0].equals("kick"))
+								kickUser(ConcatenateArrays.merge(token, 1), null);
+							else
+								consoleDebug("Supported commands:\n"+
+									" stop\n ban\n unban\n banned\n users\n kick");
+						}
+							
+					} catch(NoSuchElementException e) {
+						consoleMsg("[EOF] Console is dead!! to stop the server, Ctrl+C");
+						return;
+					} catch(Exception e) {
+						consoleDebug("Caught exception: "+e);
+						consoleDebug("...still reading from the console, though.");
+					}
+				}
+			}
+		};
+		serverConsole.setName("Pokepon Server Console");
+		serverConsole.setDaemon(true);
+		serverConsole.start();
+
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
 			Socket newClient = accept();
@@ -78,7 +130,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
 				continue;
 			}
-			if(bannedIP.contains(newClient.getInetAddress().getHostAddress())) {
+			if(isBanned(newClient.getInetAddress().getHostAddress())) {
 				if(verbosity >= 1) printDebug("Dropping connection with banned IP: "+newClient);
 				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Your IP is banned from this server.");
 				continue;

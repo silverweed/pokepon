@@ -49,3 +49,5 @@
 - Nicknames: config option to set default nicks, request nick on login feature 
 
 - Check confusion: maybe bugged
+
+- Add ban rules conf file, fix ban/unban from the chat

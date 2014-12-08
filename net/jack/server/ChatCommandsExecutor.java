@@ -236,7 +236,8 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 			}
 		} else if(cmd.equals("ban")) {
 			if(token.length < 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"ban <ip> [ip...]");
+				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"ban <ip> [ip...]\n" +
+				" IP may be of the form: aaa.bbb.ccc.ddd, aaa.bbb.*, aaa.{bbb-ccc}, aaa.bbb.ccc.ddd/mask");
 				return 1;
 			}
 			if(!chatUser.hasPermission(CAN_BAN_IP)) {
@@ -245,14 +246,19 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 			}
 			StringBuilder sb = new StringBuilder("");
 			for(int i = 1; i < token.length; ++i) {
-				server.banIP(token[i]);
-				sb.append("Banned IP "+token[i]+"\n");
+				try {
+					server.banIP(new IPClass(token[i]));
+					sb.append("Banned IP "+token[i]+"\n");
+				} catch(IllegalArgumentException e) {
+					connection.sendMsg(e.getMessage()+"\n");
+				}
 			}
 			connection.sendMsg(sb.toString());
 			return 1;
 		} else if(cmd.equals("unban")) {
 			if(token.length < 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"unban <ip> [ip...]");
+				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"unban <ip> [ip...]\n" +
+				" IP may be of the form: aaa.bbb.ccc.ddd, aaa.bbb.*, aaa.{bbb-ccc}, aaa.bbb.ccc.ddd/mask");
 				return 1;
 			}
 			if(!chatUser.hasPermission(CAN_BAN_IP)) {
@@ -261,8 +267,12 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 			}
 			StringBuilder sb = new StringBuilder("");
 			for(int i = 1; i < token.length; ++i) {
-				server.unbanIP(token[i]);
-				sb.append("Unbanned IP "+token[i]+"\n");
+				try {
+					server.unbanIP(new IPClass(token[i]));
+					sb.append("Unbanned IP "+token[i]+"\n");
+				} catch(IllegalArgumentException e) {
+					connection.sendMsg(e.getMessage()+"\n");
+				}
 			}
 			connection.sendMsg(sb.toString());
 			return 1;
@@ -274,7 +284,7 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 			if(token.length > 1) {
 				StringBuilder sb = new StringBuilder("");
 				for(int i = 1; i < token.length; ++i) {
-					if(server.getBannedIP().contains(token[i]))
+					if(server.isBanned(token[i]))
 						sb.append(token[i] + " is BANNED\n");
 					else
 						sb.append(token[i] + " is NOT banned.\n");
@@ -282,9 +292,9 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 				connection.sendMsg(sb.toString());
 				return 1;
 			}
-			StringBuilder sb = new StringBuilder("-- Banned IP:");
-			for(String ip : server.getBannedIP())
-				sb.append(ip+"\n");
+			StringBuilder sb = new StringBuilder("-- Ban rules:\n");
+			for(Map.Entry<IPClass,Boolean> entry : server.getBanRules().entrySet())
+				sb.append(entry.getKey()+": " + (entry.getValue() ? "BANNED" : "ALLOWED") + "\n");
 			connection.sendMsg(sb.toString());
 			return 1;
 		} else if(cmd.equals("database")) {

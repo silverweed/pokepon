@@ -164,7 +164,7 @@ public class ChatSystem {
 					continue;
 				}
 			}
-			if(Debug.on) {
+			if(server != null && server.getVerbosity() >= 2 || Debug.pedantic) {
 				printDebug("After reading conf file, chat permissions are:");
 				printDebug("ADMIN: "+ChatAdmin.defaultPermissions);
 				printDebug("MODERATOR: "+ChatModerator.defaultPermissions);

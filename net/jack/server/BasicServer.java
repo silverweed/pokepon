@@ -205,13 +205,13 @@ public class BasicServer implements Server {
 		}
 	}
 
-	public ServerSocket getServerSocket() { return ss; }
 	public Date getConnectionTime() { return connectionTime; }
 	public InetAddress getAddress() { return myAddress; }
 	public String getConfFile() { return confFile; }
 	public void setConfFile(String path) {
 		confFile = path;
 	}
+	public int getVerbosity() { return verbosity; }
 
 	// SERVER CONFIGURATION FUNCTIONS
 	
@@ -282,6 +282,17 @@ public class BasicServer implements Server {
 
 		return ServerOptions.parseServerOptions(lines.toArray(new String[0]));
 	}
+
+	public String printInfo() {
+		StringBuilder sb = new StringBuilder("Info about: "+serverName+" (server)\n");
+		sb.append("  IP Address:   "+ss.getInetAddress().getHostAddress()+"\n");
+		sb.append("  Hostname:   "+ss.getInetAddress().getHostName()+"\n");
+		sb.append("  Uptime:   "+secondsToDate(-connectionTime.getTime()/1000+
+			(new Date()).getTime()/1000)+"\n");
+		sb.append("  Operating System:   "+System.getProperty("os.name")+" "+System.getProperty("os.version")+"\n");
+		return sb.toString();
+	}
+
 	//////////////////////// END PUBLIC
 	
 	protected int port = DEFAULT_PORT;

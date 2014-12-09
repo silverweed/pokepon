@@ -55,6 +55,7 @@ public class ChatUser {
 		CAN_REGISTER,
 		CAN_LIST_REGISTERED_USERS,
 		CAN_LIST_ROLES,
+		CAN_VIEW_SERVER_INFO,
 		CAN_LOOKUP_IP,
 		CAN_LOOKUP_BANNED_IP,
 		CAN_LOOKUP_PERMISSIONS,
@@ -89,6 +90,7 @@ public class ChatUser {
 		defaultPermissions.add(Permission.CAN_REGISTER);
 		defaultPermissions.add(Permission.CAN_LIST_REGISTERED_USERS);
 		defaultPermissions.add(Permission.CAN_LIST_ROLES);
+		defaultPermissions.add(Permission.CAN_VIEW_SERVER_INFO);
 	}
 
 	public ChatUser(String name) {

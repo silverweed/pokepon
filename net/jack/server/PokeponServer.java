@@ -74,25 +74,51 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 			Scanner scan = new Scanner(System.in);
 			public void run() {
 				String in = "";
+				consoleMsg("** Minimal console initialized **");
+				String helpString = "Supported commands:\n stop\n ban <ip list>\n unban <ip list>\n" +
+					" banned [ip class]\n users\n kick <user>\n info\n roles\n reload";
 				while(true) {
 					try {
+						consoleMsgnb("> ");
 						in = scan.nextLine();
 						if(in.length() == 0) continue;
 						if(in.charAt(0) == CMD_PREFIX) in = in.substring(1);
 						String[] token = in.split(" ");
-						if(in.equals("stop"))
-							shutdown();
-						else if(token[0].equals("users"))
+						if(in.equals("stop")) {
+							synchronized(PokeponServer.this) {
+								shutdown();
+							}
+						} else if(token[0].equals("users")) {
 							consoleDebug(clients.toString());
-						else if(token[0].equals("banned")) {
+						} else if(token[0].equals("banned")) {
 							if(token.length > 1)
 								for(int i = 1; i < token.length; ++i)
 									consoleDebug("isBanned("+token[i]+"): "+isBanned(token[i]));
 							else
 								consoleDebug(banRules.toString());
+						} else if(token[0].equals("?") || token[0].equals("help")) {
+							consoleDebug(helpString);
+						} else if(token[0].equals("info")) {
+							consoleDebug(printInfo());
+						} else if(token[0].equals("roles")) {
+							if(chat != null)
+								consoleDebug(chat.getRolesTable());
+							else
+								consoleDebug("advancedChat is disabled.");
+						} else if(token[0].equals("reload")) {
+							if(chat != null) {
+								if(chat.reload()) {
+									consoleDebug("[ OK ] chat roles reloaded successfully. New roles:");
+									consoleDebug(chat.getRolesTable());
+								} else {
+									consoleDebug("Errors reloading chat roles: see server logs for details.");
+								}
+							} else {
+								consoleDebug("advancedChat is disabled.");
+							}
 						} else {
 							if(token.length < 2) {
-								consoleDebug("Missing argument(s)");
+								consoleDebug("Missing argument(s) ['?' for help]");
 								continue;
 							}
 							if(token[0].equals("ban"))
@@ -104,8 +130,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 							else if(token[0].equals("kick"))
 								kickUser(ConcatenateArrays.merge(token, 1), null);
 							else
-								consoleDebug("Supported commands:\n"+
-									" stop\n ban\n unban\n banned\n users\n kick");
+								consoleDebug(helpString);
 						}
 							
 					} catch(NoSuchElementException e) {
@@ -318,7 +343,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		maxBattles = n;
 	}
 
-	public synchronized BattleSchedule getBattleSchedule() { return battleSchedule; }
+	public BattleSchedule getBattleSchedule() { return battleSchedule; }
 
 	/** Battle scheduling happens this way: 
 	 * first, client1 makes a battle request to the server via '/battle client2';
@@ -331,7 +356,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	 * request will cancel the previous one.
 	 * 
 	 */
-	public synchronized boolean scheduleBattle(Connection client1,Connection client2,Format format) {
+	public boolean scheduleBattle(Connection client1,Connection client2,Format format) {
 		if(battles.size() >= maxBattles) {
 			if(verbosity >= 0)
 				printDebug("Dropping battle request "+client1.getName()+" -> "+client2.getName()+
@@ -369,63 +394,59 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	}
 
 	/** Check and remove battleSchedule entries client1 -&gt; client2 and client2 -&gt; client1; if neither found, return false. */
-	public synchronized boolean dismissBattle(Connection client1,Connection client2) {
-		if(battleSchedule.remove(client1.getName(), client2.getName(), false)) {
-			if(verbosity >= 2) printDebug("Dismissed battle between "+client1.getName()+" and "+client2.getName()+".");
-			client2.sendMsg(client1.getName()+" dismissed battle request with you.");
-			return true;
-		}
-		if(battleSchedule.remove(client2.getName(), client1.getName(), false)) {
-			if(verbosity >= 2) printDebug("Dismissed battle between "+client2.getName()+" and "+client1.getName()+".");
-			client2.sendMsg(client1.getName()+" dismissed battle request with you.");
-			return true;
-		}
-		return false;
+	public boolean dismissBattle(Connection client1,Connection client2) {
+		return dismissBattle(client1.getName(), client2.getName());
 	}
 
-	public synchronized boolean dismissBattle(String client1, String client2) {
-		if(battleSchedule.remove(client1, client2, false)) {
-			if(verbosity >= 2) printDebug("Dismissed battle between "+client1+" and "+client2+".");
-			getClient(client2).sendMsg(client1+" dismissed battle request with you.");
-			return true;
-		}
-		if(battleSchedule.remove(client2, client1, false)) {
-			if(verbosity >= 2) printDebug("Dismissed battle between "+client2+" and "+client1+".");
-			getClient(client2).sendMsg(client1+" dismissed battle request with you.");
-			return true;
+	public boolean dismissBattle(String client1, String client2) {
+		synchronized(battleSchedule) {
+			if(battleSchedule.remove(client1, client2, false)) {
+				if(verbosity >= 2) printDebug("Dismissed battle between "+client1+" and "+client2+".");
+				getClient(client2).sendMsg(client1+" dismissed battle request with you.");
+				return true;
+			}
+			if(battleSchedule.remove(client2, client1, false)) {
+				if(verbosity >= 2) printDebug("Dismissed battle between "+client2+" and "+client1+".");
+				getClient(client2).sendMsg(client1+" dismissed battle request with you.");
+				return true;
+			}
 		}
 		return false;
 	}
 
 	/** Removes all battles involving client 'name' from battles and battleSchedule. */
-	public synchronized void destroyAllBattles(String name) {
+	public void destroyAllBattles(String name) {
 		if(verbosity >= 1)
 			printDebug("[PokeponServer] Destroying all battles with player "+name);
 
-		Iterator<Map.Entry<String,BattleTask>> it = battles.entrySet().iterator();
-		while(it.hasNext()) {
-			Map.Entry<String,BattleTask> entry = (Map.Entry<String,BattleTask>)it.next();
-			BattleTask bt = entry.getValue();
-			if(bt.getConnection(1).getName().equals(name) || bt.getConnection(2).getName().equals(name)) {
-				bt.sendB("|leave|"+name);
-				bt.terminate();
-				if(verbosity >= 3) printDebug("[PokeponServer] Removed battle "+entry.getKey());
-				it.remove();
+		synchronized(battles) {
+			Iterator<Map.Entry<String,BattleTask>> it = battles.entrySet().iterator();
+			while(it.hasNext()) {
+				Map.Entry<String,BattleTask> entry = it.next();
+				BattleTask bt = entry.getValue();
+				if(bt.getConnection(1).getName().equals(name) || bt.getConnection(2).getName().equals(name)) {
+					bt.sendB("|leave|"+name);
+					bt.terminate();
+					if(verbosity >= 3) printDebug("[PokeponServer] Removed battle "+entry.getKey());
+					it.remove();
+				}
 			}
 		}
 
-		Iterator<Map.Entry<String,List<Map.Entry<String,Format>>>> it2 = battleSchedule.entrySet().iterator();
-		while(it2.hasNext()) {
-			Map.Entry<String,List<Map.Entry<String,Format>>> entry = (Map.Entry<String,List<Map.Entry<String,Format>>>)it2.next();
-			if(entry.getKey().equals(name)) {
-				it2.remove();
-				if(verbosity >= 3) printDebug("[PokeponServer] Removed entry "+entry+" from battleSchedule.");
-			} else {
-				for(Map.Entry<String,Format> lEntry : entry.getValue()) {
-					if(lEntry.getKey().equals(name)) {
-						it2.remove();
-						if(verbosity >= 3) printDebug("[PokeponServer] Removed entry "+lEntry+" from battleSchedule.");
-						break;
+		synchronized(battleSchedule) {
+			Iterator<Map.Entry<String,List<Map.Entry<String,Format>>>> it2 = battleSchedule.entrySet().iterator();
+			while(it2.hasNext()) {
+				Map.Entry<String,List<Map.Entry<String,Format>>> entry = it2.next();
+				if(entry.getKey().equals(name)) {
+					it2.remove();
+					if(verbosity >= 3) printDebug("[PokeponServer] Removed entry "+entry+" from battleSchedule.");
+				} else {
+					for(Map.Entry<String,Format> lEntry : entry.getValue()) {
+						if(lEntry.getKey().equals(name)) {
+							it2.remove();
+							if(verbosity >= 3) printDebug("[PokeponServer] Removed entry "+lEntry+" from battleSchedule.");
+							break;
+						}
 					}
 				}
 			}
@@ -457,7 +478,8 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		"\t--max-nick-len <integer>:       longer nicknames will be truncated to this length\n"+
 		"\t--max-battles <integer>:        set the limit of concurrent battles allowed by the server.\n"+
 		"\t-C,--advanced-chat [no]:        enable/disable chat roles and the advanced chat system.\n"+
-		"\t--cmd-ban-limit <integer>:      set maximum commands a client can issue in a minute (-1 = infinite).\n"+
+		"\t--cmd-ban-limit <integer>:      set maximum commands a client can issue in a minute (-1 = infinite)\n"+
+		"\t--blacklist <rules_file>:       read IP ban rules from rules_file (default: none)\n"+
 		"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");
 		System.exit(0);
 	}

@@ -280,6 +280,7 @@ class IPClass {
 		};
 		for(IPClass ipc : testIps) {
 			printMsg("Is included in "+ipc+"?  "+ipc.includes(ip.ipStr));
+			printMsg("Equals "+ipc+"?  "+ipc.equals(ip));
 		}
 	}
 }

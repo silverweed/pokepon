@@ -287,11 +287,12 @@ public class MessageManager {
 		return str
 			.replaceAll("<","&#60;")
 			.replaceAll(">","&#62;")
-			.replaceAll("/","&#47;")
+			//.replaceAll("/","&#47;")
 			// remove "zalgo" effect (thanks, Zarel)
 			.replaceAll("[\u0300-\u036f\u0483-\u0489\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{3,}","");
 	}
 
+	/** Given a char[], gives back a byte[], using UTF-8 encoding. */
 	public static byte[] charsToBytes(char[] chars) {
 		CharBuffer charBuffer = CharBuffer.wrap(chars);
 		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
@@ -300,5 +301,25 @@ public class MessageManager {
 		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
 		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
 		return bytes;
+	}
+
+	/** Given a number of _seconds, returns a human-readable date in
+	 * format days : hours : minutes : seconds
+	 */
+	public static String secondsToDate(long _seconds) {
+		int days;
+		int hours;
+		int minutes;
+		int seconds;
+
+		days = (int)(_seconds / 86400);
+		hours = (int)((_seconds % 86400) / 3600);
+		minutes = (int)((_seconds % 3600) / 60);
+		seconds = (int)(_seconds % 60);
+
+		return 	(days > 0 ? days + "d" : "") +
+			(hours > 0 ? hours + "h " : "") + 
+			(minutes > 0 ? minutes + "m " : "") +
+			seconds + "s";
 	}
 }

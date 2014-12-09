@@ -124,12 +124,14 @@ public abstract class Connection implements Runnable {
 		}
 	}			
 
-	public synchronized void disconnect() {
+	public void disconnect() {
 		if(verbosity >= 1) printDebug("Closing connection with "+name+" ("+socket.getInetAddress()+")");
 		if(verbosity >= 0) printDebug("Disconnected with "+name+".");
 		try {
-			socket.close();
-			notifyAll();
+			synchronized(socket) {
+				socket.close();
+				socket.notifyAll();
+			}
 		} catch(IOException e) {
 			printDebug("IOException while closing socket: "+e);
 		}

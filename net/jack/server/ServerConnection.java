@@ -254,24 +254,26 @@ class ServerConnection extends Connection {
 				return 1;
 			}
 			
-			if(verbosity >= 0) printMsg(name+" said: "+msg);
+			if(verbosity >= 2) printMsg(name+" said: "+msg);
 			server.broadcast(null, name+" said: "+msg);
 			return 1;
 		}
 	}
 
 	@Override
-	public synchronized void disconnect() {
+	public void disconnect() {
 		if(Debug.on) printDebug("Called "+name+".disconnect()");
 		if(server instanceof PokeponServer)
 			((PokeponServer)server).destroyAllBattles(name);
 		if(server instanceof MultiThreadedServer) {
-			List<Connection> clients = ((MultiThreadedServer)server).getClients();
-			if(clients.remove(this)) {
-				if(verbosity >= 2)
-					printDebug("ServerConnection "+name+" removed from clients list.");
-			} else {
-				printDebug("[ServerConnection "+name+"] Failed to remove myself from clients list!");
+			synchronized(server) {
+				List<Connection> clients = ((MultiThreadedServer)server).getClients();
+				if(clients.remove(this)) {
+					if(verbosity >= 2)
+						printDebug("ServerConnection "+name+" removed from clients list.");
+				} else {
+					printDebug("[ServerConnection "+name+"] Failed to remove myself from clients list!");
+				}
 			}
 		}
 		super.disconnect();

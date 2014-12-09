@@ -24,9 +24,6 @@ public class BasicServer implements Server {
 	public static final int DEFAULT_VERBOSITY = 1;
 
 	protected static String confFile = DEFAULT_CONF_FILE;
-	static {
-		if(Debug.on) printDebug("[BasicServer] CONF_FILE = "+confFile);
-	}
 
 	public BasicServer() throws IOException {
 		this(ServerOptions.construct()
@@ -239,12 +236,13 @@ public class BasicServer implements Server {
 	 * _BEFORE_ reading the conf file, then strip those arguments from args.
 	 * @return The stripped array of cmdline arguments
 	 */
-	public String[] loadPreConfig(String[] args) {
+	public static String[] loadPreConfig(String[] args) {
 		List<String> nwargs = new ArrayList<>();
 		for(int i = 0; i < args.length; ++i) {
 			if(args[i].equals("--conf")) { 
 				if(i + 1 < args.length) {
 					confFile = args[i+1];
+					if(Debug.on) printDebug("[BasicServer] Set conf file to "+confFile);
 					++i;
 				}
 			} else {

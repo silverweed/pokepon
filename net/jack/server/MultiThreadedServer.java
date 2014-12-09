@@ -128,8 +128,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		MultiThreadedServer server = null;
 
 		try {
+			args = loadPreConfig(args);
 			server = new MultiThreadedServer();
-			args = server.loadPreConfig(args);
 			server.loadOptions(readConfigFile(new URL(confFile)));
 			server.loadOptions(ServerOptions.parseServerOptions(args));
 			server.start();

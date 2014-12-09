@@ -96,8 +96,8 @@ public class DatabaseServer extends MultiThreadedServer {
 		DatabaseServer server = null;
 
 		try {
+			args = loadPreConfig(args);
 			server = new DatabaseServer();
-			args = server.loadPreConfig(args);
 			server.loadOptions(readConfigFile(new URL(confFile)));
 			server.loadOptions(ServerOptions.parseServerOptions(args));
 			server.start();

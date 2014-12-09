@@ -233,18 +233,16 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	public void broadcast(Socket client,String msg) {
 		if(verbosity >= 1) printDebug("["+serverName+"] Broadcasting message: "+msg);
 		if(verbosity >= 3) printDebug("clients: "+clients);
-		synchronized(clients) {
-			Iterator<Connection> it = clients.iterator();
-			while(it.hasNext()) {
-				Connection conn = it.next();
-				if(verbosity >= 3) printDebug("Connection: "+conn);
-				if(client != null && conn.getSocket().equals(client)) {
-					if(verbosity >= 4) printDebug("continuing.");
-					continue;
-				}
-				if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
-				conn.getOutput().println(msg);
+		Iterator<Connection> it = clients.iterator();
+		while(it.hasNext()) {
+			Connection conn = it.next();
+			if(verbosity >= 3) printDebug("Connection: "+conn);
+			if(client != null && conn.getSocket().equals(client)) {
+				if(verbosity >= 4) printDebug("continuing.");
+				continue;
 			}
+			if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
+			conn.getOutput().println(msg);
 		}
 	}
 

@@ -188,18 +188,11 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			connection.sendMsg(sb.toString());
 			return 1;
 		} else if(cmd.equals("serverinfo") || cmd.equals("info")) {
-			StringBuilder sb = new StringBuilder("Info about: "+server.getName()+" (server)\n");
-			if(server instanceof BasicServer) {
-				sb.append("  IP Address:   "+((BasicServer)server).getServerSocket().getInetAddress().getHostAddress()+"\n");
-				sb.append("  Hostname:   "+((BasicServer)server).getServerSocket().getInetAddress().getHostName()+"\n");
-				sb.append("  Uptime:   "+secondsToDate(-((BasicServer)server).getConnectionTime().getTime()/1000+
-					(new Date()).getTime()/1000)+"\n");
+			if(!(server instanceof BasicServer) || (chatUser != null && !chatUser.hasPermission(CAN_VIEW_SERVER_INFO))) {
+				connection.sendMsg("Sorry, this server provides no info about itself.");
+				return 1;
 			}
-			if(server instanceof DatabaseServer) {
-				sb.append("  ChatSystem enabled: "+((DatabaseServer)server).advancedChat+"\n");
-			}
-			sb.append("  Operating System:   "+System.getProperty("os.name")+" "+System.getProperty("os.version")+"\n");
-			connection.sendMsg(sb.toString());
+			connection.sendMsg(server.printInfo());
 			return 1;
 		} else if(cmd.equals("users")) {
 			int n = 0;
@@ -447,25 +440,5 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			connection.sendMsg("Sorry: password prompt not implemented for your client.");
 			return 1;
 		}
-	}
-
-	/** Given a number of _seconds, returns a human-readable date in
-	 * format days : hours : minutes : seconds
-	 */
-	private String secondsToDate(long _seconds) {
-		int days;
-		int hours;
-		int minutes;
-		int seconds;
-
-		days = (int)(_seconds / 86400);
-		hours = (int)((_seconds % 86400) / 3600);
-		minutes = (int)((_seconds % 3600) / 60);
-		seconds = (int)(_seconds % 60);
-
-		return 	(days > 0 ? days + "d" : "") +
-			(hours > 0 ? hours + "h " : "") + 
-			(minutes > 0 ? minutes + "m " : "") +
-			seconds + "s";
 	}
 }

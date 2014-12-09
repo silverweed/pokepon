@@ -104,6 +104,11 @@ public class ServerOptions {
 		return this;
 	}
 
+	public ServerOptions blacklistFile(String file) {
+		blacklistFile = file;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{ ");
@@ -120,6 +125,7 @@ public class ServerOptions {
 		if(welcomeMessage != null) sb.append("welcomeMessage: "+welcomeMessage+", ");
 		if(maxBattles != -1) sb.append("maxBattles: "+maxBattles+", ");
 		if(cmdBanLimit != null) sb.append("cmdBanLimit: "+cmdBanLimit+", ");
+		if(blacklistFile != null) sb.append("blacklistFile: "+blacklistFile+", ");
 		sb.delete(sb.length()-1, sb.length());
 		sb.append(" }");
 
@@ -142,6 +148,7 @@ public class ServerOptions {
 	public int maxBattles = -1;
 	public Boolean advancedChat = null;
 	public Integer cmdBanLimit = null;
+	public String blacklistFile;
 
 
 	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {
@@ -295,6 +302,14 @@ public class ServerOptions {
 					srvopts.cmdBanLimit = Integer.parseInt(opts.remove(0));
 				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
 					printDebug("[ ERROR ] expected integer after 'cmd-ban-limit' option.");
+					e.printStackTrace();
+					System.exit(2);
+				}
+			} else if(token.equals("--blacklist")) {
+				try {
+					srvopts.blacklistFile = opts.remove(0);
+				} catch(IndexOutOfBoundsException e) {
+					printDebug("[ ERROR ] expected string after 'blacklist' option.");
 					e.printStackTrace();
 					System.exit(2);
 				}

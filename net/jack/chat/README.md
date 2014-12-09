@@ -29,6 +29,7 @@ Here is the full list of permissions defined by the Chat System:
 | CAN_REGISTER               |
 | CAN_LIST_REGISTERED_USERS  |
 | CAN_LIST_ROLES             |
+| CAN_VIEW_SERVER_INFO       |
 
 | Moderators defaults        |
 | -------------------------- |

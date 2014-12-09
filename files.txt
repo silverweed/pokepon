@@ -263,6 +263,7 @@ net/jack/server/ChatCommandsExecutor.java
 net/jack/server/CommandsExecutor.java
 net/jack/server/CommunicationsExecutor.java
 net/jack/server/DatabaseServer.java
+net/jack/server/IPClass.java
 net/jack/server/MultiThreadedServer.java
 net/jack/server/NameValidatingServer.java
 net/jack/server/PokeponCommandsExecutor.java

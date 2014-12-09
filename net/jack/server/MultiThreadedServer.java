@@ -35,6 +35,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	 * will only allow connection from that subnet.
 	 */
 	protected LinkedHashMap<IPClass,Boolean> banRules = new LinkedHashMap<>();
+	/** (Optional) File containing ban rules to preload */
+	protected String blacklistFile;
 	protected boolean advancedChat;
 	/** The policy for allowing clients to connect to this server: see server.conf for details */
 	ConnectPolicy connectPolicy = ConnectPolicy.AVERAGE;
@@ -114,6 +116,10 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			cmdBanLimit = opts.cmdBanLimit;
 			if(verbosity >= 2) printDebug("[MultiTheadedServer] cmdBanLimit set to "+cmdBanLimit);
 		}
+		if(opts.blacklistFile != null) {
+			blacklistFile = opts.blacklistFile;
+			if(verbosity >= 2) printDebug("[MultiThreadedServer] blacklistFile set to "+blacklistFile);
+		}
 
 		return this;
 	}
@@ -145,7 +151,6 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		super.initialize();
 		if(advancedChat) {
 			chat = new ChatSystem();
-
 			try {
 				String chatConf = (Meta.LAUNCHED_FROM_JAR
 							? Meta.getDataURL()
@@ -156,6 +161,21 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			} catch(Exception e) {
 				printDebug("[MultiThreadedServer] Exception while creating chat conf:");
 				e.printStackTrace();
+			}
+		}
+		// create default rules.conf
+		Meta.ensureFileExists((Meta.LAUNCHED_FROM_JAR 
+						? Meta.getDataURL()
+						: Meta.getNetURL()
+					).getPath() + Meta.DIRSEP + "rules.conf", Meta.complete2(Meta.NET_DIR + Meta.DIRSEP + "rules.conf"));
+		if(blacklistFile != null) {
+			File blFile = new File(blacklistFile);
+			if(blFile.isFile()) {
+				int num = loadBlacklist(blFile);
+				if(verbosity >= 0) printDebug("["+serverName+"] loaded "+num+" ban rules from "+blacklistFile);
+				if(verbosity >= 2) printDebug("Ban Rules: "+banRules.toString().replaceAll(",","\n "));
+			} else {
+				printDebug("["+serverName+"] WARNING: blacklist file " + blacklistFile + " couldn't be found!");
 			}
 		}
 	}
@@ -213,16 +233,18 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	public void broadcast(Socket client,String msg) {
 		if(verbosity >= 1) printDebug("["+serverName+"] Broadcasting message: "+msg);
 		if(verbosity >= 3) printDebug("clients: "+clients);
-		Iterator<Connection> it = clients.iterator();
-		while(it.hasNext()) {
-			Connection conn = it.next();
-			if(verbosity >= 3) printDebug("Connection: "+conn);
-			if(client != null && conn.getSocket().equals(client)) {
-				if(verbosity >= 3) printDebug("continuing.");
-				continue;
+		synchronized(clients) {
+			Iterator<Connection> it = clients.iterator();
+			while(it.hasNext()) {
+				Connection conn = it.next();
+				if(verbosity >= 3) printDebug("Connection: "+conn);
+				if(client != null && conn.getSocket().equals(client)) {
+					if(verbosity >= 4) printDebug("continuing.");
+					continue;
+				}
+				if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
+				conn.getOutput().println(msg);
 			}
-			if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
-			conn.getOutput().println(msg);
 		}
 	}
 
@@ -256,9 +278,11 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		return kickUser(name, null);
 	}
 
+	// FIXME: is there a better approach than always adding the IP (even when already in the map)?
 	public void banIP(IPClass ip) {
-		if(!banRules.containsKey(ip))
+		synchronized(banRules) {
 			banRules.put(ip, true);
+		}
 		if(verbosity >= 1) printDebug("["+serverName+"] Banned IP: "+ip);
 	}
 
@@ -268,15 +292,20 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	public void unbanIP(IPClass ip) {
 		// special case: unban everything - in this case, just clear the rules, since no entry
 		// means 'no banned IP'
-		if(ip.getClassType() == IPClass.ClassType.EVERYTHING) {
-			banRules.clear();
-			return;
-		}
-		// FIXME: always enters 'else'
-		if(banRules.containsKey(ip) && banRules.get(ip).equals(Boolean.TRUE)) {
-			banRules.remove(ip);
-			if(verbosity >= 1) printDebug("["+serverName+"] Unbanned IP: "+ip);
-		} else {
+		synchronized(banRules) {
+			if(ip.getClassType() == IPClass.ClassType.EVERYTHING) {
+				banRules.clear();
+				return;
+			}
+			Iterator<Map.Entry<IPClass,Boolean>> it = banRules.entrySet().iterator();
+			while(it.hasNext()) {
+				Map.Entry<IPClass,Boolean> entry = it.next();
+				if(entry.getKey().equals(ip) && entry.getValue().equals(true)) {
+					it.remove();
+					if(verbosity >= 1) printDebug("["+serverName+"] Unbanned IP: "+ip);
+					return;
+				}
+			}
 			banRules.put(ip, false);
 			if(verbosity >= 1) printDebug("["+serverName+"] Added ALLOW rule for IP: "+ip);
 		}
@@ -284,10 +313,12 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 
 	public boolean isBanned(String ip) {
 		boolean banned = false;
-		// iteration will follow insertion order
-		for(Map.Entry<IPClass,Boolean> entry : banRules.entrySet()) 
-			if(entry.getKey().includes(ip))
-				banned = entry.getValue();
+		synchronized(banRules) {
+			// iteration will follow insertion order
+			for(Map.Entry<IPClass,Boolean> entry : banRules.entrySet()) 
+				if(entry.getKey().includes(ip))
+					banned = entry.getValue();
+		}
 		return banned;
 	}
 
@@ -297,8 +328,15 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	}
 
 	@Override
-	public boolean shutdown() {
+	public synchronized boolean shutdown() {
 		if(clients.size() > 0) broadcast(null,"*** SERVER SHUTTING DOWN NOW ***");
+		for(Connection client : clients) {
+			printDebug(client+": sending disconnect");
+			client.sendMsg(CMD_PREFIX+"disconnect");
+			printDebug(client+": disconnecting");
+			client.disconnect();
+		}
+		printDebug("shutting down pool");
 		pool.shutdownNow();
 		try {
 			pool.awaitTermination(5,TimeUnit.SECONDS);
@@ -327,6 +365,88 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		printMsg("- welcomeMessage: "+welcomeMessage);
 		printMsg("- advancedChat: "+advancedChat);
 		printMsg("- cmdBanLimit: "+cmdBanLimit);
+	}
+	
+	@Override
+	public String printInfo() {
+		StringBuilder sb = new StringBuilder(super.printInfo());
+		sb.append("  ChatSystem enabled: "+advancedChat+"\n");
+		return sb.toString();
+	}
+
+	/** Reads a file with ban rules and adds them to banRules;
+	 * rules are specified like this:
+	 * <pre>
+	 * ban
+	 *   # this is a comment (middle-line comment are supported)
+	 *   # put ONE IP class per line:
+	 *   *  # ban all IPs
+	 *
+	 * unban
+	 *   127.0.0.1  # unban local IP
+	 *   192.168.0.1/24  # unban local LAN
+	 * </pre>
+	 * Note that insertion order _matters_.
+	 * @return The number of rules added to the server banRules
+	 */
+	protected int loadBlacklist(File blFile) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(blFile)))) {
+			String line = null;
+			boolean inStanza = false;
+			boolean errors = false;
+			LinkedHashMap<IPClass,Boolean> newRules = new LinkedHashMap<>();
+			int stanzaRules = 0;
+			boolean isBanStanza = false;
+			while((line = reader.readLine()) != null) {
+				line = line.trim();
+				if(line.length() < 1 || line.charAt(0) == '#') continue;
+				// having already considered full-line comments, we should have exactly 1 valid token per line,
+				// which is the only one we consider.
+				String token = line.split("#", 2)[0].trim();
+
+				if(token.equals("ban") || token.equals("unban")) {
+					if(inStanza && stanzaRules == 0) {
+						printDebug("[loadBlacklist] WARNING: empty stanza found.");
+					}
+					inStanza = true;
+					stanzaRules = 0;
+					isBanStanza = token.equals("ban");
+				} else {
+					if(!inStanza) {
+						printDebug("[loadBlacklist] ERROR: found "+token+" outside a stanza!");
+						errors = true;
+						break;
+					}
+					try {
+						IPClass ip = new IPClass(token);
+						for(IPClass ipc : newRules.keySet())
+							if(ipc.equals(ip)) {
+								printDebug("[loadBlacklist] WARNING: duplicate entry for IP "+ip+".");
+								printDebug("	...(adding anyway, but consider optimizing the rules.)");
+								break;
+							}
+						newRules.put(ip, isBanStanza);
+						++stanzaRules;
+					} catch(IllegalArgumentException ee) {
+						printDebug(ee.getMessage());
+						printDebug("[loadBlacklist] ignoring line");
+					}
+				}
+			}
+			if(errors) {
+				printDebug("[loadBlacklist] ERRORS WERE FOUND: ignoring IP rules.");
+				return 0;
+			}
+			banRules.putAll(newRules);
+			return newRules.size();
+
+		} catch(FileNotFoundException e) {
+			printDebug("[loadBlacklist] Tried reading from non-existing file!");
+		} catch(Exception e) {
+			printDebug("[loadBlacklist] Caught exception while reading blacklist file:");
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 	protected static void printUsage() {

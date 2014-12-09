@@ -504,7 +504,6 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	public PokeponServer configure(String[] args, ServerOptions... opts) throws MalformedURLException, UnknownOptionException {
 		if(verbosity >= 2) printDebug("["+serverName+"] CONFIGURING");
 		createDefaultConf();
-		args = loadPreConfig(args);
 		loadOptions(readConfigFile(new URL("file://"+confFile)));
 		for(ServerOptions o : opts) {
 			printDebug("Loading additional option: "+o);
@@ -539,6 +538,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		PokeponServer server = null;
 		
 		try {
+			args = loadPreConfig(args);
 			server = new PokeponServer();
 			server.configure(args).start();
 		} catch(IOException e) {

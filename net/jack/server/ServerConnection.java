@@ -262,7 +262,7 @@ class ServerConnection extends Connection {
 
 	@Override
 	public void disconnect() {
-		if(Debug.on) printDebug("Called "+name+".disconnect()");
+		if(verbosity >= 2) printDebug("Called "+name+".disconnect()");
 		if(server instanceof PokeponServer)
 			((PokeponServer)server).destroyAllBattles(name);
 		if(server instanceof MultiThreadedServer) {
@@ -280,14 +280,14 @@ class ServerConnection extends Connection {
 	}
 
 	public void finalize() {
-		if(Debug.on) printDebug("[INFO] ServerConnection "+name+" was finalized.");
+		if(verbosity >= 2) printDebug("[INFO] ServerConnection "+name+" was finalized.");
 	}
 	
 	/** Method used to create a self-destructing connection which sends a
 	 * single message to a client and then disconnects from it.
 	 */
 	public static void dropWithMsg(Socket client,String msg) {
-		printDebug("Sending drop message to "+client+": "+msg);
+		if(verbosity >= 1) printDebug("{"+now()+"} Sending drop message to "+client+": "+msg);
 
 		try(PrintWriter pw = new PrintWriter(client.getOutputStream())) {
 			pw.write(msg+"\n");

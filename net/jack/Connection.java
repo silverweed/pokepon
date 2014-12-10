@@ -49,7 +49,7 @@ public abstract class Connection implements Runnable {
 	public Connection(Socket socket,int verbosityLvl) {
 		verbosity = verbosityLvl;
 		
-		printDebug("Starting connection with "+socket+" with verbosity "+verbosity+".");
+		if(verbosity >= 1) printDebug("{"+now()+"} Starting connection with "+socket+" with verbosity "+verbosity+".");
 
 		try {
 			this.socket = socket;
@@ -125,8 +125,8 @@ public abstract class Connection implements Runnable {
 	}			
 
 	public void disconnect() {
-		if(verbosity >= 1) printDebug("Closing connection with "+name+" ("+socket.getInetAddress()+")");
-		if(verbosity >= 0) printDebug("Disconnected with "+name+".");
+		if(verbosity >= 1) printDebug("{"+now()+"} Closing connection with "+name+" ("+socket.getInetAddress()+")");
+		if(verbosity >= 0) printDebug("Disconnected from "+name+".");
 		try {
 			synchronized(socket) {
 				socket.close();

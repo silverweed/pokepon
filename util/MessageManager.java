@@ -8,6 +8,7 @@ import java.util.*;
 import java.io.PrintStream;
 import java.nio.*;
 import java.nio.charset.*;
+import java.text.*;
 
 /** Class that provides an abstraction level for communication
  * between battle classes and UI.
@@ -321,5 +322,13 @@ public class MessageManager {
 			(hours > 0 ? hours + "h " : "") + 
 			(minutes > 0 ? minutes + "m " : "") +
 			seconds + "s";
+	}
+
+	public static String now() {
+		return now("yy-MM-dd HH:mm:ss");
+	}
+
+	public static String now(final String format) {
+		return new SimpleDateFormat(format).format(new Date());
 	}
 }

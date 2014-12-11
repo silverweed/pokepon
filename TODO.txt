@@ -20,6 +20,8 @@
 
 - Add drain animation to Wild Weed (also check for bugs when pony is fainted) -> Done
 
+- Add ban rules conf file, fix ban/unban from the chat -> DONE
+
 === TODO ===
 - Fix HPBar: the labels are sometimes misaligned depending on the length
   of the pony's name
@@ -49,5 +51,3 @@
 - Nicknames: config option to set default nicks, request nick on login feature 
 
 - Check confusion: maybe bugged
-
-- Add ban rules conf file, fix ban/unban from the chat

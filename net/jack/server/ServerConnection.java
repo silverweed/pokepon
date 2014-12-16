@@ -287,7 +287,7 @@ class ServerConnection extends Connection {
 	 * single message to a client and then disconnects from it.
 	 */
 	public static void dropWithMsg(Socket client,String msg) {
-		if(verbosity >= 1) printDebug("{"+now()+"} Sending drop message to "+client+": "+msg);
+		if(Debug.on) printDebug("{"+now()+"} Sending drop message to "+client+": "+msg);
 
 		try(PrintWriter pw = new PrintWriter(client.getOutputStream())) {
 			pw.write(msg+"\n");

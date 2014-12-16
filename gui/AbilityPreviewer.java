@@ -24,15 +24,10 @@ import java.util.List;
  */
 public class AbilityPreviewer extends PokeponPreviewer {
 
-	private List<Class<?>> abilities = new ArrayList<>();
+	private static List<Class<?>> abilities = new ArrayList<>();
 	private List<Ability> possibleAbilities = new ArrayList<>();
 
-	public AbilityPreviewer() {
-		this(null);
-	}
-
-	public AbilityPreviewer(final Pony pony) {
-		super(pony);
+	static {
 		abilities = ClassFinder.findSubclasses(Meta.complete(ABILITY_DIR),Ability.class);
 		Collections.sort(abilities,new Comparator<Class<?>>() {
 			public int compare(Class<?> me,Class<?> other) {
@@ -40,6 +35,14 @@ public class AbilityPreviewer extends PokeponPreviewer {
 			}
 		});
 		if(Debug.on) printDebug("[AbilityPreviewer] all abilities: "+abilities);
+	}
+
+	public AbilityPreviewer() {
+		this(null);
+	}
+
+	public AbilityPreviewer(final Pony pony) {
+		super(pony);
 		loadPossibleAbilities();
 		renderer = new ListCellRenderer<Object>() {
 			@Override

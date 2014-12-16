@@ -9,6 +9,10 @@ import static pokepon.util.MessageManager.*;
 import java.util.*;
 import java.io.*;
 
+/** Simple BattleLogger which saves the raw battle dump in a file.
+ * 
+ * @author Giacomo Parolini
+ */
 public class FileBattleLogger extends BattleLogger {
 
 	protected final BattlePanel bp;

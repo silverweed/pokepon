@@ -23,25 +23,14 @@ import java.util.List;
 *
 * @author Giacomo Parolini
 */
+@SuppressWarnings("unchecked") 
 public class MovePreviewer extends PokeponPreviewer {
 
-	private Set<String> moves = new LinkedHashSet<>();
+	private static Set<String> moves = new LinkedHashSet<>();
 	private Set<Move> possibleMoves = new LinkedHashSet<>();
 	private int moveIndex = -1;
 
-	public MovePreviewer() {
-		this(null);
-	}
-
-	public int getMoveIndex() { return moveIndex; }
-	public void setMoveIndex(final int i) { 
-		moveIndex = i;
-		if(Debug.on) printDebug("[MovePreviewer] set moveIndex to "+i);
-	}
-
-	@SuppressWarnings("unchecked")
-	public MovePreviewer(final Pony pony) {
-		super(pony);
+	static {
 		List<Class<?>> moveClasses = ClassFinder.findSubclasses(Meta.complete(MOVE_DIR),Move.class);
 		Collections.sort(moveClasses,new Comparator<Class<?>>() {
 			public int compare(Class<?> me,Class<?> other) {
@@ -57,6 +46,20 @@ public class MovePreviewer extends PokeponPreviewer {
 				printDebug("[MovePrev] Failed to create class: "+e);
 			}
 		}
+	}
+
+	public MovePreviewer() {
+		this(null);
+	}
+
+	public int getMoveIndex() { return moveIndex; }
+	public void setMoveIndex(final int i) { 
+		moveIndex = i;
+		if(Debug.on) printDebug("[MovePreviewer] set moveIndex to "+i);
+	}
+
+	public MovePreviewer(final Pony pony) {
+		super(pony);
 		loadPossibleMoves();
 		renderer = new ListCellRenderer<Object>() {
 			@Override
@@ -167,7 +170,6 @@ public class MovePreviewer extends PokeponPreviewer {
 		}
 	}
 		
-	@SuppressWarnings("unchecked")
 	public void showPreview(final String str) {
 		if(Debug.on) printDebug("Called MovePreviewer.showPreview("+str+"); pony = "+pony);
 		SwingUtilities.invokeLater(new Runnable() {

@@ -96,6 +96,4 @@ public abstract class PokeponPreviewer extends JPanel {
 			public void mouseDragged(MouseEvent e) {}
 		};
 	}
-
-
 }

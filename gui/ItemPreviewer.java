@@ -24,15 +24,10 @@ import java.util.List;
  */
 public class ItemPreviewer extends PokeponPreviewer {
 
-	private List<Class<?>> items = new ArrayList<>();
-	private List<Item> allItems = new ArrayList<>();
+	private static List<Class<?>> items = new ArrayList<>();
+	private static List<Item> allItems = new ArrayList<>();
 
-	public ItemPreviewer() {
-		this(null);
-	}
-
-	public ItemPreviewer(final Pony pony) {
-		super(pony);
+	static {
 		items = ClassFinder.findSubclasses(Meta.complete(ITEM_DIR),Item.class);
 		Collections.sort(items, new Comparator<Class<?>>() {
 			public int compare(Class<?> me,Class<?> other) {
@@ -41,6 +36,26 @@ public class ItemPreviewer extends PokeponPreviewer {
 		});
 		if(Debug.on) printDebug("[ItemsPreviewer] all items: "+items);
 		loadItems();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void loadItems() {
+		for(Class<?> item : items) {
+			try {
+				allItems.add(ItemCreator.create((Class<? extends Item>)item));
+			} catch(ReflectiveOperationException e) {
+				printDebug("[ItemPrev] Failed to create item: "+e);
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public ItemPreviewer() {
+		this(null);
+	}
+
+	public ItemPreviewer(final Pony pony) {
+		super(pony);
 		renderer = new ListCellRenderer<Object>() {
 			@Override
 			public Component getListCellRendererComponent(	JList<? extends Object> list,
@@ -98,18 +113,6 @@ public class ItemPreviewer extends PokeponPreviewer {
 	public void setPony(Pony pony) {
 		super.setPony(pony);
 		//loadPossibleAbilities();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void loadItems() {
-		for(Class<?> item : items) {
-			try {
-				allItems.add(ItemCreator.create((Class<? extends Item>)item));
-			} catch(ReflectiveOperationException e) {
-				printDebug("[ItemPrev] Failed to create item: "+e);
-				e.printStackTrace();
-			}
-		}
 	}
 
 	@SuppressWarnings("unchecked")

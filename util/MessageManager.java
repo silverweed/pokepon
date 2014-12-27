@@ -288,7 +288,7 @@ public class MessageManager {
 		return str
 			.replaceAll("<","&#60;")
 			.replaceAll(">","&#62;")
-			//.replaceAll("/","&#47;")
+			.replaceAll("/","&#47;")
 			// remove "zalgo" effect (thanks, Zarel)
 			.replaceAll("[\u0300-\u036f\u0483-\u0489\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{3,}","");
 	}

@@ -83,7 +83,7 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 
 		
 		if(cmd.equals("help")) {
-			connection.sendMsg(CMN_PREFIX+"html <b>===== Advanced chat commands: =====</b>\n" + help.toString());
+			connection.sendMsg(CMN_PREFIX+"html <b>===== Advanced chat commands: =====</b>\n" + sanitize(help.toString()));
 			return 0; // if there are other CommandsExecutors, send their help msg too.
 		} else if(cmd.equals("role")) {
 			if(token.length > 2) {

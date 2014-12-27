@@ -1784,7 +1784,9 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			return;
 		}
 		if(!be.getHazards(side).isEmpty()) {
-			for(Hazard h : be.getHazards(side)) {
+			Iterator<Hazard> it = be.getHazards(side).iterator();
+			while(it.hasNext()) {
+				Hazard h = it.next();
 				try {
 					Method called = h.getClass().getMethod(what,BattleEngine.class);
 					try {

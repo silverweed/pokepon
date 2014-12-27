@@ -70,79 +70,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		printConfiguration();
 		printMsg("************************");
 		DataDealer.init();
-		Thread serverConsole = new Thread() {
-			Scanner scan = new Scanner(System.in);
-			public void run() {
-				String in = "";
-				consoleMsg("** Minimal console initialized **");
-				String helpString = "Supported commands:\n stop\n ban <ip list>\n unban <ip list>\n" +
-					" banned [ip class]\n users\n kick <user>\n info\n roles\n reload";
-				while(true) {
-					try {
-						consoleMsgnb("> ");
-						in = scan.nextLine();
-						if(in.length() == 0) continue;
-						if(in.charAt(0) == CMD_PREFIX) in = in.substring(1);
-						String[] token = in.split(" ");
-						if(in.equals("stop")) {
-							synchronized(PokeponServer.this) {
-								shutdown();
-							}
-						} else if(token[0].equals("users")) {
-							consoleDebug(clients.toString());
-						} else if(token[0].equals("banned")) {
-							if(token.length > 1)
-								for(int i = 1; i < token.length; ++i)
-									consoleDebug("isBanned("+token[i]+"): "+isBanned(token[i]));
-							else
-								consoleDebug(banRules.toString());
-						} else if(token[0].equals("?") || token[0].equals("help")) {
-							consoleDebug(helpString);
-						} else if(token[0].equals("info")) {
-							consoleDebug(printInfo());
-						} else if(token[0].equals("roles")) {
-							if(chat != null)
-								consoleDebug(chat.getRolesTable());
-							else
-								consoleDebug("advancedChat is disabled.");
-						} else if(token[0].equals("reload")) {
-							if(chat != null) {
-								if(chat.reload()) {
-									consoleDebug("[ OK ] chat roles reloaded successfully. New roles:");
-									consoleDebug(chat.getRolesTable());
-								} else {
-									consoleDebug("Errors reloading chat roles: see server logs for details.");
-								}
-							} else {
-								consoleDebug("advancedChat is disabled.");
-							}
-						} else {
-							if(token.length < 2) {
-								consoleDebug("Missing argument(s) ['?' for help]");
-								continue;
-							}
-							if(token[0].equals("ban"))
-								for(int i = 1; i < token.length; ++i)
-									banIP(new IPClass(token[i]));
-							else if(token[0].equals("unban"))
-								for(int i = 1; i < token.length; ++i)
-									unbanIP(new IPClass(token[i]));
-							else if(token[0].equals("kick"))
-								kickUser(ConcatenateArrays.merge(token, 1), null);
-							else
-								consoleDebug(helpString);
-						}
-							
-					} catch(NoSuchElementException e) {
-						consoleMsg("[EOF] Console is dead!! to stop the server, Ctrl+C");
-						return;
-					} catch(Exception e) {
-						consoleDebug("Caught exception: "+e);
-						consoleDebug("...still reading from the console, though.");
-					}
-				}
-			}
-		};
+		Thread serverConsole = new Thread(new ServerConsole(this));
 		serverConsole.setName("Pokepon Server Console");
 		serverConsole.setDaemon(true);
 		serverConsole.start();
@@ -551,6 +479,105 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 			consoleMsg("");
 			printUsage();
 			consoleMsg("");
+		}
+	}
+}
+
+class ServerConsole implements Runnable {
+	
+	private final static String HELP_STRING = 
+		"Supported commands:\n stop\n ban <ip list>\n unban <ip list>\n" +
+		" banned [ip class]\n users\n kick <user>\n info\n roles\n reload";
+
+	private final PokeponServer server;
+	private final Scanner scanner;
+
+	public ServerConsole(final PokeponServer server) {
+		this.server = server;
+		scanner = new Scanner(System.in);
+	}
+		
+	@Override
+	public void run() {
+		String in = "";
+		consoleMsg("** Minimal console initialized **");
+
+		while(true) {
+			try {
+				consoleMsgnb("> ");
+				in = scanner.nextLine();
+				if(in.length() == 0) continue;
+				if(in.charAt(0) == CMD_PREFIX) in = in.substring(1);
+				String[] token = in.split(" ");
+				if(in.equals("stop")) {
+					synchronized(server) {
+						server.shutdown();
+					}
+				} else if(token[0].equals("users")) {
+					consoleDebug(server.clients.toString());
+
+				} else if(token[0].equals("banned")) {
+					if(token.length > 1)
+						for(int i = 1; i < token.length; ++i)
+							consoleDebug("isBanned("+token[i]+"): "+server.isBanned(token[i]));
+					else
+						consoleDebug(server.banRules.toString());
+
+				} else if(token[0].equals("?") || token[0].equals("help")) {
+					consoleDebug(HELP_STRING);
+
+				} else if(token[0].equals("info")) {
+					consoleDebug(server.printInfo());
+
+				} else if(token[0].equals("roles")) {
+					if(server.chat != null)
+						consoleDebug(server.chat.getRolesTable());
+					else
+						consoleDebug("advancedChat is disabled.");
+
+				} else if(token[0].equals("reload")) {
+					if(server.chat != null) {
+						if(server.chat.reload()) {
+							consoleDebug("[ OK ] chat roles reloaded successfully. New roles:");
+							consoleDebug(server.chat.getRolesTable());
+						} else {
+							consoleDebug("Errors reloading chat roles: see server logs for details.");
+						}
+					} else {
+						consoleDebug("advancedChat is disabled.");
+					}
+
+				} else {
+					if(token.length < 2) {
+						consoleDebug("Missing argument(s) ['?' for help]");
+						continue;
+					}
+					if(token[0].equals("ban"))
+						for(int i = 1; i < token.length; ++i)
+							server.banIP(new IPClass(token[i]));
+
+					else if(token[0].equals("unban"))
+						for(int i = 1; i < token.length; ++i)
+							server.unbanIP(new IPClass(token[i]));
+
+					else if(token[0].equals("kick"))
+						server.kickUser(ConcatenateArrays.merge(token, 1), null);
+
+					else if(token[0].equals("say"))
+						server.broadcast(null, CMN_PREFIX + "html <font color=\"purple\"><b>[SERVER] " +
+							ConcatenateArrays.merge(token, 1) + "</b></font>");
+
+					else
+						consoleDebug(HELP_STRING);
+				}
+					
+			} catch(NoSuchElementException e) {
+				consoleMsg("[EOF] Console is dead!! to stop the server, Ctrl+C");
+				return;
+			} catch(Exception e) {
+				consoleDebug("Caught exception: "+e);
+				consoleDebug("...still reading from the console, though.");
+			}
 		}
 	}
 }

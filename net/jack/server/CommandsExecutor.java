@@ -91,11 +91,12 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				return 1;
 			}
 			try {
-				connection.sendMsg("Registered users:");
 				List<String> nicks = ((DatabaseServer)server).getNicks();
+				StringBuilder sb = new StringBuilder("Registered users:\n");
 				for(String s : nicks) {
-					connection.sendMsg(s);
+					sb.append(s+"\n");
 				}
+				connection.sendMsg(sb.toString());
 			} catch(FileNotFoundException e) {
 				printDebug("Caught exception in CommandsExecutor.execute(list): "+e);
 				connection.sendMsg("[Server database error]");
@@ -196,12 +197,13 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			return 1;
 		} else if(cmd.equals("users")) {
 			int n = 0;
-			connection.sendMsg("-- Connected users:");
+			StringBuilder sb = new StringBuilder("-- Connected users:\n");
 			for(Connection conn : server.getClients()) {
-				connection.sendMsg(conn.getName());
+				sb.append(conn.getName()+"\n");
 				++n;
 			}
-			connection.sendMsg("Number of connected users: "+n);
+			sb.append("Number of connected users: "+n+"\n");
+			connection.sendMsg(sb.toString());
 			return 1;
 		} else if(cmd.equals("register")) {
 			if(chatUser != null && !chatUser.hasPermission(CAN_REGISTER)) {

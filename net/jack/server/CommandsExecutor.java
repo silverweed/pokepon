@@ -79,7 +79,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token).toString());
 
 		if(cmd.equals("help")) {
-			connection.sendMsg(CMN_PREFIX+"html <b>===== Commands: =====</b>\n" + help.toString());
+			connection.sendMsg(CMN_PREFIX+"html <b>===== Commands: =====</b>\n"+sanitize(help.toString()));
 			return 1;
 		} else if(cmd.equals("list")) {
 			if(!(server instanceof DatabaseServer)) {

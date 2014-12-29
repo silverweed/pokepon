@@ -51,3 +51,5 @@
 - Nicknames: config option to set default nicks, request nick on login feature 
 
 - Check confusion: maybe bugged
+
+- guests in battles

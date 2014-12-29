@@ -59,6 +59,35 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 			}
 			public void focusLost(FocusEvent e) {}
 		});
+		inA.addHyperlinkListener(new HyperlinkListener() {
+			
+			private PopupFactory popupFactory = PopupFactory.getSharedInstance();
+			private JToolTip toolTip;
+			private Popup popup;
+
+			public void hyperlinkUpdate(HyperlinkEvent e) {
+				if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+					if(Desktop.isDesktopSupported()) {
+						try {
+							Desktop.getDesktop().browse(e.getURL().toURI());
+						} catch(IOException|URISyntaxException ex) {
+							append("<font color=\"red\">Error opening link.</font>", false);
+							ex.printStackTrace();
+						}
+					}
+				} else if(e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
+					popupFactory = PopupFactory.getSharedInstance();
+					toolTip = inA.createToolTip();
+					toolTip.setTipText(e.getURL().toString());
+					popup = popupFactory.getPopup(inA,toolTip,inA.getBounds().x,inA.getBounds().y);
+					popup.show();
+				} else if(e.getEventType() == HyperlinkEvent.EventType.EXITED) {
+					if(popup != null) {
+						popup.hide();
+					}
+				}
+			}
+		});
 	}
 
 	public void initialize(Socket s) {

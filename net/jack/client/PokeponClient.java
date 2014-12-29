@@ -57,20 +57,20 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = c.gridy = 0;
-		c.weightx = 0.3;
+		c.weightx = 0;
 		c.ipadx = c.ipady = 2;
+		c.insets = new Insets(3, 3, 3, 3);
 		c.anchor = GridBagConstraints.PAGE_START;
 		add(buttonsP, c);
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 1;
 		c.gridwidth = 3;
-		c.weightx = 0.7;
+		c.weightx = 1;
 		c.weighty = 1;
 		add(chat, c);
 
 		// Default options
-		// TODO: create a way to change these
 		optLogBattle = true;
 	}
 
@@ -583,7 +583,7 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 				JOptionPane.showMessageDialog(PokeponClient.this, p);
 			}
 		});
-		panel.add(BorderLayout.NORTH, hint);
+		panel.add(hint, BorderLayout.NORTH);
 				
 		int sel = JOptionPane.showOptionDialog(
 						this,
@@ -606,6 +606,7 @@ class ButtonsPanel extends JPanel {
 	private JButton bTeamBuilder = new JButton("Teambuilder");
 	private JButton bExit = new JButton("Exit");
 	private JButton bChallenge = new JButton("Challenge");
+	private JButton bTypechart = new JButton("Typechart");
 	private JButton bSettings = new JButton("Settings");
 	private final PokeponClient client;
 
@@ -623,6 +624,8 @@ class ButtonsPanel extends JPanel {
 		add(bTeamBuilder);
 		bChallenge.addActionListener(challengeListener);
 		add(bChallenge);
+		bTypechart.addActionListener(typechartListener);
+		add(bTypechart);
 		bSettings.addActionListener(settingsListener);
 		add(bSettings);
 	}
@@ -634,6 +637,7 @@ class ButtonsPanel extends JPanel {
 		if(a.equals("teambuilder")) return bTeamBuilder;
 		else if(a.equals("exit")) return bExit;
 		else if(a.equals("challenge")) return bChallenge;
+		else if(a.equals("typechart")) return bTypechart;
 		else if(a.equals("settings")) return bSettings;
 		else return null;
 	}
@@ -650,6 +654,15 @@ class ButtonsPanel extends JPanel {
 			String uName = JOptionPane.showInputDialog("Enter name of the user to challenge:");
 			if(uName != null)
 				client.getConnection().sendMsg(CMD_PREFIX+"battle "+uName);
+		}
+	};
+	private ActionListener typechartListener = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			new Thread() {
+				public void run() {
+					(new Typechart()).display(false);
+				}
+			}.start();
 		}
 	};
 	private ActionListener settingsListener = new ActionListener() {

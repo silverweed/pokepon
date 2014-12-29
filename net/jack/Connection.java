@@ -54,8 +54,8 @@ public abstract class Connection implements Runnable {
 		try {
 			this.socket = socket;
 			connectionTime = new Date();
-			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			output = new PrintWriter(socket.getOutputStream(),true);
+			input = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+			output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"),true);
 			name = "Unnamed connection";
 		} catch(IOException e) {
 			printDebug("Caught exception while constructing Connection: "+e);

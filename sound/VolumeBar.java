@@ -18,7 +18,7 @@ import javax.swing.event.*;
 public class VolumeBar extends JPanel {
 
 	private JSlider slider;
-	private JCheckBox muteBtn = new JCheckBox("Mute");
+	private JToggleButton muteBtn = new JToggleButton("<html><small>M</small></html>");
 	private Looper looper;
 
 	public VolumeBar(final Looper looper) {
@@ -38,7 +38,7 @@ public class VolumeBar extends JPanel {
 				}
 			});
 		} else {
-			slider = new JSlider(JSlider.VERTICAL, 0, 0);
+			slider = new JSlider(JSlider.VERTICAL, 0, 1, 0);
 			slider.setEnabled(false);
 		}
 		if(looper.canMute()) {
@@ -55,7 +55,9 @@ public class VolumeBar extends JPanel {
 
 		setLayout(new BorderLayout());
 		add(slider);
-		add(BorderLayout.SOUTH, muteBtn);
+		add(muteBtn, BorderLayout.SOUTH);
+		muteBtn.setHorizontalAlignment(SwingConstants.CENTER);
+		muteBtn.setPreferredSize(new Dimension(20, 20));
 		if(Debug.on) printDebug("[VolumeBar] Constructed with volume: "+looper.getMinVolume()+" < "+
 				looper.getVolume() + " < "+looper.getMaxVolume());
 	}

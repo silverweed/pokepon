@@ -77,17 +77,15 @@ public class Looper implements Runnable {
 	}
 
 	public float getMaxVolume() {
-		if(gain == null) return 0f;
-		return gain.getMaximum();
+		return gain == null ? 0f : gain.getMaximum();
 	}
 
 	public float getMinVolume() {
-		if(gain == null) return 0;
-		return gain.getMinimum();
+		return gain == null ? 0f : gain.getMinimum();
 	}
 
 	public float getVolume() {
-		return gain.getValue();
+		return gain == null ? 0f : gain.getValue();
 	}
 
 	public boolean isMute() {

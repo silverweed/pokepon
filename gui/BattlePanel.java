@@ -185,8 +185,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private List<Map<String,Integer>> hazards = new ArrayList<Map<String,Integer>>();
 	/** map of (lists of) hazard tokens; e.g SharpNails may have a list of up to 3 tokens. */
 	private List<Map<String,List<JLabel>>> hazardTokens = new ArrayList<Map<String,List<JLabel>>>();
+	// Volume & sound
 	/** Looper handling the BGM */
 	private Looper looper;
+	private VolumeBar volumeBar;
 	// resultAnim delayers
 	ExecutorService resultAnimExec = Executors.newSingleThreadExecutor();
 	private volatile boolean resultAnimWait;
@@ -375,7 +377,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		// Start the BGM
 		if(GUIGlobals.soundOn) {
 			looper = PresetBGM.getLooper("xy-rival.wav");
-			if(looper != null)
+			volumeBar = new VolumeBar(looper);
+			//volumeBar.setBounds(inputF.getBounds().x + inputF.getBounds().width - 30, inputF.getBounds().y + inputF.getBounds().height - 100, 30, 100);
+			//volumeBar.setVisible(true);
+			add(volumeBar);
+			if(looper != null) 
 				new Thread(looper).start();
 		}
 	}

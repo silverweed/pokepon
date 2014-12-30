@@ -9,7 +9,7 @@ to which several players can connect with their Clients and battle each other.
 Download
 -----------------------------------------------------
 If you just want the executable JAR file, use this download link:
-[Poképon 0.01](http://inle.freeserver.me/pokepon/downloads/pokepon-0.01.jar)
+[Poképon 0.01](https://pokepon.center/downloads/pokepon.jar)
 (warning: the pre-packaged game probably won't be the latest version).
 
 Launching the game

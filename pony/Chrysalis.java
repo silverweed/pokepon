@@ -45,7 +45,7 @@ public class Chrysalis extends Pony {
 		learnableMoves.put("Magic Blast",15);
 		learnableMoves.put("Sky Dive",20);
 		learnableMoves.put("Horn Beam",38);
-		learnableMoves.put("Nasty Plot",46);
+		learnableMoves.put("Evil Plot",46);
 		learnableMoves.put("Mutate",59);
 		learnableMoves.put("Glowing Laser",60);
 	}

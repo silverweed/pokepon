@@ -148,6 +148,7 @@ move/EerieSonata.java
 move/Enlighten.java
 move/Entrench.java
 move/EternalNight.java
+move/EvilPlot.java
 move/FlitAbout.java
 move/FreezeSpell.java
 move/FriendshipCannon.java
@@ -180,7 +181,6 @@ move/Mustache.java
 move/Mutate.java
 move/MysteriousBrew.java
 move/Nap.java
-move/NastyPlot.java
 move/NightWind.java
 move/Overture.java
 move/PartyCannon.java

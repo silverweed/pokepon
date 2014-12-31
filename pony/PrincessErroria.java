@@ -39,7 +39,7 @@ public class PrincessErroria extends Pony {
 		learnableMoves.put("Sonic Rainboom",1);
 		learnableMoves.put("Raise Sun",1);
 		learnableMoves.put("Party Cannon",1);
-		learnableMoves.put("Nasty Plot",1);
+		learnableMoves.put("Evil Plot",1);
 		learnableMoves.put("Mutate",1);
 		learnableMoves.put("Love Burst",1);
 		learnableMoves.put("Joke",1);

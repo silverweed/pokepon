@@ -1,4 +1,4 @@
-//: move/NastyPlot.java
+//: move/EvilPlot.java
 
 package pokepon.move;
 
@@ -11,10 +11,10 @@ import pokepon.pony.Pony;
  * @author Giacomo Parolini
  */
 
-public class NastyPlot extends Move {
+public class EvilPlot extends Move {
 	
-	public NastyPlot() {
-		super("Nasty Plot");
+	public EvilPlot() {
+		super("Evil Plot");
 		
 		type = Type.SHADOW;
 		moveType = Move.MoveType.PHYSICAL;
@@ -29,7 +29,7 @@ public class NastyPlot extends Move {
 		userEvasion = addEntry(1,0.2f);
 	}
 
-	public NastyPlot(Pony p) {
+	public EvilPlot(Pony p) {
 		this();
 		pony = p;
 	}

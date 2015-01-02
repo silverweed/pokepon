@@ -301,5 +301,6 @@ the owner of said artwork).
 
 Author & Mantainers
 -----------------------------------------------------------------
-* Author: Giacomo Parolini [silverweed]
+* Author: Giacomo Parolini [[silverweed](https://github.com/silverweed)]
 * Public server hosting: RedEnchilada
+* Official site hosting: [Hamcha](https://github.com/hamcha)

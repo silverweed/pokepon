@@ -36,6 +36,9 @@ Here is a list of public Poképon Servers to which anyone can connect:
     <th>Mantainer</th>
   </tr>
   <tr>
+    <td>pokepon.center</td>
+    <td>silverweed</td>
+  <tr>
     <td>lyrawearspants.com</td>
     <td>RedEnchilada</td>
   </tr>

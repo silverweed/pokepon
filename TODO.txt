@@ -53,3 +53,5 @@
 - Check confusion: maybe bugged
 
 - guests in battles
+
+- fix nick list not visible at login

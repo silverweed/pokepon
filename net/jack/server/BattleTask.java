@@ -52,7 +52,7 @@ public class BattleTask implements Runnable {
 
 	public synchronized void run() {
 		battle = new Battle1v1(c1,c2);
-		printDebug("[BattleTask]: started Battle Task between "+c1.getName()+" and "+c2.getName());
+		printDebug("[BattleTask]: started Battle Task between "+c1.getName()+" and "+c2.getName()+" [ID: "+battleID+"]");
 		try {
 			if(battle.initialize(format.getSpecialFormats().contains("randombattle"))) {
 				boolean sentKo = false;

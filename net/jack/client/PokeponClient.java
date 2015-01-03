@@ -280,9 +280,9 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 				}
 			});
 		} catch(InterruptedException|java.lang.reflect.InvocationTargetException e) {
-			printDebug("There was and exception: battle not started: "+e);
+			printDebug("There was an exception: battle not started: "+e);
 			printDebug("Caused by: "+e.getCause());
-			e.getCause().printStackTrace();
+			e.printStackTrace();
 			return false;
 		}
 		return true;

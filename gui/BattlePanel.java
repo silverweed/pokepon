@@ -377,10 +377,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		// Start the BGM
 		if(GUIGlobals.soundOn) {
 			looper = PresetBGM.getLooper("xy-rival.wav");
-			volumeBar = new VolumeBar(looper);
+			// TODO
+			//volumeBar = new VolumeBar(looper);
 			//volumeBar.setBounds(inputF.getBounds().x + inputF.getBounds().width - 30, inputF.getBounds().y + inputF.getBounds().height - 100, 30, 100);
 			//volumeBar.setVisible(true);
-			add(volumeBar);
+			//add(volumeBar);
 			if(looper != null) 
 				new Thread(looper).start();
 		}

@@ -71,8 +71,113 @@ $ ls
 pokepon/   pokepon.jar
 ```
 
+How to connect
+--------------------------------------------------------
+There are basically 2 ways to play Poképon:
+
+  1. By connecting to a public server
+  2. By creating a local server and use it to battle locally (either in LAN or not)
+
+(See paragraph "Server Setup" for information on the second option.)
+
+To connect to a running Poképon Server start the Client, either from
+the graphical launcher or issuing the command 
+```bash
+java -jar /path/to/pokepon.jar client <serverIP>
+```
+
+The client is effectively a chat endued with some extra features, most notably
+a Teambuilder, which can be used to create, save, load and edit teams.
+
+The teams are saved as text files in the following directory:
+* Linux / Mac
+```
+~/.pokepon/teams
+```
+
+* Windows
+```
+%APPDATA%/pokepon/teams
+```
+
+These text files can be safely edited as long as you use the correct syntax
+(which you can infer from an auto-generated save file). If you like the Vim
+editor, syntax highlighting files are available in the game repository, 
+under data/vim.
+
+Protip: the `/help` command can be used to obtain a list of the
+available chat commands. 
+
+Battling
+----------------------------------------------------------
+*Hint: typechart is [here](https://github.com/silverweed/pokepon/blob/master/enums/README.md)*
+
+You can challenge other players connected to your server in 3 ways:
+* simply click on the player's name in the right panel of the chat and
+  select 'Challenge'
+
+* Use the Challenge button on the left panel and insert the other player's
+  name
+
+* Issue the chat command /battle &lt;player's name&gt;
+
+Unless you select the Random Battle format, you'll be prompted to select a
+team; you cannot challenge other players to formats other than Random Battle
+if you don't have any team.
+Be aware that your team and your opponent's will be validated from the server
+before starting a battle, so check the rules of the format you're going to use.
+
+If you want to bypass any format restriction, just choose the 'Custom' format
+and don't specify any rule.
+
+Creating custom formats
+------------------------------------------------------------
+If you select Custom format for a battle, you'll be prompted to insert rules
+specifications in a text area.
+At the moment, this interface is not very user-friendly, but it's not too
+complicated either:
+
+a 'rule' is a line with the format `X:name`, where 'X' is a letter
+specifying what kind of restriction you're applying (whether you're banning
+a pony, a move, an item, an ability, a combo or if you're specifying a special
+format), and 'name' is the name of the pony/item/etc you're banning.
+The letters are as follows:
+* p: ban a pony
+* m: ban a move
+* i: ban an item
+* a: ban an ability
+* c: ban a combo (see later)
+* S (or nothing): specify a special format (see later)
+
+Using one of the first 4 letters is immediate: if, for instance, you want to ban
+Twilight Sparkle, just add the line `p:Twilight Sparkle` followed by
+a newline. Use the exact number of spaces in the pony/item/etc's name.
+
+Banning a 'combo' means you specify a set of 'simple rules' (i.e. a rule using one
+of the first 4 letters), and their intersection gets banned. For instance, you may
+want to prevent players to use Princess Celestia with the move Friendship Cannon.
+The format of a combo restriction rule is:
+`c:{X:name, Y:name, ...}`
+In the case described above, you should then insert the line: 
+`c:{p:Princess Celestia, m:Friendship Cannon}`
+
+A 'special format' is a predefined rule which cannot be described by the simple
+rules. The available special formats are:
+* S:speciesclause  - disallows duplicate ponies in the same team
+* S:canon  - disallows non-canon ponies (ponies not appearing in the show)
+* S:monotype  - forces all ponies in a team to share at least 1 type
+* S:itemclause  - disallows using the same item on more than 1 pony in a team.
+
+You can use as many rules as you wish, and the union of them will be applied to
+the custom match.
+
 Server Setup
 -----------------------------------------------------
+You may wish to launch a Poképon Server on your own machine, either to
+do a local battle on-the-fly (this is possible even if you're not connected
+to the Internet, as long as you have some way to communicate with the other
+players) or to host a dedicated server.
+
 The server should be able to run out of the box, but some configuration may be
 required or desirable.
 
@@ -164,100 +269,6 @@ java pokepon.net.jack.server.PokeponServer [opts] |& tee server.log
 server exploits. Using a Virtual Machine or [a Docker container](https://docker.com) is a
 good security measure. For the latter, a Dockerfile for a PokeponServer is available in `data/docker` 
 (see the instruction in [data/docker/README.md](https://github.com/silverweed/pokepon/blob/master/data/docker/README.md))
-
-
-How to connect
---------------------------------------------------------
-To connect to a running Poképon Server start the Client, either from
-the graphical launcher or issuing the command 
-```bash
-java -jar /path/to/pokepon.jar client <serverIP>
-```
-
-The client is effectively a chat endued with some extra features, most notably
-a Teambuilder, which can be used to create, save, load and edit teams.
-
-The teams are saved as text files in the following directory:
-* Linux / Mac
-```
-~/.pokepon/teams
-```
-
-* Windows
-```
-%APPDATA%/pokepon/teams
-```
-
-These text files can be safely edited as long as you use the correct syntax
-(which you can infer from an auto-generated save file). If you like the Vim
-editor, syntax highlighting files are available in the game repository, 
-under data/vim.
-
-Protip: the `/help` command can be used to obtain a list of the
-available chat commands. 
-
-Battling
-----------------------------------------------------------
-*Hint: typechart is [here](https://github.com/silverweed/pokepon/blob/master/enums/README.md)*
-
-You can challenge other players connected to your server in 3 ways:
-* simply click on the player's name in the right panel of the chat and
-  select 'Challenge'
-
-* Use the Challenge button on the left panel and insert the other player's
-  name
-
-* Issue the chat command /battle &lt;player's name&gt;
-
-Unless you select the Random Battle format, you'll be prompted to select a
-team; you cannot challenge other players to formats other than Random Battle
-if you don't have any team.
-Be aware that your team and your opponent's will be validated from the server
-before starting a battle, so check the rules of the format you're going to use.
-
-If you want to bypass any format restriction, just choose the 'Custom' format
-and don't specify any rule.
-
-Creating custom formats
-------------------------------------------------------------
-If you select Custom format for a battle, you'll be prompted to insert rules
-specifications in a text area.
-At the moment, this interface is not very user-friendly, but it's not too
-complicated either:
-
-a 'rule' is a line with the format `X:name`, where 'X' is a letter
-specifying what kind of restriction you're applying (whether you're banning
-a pony, a move, an item, an ability, a combo or if you're specifying a special
-format), and 'name' is the name of the pony/item/etc you're banning.
-The letters are as follows:
-* p: ban a pony
-* m: ban a move
-* i: ban an item
-* a: ban an ability
-* c: ban a combo (see later)
-* S (or nothing): specify a special format (see later)
-
-Using one of the first 4 letters is immediate: if, for instance, you want to ban
-Twilight Sparkle, just add the line `p:Twilight Sparkle` followed by
-a newline. Use the exact number of spaces in the pony/item/etc's name.
-
-Banning a 'combo' means you specify a set of 'simple rules' (i.e. a rule using one
-of the first 4 letters), and their intersection gets banned. For instance, you may
-want to prevent players to use Princess Celestia with the move Friendship Cannon.
-The format of a combo restriction rule is:
-`c:{X:name, Y:name, ...}`
-In the case described above, you should then insert the line: 
-`c:{p:Princess Celestia, m:Friendship Cannon}`
-
-A 'special format' is a predefined rule which cannot be described by the simple
-rules. The available special formats are:
-* S:speciesclause  - disallows duplicate ponies in the same team
-* S:canon  - disallows non-canon ponies (ponies not appearing in the show)
-* S:monotype  - forces all ponies in a team to share at least 1 type
-* S:itemclause  - disallows using the same item on more than 1 pony in a team.
-
-You can use as many rules as you wish, and the union of them will be applied to
-the custom match.
 
 Reporting bugs
 -----------------------------------------------------------------

@@ -32,9 +32,9 @@ public class FileBattleLogger extends BattleLogger {
 	public void processRecord(Map<String, Object> opts) {
 		File outFile = null;
 		if(opts != null && opts.containsKey("outFile")) {
-			int i = 0;
+			int i = -1;
 			do {
-				outFile = new File((String)opts.get("outFile"));
+				outFile = new File((i >= 0 ? i + "_" : "") + (String)opts.get("outFile"));
 				++i;
 			} while(outFile.exists());
 		} else {

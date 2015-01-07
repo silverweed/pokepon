@@ -57,8 +57,13 @@ public class FileBattleLogger extends BattleLogger {
 			writer.println("# Battle: " + bp.getPlayer(1).getName() + " vs " + bp.getPlayer(2).getName() + 
 				" (" + bp.getFormat() + ")");
 			writer.println("# Date: " + new Date());
-			for(String line : history) 
-				writer.println(line);
+			// line format is: ~id |cmd|data
+			// we strip the ~id because it's irrilevant, so the log can be reprocessed by the BattlePanel
+			// with no modification.
+			for(String line : history) {
+				String stripped = line.substring(2 + bp.getBattleID().length());
+				writer.println(stripped);
+			}
 			feedbackMsg = "Battle saved in "+outFile+".";
 		} catch(FileNotFoundException e) {
 			printDebug("[FileBattleLogger] File not found: "+outFile);

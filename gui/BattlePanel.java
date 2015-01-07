@@ -382,7 +382,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			//volumeBar.setBounds(inputF.getBounds().x + inputF.getBounds().width - 30, inputF.getBounds().y + inputF.getBounds().height - 100, 30, 100);
 			//volumeBar.setVisible(true);
 			//add(volumeBar);
-			if(looper != null) 
+			if(looper != null)
 				new Thread(looper).start();
 		}
 	}
@@ -2368,13 +2368,30 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	 * from the command line.
 	 */
 	public static void main(String[] args) throws Exception {
-		JFrame frame = new JFrame();
+		final JFrame frame = new JFrame();
 		final Player p1 = new Player("me");
 		final Player p2 = new Player("opponent");
+		final BattlePanel bp = new BattlePanel(p1,p2);
+		// TODO: replays!
+		if(args.length > 0 && args[0].equals("--replay")) {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					bp.initialize();
+					frame.add(bp);
+					SwingConsole.run(frame,"Pokepon Replay");
+				}
+			});
+			try (BufferedReader bf = new BufferedReader(new InputStreamReader(System.in))) {
+				String line = null;
+				while((line = bf.readLine()) != null) {
+					bp.interpret(line);
+				}
+			}
+			return;
+		}
 		Team team1 = Team.randomTeam(6);
 		p1.setTeam(team1);
 		p2.setTeam(Team.randomTeam(6));
-		final BattlePanel bp = new BattlePanel(p1,p2);
 		for(Pony p : team1) {
 			bp.teamP.addPony(p);
 		}

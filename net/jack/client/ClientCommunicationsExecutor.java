@@ -92,8 +92,7 @@ class ClientCommunicationsExecutor extends ClientConnectionExecutor {
 		} else if(cmd.equals("disconnect")) {
 			return 2;
 		} else if(cmd.equals("ok")) {
-			printMsg("Retreiving nick from server...");
-			connection.sendMsg(CMN_PREFIX+"mynick"); //query for nick
+			printMsg("Initial handshake completed.");
 			return 2;
 		} else if(cmd.equals("drop")) {
 			if(token.length > 1) consoleMsg(ConcatenateArrays.merge(token,1));

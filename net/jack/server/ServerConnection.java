@@ -67,7 +67,11 @@ class ServerConnection extends Connection {
 	
 	@Override
 	public void run() {
-		/* Shyly try to retreive the client's OS (and validate the connection if policy is not permissive) */
+		/// CONNECTION HANDSHAKE ///
+		// Step 1: Try to retreive client's OS:
+		//   S: !youros -> C
+		//   C: !myos <os> -> S
+		// If client doesn't respond with !myos and connPolicy is paranoid, reject it.
 		if(verbosity >= 2) printDebug(name+": Retreiving client OS information...");
 		try {
 			socket.setSoTimeout(SOCKET_TIMEOUT);
@@ -115,6 +119,7 @@ class ServerConnection extends Connection {
 			return;
 		} finally {
 			try {
+				// Step 2: If we arrived here it means we accept client connection: conclude handshake.
 				if(socket != null)
 					socket.setSoTimeout(0);
 				sendMsg(CMN_PREFIX+"ok");
@@ -125,34 +130,49 @@ class ServerConnection extends Connection {
 				return;
 			}	
 		}
+		/// HANDSHAKE ENDS HERE ///
 
-		/* After verifying this client is legit, send users list to client */
+		// After verifying this client is legit, set its nick 
+		sendMsg(CMN_PREFIX + "setnick " + name);
+
 		if(server.chat != null) 
 			server.chat.addUser(new ChatClient(this, new ChatUser(name)));
+
+		// ... and send it data about currently connected users.
 		if(verbosity >= 2) printDebug(name+": sending users data to client...");
+
 		Iterable<Connection> clients = server.getClients();
 		Iterator<Connection> it = clients.iterator();
+		StringBuilder sb = new StringBuilder();
 		while(it.hasNext()) {
 			Connection conn = it.next();
-			if(server.chat != null && server.chat.getUser(conn.getName()) != null)
-				sendMsg(CMN_PREFIX+"useradd "+conn.getName()+ 
-					(server.chat != null ? " " + server.chat.getUser(conn.getName()).getRole().getSymbol() : ""));
-			else
-				sendMsg(CMN_PREFIX+"useradd "+conn.getName());
+			if(sb.length() < 1) {
+				sb.append(CMN_PREFIX);
+				sb.append("useradd ");
+			}
+			String role = "--";
+			if(server.chat != null && server.chat.getUser(conn.getName()) != null && server.chat.getUser(conn.getName()).getRole() != ChatUser.Role.USER)
+				role = Character.toString(server.chat.getUser(conn.getName()).getRole().getSymbol());
+
+			sb.append(conn.getName() + " " + role + " ");
 		}
-		/* Then notify other clients that we've just connected */
+		if(sb.length() > 0) {
+			sendMsg(sb.toString().trim());
+		}
+
+		// Then notify other clients that we've just connected 
 		if(verbosity >= 1) printDebug("[Connection] Constructed connection with "+socket+" (name: "+name+")");
 		if(verbosity >= 0) server.broadcast(socket,name+" connected to server.");
-		server.broadcast(socket,CMN_PREFIX+"useradd "+name);
+		server.broadcast(socket, CMN_PREFIX+"useradd "+name + " --");
 		
-		/* Send welcome message */
+		// Send welcome message 
 		if(server.welcomeMessage != null) {
 			String[] messages = server.welcomeMessage.split("\\\\n");
 			for(String msg : messages)
 				sendMsg(CMN_PREFIX+"motd "+msg);
 		}
 
-		/* Start receiving loop */
+		// Start receiving loop
 		try {
 			receiveMsg();
 			

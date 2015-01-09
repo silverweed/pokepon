@@ -36,16 +36,29 @@ class ChatClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token));
 
 		if(cmd.equals("useradd")) {
+			/* !useradd name role [name role ...] */
 			if(token.length < 2) return 1;
-			if(token.length < 3)
-				chatClient.getChat().userAdd(token[1].trim());
-			else
-				chatClient.getChat().userAdd(token[1].trim(),ChatUser.Role.forSymbol(token[2].charAt(0)));
+			int i = 1;
+			do {
+				String username = token[i++].trim();
+				if(i == token.length)
+					break;
+				String role = token[i++].trim();
+				// By convention, if server sent a "role" with length > 1, it's a placeholder for "no role" (i.e. user)
+				if(role.length() > 1)
+					chatClient.getChat().userAdd(username);
+				else
+					chatClient.getChat().userAdd(username, ChatUser.Role.forSymbol(role.charAt(0)));
+			} while (i < token.length);
+			
 			return 1;
+
 		} else if(cmd.equals("userrm")) {
+			/* !userrm username */
 			if(token.length < 2) return 1;
 			chatClient.getChat().userRemove(token[1].trim());
 			return 1;
+
 		} else if(cmd.equals("userrnm")) {
 			/* !userrnm old new [role] */
 			if(token.length < 3) return 1;
@@ -55,6 +68,7 @@ class ChatClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 			else
 				chatClient.getChat().userRename(token[1].trim(),token[2].trim());
 			return 1;
+
 		} else if(cmd.startsWith("popup")) {
 			/* !popup[-err|-warn] [Title] Actual message<br>with br tags instead<br>of newlines. */
 			if(token.length < 2) return 1;
@@ -85,6 +99,7 @@ class ChatClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 							title,
 							type);
 			return 1;
+
 		} else if(cmd.equals("drop")) {
 			if(token.length > 1)
 				chatClient.append(ConcatenateArrays.merge(token,1));

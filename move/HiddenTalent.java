@@ -45,7 +45,7 @@ public class HiddenTalent extends Move {
 		pony = p;
 
 		type = getTypeByIVs(pony);
-		if(Debug.on) printDebug("[HiddenTalent] Type is "+type);
+		if(Debug.pedantic) printDebug("[HiddenTalent] Type is "+type);
 	}
 
 	public Type getTypeByIVs(Pony pony) {

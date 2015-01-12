@@ -501,8 +501,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}*/
 	public Item getItem() { return item; }
 	public Ability getAbility() { return ability; }
-	public List<Type> getTypes() { 
-		List<Type> types = new ArrayList<Type>();
+	public Set<Type> getTypes() { 
+		Set<Type> types = EnumSet.noneOf(Type.class);
 		for(int i = 0; i < MAX_TYPES; ++i) {
 			if(type[i] != null) types.add(type[i]);
 		}
@@ -791,6 +791,10 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return new int[] { hpIV, atkIV, defIV, spatkIV, spdefIV, speedIV };
 	}
 
+	public String dumpIVs() {
+		return "{ hp: "+hpIV+", atk: "+atkIV+", def: "+defIV+", spa: "+spatkIV+", spd: "+spdefIV+", spe: "+speedIV+" }";
+	}
+
 	public int getTotalIVs() {
 		int ivs = 0;
 		for(String s : statNames())
@@ -800,6 +804,10 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public int[] getEVs() {
 		return new int[] { hpEV, atkEV, defEV, spatkEV, spdefEV, speedEV };
+	}
+
+	public String dumpEVs() {
+		return "{ hp: "+hpEV+", atk: "+atkEV+", def: "+defEV+", spa: "+spatkEV+", spd: "+spdefEV+", spe: "+speedEV+" }";
 	}
 
 	public int getEV(final String stat) {
@@ -1363,9 +1371,9 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	/** Like learnMove(Move,boolean) but with move name. */
-	public boolean learnMove(String moveName,boolean... verbose) {
+	public boolean learnMove(String moveName, boolean verbose) {
 		try {
-			return learnMove(MoveCreator.create(moveName,this),verbose);
+			return learnMove(MoveCreator.create(moveName,this), verbose);
 		} catch(InvocationTargetException e) {
 			printDebug("InvocationTargetException in learnMove("+moveName+")");
 			printDebug("Caused by: "+e.getCause());
@@ -1377,41 +1385,40 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			return false;
 		}
 	}
+	public boolean learnMove(String moveName) {
+		return learnMove(moveName, false);
+	}
 
 	/** Method used to teach new moves to the pony 
 	 * @return true: learned / false: not learned new move.
 	 */
-	public boolean learnMove(Move _move,boolean... verbose) throws IOException {
+	public boolean learnMove(Move _move, boolean verbose) {
 	
-		boolean vb = true;
 		boolean learnable = learnableMoves.containsKey(_move.getName());
-		
-		for(boolean b : verbose) {
-			if(b == false) {
-				vb = false;
-				break;
-			}
-		}
 
 		if(learnable) {
-			/* Check level */
-			if(learnableMoves.get(_move.getName()) > level) {
-				if(vb) printMsg(name+" cannot learn "+_move+" yet.");
+			/* Skip Check level */
+			/*if(learnableMoves.get(_move.getName()) > level) {
+				if(verbose) printMsg(name+" cannot learn "+_move+" yet.");
 				if(Debug.on) printDebug("(required level "+learnableMoves.get(_move.getName())+")");
 				return false;
-			}
+			}*/
 			if(knownMoves() < MOVES_PER_PONY) {
 				_move.setPony(this);
 				move[knownMoves()] = _move;
-				if(vb) printMsg(name + " learned " + _move.getName() + "!");
+				if(verbose) printMsg(name + " learned " + _move.getName() + "!");
 				return true;
 			} else {
 				return false;
 			}
 		} else {
-			if(vb) printMsg(name+" cannot learn "+_move+"!");
+			if(verbose) printMsg(name+" cannot learn "+_move+"!");
 			return false;
 		}
+	}
+	
+	public boolean learnMove(Move move) {
+		return learnMove(move, false);
 	}
 	
 	public void printInfo() {

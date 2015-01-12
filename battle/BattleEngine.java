@@ -874,7 +874,7 @@ public class BattleEngine {
 		if(weather != null && weather.get() != null) {
 			switch(weather.get()) {
 				case DARK:
-					if(attacker.getTypes().indexOf(Type.NIGHT) == -1 && attacker.getTypes().indexOf(Type.SHADOW) == -1) {
+					if(!attacker.getTypes().contains(Type.NIGHT) && !attacker.getTypes().contains(Type.SHADOW)) {
 						tmpAccMod -= 1;
 					}
 					break;

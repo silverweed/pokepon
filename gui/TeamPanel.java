@@ -202,7 +202,10 @@ public class TeamPanel extends JPanel {
 			if(pony[num] == null) return;
 			String theMoves = "<ul type='disc'>";
 			for(Move m : pony[num].getMoves()) 
-				theMoves += "<li>" + m.getName() + " <small>("+m.getPP()+"/"+m.getMaxPP()+")</small></li>";
+				theMoves += "<li>" + m.getName() + (m.getName().equals("Hidden Talent")
+					? " " + m.getType()
+					: ""
+				) + " <small>("+m.getPP()+"/"+m.getMaxPP()+")</small></li>";
 			theMoves += "</ul>";
 			text = "<html><b>"+pony[num]+"</b><br>"+
 				pony[num].getTypingHTMLTokens()+"<br>"+

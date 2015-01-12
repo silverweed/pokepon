@@ -60,7 +60,7 @@ public abstract class Battle {
 	/** This is supposed to be overridden by children to generate
 	 * more balanced teams for the specific kind of battle.
 	 */
-	protected static Team randomTeam() {
+	protected Team randomTeam() {
 		return Team.randomTeam();
 	}
 

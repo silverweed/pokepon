@@ -26,7 +26,7 @@ public class FlitAbout extends Move {
 
 		animation.put("name","Whirl");
 		animation.put("sprite","user");
-		animation.put("shakes", 6);
+		animation.put("shakes", 4);
 		animation.put("delay", 10);
 
 		userEvasion = addEntry(1,1f);

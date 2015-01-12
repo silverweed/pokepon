@@ -186,7 +186,7 @@ public class TypeDealer implements TestingClass {
 	 * @param type_atk The type of the attacker
 	 * @param type_def The type of the defender.
 	 */
-	public static float getEffectiveness(Type type_atk,Type type_def) {
+	public static float getEffectiveness(Type type_atk, Type type_def) {
 		if(Arrays.asList(weaknesses.get(type_def)).contains(type_atk)) return 2f;
 		else if(Arrays.asList(resistances.get(type_def)).contains(type_atk)) return 0.5f;
 		else if(Arrays.asList(immunities.get(type_def)).contains(type_atk)) return 0f;
@@ -197,7 +197,7 @@ public class TypeDealer implements TestingClass {
 		return getEffectiveness(type_atk, Arrays.asList(type_def));
 	}
 
-	public static float getEffectiveness(Type type_atk,List<Type> type_def) {
+	public static float getEffectiveness(Type type_atk, Iterable<Type> type_def) {
 		float mod = 1;
 		for(Type t : type_def) {
 			if(t == null) continue;

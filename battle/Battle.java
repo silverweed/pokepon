@@ -57,6 +57,13 @@ public abstract class Battle {
 
 	/////////////// PRIVATE METHODS / FIELDS ////////////////
 
+	/** This is supposed to be overridden by children to generate
+	 * more balanced teams for the specific kind of battle.
+	 */
+	protected static Team randomTeam() {
+		return Team.randomTeam();
+	}
+
 	protected WeatherHolder weather = new WeatherHolder(Weather.CLEAR, 0);
 	protected ExecutorService executor = Executors.newFixedThreadPool(2);
 	protected Random rng = new Random();

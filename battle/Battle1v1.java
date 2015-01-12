@@ -36,15 +36,8 @@ public class Battle1v1 extends Battle {
 	public boolean initialize(boolean randomBattle) throws InterruptedException {
 		if(randomBattle) {
 			// generate random teams
-			p1.setTeam(Team.randomTeam());
-			p2.setTeam(Team.randomTeam());
-			// set random levels within certain limits
-			for(int i = 0; i < p1.getTeam().members(); ++i) {
-				int lv = 85 + rng.nextInt(16);
-				p1.getTeam().getPony(i).setLevel(lv);
-				p2.getTeam().getPony(i).setLevel(lv);
-			}
-
+			p1.setTeam(this.randomTeam());
+			p2.setTeam(this.randomTeam());
 		} else {
 			// concurrently retreive teams
 			if(Debug.on) printDebug("[BATTLE "+p1+","+p2+"]: Retrieving teams...");
@@ -98,6 +91,30 @@ public class Battle1v1 extends Battle {
 		if(num == 1) return p1.getTeam();
 		else if(num == 2) return p2.getTeam();
 		else throw new IllegalArgumentException("[Battle.getTeam()]: num is "+num);
+	}
+	
+	protected static Team randomTeam() {
+		/* We follow a PokemonShowdown-like algorithm:
+		 * level is based on BST. Min level is 70, max is 99.
+		 * 600+ BST is 70, 300 is 99, and intermediate between those values.
+		 * More specifically, every 10.35 BST adds a level from 70 to 99.
+		 */
+		// TODO-es:
+		// 1. Give items, abilities and moves with some logic, not totally random
+		// 2. Check the team hasn't too many ubers or wimps.
+		// Get a random initial team, with all levels at 100.
+		Team team = Team.randomTeam();
+		for(Pony p : team) {
+			// Special cases
+			if(p.getName().equals("Tirek")) {
+				p.setLevel(70);
+			} else {
+				int bst = Math.min(600, Math.max(300, p.bst()));
+				p.setLevel(70 + (int)Math.floor((600 - bst) / 10.35));
+			}
+		}
+		
+		return team;
 	}
 
 	private Player p1;

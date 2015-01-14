@@ -1,11 +1,7 @@
 Diamond token - zutheskunk
-
-equestria_background - cl0setbrony
-equestria_at_night - darcowalways
+equestria_background - http://cl0setbrony.deviantart.com/
+equestria_at_night - http://darcowalways.deviantart.com/
 animated sprites - Desktop Ponies
-
-the following sprites were made by http://botchan-mlp.deviantart.com/:
-* Fleetfoot
-* Maud Pie
+(a good deal of the sprites were made by http://botchan-mlp.deviantart.com/)
 
 moves tokens - Zarel et al.

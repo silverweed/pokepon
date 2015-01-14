@@ -4,4 +4,8 @@ equestria_background - cl0setbrony
 equestria_at_night - darcowalways
 animated sprites - Desktop Ponies
 
+the following sprites were made by http://botchan-mlp.deviantart.com/:
+* Fleetfoot
+* Maud Pie
+
 moves tokens - Zarel et al.

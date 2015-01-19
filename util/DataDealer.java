@@ -39,7 +39,14 @@ public class DataDealer {
 		for(Type t : Type.values())
 			knownTypeNames.add(t.toString());
 	}
-	
+
+	public static Iterable<String> getKnownClasses() { return knownClasses; }
+	public static Iterable<String> getKnownPonies() { return knownPonies; }
+	public static Iterable<String> getKnownMoves() { return knownMoves; }
+	public static Iterable<String> getKnownAbilities() { return knownAbilities; }
+	public static Iterable<String> getKnownItems() { return knownItems; }
+	public static Iterable<String> getKnownTypeNames() { return knownTypeNames; }
+
 	public String getData(String query) {
 		
 		String name = Saner.sane(query,knownClasses);

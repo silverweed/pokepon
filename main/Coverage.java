@@ -43,13 +43,13 @@ public class Coverage implements TestingClass {
 		String name = ConcatenateArrays.merge(args,tmp);
 		consoleHeader("   Calculating coverage of "+name+"   ");
 		Coverage coverage = new Coverage();
-	
+		
 		try {
-			Pony pony = PonyCreator.create(name);
+			Pony pony = PonyCreator.create(Saner.sane(name, DataDealer.getKnownPonies()));
 			Set<Type> viableTypes = new TreeSet<>();
 			for(String s : pony.getLearnableMoves().keySet()) {
 				Move move = MoveCreator.create(s);
-				if(move.getMoveType() != Move.MoveType.STATUS && move.getBaseDamage() > 0)
+				if(move.getMoveType() != Move.MoveType.STATUS && move.getBaseDamage() > 0 && !move.getName().equals("Hidden Talent"))
 					viableTypes.add(move.getType());
 			}
 			
@@ -57,7 +57,7 @@ public class Coverage implements TestingClass {
 			coverage.loadExistingTypings();
 
 			/* Display viable types */
-			consoleMsg("VIABLE DAMAGING MOVES TYPES: ");
+			consoleMsg("VIABLE DAMAGING MOVES TYPES (excluding Hidden Talent): ");
 			int j = 1;
 			for(Type t : viableTypes)
 				consoleMsg(j++ + ") " + t);

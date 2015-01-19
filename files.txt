@@ -353,6 +353,7 @@ pony/Spike.java
 pony/Spitfire.java
 pony/Starswirl.java
 pony/SunsetShimmer.java
+pony/Surprise.java
 pony/SweetieBelle.java
 pony/Tirek.java
 pony/Tracy.java

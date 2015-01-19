@@ -33,6 +33,7 @@ public class Tracy extends Pony {
 		canon = false;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("One-Two Hit",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Raging Spree",1);
 		learnableMoves.put("Stalking",1);

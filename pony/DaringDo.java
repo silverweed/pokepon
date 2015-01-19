@@ -30,6 +30,7 @@ public class DaringDo extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Hind Kick",35);
+		learnableMoves.put("One-Two Hit",1);
 		learnableMoves.put("Hopeful Strike",1);
 		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Hidden Talent",1);

@@ -35,6 +35,7 @@ public class Xenith extends Pony {
 		baseSpeed = 123;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("One-Two Hit",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Balefire",1);
 		learnableMoves.put("Stalking",1);

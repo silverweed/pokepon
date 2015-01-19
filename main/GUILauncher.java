@@ -114,16 +114,21 @@ class GUILauncher extends JFrame {
 		c.gridx = 0;
 		c.gridy = 5;
 		add(footerLabel, c);
+		JButton creditsBtn = new JButton("Credits");
+		creditsBtn.addActionListener(creditsListener);
+		JPanel pnl = new JPanel(new FlowLayout());
+		pnl.add(creditsBtn);
 		try {
 			Image logo = ImageIO.read(getClass().getResource(
 					Meta.complete2(Meta.RESOURCE_DIR)+"/misc/inle_studios_logo.png"))
 					.getScaledInstance(60, -1, Image.SCALE_SMOOTH);
-			c.gridx = 1;
-			c.anchor = GridBagConstraints.LINE_END;
-			add(new JLabel(new ImageIcon(logo)), c);
+			pnl.add(new JLabel(new ImageIcon(logo)));
 		} catch(IOException e) {
 			printDebug("[GUILauncher] Error loading image: "+e);
 		}
+		c.gridx = 1;
+		c.anchor = GridBagConstraints.LINE_END;
+		add(pnl, c);
 	}
 
 	public static void main(String[] args) {
@@ -464,6 +469,21 @@ class GUILauncher extends JFrame {
 						(new Typechart()).display(false);
 					}
 				}.start();
+			}
+		},
+		creditsListener = new ActionListener() {
+			String credits = "Here are _SOME_ due credits; if you think you should be credited for some\n" +
+				" art and don't see your name here, please contact me at silverweed1991@gmail.com.\n\n" +
+				"* Pony sprites (the animated ones): Desktop Ponies (see here: http://desktop-pony-team.deviantart.com/);\n" +
+				"  many of them were made by http://botchan-mlp.deviantart.com\n" +
+				"* Non animated sprites: stupidly enough, I didn't keep track of them. If you recognize one,\n" +
+				"  please tell me so I can add credits.\n" +
+				"* Moves fx: mostly taken from PokemonShowdown (https://github.com/zarel/Pokemon-Showdown-Client)\n" +
+				"* Music: from Pokemon X/Y\n" +
+				"* Backgrounds: darcowalyays and cl0setbrony (.deviantart.com)\n" +
+				"* Server Hosting: RedEnchilada (lyrawearspants.com), Hamcha (pokepon.center, site & battle server)";
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(GUILauncher.this, credits);
 			}
 		};
 		/*dexListener = new ActionListener() {

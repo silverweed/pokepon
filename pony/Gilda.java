@@ -30,6 +30,7 @@ public class Gilda extends Pony {
 		baseSpeed = 99;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Talon Strike",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Crazy Stunt",1);

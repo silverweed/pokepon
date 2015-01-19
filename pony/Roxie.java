@@ -32,6 +32,7 @@ public class Roxie extends Pony {
 		baseSpeed = 108;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("One-Two Hit",1);
 		learnableMoves.put("Heavy Massage",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Talk Out",1);

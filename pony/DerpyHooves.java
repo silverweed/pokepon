@@ -30,6 +30,7 @@ public class DerpyHooves extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Hind Kick",25);
+		learnableMoves.put("One-Two Hit",1);
 		learnableMoves.put("Flit About",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Get Hype",1);

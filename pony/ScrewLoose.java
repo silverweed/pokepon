@@ -28,6 +28,7 @@ public class ScrewLoose extends Pony {
 		baseSpeed = 60;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("One-Two Hit",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Get Hype",1);
 		learnableMoves.put("Mirror Pond",1);

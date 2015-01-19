@@ -30,6 +30,7 @@ public class Soarin extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",1);
+		learnableMoves.put("One-Two Hit",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Trailblazer",1);
 		learnableMoves.put("Mirror Pond",1);

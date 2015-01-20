@@ -182,6 +182,7 @@ move/Mutate.java
 move/MysteriousBrew.java
 move/Nap.java
 move/NightWind.java
+move/OneTwoHit.java
 move/Overture.java
 move/PartyCannon.java
 move/PoisonJoke.java
@@ -203,6 +204,7 @@ move/ShadowMist.java
 move/SharpNails.java
 move/ShyAway.java
 move/SkyDive.java
+move/SlimyTrap.java
 move/SneakAttack.java
 move/Snuggle.java
 move/SonicBarrier.java
@@ -219,6 +221,7 @@ move/Struggle.java
 move/SurpriseHit.java
 move/Tackle.java
 move/TalkOut.java
+move/TalonStrike.java
 move/Taunt.java
 move/Telekinesis.java
 move/TeleportBlast.java
@@ -232,6 +235,7 @@ move/WreakHavoc.java
 move/hazard/Hazard.java
 move/hazard/PoisonJokeHazard.java
 move/hazard/SharpNailsHazard.java
+move/hazard/SlimyTrapHazard.java
 move/hazard/StealthDiamondsHazard.java
 move/hazard/WildWeedHazard.java
 net/jack/Connection.java
@@ -314,6 +318,7 @@ pony/FlufflePuff.java
 pony/Fluttershy.java
 pony/Gilda.java
 pony/GrannySmith.java
+pony/GustaveLeGrand.java
 pony/Homage.java
 pony/IronWill.java
 pony/KingSombra.java

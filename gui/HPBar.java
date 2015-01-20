@@ -639,26 +639,32 @@ class HPBar extends JPanel {
 	protected void clearStatuses() {
 		if(Debug.on) printDebug("[HPBar] Called clearStatuses(); statuses.size = "+statuses.size());
 		if(Debug.pedantic) printDebug("run(): statuses.size = "+statuses.size());
-		for(StatusLabel sl : statuses) {
-			if(Debug.pedantic) printDebug("removing:"+sl.getText());
-			synchronized(labelPanel) {
-				labelPanel.remove(sl);
+		synchronized(labelPanel) {
+			// remove all statuses
+			for(StatusLabel sl : statuses) {
+				if(Debug.pedantic) printDebug("removing:"+sl.getText());
+					labelPanel.remove(sl);
+				allStatuses.remove(sl);
 			}
-			allStatuses.remove(sl);
-		}
-		statuses.clear();
-		for(PseudoStatusLabel psl : pseudoStatuses) {
-			if(Debug.pedantic) printDebug("removing:"+psl);
-			synchronized(labelPanel) {
+			statuses.clear();
+			// remove pseudostatuses only from panel
+			for(PseudoStatusLabel psl : pseudoStatuses) {
+				if(Debug.pedantic) printDebug("removing:"+psl);
 				labelPanel.remove(psl);
 			}
+			// then re-add them to cover holes
+			c.gridx = 0;
+			for(PseudoStatusLabel psl : pseudoStatuses) {
+				if(Debug.pedantic) printDebug("adding: "+psl);
+				labelPanel.add(psl, c);
+				c.gridx += psl.gridwidth;
+				if(c.gridx > HPBAR_GRIDWIDTH) {
+					c.gridx = 0;
+					++c.gridy;
+				}
+			}
+			fixGridBagConstraints();
 		}
-		c.gridx = 0;
-		for(PseudoStatusLabel psl : pseudoStatuses) {
-			if(Debug.pedantic) printDebug("adding: "+psl);
-			addPseudoStatus(psl.getName(),psl.isGood(),psl.gridwidth);
-		}
-		fixGridBagConstraints();
 		pony.healStatus();
 		if(Debug.pedantic) printDebug("Ended clearStatuses()");
 	}

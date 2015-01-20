@@ -2371,16 +2371,20 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		final Player p1 = new Player("me");
 		final Player p2 = new Player("opponent");
 		final BattlePanel bp = new BattlePanel(p1,p2);
-		// TODO: replays!
+		// replays!
 		if(args.length > 0 && args[0].equals("--replay")) {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				public void run() {
 					bp.initialize();
 					frame.add(bp);
-					SwingConsole.run(frame,"Pokepon Replay");
+					SwingConsole.run(frame, "Pokepon Replay", false);
 				}
 			});
-			try (BufferedReader bf = new BufferedReader(new InputStreamReader(System.in))) {
+			InputStream input = System.in;
+			if(args.length > 1) {
+				input = new FileInputStream(new File(args[1]));
+			}
+			try (BufferedReader bf = new BufferedReader(new InputStreamReader(input))) {
 				String line = null;
 				while((line = bf.readLine()) != null) {
 					bp.interpret(line);
@@ -2388,6 +2392,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			}
 			return;
 		}
+
 		Team team1 = Team.randomTeam(6);
 		p1.setTeam(team1);
 		p2.setTeam(Team.randomTeam(6));

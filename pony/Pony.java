@@ -244,7 +244,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 				if(toBriefStat(s).equals("Atk")) return atk;
 				if(toBriefStat(s).equals("Def")) return def;
 				if(toBriefStat(s).equals("SpA")) return spatk;
-				if(toBriefStat(s).equals("Spd")) return spdef;
+				if(toBriefStat(s).equals("SpD")) return spdef;
 				if(toBriefStat(s).equals("Spe")) return speed;
 				if(toBriefStat(s).equals("Eva")) return evasion;
 				if(toBriefStat(s).equals("Acc")) return accuracy;
@@ -653,7 +653,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	public Volatiles getVolatiles() {
-		return new Volatiles(volatiles);
+		return volatiles;
 	}
 
 	// Temporary statuses

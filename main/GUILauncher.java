@@ -9,6 +9,7 @@ import pokepon.net.jack.server.*;
 import pokepon.player.*;
 import static pokepon.util.MessageManager.*;
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.imageio.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -114,15 +115,25 @@ class GUILauncher extends JFrame {
 		c.gridx = 0;
 		c.gridy = 5;
 		add(footerLabel, c);
-		JButton creditsBtn = new JButton("Credits");
-		creditsBtn.addActionListener(creditsListener);
-		JPanel pnl = new JPanel(new FlowLayout());
-		pnl.add(creditsBtn);
+		JButton btn2 = new JButton("Credits");
+		btn2.addActionListener(creditsListener);
+		JPanel pnl = new JPanel(new GridBagLayout());
+		GridBagConstraints cc = new GridBagConstraints();
+		cc.ipady = 2;
+		cc.ipadx = 2;
+		pnl.add(btn2, cc);
+		btn2 = new JButton("Replay");
+		btn2.addActionListener(replayListener);
+		cc.gridy = 1;
+		pnl.add(btn2, cc);
 		try {
 			Image logo = ImageIO.read(getClass().getResource(
 					Meta.complete2(Meta.RESOURCE_DIR)+"/misc/inle_studios_logo.png"))
 					.getScaledInstance(60, -1, Image.SCALE_SMOOTH);
-			pnl.add(new JLabel(new ImageIcon(logo)));
+			cc.gridx = 1;
+			cc.gridy = 0;
+			cc.gridheight = 2;
+			pnl.add(new JLabel(new ImageIcon(logo)), cc);
 		} catch(IOException e) {
 			printDebug("[GUILauncher] Error loading image: "+e);
 		}
@@ -484,6 +495,73 @@ class GUILauncher extends JFrame {
 				"* Server Hosting: RedEnchilada (lyrawearspants.com), Hamcha (pokepon.center, site & battle server)";
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(GUILauncher.this, credits);
+			}
+		},
+		replayListener = new ActionListener() {
+			String replayFile;
+
+			public void actionPerformed(ActionEvent e) {
+				final JFileChooser fileChooser = new JFileChooser(Meta.getBattleRecordsURL().getPath());
+				final JPanel panel = new JPanel(new FlowLayout());
+				final JTextField filename = new JTextField(50);
+				filename.getDocument().addDocumentListener(new DocumentListener() {
+					public void changedUpdate(DocumentEvent e) {
+						replayFile = filename.getText();
+					}
+					public void insertUpdate(DocumentEvent e) {
+						replayFile = filename.getText();
+					}
+					public void removeUpdate(DocumentEvent e) {
+						replayFile = filename.getText();
+					}
+				});
+				final JButton btn = new JButton("Browse");
+				btn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent ee) {
+						switch(fileChooser.showOpenDialog(panel)) {
+							case JFileChooser.CANCEL_OPTION:
+								return;
+							case JFileChooser.APPROVE_OPTION:
+								replayFile = fileChooser.getSelectedFile().getAbsolutePath();
+								filename.setText(replayFile);
+								break;
+							case JFileChooser.ERROR_OPTION:
+								printDebug("An error occurred while opening file "+replayFile+".");
+								return;
+						}
+					}
+				});
+				panel.add(new JLabel("<html>[Warning: battle replays are experimental]<br>Choose a battle export file to replay.</html>"));
+				panel.add(filename);
+				panel.add(btn);
+				int sel = JOptionPane.showOptionDialog(
+					GUILauncher.this,
+					panel,
+					"Select battle export file",
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE,
+					null,
+					null,
+					null
+				);
+				switch(sel) {
+					case JOptionPane.CLOSED_OPTION:
+					case JOptionPane.CANCEL_OPTION:
+						return;
+				}
+				if(replayFile == null || !new File(replayFile).isFile()) {
+					JOptionPane.showMessageDialog(null, "File does not exist.", "File does not exist.", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				new Thread() {
+					public void run() {
+						try {
+							BattlePanel.main(new String[] { "--replay", replayFile });
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}.start();
 			}
 		};
 		/*dexListener = new ActionListener() {

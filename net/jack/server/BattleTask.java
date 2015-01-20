@@ -421,7 +421,7 @@ public class BattleTask implements Runnable {
 					Pony.Volatiles volatiles = null;
 					if(Debug.on) printDebug("[BT.freeSwitchRoutine] BE.currentmove = "+engine.getCurrentMove());
 					if(engine.getCurrentMove() != null && engine.getCurrentMove().copyVolatiles() && curAP != null) {
-						volatiles = curAP.getVolatiles();
+						volatiles = curAP.new Volatiles(curAP.getVolatiles());
 					}
 					
 					// remove substitute

@@ -27,7 +27,7 @@ public class PoisonJoke extends Move {
 		briefDesc = "Enemies are poisoned on switch-in.<br>Flying races are immune.<br>Up to 2 layers.";
 
 		animation.put("name","Ballistic");
-		animation.put("sprite","poisonnail.png");
+		animation.put("sprite","poisonjoke_small.png");
 		animation.put("bounceBack",false);
 
 		hazard = new PoisonJokeHazard();				

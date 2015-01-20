@@ -271,8 +271,17 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			public void reset() {
 				atk = def = spatk = spdef = speed = evasion = accuracy = 0;
 			}
+			@Override
+			public String toString() {
+				return "[atk:"+atk+",def:"+def+",spa:"+spatk+",spd:"+spdef+",spe:"+speed+",eva:"+evasion+",acc:"+accuracy+"]";
+			}
 
 		} // end class Modifiers
+		
+		public Volatiles() {}
+		public Volatiles(Volatiles v) {
+			copy(v);
+		}
 
 		public void reset() {
 			modifiers.reset();
@@ -287,6 +296,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 		/** Copies all volatiles from another Volatiles instance */
 		public void copy(Volatiles vol) {
+			if(Debug.on) printDebug(name+": copying volatiles. Other vol: "+vol);
 			modifiers.copy(vol.modifiers);
 			substitute = vol.substitute;
 			deathScheduled = vol.deathScheduled;
@@ -296,6 +306,20 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			abilityDisabled = vol.abilityDisabled;
 			cannotUseItems = vol.cannotUseItems;
 			effectiveness = new EnumMap<Type,Float>(vol.effectiveness);
+		}
+		@Override
+		public String toString() {
+			return name + ".volatiles: {"+
+				"\n\tmodifiers: " + modifiers +
+				"\n\tdeathScheduled: " + deathScheduled +
+				"\n\ttaunted: " + taunted +
+				"\n\ttrapped: " + trapped +
+				"\n\tlockedOnMove: " + lockedOnMove +
+				"\n\tsubstitute: " + substitute +
+				"\n\tabilityDisabled: " + abilityDisabled +
+				"\n\tcannotUseItems: " + cannotUseItems +
+				"\n\teffectiveness: "+ effectiveness +
+				"\n}";
 		}
 
 		public Modifiers modifiers = new Modifiers();
@@ -629,7 +653,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	public Volatiles getVolatiles() {
-		return volatiles;
+		return new Volatiles(volatiles);
 	}
 
 	// Temporary statuses
@@ -839,6 +863,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		if(sb.length() > 1) 
 			sb.delete(sb.length()-1,sb.length());
 		sb.append("]");
+		if(Debug.on) printDebug(name+".getBoosts() = " + sb);
 		return sb.toString();
 	}
 
@@ -1354,6 +1379,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 	
 	// Stats modifiers
+	/** Increases pony's stat by value */
 	public int boost(String stat, int value) {
 		return volatiles.modifiers.boost(stat, value);
 	}

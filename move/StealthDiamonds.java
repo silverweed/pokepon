@@ -1,4 +1,4 @@
-	//: move/StealthDiamonds.java
+//: move/StealthDiamonds.java
 
 package pokepon.move;
 

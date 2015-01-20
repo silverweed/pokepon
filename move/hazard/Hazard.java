@@ -40,7 +40,6 @@ public abstract class Hazard extends TriggeredEffectDealer {
 			return null;
 
 		return getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+"/moves/fx/"+token);
-		//new URL("file://"+getTokensURL().getPath()+DIRSEP+"moves"+DIRSEP+"fx"+DIRSEP+token);
 	}
 
 	/** This must be called manually each time a hazard is set. */

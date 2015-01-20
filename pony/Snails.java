@@ -33,6 +33,7 @@ public class Snails extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Nap",1);
+		learnableMoves.put("Slimy Trap",1);
 		learnableMoves.put("Mustache",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);

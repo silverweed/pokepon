@@ -49,30 +49,14 @@ public class StealthDiamondsHazard extends Hazard {
 		float perc = 12.5f;
 		perc *= TypeDealer.getEffectiveness(Type.GENEROSITY,pony.getTypes());	
 		int dmg = pony.damagePerc(perc);
-		printMsg(pony.getNickname()+" was damaged by magic diamonds!");
-		printDamageMsg(pony,dmg);
+		if(be.echoBattleOn()) {
+			printMsg(pony.getNickname()+" was damaged by magic diamonds!");
+			printDamageMsg(pony,dmg);
+		}
 		if(be.getBattleTask() != null) {
 			be.getBattleTask().sendB("|battle|"+pony.getNickname()+" is damaged by magic diamonds!");
-			// discover if our side is attacking ('ally' for the BE) or defending ('opp')
-			if(be.getTeam1() == be.getTeamAttacker()) {
-				if(side == 1) { 
-					be.getBattleTask().sendB(be.getAlly(),"|damage|ally|"+dmg);
-					be.getBattleTask().sendB(be.getOpp(),"|damage|opp|"+dmg);
-				} else {
-					be.getBattleTask().sendB(be.getAlly(),"|damage|opp|"+dmg);
-					be.getBattleTask().sendB(be.getOpp(),"|damage|ally|"+dmg);
-				}
-			} else {
-				if(side == 1) { 
-					be.getBattleTask().sendB(be.getAlly(),"|damage|opp|"+dmg);
-					be.getBattleTask().sendB(be.getOpp(),"|damage|ally|"+dmg);
-				} else {
-					be.getBattleTask().sendB(be.getAlly(),"|damage|ally|"+dmg);
-					be.getBattleTask().sendB(be.getOpp(),"|damage|opp|"+dmg);
-				}
-			}
+			be.getBattleTask().sendB(be.getBattleTask().getConnection(side),"|damage|ally|" + dmg);
+			be.getBattleTask().sendB(be.getBattleTask().getConnection(side == 1 ? 2 : 1),"|damage|opp|" + dmg);
 		}
-
-		return;
 	}
 }

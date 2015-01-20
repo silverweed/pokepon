@@ -127,6 +127,9 @@ public class BattleEngine {
 		echoBattle = echo;
 		if(Debug.on) printDebug("[BE] Set echoBattle = "+echoBattle);
 	}
+	public boolean echoBattleOn() {
+		return echoBattle;
+	}
 	public boolean hasSentFaintedMsg(int pl) {
 		return sentFaintedMsg[pl - 1];
 	}
@@ -782,7 +785,7 @@ public class BattleEngine {
 	}
 
 	public void clearVolatiles(int side) {
-		if(getTeam(side).getActivePony().hasSubstitute()) {
+		if(getTeam(side).getActivePony() != null && getTeam(side).getActivePony().hasSubstitute()) {
 			if(battleTask != null) {
 				battleTask.sendB(getConnection(side),"|rmsubstitute|ally|noanim");
 				battleTask.sendB(getConnection(side == 1 ? 2 : 1),"|rmsubstitute|opp|noanim");
@@ -1737,5 +1740,5 @@ public class BattleEngine {
 	private int[] lockingTurns = { 0, 0 };
 	private boolean hadSubstitute;
 	private boolean breakCycle;
-	boolean echoBattle = true;
+	boolean echoBattle = false;
 }

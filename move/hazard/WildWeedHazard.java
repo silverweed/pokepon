@@ -20,7 +20,7 @@ public class WildWeedHazard extends Hazard {
 		super("Wild Weed");
 
 		maxLayers = 1;
-		token = "energyball.png";
+		token = "energyball_small.png";
 		isVolatile = true;
 	}
 
@@ -32,17 +32,6 @@ public class WildWeedHazard extends Hazard {
 		};
 	}
 	
-	@Override
-	public void onSwitchOut(final BattleEngine be) {
-		if(be.getCurrentMove() != null && be.getCurrentMove().copyVolatiles())
-			return;
-		be.getHazards(side).remove(this);
-		if(be.getBattleTask() != null) {
-			be.getBattleTask().sendB(be.getAlly(),"|rmhazard|ally|"+name);	
-			be.getBattleTask().sendB(be.getOpp(),"|rmhazard|opp|"+name);	
-		}
-	}
-
 	@Override
 	public void onTurnEnd(final BattleEngine be) {
 		// only trigger if ponies on both side are alive
@@ -58,14 +47,14 @@ public class WildWeedHazard extends Hazard {
 		Connection ally = be.getConnection(side), opp = be.getConnection(side == 1 ? 2 : 1);
 		be.getTeam(side == 1 ? 2 : 1).getActivePony().increaseHp(dmg);
 		if(be.getBattleTask() != null) {
-			be.getBattleTask().sendB(ally, "|anim|opp|name=Fade|sprite=energyball.png|transparent=(b)true"+
-				"|width=(i)100|fadeOut=(b)true|initialPoint=opp|finalPoint=ally|nodelay=true");
-			be.getBattleTask().sendB(opp, "|anim|opp|name=Fade|sprite=energyball.png|transparent=(b)true"+
-				"|width=(i)100|fadeOut=(b)true|initialPoint=ally|finalPoint=opp|nodelay=true");
+			be.getBattleTask().sendB(ally, "|anim|opp|name=Fade|sprite=energyball_small.png|transparent=(b)true"+
+				"|fadeOut=(b)true|initialPoint=opp|finalPoint=ally|nodelay=true");
+			be.getBattleTask().sendB(opp, "|anim|opp|name=Fade|sprite=energyball_small.png|transparent=(b)true"+
+				"|fadeOut=(b)true|initialPoint=ally|finalPoint=opp|nodelay=true");
 			be.getBattleTask().sendB(ally, "|damage|ally|"+dmg+"|"+
-				be.getTeam(side).getActivePony().getNickname()+"'s healt is sapped by "+name+"!");
+				be.getTeam(side).getActivePony().getNickname()+"'s health is sapped by "+name+"!");
 			be.getBattleTask().sendB(opp, "|damage|opp|"+dmg+"|"+
-				be.getTeam(side).getActivePony().getNickname()+"'s healt is sapped by "+name+"!");
+				be.getTeam(side).getActivePony().getNickname()+"'s health is sapped by "+name+"!");
 
 			be.getBattleTask().sendB(ally, "|damage|opp|-"+dmg);
 			be.getBattleTask().sendB(opp, "|damage|ally|-"+dmg);

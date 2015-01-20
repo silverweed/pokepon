@@ -19,7 +19,7 @@ public class PoisonJokeHazard extends Hazard {
 		super("Poison Joke");
 
 		maxLayers = 2;
-		token = "poisonjoke.png";
+		token = "poisonjoke_small.png";
 	}
 
 	@Override

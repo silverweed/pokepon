@@ -26,7 +26,7 @@ public class WildWeed extends Move {
 		briefDesc = "1/8 of target's HP is restored<br>to user every turn.";
 
 		animation.put("name","Ballistic");
-		animation.put("sprite","energyball.png");
+		animation.put("sprite","energyball_small.png");
 		animation.put("bounceBack",false);
 
 		hazard = new WildWeedHazard();				

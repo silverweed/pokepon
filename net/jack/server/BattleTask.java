@@ -419,7 +419,7 @@ public class BattleTask implements Runnable {
 				) {
 
 					Pony.Volatiles volatiles = null;
-					printDebug("[BT.switchRoutine] BE.currentmove = "+engine.getCurrentMove());
+					if(Debug.on) printDebug("[BT.freeSwitchRoutine] BE.currentmove = "+engine.getCurrentMove());
 					if(engine.getCurrentMove() != null && engine.getCurrentMove().copyVolatiles() && curAP != null) {
 						volatiles = curAP.getVolatiles();
 					}
@@ -1049,12 +1049,7 @@ public class BattleTask implements Runnable {
 				if(Debug.pedantic) printDebug("Triggering onSwitchOut for p"+pl+"...");
 				battle.getPlayer(pl).getActivePony().trigger("onSwitchOut",engine);
 			}				
-		}
-		// remove substitute
-		if(curAP != null && curAP.hasSubstitute()) {
-			sendB(plC,"|rmsubstitute|ally|noanim");
-			sendB(othC,"|rmsubstitute|opp|noanim");
-			curAP.setSubstitute(false);
+			engine.clearVolatiles(pl);
 		}
 		if(battle.getPlayer(pl).switchPony(num,engine)) {
 			if(!battleStarted) {

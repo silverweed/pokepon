@@ -94,7 +94,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 	/** This overrides the one in ChatPanel */
 	private static final int MAX_HIST_SIZE = 40;
-	static final int HAZARD_TOKEN_SIZE = 30;
+	private static final int HAZARD_TOKEN_SIZE = 30;
 	static final int TEAM_SPRITE_SIZE = 35;
 	// field layers
 	private static final Integer BG_LAYER = 0;
@@ -2230,8 +2230,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					printDebug("[BP.interpret(addhazard)]: Error - couldn't load token "+hazard.getToken());
 					return;
 				}
-				Image newimg = img.getScaledInstance(HAZARD_TOKEN_SIZE,-1,Image.SCALE_SMOOTH);
-				JLabel hzToken = new JLabel(new ImageIcon(newimg));
+				JLabel hzToken = new JLabel(new ImageIcon(img));
 				// properly set bounds of token: the position depends on 2 factors:
 				// 1) on ally side or opponent side?
 				// 2) how many layers are allowed?

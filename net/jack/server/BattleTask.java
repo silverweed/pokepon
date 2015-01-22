@@ -30,8 +30,9 @@ public class BattleTask implements Runnable {
 	 * seconds, terminate this BattleTask.
 	 */
 	public static final int POSTBATTLE_SUICIDE_DELAY = 60;
+	public static final int MAX_GUESTS = 50;
 
-	public BattleTask(final PokeponServer server,String btlID,final Connection c1,final Connection c2) {
+	public BattleTask(final PokeponServer server, String btlID, final Connection c1, final Connection c2) {
 		this(server,btlID,c1,c2,RuleSet.Predefined.DEFAULT);
 	}
 
@@ -41,13 +42,39 @@ public class BattleTask implements Runnable {
 	 * @param c2 Player 2's ServerConnection
 	 * @param format This battle's format
 	 */
-	public BattleTask(final PokeponServer server,String btlID,final Connection c1,final Connection c2,final Format format) {
+	public BattleTask(final PokeponServer server, String btlID, final Connection c1, final Connection c2, final Format format) {
 		this.server = server;
 		battleID = btlID;
 		this.c1 = c1;
 		this.c2 = c2;
 		this.format = format;
 		if(Debug.pedantic) printDebug(this+" constructed. Format: "+format);
+	}
+	
+	public void joinAsGuest(final Connection guest) {
+		guest.sendMsg(CMN_PREFIX+"watchbtl "+battleID+" "+format+" "+bgNum+" "+bgmNum);
+		boolean added = false;
+		for(int i = 0; i < MAX_GUESTS; ++i)
+			if(guests[i] == null) {
+				guests[i] = guest;
+				added = true;
+				++nGuests;
+				sendB("|join||"+guest.getName());
+				break;
+			}
+		if(added)
+			initClientSideBattle(guest);
+		else
+			sendB(guest, "|error|Battle is full: cannot join.");
+	}
+
+	public void leaveGuest(final Connection guest) {
+		for(int i = 0; i < MAX_GUESTS; ++i)
+			if(guests[i] == guest) {
+				guests[i] = null;
+				--nGuests;
+				return;
+			}
 	}
 
 	public synchronized void run() {
@@ -75,8 +102,8 @@ public class BattleTask implements Runnable {
 							c1.sendMsg(CMN_PREFIX+"popup-err [Invalid team] Your team was rejected for the following reasons:<br>"+
 								tr.get(0).getReasons().replaceAll("\n","<br>"));
 							if(!sentKo) {
-								c1.sendMsg(CMN_PREFIX+"btlko");
-								c2.sendMsg(CMN_PREFIX+"btlko opponent's team was rejected.");
+								c1.sendMsg(CMN_PREFIX+"btlko " + battleID);
+								c2.sendMsg(CMN_PREFIX+"btlko " + battleID + " opponent's team was rejected.");
 								sentKo = true;
 							}
 						}
@@ -119,153 +146,28 @@ public class BattleTask implements Runnable {
 				engine = new BattleEngine(this);
 				engine.setAttacker(1);	//to ensure teamAttacker and teamDefender have an initial valid reference
 				// battle background
-				float bgNum = battle.getRNG().nextFloat();
+				bgNum = battle.getRNG().nextFloat();
 				// battle background music
-				float bgmNum = battle.getRNG().nextFloat();
+				bgmNum = battle.getRNG().nextFloat();
 				sendM(CMN_PREFIX+"spawnbtl "+battleID+" "+format.getName().replaceAll(" ","_")+" "+bgNum+" "+bgmNum);
 				// TODO: check both clients could spawn battle
+				// teams should already be compacted, but for extra-insurance, compact them.
+				battle.getTeam(1).compact();
+				battle.getTeam(2).compact();
 
-				// join players
+				// initial joins
 				sendB(c1,"|join|ally:p1|"+c1.getName());
 				sendB(c2,"|join|ally:p2|"+c2.getName());
 				sendB(c1,"|join|opp|"+c2.getName());
 				sendB(c2,"|join|opp|"+c1.getName());
-				// teams should already be compacted, but for extra-insurance, compact them.
-				battle.getTeam(1).compact();
-				battle.getTeam(2).compact();
-				// send teams data
-				int tmpi = 0;
-				for(Pony p : battle.getTeam(1).getAllPonies()) {
-					p.setHp(p.maxhp());
-					sendB(c1,"|pony|ally|"+	p.getName()+"|"+
-								p.getLevel()+
-								(p.getNickname().equals(p.getName()) 
-									? "|" 
-									: "|"+p.getNickname()
-								) +
-								(p.getAbility() != null
-									? "|"+p.getAbility()
-									: "|"
-								) +
-								(p.getItem() != null
-									? "|"+p.getItem()
-									: ""
-								)
-					);
-					for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
-						if(p.getMove(i) != null && p.getMove(i).getName().startsWith("Hidden Talent"))
-							p.getMove(i).setName("Hidden Talent");
-						sendB(c1,"|setmv|"+tmpi+"|"+i+"|"+
-							(p.getMove(i) == null 
-								? "none"  
-								: p.getMove(i) +
-								(p.getMove(i).fullPP() 
-									? "" 
-									: "|"+p.getMove(i).getPP()
-								)
-							)
-						);
-						if(p.getMove(i) != null && p.getMove(i).getName().equals("Hidden Talent"))
-							sendB(c1,"|setmvtype|"+tmpi+"|"+i+"|"+p.getMove(i).getType());
-					}
-					++tmpi;
-					sendB(c2,"|pony|opp|"+	p.getName()+"|"+
-								p.getLevel()+
-								(p.getNickname().equals(p.getName()) 
-									? "|" 
-									: "|"+p.getNickname()
-								) +
-								(p.getAbility() != null
-									? "|"+p.getAbility()
-									: "|"
-								) +
-								(p.getItem() != null
-									? "|"+p.getItem()
-									: ""
-								)
-					);
-				}
-				tmpi = 0;
-				for(Pony p : battle.getTeam(2).getAllPonies()) {
-					p.setHp(p.maxhp());
-					sendB(c2,"|pony|ally|"+	p.getName()+"|"+
-								p.getLevel()+
-								(p.getNickname().equals(p.getName())  
-									? "|" 
-									: "|"+p.getNickname()
-								) +
-								(p.getAbility() != null
-									? "|"+p.getAbility()
-									: "|"
-								) +
-								(p.getItem() != null
-									? "|"+p.getItem()
-									: ""
-								)
-					);
-					for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
-						if(p.getMove(i) != null && p.getMove(i).getName().startsWith("Hidden Talent"))
-							p.getMove(i).setName("Hidden Talent");
-						sendB(c2,"|setmv|"+tmpi+"|"+i+"|"+
-							(p.getMove(i) == null 
-								? "none"  
-								: p.getMove(i) +
-								(p.getMove(i).fullPP() 
-									? "" 
-									: "|"+p.getMove(i).getPP()
-								)
-							)
-						);
-						if(p.getMove(i) != null && p.getMove(i).getName().equals("Hidden Talent"))
-							sendB(c2,"|setmvtype|"+tmpi+"|"+i+"|"+p.getMove(i).getType());
-					}
-					++tmpi;
-					sendB(c1,"|pony|opp|"+	p.getName()+"|"+
-								p.getLevel()+
-								(p.getNickname().equals(p.getName())  
-									? "|" 
-									: "|"+p.getNickname()
-								) +
-								(p.getAbility() != null
-									? "|"+p.getAbility()
-									: "|"
-								) +
-								(p.getItem() != null
-									? "|"+p.getItem()
-									: ""
-								)
-					);
-				}
-				// send rules
-				//sendB("|rated");
-				sendB("|rule|Format: "+format.getName());
-				for(String pn : format.getBannedPonies())
-					sendB("|rule|Pony "+pn+" is banned");
-				for(String mn : format.getBannedMoves())
-					sendB("|rule|Move "+mn+" is banned");
-				for(String an : format.getBannedAbilities())
-					sendB("|rule|Ability "+an+" is banned");
-				for(String in : format.getBannedItems())
-					sendB("|rule|Item "+in+" is banned");
-				for(String[] cn : format.getBannedCombos()) {
-					StringBuilder sb = new StringBuilder("|rule|Combo ");
-					for(String cb : cn) {
-						sb.append(cb.substring(2,cb.length())+"+");
-					}
-					sb.delete(sb.length()-1,sb.length());
-					sb.append(" is banned.");
-					sendB(sb.toString());
-				}
-				// TODO: parse special formats to output them in a prettier form.
-				for(String sf : format.getSpecialFormats()) {
-					sendB("|rule|"+sf);
-				}
+				
 				if(format.getSpecialFormats().contains("randombattle")) {
 					switchRoutine(1,0);
 					switchRoutine(2,0);
-				} else {
-					sendB("|teampreview");
+					battleStarted = true;
 				}
+				initClientSideBattle(c1);
+				initClientSideBattle(c2);
 			
 				// wait inputs from clients: the msgQueue is filled by the Server via the pushMsg() method.
 				while(!terminated) {
@@ -299,10 +201,15 @@ public class BattleTask implements Runnable {
 		msgQueue.offer("");
 	}
 
+	/** Given a connection ID, returns the corresponding connection;
+	 * 1 means 'c1', 2 means 'c2', else means guest[n-3]
+	 */
 	public Connection getConnection(int num) {
-		if(num == 1) return c1;
-		else if(num == 2) return c2;
-		else throw new RuntimeException("getConnection: num is "+num);
+		switch(num) {
+			case 1: return c1;
+			case 2: return c2;
+			default: return guests[num-3];
+		}
 	}
 
 	public Battle getBattle() {
@@ -339,22 +246,31 @@ public class BattleTask implements Runnable {
 
 		} else if(token[0].equals("cmd") && token.length > 2) {
 			/* |cmd|(playerID/Player Name)|Command */
-			final int pl = parsePlayerID(token[1]);
+			final int connId = parseID(token[1]);
 			final String cmd = token[2];
-			if(pl != 1 && pl != 2) {
-				printDebug("[BattleTask.processMsg(cmd)]: unknown player: "+token[1]);
-				return;
-			}
 			// since this task may take time, do it asynchronously
 			executor.execute(new Runnable() {
 				public void run() {
-					processCommand((pl == 1 ? c1 : c2), cmd);
+					processCommand(connId, cmd);
 				}
 			});
 
+		} else if(token[0].equals("leave") && token.length > 1) {
+			sendB("|leave|"+token[1]);
+			int id = parseID(token[1]);
+			if(id > 2) {
+				leaveGuest(guests[id-3]);
+			} else {
+				sendB("|error|player "+id+" left; other players wins.");
+				sendB((id == 1 ? c2 : c1),"|win|ally");
+				server.getBattles().remove(battleID);
+				server.dismissBattle(c1,c2);
+				terminate();
+			}
+
 		} else if(token[0].equals("forfeit") && token.length > 1) {
 			/* |forfeit|(playerID/Player Name) */
-			int pl = parsePlayerID(token[1]);
+			int pl = parseID(token[1]);
 			if(pl != 1 && pl != 2) {
 				printDebug("[BattleTask.processMsg(forfeit)]: unknown player: "+token[1]);
 				return;
@@ -388,7 +304,7 @@ public class BattleTask implements Runnable {
 				}
 				
 				Pony switched = null;
-				int pl = parsePlayerID(token[1]);
+				int pl = parseID(token[1]);
 
 				if(pl != 1 && pl != 2) {
 					printDebug("[BattleTask.processMsg()]: Unknown player: "+token[1]);
@@ -528,7 +444,7 @@ public class BattleTask implements Runnable {
 				}
 				
 				Move used = null;
-				int pl = parsePlayerID(token[1]);
+				int pl = parseID(token[1]);
 
 				if(pl != 1 && pl != 2) {
 					printDebug("[BattleTask.processMsg()]: Unknown player: "+token[1]);
@@ -577,12 +493,36 @@ public class BattleTask implements Runnable {
 	public void sendM(String msg) {
 		c1.sendMsg(msg);
 		c2.sendMsg(msg);
+		int sent = 0;
+		for(int i = 0; i < guests.length && sent < nGuests; ++i)
+			if(guests[i] != null) {
+				guests[i].sendMsg(msg);
+				++sent;
+			}
+	}
+
+	public void sendB(Connection cl, String msg) {
+		sendB(cl, msg, true);
 	}
 
 	/** Shortcut method to send battle messages */
-	public void sendB(Connection cl,String msg) {
+	public void sendB(Connection cl, String msg, boolean broadcastToGuests) {
 		if(cl.getVerbosity() >= 2) printDebug("[BattleTask] sending msg to "+cl.getName()+": "+BTL_PREFIX+battleID+" "+msg);
 		cl.sendMsg(BTL_PREFIX+battleID+" "+msg);
+		if(!broadcastToGuests) return;
+		int sent = 0;
+		if(cl == c1) 
+			for(int i = 0; i < guests.length && sent < nGuests; i += 2) {
+				if(guests[i] == null) continue;
+				guests[i].sendMsg(BTL_PREFIX+battleID+" "+msg);
+				++sent;
+			}
+		else if(cl == c2)
+			for(int i = 1; i < guests.length && sent < nGuests; i += 2) {
+				if(guests[i] == null) continue;
+				guests[i].sendMsg(BTL_PREFIX+battleID+" "+msg);
+				++sent;
+			}
 	}
 
 	/** Like sendB(Connection,String), but send msg to all clients */
@@ -593,6 +533,98 @@ public class BattleTask implements Runnable {
 
 	public String toString() {
 		return "[BattleTask #"+battleID+": "+c1.getName()+" vs "+c2.getName()+"]";
+	}
+	
+	/** Initializes a battle client-side by sending all setup messages; used both
+	 * for players and for guests as they join
+	 */
+	private void initClientSideBattle(final Connection c) {
+		// send teams data
+		for(int j = 1; j < 3; ++j) {
+			int tmpi = 0;
+			boolean ally = j == 1 ^ (c == c1 || guestIndexOf(c) % 2 != 0);
+			for(Pony p : battle.getTeam(j).getAllPonies()) {
+				p.setHp(p.maxhp());
+				sendB(c,"|pony|" + (ally ? "ally" : "opp") +
+							"|" + p.getName()+
+							"|" + p.getLevel()+
+							(p.getNickname().equals(p.getName()) 
+								? "|" 
+								: "|"+p.getNickname()
+							) +
+							(p.getAbility() != null
+								? "|"+p.getAbility()
+								: "|"
+							) +
+							(p.getItem() != null
+								? "|"+p.getItem()
+								: ""
+							)
+				);
+				if(ally) {
+					for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
+						if(p.getMove(i) != null && p.getMove(i).getName().startsWith("Hidden Talent"))
+							p.getMove(i).setName("Hidden Talent");
+						sendB(c,"|setmv|"+tmpi+"|"+i+"|"+
+							(p.getMove(i) == null 
+								? "none"  
+								: p.getMove(i) +
+								(p.getMove(i).fullPP() 
+									? "" 
+									: "|"+p.getMove(i).getPP()
+								)
+							)
+						);
+						if(p.getMove(i) != null && p.getMove(i).getName().equals("Hidden Talent"))
+							sendB(c1,"|setmvtype|"+tmpi+"|"+i+"|"+p.getMove(i).getType());
+					}
+				}
+				++tmpi;
+			}
+		}
+		// send rules
+		//sendB(c, "|rated");
+		sendB(c, "|rule|Format: "+format.getName());
+		for(String pn : format.getBannedPonies())
+			sendB(c, "|rule|Pony "+pn+" is banned");
+		for(String mn : format.getBannedMoves())
+			sendB(c, "|rule|Move "+mn+" is banned");
+		for(String an : format.getBannedAbilities())
+			sendB(c, "|rule|Ability "+an+" is banned");
+		for(String in : format.getBannedItems())
+			sendB(c, "|rule|Item "+in+" is banned");
+		for(String[] cn : format.getBannedCombos()) {
+			StringBuilder sb = new StringBuilder("|rule|Combo ");
+			for(String cb : cn) {
+				sb.append(cb.substring(2,cb.length())+"+");
+			}
+			sb.delete(sb.length()-1,sb.length());
+			sb.append(" is banned.");
+			sendB(sb.toString());
+		}
+		// TODO: parse special formats to output them in a prettier form.
+		for(String sf : format.getSpecialFormats()) {
+			sendB(c, "|rule|"+sf);
+		}
+		if(!battleStarted)
+			sendB(c, "|teampreview");
+		else {
+			Pony p1 = battle.getPlayer(1).getTeam().getActivePony();
+			Pony p2 = battle.getPlayer(2).getTeam().getActivePony();
+			boolean ally = c == c1 || guestIndexOf(c) % 2 != 0;
+			sendB(c,"|switch|"+(ally ? "ally" : "opp") +
+					"|"+battle.getPlayer(1).getTeam().indexOf(p1)+
+					"|"+(p1.hp() == p1.maxhp() 
+						? p1.maxhp()
+						: p1.hp() + "|" + p1.maxhp())
+			);
+			sendB(c,"|switch|"+(ally ? "opp" : "ally") +
+					"|"+battle.getPlayer(2).getTeam().indexOf(p2)+
+					"|"+(p2.hp() == p2.maxhp() 
+						? p2.maxhp()
+						: p2.hp() + "|" + p2.maxhp())
+			);
+		}
 	}
 
 	/** This method looks at the scheduled events (like scheduledSwitch,
@@ -899,13 +931,20 @@ public class BattleTask implements Runnable {
 		}
 	}
 
-	/** Converts passed id/name of player to the correct integer. */
-	private int parsePlayerID(String token) {
-		if(!token.equals("1") && !token.equals("2")) {
-			if(token.equals(c1.getName())) return 1;
-			else if(token.equals(c2.getName())) return 2;				
-			else return 0;
-		} else return Integer.parseInt(token);
+	/** Converts passed id/name of connection to the correct integer. */
+	private int parseID(String token) {
+		if(token.equals(c1.getName()) || token.equals("1")) return 1;
+		if(token.equals(c2.getName()) || token.equals("2")) return 2;
+		for(int i = 0; i < guests.length; ++i) {
+			if(guests[i] == null) continue;
+			if(token.equals(guests[i].getName()) || token.equals(Integer.toString(i+3)))
+				return i + 3;
+		}
+		try {
+			return Integer.parseInt(token);
+		} catch(IllegalArgumentException e) {
+			return -1;
+		}
 	}
 
 	/** @return True if battle is over, False otherwise */ 
@@ -1004,13 +1043,15 @@ public class BattleTask implements Runnable {
 	}
 	
 	/** Process a command from a client and send response to it. */
-	private void processCommand(Connection conn, String cmd) {
+	private void processCommand(int connId, String cmd) {
+		Connection conn = getConnection(connId);
+		if(conn == null) return;
 		String[] token = cmd.split(" ");
 		if(Debug.on) printDebug("[BT.processCommand] tokens = "+Arrays.asList(token));
 		
 		if(token[0].equals("data")) {
 			if(token.length < 2) {
-				sendB(conn,"|error|Syntax error: expected pony, move, item or ability name after 'data' command.");
+				sendB(conn,"|error|Syntax error: expected pony, move, item or ability name after 'data' command.", false);
 				return;
 			}
 			String response = dataDealer.getData(ConcatenateArrays.merge(token, 1));
@@ -1024,18 +1065,18 @@ public class BattleTask implements Runnable {
 			if(token.length < 2) {
 				sendB(conn,"|error|Syntax error: correct syntax is :<br>&nbsp;" +
 					CMD_PREFIX + "eff type1[,type2]<br>&nbsp;"+
-					CMD_PREFIX + "eff type1 -&gt; type2[,type3]");
+					CMD_PREFIX + "eff type1 -&gt; type2[,type3]", false);
 				return;
 			}
 			String response = dataDealer.getEffectiveness(ConcatenateArrays.merge(token,1));
 			if(response == null)
-				sendB(conn,"|error|"+ConcatenateArrays.merge(token,1)+": no data found.");
+				sendB(conn,"|error|"+ConcatenateArrays.merge(token,1)+": no data found.", false);
 			else if(response.startsWith("|"))
-				sendB(conn,response);
+				sendB(conn,response, false);
 			else
-				sendB(conn,"|htmlconv|"+response);
+				sendB(conn,"|htmlconv|"+response, false);
 		} else {
-			sendB(conn,"|error|Invalid command: "+token[0]);
+			sendB(conn,"|error|Invalid command: "+token[0], false);
 		}
 	}
 
@@ -1059,13 +1100,13 @@ public class BattleTask implements Runnable {
 			Pony switched = battle.getTeam(pl).getActivePony();
 			if(Debug.pedantic) printDebug("switch[pl] successful.");
 			sendB(plC,"|switch|ally|"+num+
-						"|"+(switched.hp() == switched.maxhp() ?
-						switched.maxhp() :
-						switched.hp()+"|"+switched.maxhp()));
+						"|"+(switched.hp() == switched.maxhp()
+							? switched.maxhp()
+							: switched.hp()+"|"+switched.maxhp()));
 			sendB(othC,"|switch|opp|"+num+
-						"|"+(switched.hp() == switched.maxhp() ? 
-						switched.maxhp() :
-						switched.hp()+"|"+switched.maxhp()));
+						"|"+(switched.hp() == switched.maxhp() 
+							? switched.maxhp() 
+							: switched.hp()+"|"+switched.maxhp()));
 			// update battle engine
 			engine.updateActive();
 			if(Debug.pedantic) printDebug("[BT] engine updated. Triggering \"onSwitchIn\" for p"+pl+"...");
@@ -1077,11 +1118,18 @@ public class BattleTask implements Runnable {
 			sendB("|error|Couldn't switch to pony "+battle.getTeam(pl).getPony(num).getNickname());
 		}
 	}
+	
+	private int guestIndexOf(final Connection c) {
+		for(int i = 0; i < guests.length; ++i)
+			if(guests[i] == c) return i;
+		return -1;
+	}
 
 	/** indicates if player (i+1) has already communicated a decision to server. */
 	private boolean[] decided = new boolean[2];	
 	private boolean battleStarted;
 	private boolean postBattle;
+	private float bgNum, bgmNum;
 	private int[] scheduledSwitchNum = new int[2];
 	private Pony[] scheduledSwitch = new Pony[2];
 	private Move[] scheduledMove = new Move[2];
@@ -1098,6 +1146,13 @@ public class BattleTask implements Runnable {
 	private int turnCount = -1;
 	private boolean mustResolveSwitch;
 	private DataDealer dataDealer = new DataDealer();
+	/** Guests are numbered like #3, #4, etc (#1 and #2 are c1 and c2); odd-numbered
+	 * guests receive all messages for c1, and even-numbered ones for c2;
+	 * we use an array so the positions (i.e numbers) of each guest are fixed.
+	 */
+	private Connection[] guests = new Connection[MAX_GUESTS];
+	private int nGuests;
+
 	
 	private static enum Event { 
 		SWITCH,

@@ -23,6 +23,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 	static {
 		help.append(CMD_PREFIX+"battle <user> - request a battle vs an user.\n");
 		help.append(CMD_PREFIX+"btldel <user> - delete battle request vs an user.\n");
+		help.append(CMD_PREFIX+"watch <battle id> - spectate battle `id' as a guest.\n");
 		help.append(CMD_PREFIX+"battles - list battle schedule.\n");
 		help.append(CMD_PREFIX+"data <name> - show info about pony/move/item/ability.\n");
 		help.append(CMD_PREFIX+"eff <type>[,type2] - show typechart for a type.\n");
@@ -120,7 +121,6 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 				}
 			}
 			connection.sendMsg("User "+token[1]+" not found.");
-			return 1;
 		} else if(cmd.equals("acceptbtl")) {
 			if(token.length < 2) {
 				if(connection.getVerbosity() >= 2) 
@@ -152,7 +152,6 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 				if(connection.getVerbosity() >= 2)
 					printDebug("[PKPCMDEXEC ("+connection.getName()+")] Tried to accept non-existing battle with "+token[1]);
 			}
-			return 1;
 		} else if(cmd.equals("btldel")) {
 			if(token.length != 2) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"btldel <username>.");
@@ -169,7 +168,6 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 				}
 			}
 			connection.sendMsg("User "+token[1]+" not found.");
-			return 1;
 		} else if(cmd.equals("battles")) {
 			if(token.length > 1) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"battles.");
@@ -210,7 +208,6 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 					requested+" battle requests pending\n");
 			}
 			connection.sendMsg(sb.toString());
-			return 1;
 		} else if(cmd.equals("data")) {
 			if(token.length < 2) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"data <query>.");
@@ -221,7 +218,6 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 				connection.sendMsg(ConcatenateArrays.merge(token,1)+": no data found.");
 			else 
 				connection.sendMsg(CMN_PREFIX+"htmlconv "+data);
-			return 1;
 		} else if(cmd.equals("eff")) {
 			if(token.length < 2) {
 				connection.sendMsg("Syntax error. Correct syntax is one of:<br>&nbsp;"+
@@ -234,8 +230,20 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 				connection.sendMsg(ConcatenateArrays.merge(token,1)+": no data found.");
 			else 
 				connection.sendMsg(CMN_PREFIX+"htmlconv "+data);
-			return 1;
-		} 	
+		} else if(cmd.equals("watch")) {
+			if(token.length < 2) {
+				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"watch <id>");
+				return 1;
+			}
+			BattleTask battle = pServer.getBattle(token[1]);
+			if(battle == null) {
+				connection.sendMsg("Battle "+token[1]+" not found.");
+				return 1;
+			}
+			battle.joinAsGuest(connection);
+		}
 		else return super.execute(msg);
+
+		return 1;
 	}
 }		

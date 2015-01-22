@@ -311,6 +311,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 				pool.execute(bTask);
 			} catch(Exception e) {
 				e.printStackTrace();
+				return false;
 			}
 		} else {
 			if(verbosity >= 1) printDebug("Scheduled battle between "+client1.getName()+" and "+client2.getName()+".");

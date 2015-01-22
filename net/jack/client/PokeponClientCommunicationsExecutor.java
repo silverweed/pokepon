@@ -37,6 +37,7 @@ class PokeponClientCommunicationsExecutor extends ChatClientCommunicationsExecut
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token));
 
 		if(cmd.equals("btlreq")) {
+			/* !btlreq <clientname> */
 			if(token.length != 2) return 1;
 			int choice = JOptionPane.showConfirmDialog(pClient,
 				token[1]+" challenged you!\nAccept?",token[1]+" challenged you to a battle!",JOptionPane.YES_OPTION);	
@@ -50,8 +51,10 @@ class PokeponClientCommunicationsExecutor extends ChatClientCommunicationsExecut
 				return 1;
 			}
 		} else if(cmd.equals("selectteam")) {
-			// !selectteam Format1 Format2 ... OR !selectteam @FixedFormat
-			// formats order is decided by the server.
+			/* !selectteam Format1 Format2 ... OR !selectteam @FixedFormat
+			 * (first case is for challenger, second for challenged)
+			 * formats order is decided by the server.
+			 */
 			Set<String> formats = new LinkedHashSet<>();
 			for(int i = 1; i < token.length; ++i)
 				formats.add(token[i]);
@@ -88,46 +91,43 @@ class PokeponClientCommunicationsExecutor extends ChatClientCommunicationsExecut
 				connection.sendMsg(CMN_PREFIX+"endteam");
 			}
 			return 1;
-		} else if(cmd.equals("spawnbtl")) {
-			/* |spawnbtl [format] [bgNum] [bgmNum] */
-			if(token.length < 2) return 1;
+		} else if(cmd.equals("spawnbtl") || cmd.equals("watchbtl")) {
+			/* |spawnbtl <id> <format> [bgNum] [bgmNum] */
+			if(token.length < 3) return 1;
+			String id = token[1], format = token[2];
 			float bgNum = -1, bgmNum = -1;
-			String format = "";
-			if(token.length > 2) {
-				format = token[2];
-				if(token.length > 3) {
+			boolean asGuest = cmd.equals("watchbtl");
+			if(token.length > 3) {
+				try {
+					bgNum = new Float(token[3]);
+				} catch(NumberFormatException e) {
+					printDebug("Invalid bgNum received from server: "+token[3]);
+				}
+				if(token.length > 4) {
 					try {
-						bgNum = new Float(token[3]);
+						bgmNum = new Float(token[4]);
 					} catch(NumberFormatException e) {
-						printDebug("Invalid bgNum received from server: "+token[3]);
-					}
-					if(token.length > 4) {
-						try {
-							bgmNum = new Float(token[4]);
-						} catch(NumberFormatException e) {
-							printDebug("Invalid bgmNum received from server: "+token[4]);
-						}
+						printDebug("Invalid bgmNum received from server: "+token[4]);
 					}
 				}
 			}
-			if(bgNum != -1) {
-				if(bgmNum != -1)
-					pClient.spawnBattle(token[1], format, bgNum, bgmNum);
-				else
-					pClient.spawnBattle(token[1], format, bgNum);
-			} else {
-				pClient.spawnBattle(token[1], format);
-			}
+			pClient.spawnBattle(id, format, asGuest, bgNum, bgmNum);
 			return 1;
 		} else if(cmd.equals("btlko")) {
-			pClient.append("Couldn't start battle" + (token.length > 1 ? ": "+ConcatenateArrays.merge(token,1) : "."));
+			/* !btlko <id> [msg] */
+			if(token.length < 2) return 1;
+			pClient.append("Couldn't start battle #" + token[1] + (token.length > 2 ? ": "+ConcatenateArrays.merge(token,1) : "."));
+			pClient.getBattles().remove(token[1]);
 			return 1;
 
 		} else if(cmd.equals("htmlconv")) {
+			/* !htmlconv <msg> */
 			if(token.length < 2) return 1;
 			pClient.append(Meta.toLocalURL(ConcatenateArrays.merge(token,1)),false);
 			return 1;
+
 		} else if(cmd.equals("html") || cmd.equals("motd")) {
+			/* !html <msg> */
 			if(token.length < 2) return 1;
 			pClient.append(ConcatenateArrays.merge(token,1),false);
 			return 1;

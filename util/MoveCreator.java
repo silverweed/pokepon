@@ -25,7 +25,7 @@ public class MoveCreator {
 
 		Class<? extends Move> moveBuilder = (Class<? extends Move>)Class.forName(
 							(POKEPON_ROOTDIR+DIRSEP+MOVE_DIR+DIRSEP+
-							name.replaceAll("[^a-zA-Z0-9] ","")).replaceAll(""+DIRSEP,"."));
+							name.replaceAll("[^a-zA-Z0-9]","")).replaceAll(""+DIRSEP,"."));
 		Move move = moveBuilder.getConstructor(Pony.class).newInstance(p);
 
 		if(Debug.pedantic) printDebug("Created move: "+move.toString());

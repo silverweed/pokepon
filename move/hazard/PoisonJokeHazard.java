@@ -58,12 +58,12 @@ public class PoisonJokeHazard extends Hazard {
 				}
 
 				if(layers == 1) 
-					pony.setPoisoned(true);
+					pony.setStatus(Pony.Status.POISONED, true);
 				else if(layers == 2)
-					pony.setIntoxicated(true);
+					pony.setStatus(Pony.Status.INTOXICATED, true);
 
 				printMsg(pony.getNickname()+" got poisoned from the Poison Joke!");
-				String status = pony.isIntoxicated() ? "tox" : "psn";
+				String status = pony.hasStatus(Pony.Status.INTOXICATED) ? "tox" : "psn";
 
 				if(be.getBattleTask() != null) {
 					be.getBattleTask().sendB("|battle|"+pony.getNickname()+" got poisoned from the Poison Joke!");

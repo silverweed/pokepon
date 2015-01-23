@@ -212,14 +212,7 @@ public class TeamPanel extends JPanel {
 				"HP: "+pony[num].getHp()+"<br>"+
 				(pony[num].getAbility() != null ? "Ability: "+pony[num].getAbility()+"<br>" : "")+
 				(pony[num].getItem() != null ? "Item: "+pony[num].getItem()+"<br>" : "")+
-				"Status: "+ 
-				(pony[num].isKO() ? "KO" :
-				pony[num].isBurned() ? "brn" :
-				pony[num].isAsleep() ? "slp" :
-				pony[num].isParalyzed() ? "par" :
-				pony[num].isIntoxicated() ? "tox" :
-				pony[num].isPoisoned() ? "psn" :
-				pony[num].isPetrified() ? "ptr" : "ok")+
+				"Status: "+(pony[num].getStatus() == null ? "ok" : pony[num].getStatus().toBrief())+ 
 				theMoves+
 				"</html>";
 		}

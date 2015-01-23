@@ -113,15 +113,9 @@ class TeamMenuPanel extends JPanel {
 			protected void setText() {
 				if(pony == null) return;
 				text = pony.getName();
-				if(pony.getStatus().size() > 0 || pony.hp() < pony.maxhp()) {
+				if(pony.getStatus() != null || pony.hp() < pony.maxhp()) {
 					text += "("+(int)(pony.hp() * 100 / pony.maxhp())+"%";
-					if(pony.isFainted()) text += "|ko";
-					else if(pony.isParalyzed()) text += "|par";
-					else if(pony.isAsleep()) text += "|slp";
-					else if(pony.isPetrified()) text += "|ptr";
-					else if(pony.isBurned()) text += "|brn";
-					else if(pony.isIntoxicated()) text += "|tox";
-					else if(pony.isPoisoned()) text += "|psn";
+					if(pony.getStatus() != null) text += "|" + pony.getStatus().toBrief();
 					text += ")";
 				}
 			}

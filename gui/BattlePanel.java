@@ -1191,9 +1191,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					}
 					if(oppHPBar != null)
 						oppHPBar.update();
-					appendEvent(EventType.BATTLE,parseDamageEvent(oppPony,
-									dam,
-									(token.length > 3 ? token[3] : null)));
+					if(!(token.length > 3 && token[3].equalsIgnoreCase("quiet")))
+						appendEvent(EventType.BATTLE,parseDamageEvent(oppPony,
+										dam,
+										(token.length > 3 ? token[3] : null))
+						);
 					if(dam > 0)
 						resultAnim(oppLocation(),"-" +
 							(int)(Math.min(prevhp, dam)*100 / oppPony.maxhp()) + "%!",
@@ -1612,19 +1614,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			else if(token[2].equals("psn")) status = Status.POISONED;
 			else if(token[2].equals("tox")) status = Status.INTOXICATED;
 			else if(token[2].equals("brn")) status = Status.BURNED;
-			else if(token[2].equals("cnf")) status = Status.CONFUSED;
 			else {
 				printDebug("[BP.interpret(addstatus)] Unknown status: "+token[2]);
 				return;
 			}
 
 			if(token[1].equals("ally")) {
-				allyPony.addStatus(status);
-				/*if(status != Status.CONFUSED)
-					allyHPBar.addStatus(status);
-				else
-					allyHPBar.addPseudoStatus(Status.CONFUSED.toString(),false);
-				*/
+				allyPony.setStatus(status, true);
 				allyHPBar.update();
 				if(token.length > 3)
 					appendEvent(EventType.STATUS,token[2],"ally|"+token[3]);
@@ -1653,12 +1649,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 
 			} else if(token[1].equals("opp")) {
-				oppPony.addStatus(status);
-				/*if(status != Status.CONFUSED)
-					oppHPBar.addStatus(status);
-				else
-					oppHPBar.addPseudoStatus(Status.CONFUSED.toString(),false);
-				*/
+				oppPony.setStatus(status, true);
 				oppHPBar.update();
 				if(token.length > 3)
 					appendEvent(EventType.STATUS,token[2],"opp|"+token[3]);
@@ -1703,7 +1694,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				else if(token[2].equals("psn")) status = Status.POISONED;
 				else if(token[2].equals("tox")) status = Status.INTOXICATED;
 				else if(token[2].equals("brn")) status = Status.BURNED;
-				else if(token[2].equals("cnf")) status = Status.CONFUSED;
 			}
 
 			if(token[1].equals("ally")) {
@@ -1712,7 +1702,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						allyPony.healStatus();
 					if(allyHPBar != null) {
 						allyHPBar.clearStatuses();
-						allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+						allyHPBar.clearPseudoStatus("Confused");
 					}
 					if(!quiet) {
 						appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" healed!");
@@ -1721,12 +1711,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 				} else { 
 					if(allyPony != null)
-						allyPony.healStatus(status);
+						allyPony.setStatus(status, false);
 					if(allyHPBar != null) {
-						if(status != Status.CONFUSED)
-							allyHPBar.clearStatus(status);
-						else
-							allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+						allyHPBar.clearStatus(status);
 					}
 					if(!quiet) {
 						if(token.length > 3) 
@@ -1751,9 +1738,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							case BURNED:
 								resultAnim(allyLocation(),"Burn cured",ResultType.GOOD);
 								break;
-							case CONFUSED:
-								resultAnim(allyLocation(),"Cured",ResultType.GOOD);
-								break;
 						}
 					}
 				}
@@ -1763,7 +1747,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						oppPony.healStatus();
 					if(oppHPBar != null) {
 						oppHPBar.clearStatuses();
-						oppHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+						oppHPBar.clearPseudoStatus("Confused");
 					}
 					if(!quiet) {
 						appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" healed!");
@@ -1771,12 +1755,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					}
 				} else {
 					if(oppPony != null)
-						oppPony.healStatus(status);
+						oppPony.setStatus(status, false);
 					if(oppHPBar != null) {
-						if(status != Status.CONFUSED)
-							oppHPBar.clearStatus(status);
-						else
-							oppHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+						oppHPBar.clearStatus(status);
 					}
 					if(!quiet) {
 						if(token.length > 3)
@@ -1801,9 +1782,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							case BURNED:
 								resultAnim(oppLocation(),"Burn cured",ResultType.GOOD);
 								break;
-							case CONFUSED:
-								resultAnim(oppLocation(),"Cured",ResultType.GOOD);
-								break;
 						}
 					}
 				}
@@ -1820,7 +1798,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					allyPony.healStatus();
 				if(allyHPBar != null) {
 					allyHPBar.clearStatuses();
-					allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					allyHPBar.clearPseudoStatus("Confused");
 				}
 				p1.getTeam().healTeamStatus();
 				appendEvent(EventType.EMPHASIZED, "Team cured!");
@@ -1830,7 +1808,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					oppPony.healStatus();
 				if(oppHPBar != null) {
 					oppHPBar.clearStatuses();
-					allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					allyHPBar.clearPseudoStatus("Confused");
 				}
 				p2.getTeam().healTeamStatus();
 				appendEvent(EventType.EMPHASIZED, "Team cured!");
@@ -2519,15 +2497,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					)+"</b>" 
 					: ""
 				)+"</p>"+
-				(pony.hasNegativeCondition() ? 
-				"<p>Status: "+ 
-				(pony.isKO() ? "KO" :
-				pony.isBurned() ? "brn" :
-				pony.isAsleep() ? "slp" :
-				pony.isParalyzed() ? "par" :
-				pony.isIntoxicated() ? "tox" :
-				pony.isPoisoned() ? "psn" :
-				pony.isPetrified() ? "ptr" : "ok") + "</p>" : "")+
+				(pony.hasNegativeCondition() 
+				 	? "<p>Status: "+ (pony.getStatus() != null ? pony.getStatus().toBrief() : "") + "</p>"
+					: ""
+				) +
 				"<p>"+statsString+"</p>"+
 				"</body></html>"
 			);
@@ -2829,12 +2802,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 										sb.append(pny+"'s body is back to normal!");
 									else
 										sb.append(pny+" turned to stone!");
-									break;
-								case CONFUSED:
-									if(cure)
-										sb.append(pny+" snapped out of its confusion!");
-									else
-										sb.append(pny+" became confused!");
 									break;
 							}
 						} else {

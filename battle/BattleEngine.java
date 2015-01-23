@@ -323,11 +323,12 @@ public class BattleEngine {
 		
 		/* Detract 1 from confusionCounter if attacker was confused. */
 		if(attacker.isConfused()) {
-			if(--attacker.confusionCounter == 0) {
+			if(--attacker.getVolatiles().confusionCounter == 0) {
 				attacker.setConfused(false);
 				if(battleTask != null) {
-					battleTask.sendB(ally,"|rmstatus|ally|cnf");
-					battleTask.sendB(opp,"|rmstatus|opp|cnf");
+					battleTask.sendB(ally,"|rmpseudo|ally|Confused");
+					battleTask.sendB(opp,"|rmpseudo|opp|Confused");
+					battleTask.sendB("|battle|"+attacker.getNickname()+" snapped out of its confusion!");
 				}
 			}
 		}
@@ -351,7 +352,7 @@ public class BattleEngine {
 						public Type getType() { return Type.HONESTY; }
 						public Move.MoveType getMoveType() { return Move.MoveType.PHYSICAL; }
 						public boolean isTypeless() { return true; }
-					},this,true));
+					}, this, true));
 				if(echoBattle) printMsg("It hurt itself in its confusion!");
 				if(battleTask != null) {
 					battleTask.sendB("|battle|It hurt itself in its confusion!");
@@ -713,11 +714,11 @@ public class BattleEngine {
 	
 	private boolean fullParalysis(final Pony pony) {
 		/** Full Paralysis: 25% of chance to happen. */
-		return pony.isParalyzed() && rng.nextFloat() < Battle.CHANCE_FULL_PARALYSIS;
+		return pony.hasStatus(Pony.Status.PARALYZED) && rng.nextFloat() < Battle.CHANCE_FULL_PARALYSIS;
 	}
 	
 	private boolean staysPetrified(Pony pony) {
-		if(!pony.isPetrified()) return false;
+		if(!pony.hasStatus(Pony.Status.PETRIFIED)) return false;
 
 		/** Chance of 10% to heal from Petrification */
 		if(rng.nextFloat() < Battle.CHANCE_DEPETRIFICATE) {
@@ -734,7 +735,7 @@ public class BattleEngine {
 	
 	private boolean staysAsleep(Pony pony) {
 		/* Detract 1 from sleepCounter if attacker is asleep */
-		if(attacker.isAsleep()) {
+		if(attacker.hasStatus(Pony.Status.ASLEEP)) {
 			if(--attacker.sleepCounter <= 0) {
 				attacker.setAsleep(false);
 				if(battleTask != null) {
@@ -744,7 +745,7 @@ public class BattleEngine {
 				if(echoBattle) printMsg(attacker.getNickname()+" woke up!");
 			}
 		}	
-		return attacker.isAsleep();
+		return attacker.hasStatus(Pony.Status.ASLEEP);
 	}
 	
 	/** Subtract 1 from all delayed moves' countDelay, remove flinch flags etc */
@@ -924,45 +925,21 @@ public class BattleEngine {
 		if(Debug.on) printDebug("Attacker boosts: "+attacker.getBoosts()+"\nDefender boosts: "+defender.getBoosts());
 	}
 	
-	private void printEffectMsg(String side,Pony pony,String effect) {
-		boolean alreadyWas;
-		String eff = "";
-		if(effect.equals("paralyzed")) {
-			alreadyWas = pony.isParalyzed();
-			eff = "par";
-		} else if(effect.equals("confused")) {
-			alreadyWas = pony.isConfused();
-			eff = "cnf";
-		} else if(effect.equals("asleep")) {
-			alreadyWas = pony.isAsleep();
-			eff = "slp";
-		} else if(effect.equals("burned")) {
-			alreadyWas = pony.isBurned();
-			eff = "brn";
-		} else if(effect.equals("petrified")) {
-			alreadyWas = pony.isPetrified();
-			eff = "ptr";
-		} else if(effect.equals("poisoned")) {
-			alreadyWas = pony.isPoisoned();
-			eff = "psn";
-		} else if(effect.equals("badly poisoned")) {
-			alreadyWas = pony.isIntoxicated();
-			eff = "tox";
-		} else alreadyWas = false;
-		
-		if(effect.equals("flinched")) return;	//flinched status is set quietly, then applied the following (semi-)turn.
+	private void addStatus(boolean _ally, Pony pony, Pony.Status status) {
+		boolean alreadyWas = pony.hasStatus(status);
+		String eff = status.toBrief();
 		
 		if(alreadyWas) {
 			if(battleTask != null) {
-				battleTask.sendB("|battle|"+pony.getNickname()+" is already "+effect+"!");
+				battleTask.sendB("|battle|"+pony.getNickname()+" is already "+status+"!");
 			}
-			if(echoBattle) printMsg(side+pony.getNickname()+" is already "+effect+"!");
+			if(echoBattle) printMsg((_ally ? "" : "enemy ")+pony.getNickname()+" is already "+status+"!");
 		} else {
 			if(battleTask != null) {
-				battleTask.sendB(ally,"|addstatus|"+(side.equals("") ? "ally" : "opp")+"|"+eff);
-				battleTask.sendB(opp,"|addstatus|"+(side.equals("") ? "opp" : "ally")+"|"+eff);
+				battleTask.sendB(ally,"|addstatus|"+(_ally ? "ally" : "opp")+"|"+eff);
+				battleTask.sendB(opp,"|addstatus|"+(_ally ? "opp" : "ally")+"|"+eff);
 			}
-			if(echoBattle) printMsg(side+pony.getNickname()+" is now "+effect+"!");
+			if(echoBattle) printMsg((_ally ? "": "enemy ")+pony.getNickname()+" is now "+status+"!");
 		}
 	}
 		
@@ -1191,10 +1168,14 @@ public class BattleEngine {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become confused!");
 				} else {
-					printEffectMsg("enemy ",defender,"confused");
+					if(battleTask != null) {
+						battleTask.sendB(ally,"|addpseudo|opp|Confused");
+						battleTask.sendB(opp,"|addpseudo|ally|Confused");
+						battleTask.sendB("|battle|"+defender.getNickname()+" became confused!");
+					}
 					defender.setConfused(true);
-					defender.confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);	//confusion lasts 1-Y turns.
-					if(Debug.on) printDebug("Confusion count = "+defender.confusionCounter);
+					defender.getVolatiles().confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);	//confusion lasts 1-Y turns.
+					if(Debug.on) printDebug("Confusion count = "+defender.getVolatiles().confusionCounter);
 				}
 			}
 			if(rng.nextFloat() < dealer.getTargetFlinch() && checkProtect(dealer)) {
@@ -1205,7 +1186,6 @@ public class BattleEngine {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't flinch!");
 				} else {
-					printEffectMsg("enemy ",defender,"flinched");
 					defender.setFlinched(true);
 				}
 			}
@@ -1228,7 +1208,7 @@ public class BattleEngine {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become paralyzed!");
 				} else {
-					printEffectMsg("enemy ",defender,"paralyzed");
+					addStatus(false, defender, Pony.Status.PARALYZED);
 					defender.setParalyzed(true);
 				}
 			}
@@ -1240,7 +1220,7 @@ public class BattleEngine {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become poisoned!");
 				} else {
-					printEffectMsg("enemy ",defender,"poisoned");
+					addStatus(false, defender, Pony.Status.POISONED);
 					defender.setPoisoned(true);
 				}
 			}
@@ -1252,7 +1232,7 @@ public class BattleEngine {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become poisoned!");
 				} else {
-					printEffectMsg("enemy ",defender,"badly poisoned");
+					addStatus(false, defender, Pony.Status.INTOXICATED);
 					defender.setIntoxicated(true);
 				}
 			}
@@ -1264,7 +1244,7 @@ public class BattleEngine {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become burned!");
 				} else {
-					printEffectMsg("enemy ",defender,"burned");
+					addStatus(false, defender, Pony.Status.BURNED);
 					defender.setBurned(true);
 				}
 			}
@@ -1276,7 +1256,7 @@ public class BattleEngine {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become asleep!");
 				} else {
-					printEffectMsg("enemy ",defender,"asleep");
+					addStatus(false, defender, Pony.Status.ASLEEP);
 					defender.setAsleep(true);
 					defender.sleepCounter = rng.nextInt(Battle.MAX_SLEEP_DURATION + 1);	//sleep lasts 1-X turns.
 				}
@@ -1289,7 +1269,7 @@ public class BattleEngine {
 					if(battleTask != null)
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become petrified!");
 				} else {
-					printEffectMsg("enemy ",defender,"petrified");
+					addStatus(false, defender, Pony.Status.PETRIFIED);
 					defender.setPetrified(true);
 				}
 			}
@@ -1298,37 +1278,40 @@ public class BattleEngine {
 		// attacker
 		if(!attacker.isKO()) {
 			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserParalysis()) {
-				printEffectMsg("",attacker,"paralyzed");
+				addStatus(true, attacker, Pony.Status.PARALYZED);
 				attacker.setParalyzed(true);
 			}
 			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserPoison()) {
-				printEffectMsg("",attacker,"poisoned");
+				addStatus(true, attacker, Pony.Status.POISONED);
 				attacker.setPoisoned(true);
 			}
 			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserToxic()) {
-				printEffectMsg("",attacker,"badly poisoned");
+				addStatus(true, attacker, Pony.Status.INTOXICATED);
 				attacker.setIntoxicated(true);
 			}
 			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserBurn()) {
-				printEffectMsg("",attacker,"burned");
+				addStatus(true, attacker, Pony.Status.BURNED);
 				attacker.setBurned(true);
 			}
 			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserSleep()) {
-				printEffectMsg("",attacker,"asleep");
+				addStatus(true, attacker, Pony.Status.ASLEEP);
 				attacker.setAsleep(true);
 			}
 			if(!attacker.hasNegativeCondition() && rng.nextFloat() < dealer.getUserPetrify()) {
-				printEffectMsg("",attacker,"petrified");
+				addStatus(true, attacker, Pony.Status.PETRIFIED);
 				attacker.setPetrified(true);
 			}
 			if(rng.nextFloat() < dealer.getUserConfusion() && !attacker.isConfused()) {
-				printEffectMsg("",attacker,"confused");
+				if(battleTask != null) {
+					battleTask.sendB(ally,"|addpseudo|ally|Confused");
+					battleTask.sendB(opp,"|addpseudo|opp|Confused");
+					battleTask.sendB("|battle|"+attacker.getNickname()+" became confused!");
+				}
 				attacker.setConfused(true);
-				attacker.confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);
-				if(Debug.on) printDebug("Confusion count = "+defender.confusionCounter);
+				attacker.getVolatiles().confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);
+				if(Debug.on) printDebug("Confusion count = "+defender.getVolatiles().confusionCounter);
 			}
 			if(rng.nextFloat() < dealer.getUserFlinch()) {
-				printEffectMsg("",attacker,"flinched");
 				attacker.setFlinched(true);
 			}
 		
@@ -1409,7 +1392,7 @@ public class BattleEngine {
 			}
 			if(dealer.tauntTarget() && checkProtect(dealer)) {
 				defender.setTaunted(true);
-				defender.tauntCounter = rng.nextInt(5) + 2;
+				defender.getVolatiles().tauntCounter = rng.nextInt(5) + 2;
 				if(battleTask != null) {
 					battleTask.sendB(ally,"|taunt|opp");
 					battleTask.sendB(opp,"|taunt|ally");

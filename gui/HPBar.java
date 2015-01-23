@@ -145,32 +145,33 @@ class HPBar extends JPanel {
 	 */
 	public void update(boolean animated) {
 		if(Debug.on) printDebug("[HPBar] called update(). Pony statuses = "+pony.getStatus());
-		/* Update HP bar */
+		// Update HP bar 
 		setHp(animated);
-		/* Update boosts */
+		// Update boosts
 		int i = 0;
 		for(Iterator<Map.Entry<String,Integer>> it = pony.getVolatiles().modifiers.iterator(); it.hasNext(); ++i) {
 			Map.Entry<String, Integer> entry = it.next();
 			setBoost(i, entry.getValue());
 		}
 
-		/* First, add any non-already-added status to the status panel */
-		outer:
-		for(Pony.Status status : pony.getStatus()) {
-			// These two are in the Status enum, but are not viable as StatusLabels
-			if(status == Pony.Status.KO || status == Pony.Status.CONFUSED) continue;
-			// prevent to add the same status label twice
-			for(StatusLabel sl : statuses)
-				if(sl.getStatus() == status)
-					continue outer;
-			// if pony is intoxicated, don't add the PSN label.
-			if(status == Pony.Status.POISONED && pony.isIntoxicated())
-				continue;
-			
-			addStatus(status);
+		// Remove status labels that don't afflict the pony any more
+		boolean already = false;
+		Iterator<StatusLabel> it = (Iterator<StatusLabel>)statuses.iterator();
+		while(it.hasNext()) {
+			Pony.Status status = it.next().getStatus();
+			if(pony.getStatus() != status)
+				clearStatus(status);
+			else
+				already = true;
 		}
+		
+		// Then, if the pony has a status and its label isn't in the HP bar, add it (statuses
+		// are mutually exclusive)
+		if(pony.getStatus() != null && pony.getStatus() != Pony.Status.KO && !already)
+			addStatus(pony.getStatus());
+
 		// add confusion separately, if not present 
-		if(pony.isConfused()) {
+		/*if(pony.isConfused()) {
 			boolean already = false;
 			for(PseudoStatusLabel ps : pseudoStatuses)
 				if(ps.getName().equals(Pony.Status.CONFUSED.toString())) {
@@ -179,19 +180,9 @@ class HPBar extends JPanel {
 				}
 			if(!already)	
 				addPseudoStatus(Pony.Status.CONFUSED.toString(), false);
-		}
+		}*/
 		
-		/* Then, remove all statuses which are in the HPBar but do not afflict the pony any more */
-		Iterator<StatusLabel> it = (Iterator<StatusLabel>)statuses.iterator();
-		while(it.hasNext()) {
-			Pony.Status status = it.next().getStatus();
-			if(!pony.getStatus().contains(status)) {
-				if(status == Pony.Status.CONFUSED)
-					clearPseudoStatus(Pony.Status.CONFUSED.toString());
-				else
-					clearStatus(status);
-			}
-		}
+
 	}
 
 	public void setTextColor(final Color color) {
@@ -389,7 +380,7 @@ class HPBar extends JPanel {
 		final HPBar hp = new HPBar(p);
 		JSlider slider = new JSlider(0,100,100);
 		for(Pony.Status s : Pony.Status.values()) {
-			if(s == Pony.Status.CONFUSED || s == Pony.Status.KO) continue;
+			if(s == Pony.Status.KO) continue;
 			hp.addStatus(s);
 		}
 		hp.addPseudoStatus("Must recharge",false);
@@ -562,7 +553,7 @@ class HPBar extends JPanel {
 		if(Debug.on) printDebug("[HPBar] Called addStatus("+status+")");
 		try {
 			if(SwingUtilities.isEventDispatchThread()) {
-				pony.addStatus(status);
+				pony.setStatus(status, true);
 				c.gridwidth = 1;
 				c.gridheight = 1;
 				c.ipadx = 5;
@@ -593,7 +584,7 @@ class HPBar extends JPanel {
 			} else {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {
-						pony.addStatus(status);
+						pony.setStatus(status, true);
 						c.gridwidth = 1;
 						c.gridheight = 1;
 						c.ipadx = 5;

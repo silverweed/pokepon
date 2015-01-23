@@ -7,6 +7,7 @@ import pokepon.battle.*;
 import pokepon.util.*;
 import pokepon.pony.*;
 import pokepon.move.*;
+import pokepon.move.hazard.*;
 import pokepon.ability.*;
 import pokepon.item.*;
 import pokepon.player.Team;
@@ -59,7 +60,27 @@ public class BattleTask implements Runnable {
 				guests[i] = guest;
 				added = true;
 				++nGuests;
+				String _ally = "ally", _opp = "opp";
+				if(i % 2 == 0) {
+					sendB(guest, "|join|ally:p1|"+c1.getName());
+					sendB(guest, "|join|opp|"+c2.getName());
+				} else {
+					sendB(guest, "|join|ally:p2|"+c2.getName());
+					sendB(guest, "|join|opp|"+c1.getName());
+					_ally = "opp";
+					_opp = "ally";
+				}
 				sendB("|join||"+guest.getName());
+				if(engine.getWeather() != null && engine.getWeather().get() != Weather.CLEAR)
+					sendB(guest, "|setweather|"+engine.getWeather().get());
+				for(Hazard h : engine.getHazards(1))
+					sendB(guest, "|addhazard|"+_ally+"|"+h.getClass().getSimpleName());
+				for(Hazard h : engine.getHazards(2))
+					sendB(guest, "|addhazard|"+_opp+"|"+h.getClass().getSimpleName());
+				if(battle.getPlayer(1).getActivePony().getStatus() != null)
+					sendB(guest, "|addstatus|"+_ally+"|"+battle.getPlayer(1).getActivePony().getStatus().toBrief());
+				if(battle.getPlayer(2).getActivePony().getStatus() != null)
+					sendB(guest, "|addstatus|"+_opp+"|"+battle.getPlayer(2).getActivePony().getStatus().toBrief());
 				break;
 			}
 		if(added)
@@ -377,8 +398,8 @@ public class BattleTask implements Runnable {
 									sendB(thatC,"|boost|opp|"+s+"|"+switched.getBoost(s)+"|quiet");
 								}
 							if(switched.isConfused()) {
-								sendB(thisC,"|addstatus|ally|cnf");
-								sendB(thatC,"|addstatus|opp|cnf");
+								sendB(thisC,"|addpseudo|ally|Confused");
+								sendB(thatC,"|addpseudo|opp|Confused");
 							}
 							if(switched.hasSubstitute()) {
 								sendB(thisC,"|substitute|ally");
@@ -664,8 +685,8 @@ public class BattleTask implements Runnable {
 			if(event[0] == null || event[1] == null)
 				throw new RuntimeException("Tried to perform scheduled events, but one player hasn't decided yet!");
 		
-			int effSpeed1 = p1 != null ? (int)(p1.speed() * (p1.isParalyzed() ? 0.5 : 1)) : 0;
-			int effSpeed2 = p2 != null ? (int)(p2.speed() * (p2.isParalyzed() ? 0.5 : 1)) : 0;
+			int effSpeed1 = p1 != null ? (int)(p1.speed() * (p1.hasStatus(Pony.Status.PARALYZED) ? 0.5 : 1)) : 0;
+			int effSpeed2 = p2 != null ? (int)(p2.speed() * (p2.hasStatus(Pony.Status.PARALYZED) ? 0.5 : 1)) : 0;
 			int fastest = 	effSpeed1 > effSpeed2 ? 1 :
 					effSpeed2 > effSpeed1 ? 2 :
 					battle.getRNG().nextFloat() > 0.5f ? 1 : 2;
@@ -849,30 +870,30 @@ public class BattleTask implements Runnable {
 					printDebug("[BT] Active Pony #"+i+": "+ap.getStatus());
 					printDebug("-- Counters:");
 					if(ap.toxicCounter != 0) printDebug("\ttoxicCounter = "+ap.toxicCounter);
-					if(ap.deathCounter != 0) printDebug("\tdeathCounter = "+ap.deathCounter);
-					if(ap.tauntCounter != 0) printDebug("\ttauntCounter = "+ap.tauntCounter);
-					if(ap.confusionCounter != 0) printDebug("\tconfusionCounter = "+ap.confusionCounter);
+					if(ap.getVolatiles().deathCounter != 0) printDebug("\tgetVolatiles().deathCounter = "+ap.getVolatiles().deathCounter);
+					if(ap.getVolatiles().tauntCounter != 0) printDebug("\tgetVolatiles().tauntCounter = "+ap.getVolatiles().tauntCounter);
+					if(ap.getVolatiles().confusionCounter != 0) printDebug("\tgetVolatiles().confusionCounter = "+ap.getVolatiles().confusionCounter);
 					if(ap.protectCounter != 0) printDebug("\tprotectCounter = "+ap.protectCounter);
 					if(ap.sleepCounter != 0) printDebug("\tsleepCounter = "+ap.sleepCounter);
 				}
 				
 				if(!preventsSec) {
-					if(ap.isBurned()) {
+					if(ap.hasStatus(Pony.Status.BURNED)) {
 						sendB(thisC,"|brn|ally");
 						sendB(thatC,"|brn|opp");
 						ap.damagePerc(Battle.BURN_DAMAGE * 100f);
-					} else if(ap.isIntoxicated()) {
+					} else if(ap.hasStatus(Pony.Status.INTOXICATED)) {
 						sendB(thisC,"|tox|ally|"+(++ap.toxicCounter));
 						sendB(thatC,"|tox|opp|"+ap.toxicCounter);
 						ap.damagePerc(Battle.BAD_POISON_DAMAGE * 100f * ap.toxicCounter);
-					} else if(ap.isPoisoned()) {
+					} else if(ap.hasStatus(Pony.Status.POISONED)) {
 						sendB(thisC,"|psn|ally");
 						sendB(thatC,"|psn|opp");
 						ap.damagePerc(Battle.POISON_DAMAGE * 100f);
 					} 
 				}
 				if(ap.isTaunted()) {
-					if(--ap.tauntCounter == 0) {
+					if(--ap.getVolatiles().tauntCounter == 0) {
 						sendB("|battle|"+ap.getNickname()+"'s taunt ended!");
 						sendB(thisC,"|rmtaunt|ally");
 						sendB(thatC,"|rmtaunt|opp");
@@ -891,13 +912,13 @@ public class BattleTask implements Runnable {
 					}
 				}
 				if(ap.isDeathScheduled()) {
-					if(Debug.on) printDebug("[BT] "+ap.getNickname()+" has death scheduled. count = "+ap.deathCounter);
-					if(ap.deathCounter == 0) {
+					if(Debug.on) printDebug("[BT] "+ap.getNickname()+" has death scheduled. count = "+ap.getVolatiles().deathCounter);
+					if(ap.getVolatiles().deathCounter == 0) {
 						sendB(thisC,"|damage|ally|"+ap.hp());
 						sendB(thatC,"|damage|opp|"+ap.hp());
 						ap.damagePerc(100f);
 					} else {
-						sendB("|battle|"+ap.getNickname()+" will faint in "+(ap.deathCounter++)+" turns!");
+						sendB("|battle|"+ap.getNickname()+" will faint in "+(ap.getVolatiles().deathCounter++)+" turns!");
 					}
 				}
 

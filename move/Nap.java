@@ -53,10 +53,4 @@ public class Nap extends Move {
 			}
 		};
 	}
-
-/*	@Override
-	public boolean validConditions(final BattleEngine be) {
-		if(pony == null) throw new NullPointerException("pony is null for move "+this);
-		return pony.hp() < pony.maxhp();
-	}*/
 }

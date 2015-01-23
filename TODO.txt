@@ -22,6 +22,14 @@
 
 - Add ban rules conf file, fix ban/unban from the chat -> DONE
 
+- fix nick list not visible at login -> Should be done
+
+- guests in battles -> Done!
+
+- Check confusion: maybe bugged -> FIXED
+
+- SPEED UP THE GAME IF LAUNCHED FROM JAR! -> Partially fixed
+
 === TODO ===
 - Fix HPBar: the labels are sometimes misaligned depending on the length
   of the pony's name
@@ -42,16 +50,11 @@
 
 - Implement multiple (simultaneous or consecutive) animations -> Consecutive done
 
-- SPEED UP THE GAME IF LAUNCHED FROM JAR! -> Partially fixed
-
 - (Really) Implement Weather
 
 - Sound control in the BattlePanel
 
 - Nicknames: config option to set default nicks, request nick on login feature 
 
-- Check confusion: maybe bugged
-
-- guests in battles
-
-- fix nick list not visible at login
+- Refactor Pony class: separate into Pony (only base stats) and BattlePony (with
+  volatiles and stuff you only need during battles)

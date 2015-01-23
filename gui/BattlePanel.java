@@ -1794,23 +1794,23 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		} else if(token[0].equals("healteam") && token.length > 1) {
 			/* |healteam|(ally/opp) */
 			if(token[1].equals("ally")) {
-				if(allyPony != null)
-					allyPony.healStatus();
+				//if(allyPony != null)
+				//	allyPony.healStatus();
+				p1.getTeam().healTeamStatus();
 				if(allyHPBar != null) {
 					allyHPBar.clearStatuses();
 					allyHPBar.clearPseudoStatus("Confused");
 				}
-				p1.getTeam().healTeamStatus();
 				appendEvent(EventType.EMPHASIZED, "Team cured!");
 				resultAnim(allyLocation(),"Team cured!",ResultType.GOOD);
 			} else if(token[1].equals("opp")) {
-				if(oppPony != null)
-					oppPony.healStatus();
+				//if(oppPony != null)
+				//	oppPony.healStatus();
+				p2.getTeam().healTeamStatus();
 				if(oppHPBar != null) {
 					oppHPBar.clearStatuses();
-					allyHPBar.clearPseudoStatus("Confused");
+					oppHPBar.clearPseudoStatus("Confused");
 				}
-				p2.getTeam().healTeamStatus();
 				appendEvent(EventType.EMPHASIZED, "Team cured!");
 				resultAnim(oppLocation(),"Team cured!",ResultType.GOOD);
 			} else {
@@ -2856,51 +2856,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 
 		return phrase.replaceAll("\\[pony\\]", pony.getNickname());
-		/*
-		if(name.startsWith("weather/")) {
-			Weather weather = Weather.forName(name.replaceFirst("weather\\/",""));
-			if(weather != null) 
-				return weather.getPhrase().replaceAll("\\[pony\\]",
-						(pony == oppPony ? "Enemy "+pony.getNickname() : pony.getNickname()));
-			else throw new RuntimeException("Weather not found: "+name);
-		}
-
-		EffectDealer dealer = null;
-
-		try {
-			dealer = MoveCreator.create(name);
-		} catch(ReflectiveOperationException e) {
-			if(Debug.pedantic) printDebug("Exception: "+e);
-			if(Debug.on) printDebug(name+" is not a Move; trying Ability.");
-			try {
-				dealer = AbilityCreator.create(name);
-			} catch(ReflectiveOperationException ee) {
-				if(Debug.pedantic) printDebug("Exception: "+ee);
-				if(Debug.on) printDebug(name+" is not an Ability; trying Item.");
-				try {
-					dealer = ItemCreator.create(name);
-				} catch(ReflectiveOperationException eee) {
-					if(Debug.pedantic) printDebug("Exception: "+eee);
-					printDebug(name+" is not an Item. Giving up.");
-					throw new RuntimeException("dealer not found.");
-				}
-			}
-		}
-
-		if(dealer.getPhrase() != null) 
-			return dealer.getPhrase().replaceAll("\\[pony\\]",(pony == oppPony ? "Enemy "+pony.getNickname() : pony.getNickname()));
-		else {
-			if(pony == allyPony)
-				return pony.getNickname() + (dam < 0 ? " healed " : " lost ") + 
-						Math.min(100,pony.calculateDamagePerc(dam)) + "% of its HP!";
-			else if(pony == oppPony)
-				return "Enemy " + pony.getNickname() + (dam < 0 ? " healed " : " lost ") +
-						Math.min(100,pony.calculateDamagePerc(dam)) + "% of its HP!";
-		}
-
-		// should never happen.
-		throw new RuntimeException("[BP.parseDamageEvent()]: pony is neither ally nor opponent!");
-		*/
 	}
 
 	/** If connection is valid, send messages to the server; else, output on console */

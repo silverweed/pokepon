@@ -559,9 +559,10 @@ public class BattleTask implements Runnable {
 	 */
 	private void initClientSideBattle(final Connection c) {
 		// send teams data
+		int gIdx = guestIndexOf(c);
 		for(int j = 1; j < 3; ++j) {
 			int tmpi = 0;
-			boolean ally = j == 1 ^ (c == c1 || guestIndexOf(c) % 2 != 0);
+			boolean ally = (j == 1 ^ c == c2) || (gIdx > 0 && gIdx % 2 != 0);
 			for(Pony p : battle.getTeam(j).getAllPonies()) {
 				p.setHp(p.maxhp());
 				sendB(c,"|pony|" + (ally ? "ally" : "opp") +

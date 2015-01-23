@@ -323,10 +323,12 @@ public class BattleEngine {
 		
 		/* Detract 1 from confusionCounter if attacker was confused. */
 		if(attacker.isConfused()) {
-			if(--attacker.getVolatiles().confusionCounter == 0) {
+			if(--attacker.getVolatiles().confusionCounter <= 0) {
 				attacker.setConfused(false);
 				if(battleTask != null) {
+					battleTask.sendB(ally,"|resultanim|ally|good|Cured!");
 					battleTask.sendB(ally,"|rmpseudo|ally|Confused");
+					battleTask.sendB(opp,"|resultanim|opp|good|Cured!");
 					battleTask.sendB(opp,"|rmpseudo|opp|Confused");
 					battleTask.sendB("|battle|"+attacker.getNickname()+" snapped out of its confusion!");
 				}
@@ -1169,12 +1171,12 @@ public class BattleEngine {
 						battleTask.sendB("|battle|"+defender.getNickname()+" doesn't become confused!");
 				} else {
 					if(battleTask != null) {
-						battleTask.sendB(ally,"|addpseudo|opp|Confused");
-						battleTask.sendB(opp,"|addpseudo|ally|Confused");
+						battleTask.sendB(ally,"|addpseudo|opp|bad|Confused");
+						battleTask.sendB(opp,"|addpseudo|ally|bad|Confused");
 						battleTask.sendB("|battle|"+defender.getNickname()+" became confused!");
 					}
 					defender.setConfused(true);
-					defender.getVolatiles().confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);	//confusion lasts 1-Y turns.
+					defender.getVolatiles().confusionCounter = 1 + rng.nextInt(Battle.MAX_CONFUSION_DURATION);	//confusion lasts 1-Y turns.
 					if(Debug.on) printDebug("Confusion count = "+defender.getVolatiles().confusionCounter);
 				}
 			}
@@ -1258,7 +1260,7 @@ public class BattleEngine {
 				} else {
 					addStatus(false, defender, Pony.Status.ASLEEP);
 					defender.setAsleep(true);
-					defender.sleepCounter = rng.nextInt(Battle.MAX_SLEEP_DURATION + 1);	//sleep lasts 1-X turns.
+					defender.sleepCounter = 1 + rng.nextInt(Battle.MAX_SLEEP_DURATION);	//sleep lasts 1-X turns.
 				}
 			}
 			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetPetrify() && checkProtect(dealer)) {
@@ -1303,12 +1305,12 @@ public class BattleEngine {
 			}
 			if(rng.nextFloat() < dealer.getUserConfusion() && !attacker.isConfused()) {
 				if(battleTask != null) {
-					battleTask.sendB(ally,"|addpseudo|ally|Confused");
-					battleTask.sendB(opp,"|addpseudo|opp|Confused");
+					battleTask.sendB(ally,"|addpseudo|ally|bad|Confused");
+					battleTask.sendB(opp,"|addpseudo|opp|bad|Confused");
 					battleTask.sendB("|battle|"+attacker.getNickname()+" became confused!");
 				}
 				attacker.setConfused(true);
-				attacker.getVolatiles().confusionCounter = rng.nextInt(Battle.MAX_CONFUSION_DURATION+1);
+				attacker.getVolatiles().confusionCounter = 1 + rng.nextInt(Battle.MAX_CONFUSION_DURATION);
 				if(Debug.on) printDebug("Confusion count = "+defender.getVolatiles().confusionCounter);
 			}
 			if(rng.nextFloat() < dealer.getUserFlinch()) {

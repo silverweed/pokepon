@@ -194,7 +194,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 			if(btls.size() != 0) {
 				for(Map.Entry<String,BattleTask> entry : btls.entrySet()) {
 					sb.append("[battle#"+entry.getKey()+"] "+
-						entry.getValue().getConnection(1)+" <=> "+entry.getValue().getConnection(2)+
+						entry.getValue().getConnection(1).getName()+" <=> "+entry.getValue().getConnection(2).getName()+
 						" (format: "+entry.getValue().getFormat()+")\n");
 						++ongoing;
 				}

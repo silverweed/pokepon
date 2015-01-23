@@ -43,7 +43,7 @@ import static pokepon.util.ConcatenateArrays.merge;
  * @author silverweed
  */
 public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
-	
+
 	public static URL EMPTY_TOKEN_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
 	public static URL UNKNOWN_PONY_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
 	public static final String[] BG_IMG_URL = {
@@ -199,6 +199,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private List<Map<String,JLabel>> persEffectsSprite = new ArrayList<>();
 	/** The format of this battle */
 	private String format;
+	/** Whether we're guests in this battle or not */
+	private boolean guest;
 
 	/** This gets called by all the constructors to initialize some objects which cannot be constructed inline */
 	private void constructStuff() {
@@ -317,7 +319,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		//teamP.setTokenStyle(TeamPanel.TokenStyle.ONLY_IMAGE);
 		for(int i = 0; i < 6; ++i) {
 			//teamP.setPony(i,p1.getTeam().getPony(i));
-			teamP.getToken(i).addActionListener(new SwitchListener(i));	
+			teamP.getToken(i).addActionListener(new SwitchListener(i));
 		}
 
 		// SETUP MOVES BUTTON PANEL//
@@ -337,12 +339,14 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		alertP.add(alertLabel);
 
 		// Add moves and alerts to the bottomCardPanel
-		bottomCardP.add(moveP,MOVE_CARD);
-		bottomCardP.add(alertP,ALERT_CARD);
-		((CardLayout)bottomCardP.getLayout()).show(bottomCardP,MOVE_CARD);
-		// Add the bottomCardP and the team panel to the bottom panel
-		bottomP.add(bottomCardP);
-		bottomP.add(teamP);
+		if(!guest) {
+			bottomCardP.add(moveP,MOVE_CARD);
+			bottomCardP.add(alertP,ALERT_CARD);
+			((CardLayout)bottomCardP.getLayout()).show(bottomCardP,MOVE_CARD);
+			// Add the bottomCardP and the team panel to the bottom panel
+			bottomP.add(bottomCardP);
+			bottomP.add(teamP);
+		}
 
 		// SETUP EVENT PANEL //
 		eventP.setPreferredSize(new Dimension(FIELD_WIDTH/2,(int)(DIM_Y*7./8.)));
@@ -387,107 +391,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 	}
 
-	/** @return A Point with the coordinates of the ally sprite */
-	private Point allyLocation() {
-		if(allySprite != null)
-			return new Point(FIELD_X + 30, FIELD_HEIGHT - allySprite.getHeight() - 30);
-		else
-			return new Point(FIELD_X + 30, FIELD_HEIGHT - 130);
+	/** This must be called _before_ initialize()! */
+	public void watchAsGuest(boolean g) {
+		guest = g;
 	}
 
-	/** @return A Point with the coordinates of the opponent sprite */
-	private Point oppLocation() {
-		if(oppSprite != null)
-			return new Point(FIELD_WIDTH - FIELD_X - oppSprite.getWidth() - 30, 30);
-		else
-			return new Point(FIELD_WIDTH - FIELD_X - 130, 30);
-	}
-
-	private Point allyLocation(final JLabel sprite) {
-		if(sprite != null && sprite.getIcon() != null)
-			return new Point(FIELD_X + 30, FIELD_HEIGHT - sprite.getIcon().getIconHeight() - 30);
-		else
-			return new Point(FIELD_X + 30, FIELD_HEIGHT - 130);
-	}
-	private Point oppLocation(final JLabel sprite) {
-		if(sprite != null && sprite.getIcon() != null)
-			return new Point(FIELD_WIDTH - FIELD_X - sprite.getIcon().getIconWidth() - 30, 30);
-		else
-			return new Point(FIELD_WIDTH - FIELD_X - 130, 30);
-	}
-
-	private void setOpponentBounds(final JLabel sprite) {
-		sprite.setBounds(
-			(int)oppLocation(sprite).getX(),
-			(int)oppLocation(sprite).getY(),
-			sprite.getIcon().getIconWidth(),
-			sprite.getIcon().getIconHeight()
-		);
-	}
-
-	/** Spawn a JLabel on opponent side on the PONY_LAYER */
-	private void setOnOpponentSide(final JLabel sprite) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				setOpponentBounds(sprite);
-				if(Debug.pedantic) printDebug("oppSide: "+sprite.getBounds());
-				fieldP.add(sprite,PONY_LAYER);
-				oppSprite = new TransparentLabel(sprite);
-				oppSprite.addMouseListener(new PonySpriteListener(false));
-			}
-		});
-	}
-
-	private void setOnOpponentSide(URL url) {
-		if(url == null) {
-			JLabel sprite = new JLabel(new ImageIcon(PLACEHOLDER_URL[0]));
-			setOnOpponentSide(sprite);
-		} else {
-			JLabel sprite = new JLabel(new ImageIcon(url));
-			if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
-				if(Debug.on) printDebug("[setOnOpponentSide] sprite is null: using placeholder...");
-				sprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
-			}
-			setOnOpponentSide(sprite);
-		}
-	}
-
-	private void setAllyBounds(final JLabel sprite) {
-		sprite.setBounds(
-				(int)allyLocation(sprite).getX(),
-				(int)allyLocation(sprite).getY(),
-				sprite.getIcon().getIconWidth(),
-				sprite.getIcon().getIconHeight()
-		);
-	}
-
-	/** Spawn a JLabel on ally side on the PONY_LAYER */
-	private void setOnAllySide(final JLabel sprite) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				setAllyBounds(sprite);
-				if(Debug.pedantic) printDebug("allySide: "+sprite.getBounds());
-				fieldP.add(sprite,PONY_LAYER);
-				allySprite = new TransparentLabel(sprite);
-				allySprite.addMouseListener(new PonySpriteListener(true));
-			}
-		});
-	}
-
-	private void setOnAllySide(URL url) {
-		if(url == null) {
-			JLabel sprite = new JLabel(new ImageIcon(PLACEHOLDER_URL[1]));
-			setOnAllySide(sprite);
-		} else {
-			JLabel sprite = new JLabel(new ImageIcon(url));
-			if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
-				if(Debug.on) printDebug("[setOnAllySide] sprite is null: using placeholder...");
-				sprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
-			}
-			setOnAllySide(sprite);
-		}
-	}
-	
 	public Player getPlayer(int num) {
 		if(num == 1) return p1;
 		else if(num == 2) return p2;
@@ -527,7 +435,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			if(pl.getTeam().getPony(i) == pony) return i;
 		}
 		return -1;
-	}		
+	}	
 
 	public void setBattleLogger(final BattleLogger logger) {
 		battleLogger = logger;
@@ -537,11 +445,15 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	 * a message is passed via a String, and it gets interpreted by the
 	 * BattlePanel and executed; we follow a Pok&#233mon Showdown-like
 	 * protocol: a message has the form 
+	 * <pre>
 	 * |TYPE|DATA
+	 * </pre>
 	 * where TYPE may be something like `switch`, `move`, etc and DATA are the
 	 * arguments of that message; for example, the BattlePanel can be instructed
 	 * to execute a move animation with a command like:
+	 * <pre>
 	 * |move|ally|MoveName (for a Move used by ally pony)
+	 * </pre>
 	 */
 	@SuppressWarnings("unchecked")
 	public void interpret(String line) {
@@ -551,7 +463,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 
 		if(Debug.on) printDebug("[BattlePanel]: received line: "+line);
-		
+	
 		final String[] token = line.substring(1).split("\\|");
 
 		if(token.length < 1) throw new RuntimeException("[BattlePanel.interpret()]: token length < 1!");
@@ -577,12 +489,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				try {
 					((JFrame)SwingUtilities.getWindowAncestor(this)).setTitle("Battle vs "+p2.getName());
 				} catch(ClassCastException ignore) {}
-			} //TODO: else guest
+			} 
 
 		} else if(token[0].equals("leave") && token.length > 1) {
 			/* |leave|Name Of Player */
 			appendEvent(EventType.LEAVE,token[1]);
-		
+	
 		} else if(token[0].equals("forfeit") && token.length > 1) {
 			/* |forfeit|Name Of Player */
 			appendEvent(EventType.LEAVE,token[1],"forfeited");
@@ -755,7 +667,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					throw new RuntimeException("Error parsing pony index: "+e);
 				}
 				if(token[1].equals("ally")) {
-					
+				
 					if(allyPony != null && allyPony.isTransformed()) allyPony.transformBack();
 
 					// If activePony is non-null, switch-out animation
@@ -852,7 +764,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						if(oppSprite.getIcon().getIconWidth() < 0)
 							oppSprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
 					}
-					switchInAnim(oppSprite,false);				
+					switchInAnim(oppSprite,false);			
 
 					SwingUtilities.invokeAndWait(new Runnable() {
 						public void run() {
@@ -894,7 +806,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				printDebug("Caused by: "+e.getCause());
 				return;
 			}
-		
+	
 		} else if(token[0].equals("stats") && token.length > 5) {
 			/* |stats|atk|def|spatk|spdef|speed */
 			String[] stats = "Atk Def Spa SpD Spe".split(" ");
@@ -911,7 +823,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					continue;
 				}
 			}
-		
+	
 		} else if(token[0].equals("setmv") && token.length > 3) {
 			/* |setmv|ponynum|movenum|(Move Name/none)[|pp] */
 			try {
@@ -945,7 +857,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						p1.getTeam().getPony(ponynum).setMove(movenum, move);
 						if(battleStarted)
 							moveB[movenum].setMove(move);
-						
+					
 					} catch(ReflectiveOperationException e) {
 						printDebug("[BP.interpret(setmv)]: "+e);
 						return;
@@ -973,7 +885,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			} catch(IllegalArgumentException e) {
 				printDebug("[BP.interpret(setmvtype)] Illegal argument: "+e);
 			}
-		
+	
 		} else if(token[0].equals("mustswitch")) {
 			/* |mustswitch */
 			if(Debug.on) printDebug("[BP] invoking mustswitch...");
@@ -995,10 +907,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				printDebug("Caused by: "+e.getCause());
 				return;
 			}
-		
+	
 		} else if(token[0].equals("move") && token.length > 2) {
 			/* |move|(ally/opp)|Move Name[|avoid] */
-			
+		
 			BasicAnimation anim = null;
 			boolean avoid = token.length > 3 && token[3].equals("avoid");
 
@@ -1010,7 +922,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 				List<String> anims = null;
 				List<Map<String,Object>> animsopts = null;
-				
+			
 				/* A Compound animation is a chain of several animations to be reproduced
 				 * in series. To specify a compound animation, the options must look like:
 				 *   animation.put("name", "Compound");
@@ -1101,7 +1013,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					fieldP.remove(anim.getSprite());
 				}
 			}
-						
+					
 		} else if(token[0].equals("avoid") && token.length > 1) {
 			/* |avoid|ally/opp */
 			if(token[1].equals("ally")) {
@@ -1223,7 +1135,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				appendEvent(EventType.BATTLE,oppPony.getName() + " is protected!");
 				resultAnim(oppLocation(),"Protected!");
 			}
-		
+	
 		} else if(token[0].equals("chat") && token.length > 2) {
 			/* |chat|Name|msg */
 			appendEvent(EventType.CHAT,token[1],merge(token,2));
@@ -1240,7 +1152,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		} else if(token[0].equals("error") && token.length > 1) {
 			/* |error|Message */
 			appendEvent(EventType.ERROR,token[1]);
-			
+		
 		} else if(token[0].equals("damage") && token.length > 2) {
 			/* |damage|(ally/opp)|amount[|phrase] */
 
@@ -1279,9 +1191,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					}
 					if(oppHPBar != null)
 						oppHPBar.update();
-					appendEvent(EventType.BATTLE,parseDamageEvent(oppPony,
-									dam,
-									(token.length > 3 ? token[3] : null)));
+					if(!(token.length > 3 && token[3].equalsIgnoreCase("quiet")))
+						appendEvent(EventType.BATTLE,parseDamageEvent(oppPony,
+										dam,
+										(token.length > 3 ? token[3] : null))
+						);
 					if(dam > 0)
 						resultAnim(oppLocation(),"-" +
 							(int)(Math.min(prevhp, dam)*100 / oppPony.maxhp()) + "%!",
@@ -1343,7 +1257,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							allyPony.getNickname() :
 							oppPony.getNickname())+"'s ");
 					sb.append(token[2]);
-					
+				
 					if(value > 2) {
 						sb.append(" rose drastically!");
 					} else if(value > 1) {
@@ -1493,7 +1407,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				return;
 			}
 			removeSubstitute(token[1].equals("ally"), token.length > 2 && token[2].equals("noanim"));
-		
+	
 		} else if(token[0].equals("persistent") && token.length > 2) {
 			/* |persistent|(ally/opp)|Name */
 			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
@@ -1501,7 +1415,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				return;
 			}
 			setPersistentEffect(token[1].equals("ally"), token[2]);
-			
+		
 		} else if(token[0].equals("rmpersistent") && token.length > 2) {
 			/* |rmpersistent|(ally/opp)|Name */
 			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
@@ -1511,7 +1425,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			removePersistentEffect(token[1].equals("ally"), token[2]);
 
 		} else if(token[0].equals("fail") && token.length > 1) {
-			/* |fail|(ally/opp) */	
+			/* |fail|(ally/opp) */
 			appendEvent(EventType.BATTLE, "But it failed...");
 			if(token[1].equals("ally")) 
 				resultAnim(allyLocation(), "Failed");
@@ -1547,7 +1461,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				resultAnim(token[1].equals("ally") ? allyLocation() : oppLocation(),token[3],resType);
 			else
 				resultAnim(token[1].equals("ally") ? allyLocation() : oppLocation(),token[3],color);
-			
+		
 		} else if(token[0].equals("win") && token.length > 1) {
 			/* |win|(ally/opp) */
 			runWinEvent(token[1]);
@@ -1700,19 +1614,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			else if(token[2].equals("psn")) status = Status.POISONED;
 			else if(token[2].equals("tox")) status = Status.INTOXICATED;
 			else if(token[2].equals("brn")) status = Status.BURNED;
-			else if(token[2].equals("cnf")) status = Status.CONFUSED;
 			else {
 				printDebug("[BP.interpret(addstatus)] Unknown status: "+token[2]);
 				return;
 			}
 
 			if(token[1].equals("ally")) {
-				allyPony.addStatus(status);
-				/*if(status != Status.CONFUSED)
-					allyHPBar.addStatus(status);
-				else
-					allyHPBar.addPseudoStatus(Status.CONFUSED.toString(),false);
-				*/
+				allyPony.setStatus(status, true);
 				allyHPBar.update();
 				if(token.length > 3)
 					appendEvent(EventType.STATUS,token[2],"ally|"+token[3]);
@@ -1741,12 +1649,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 
 			} else if(token[1].equals("opp")) {
-				oppPony.addStatus(status);
-				/*if(status != Status.CONFUSED)
-					oppHPBar.addStatus(status);
-				else
-					oppHPBar.addPseudoStatus(Status.CONFUSED.toString(),false);
-				*/
+				oppPony.setStatus(status, true);
 				oppHPBar.update();
 				if(token.length > 3)
 					appendEvent(EventType.STATUS,token[2],"opp|"+token[3]);
@@ -1791,7 +1694,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				else if(token[2].equals("psn")) status = Status.POISONED;
 				else if(token[2].equals("tox")) status = Status.INTOXICATED;
 				else if(token[2].equals("brn")) status = Status.BURNED;
-				else if(token[2].equals("cnf")) status = Status.CONFUSED;
 			}
 
 			if(token[1].equals("ally")) {
@@ -1800,7 +1702,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						allyPony.healStatus();
 					if(allyHPBar != null) {
 						allyHPBar.clearStatuses();
-						allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+						allyHPBar.clearPseudoStatus("Confused");
 					}
 					if(!quiet) {
 						appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" healed!");
@@ -1809,19 +1711,16 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 				} else { 
 					if(allyPony != null)
-						allyPony.healStatus(status);
+						allyPony.setStatus(status, false);
 					if(allyHPBar != null) {
-						if(status != Status.CONFUSED)
-							allyHPBar.clearStatus(status);
-						else
-							allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+						allyHPBar.clearStatus(status);
 					}
 					if(!quiet) {
 						if(token.length > 3) 
 							appendEvent(EventType.STATUS,token[2],"ally|"+token[3]);
 						else
 							appendEvent(EventType.STATUS,token[2],"ally|cure");
-					
+				
 						switch(status) {
 							case PARALYZED:
 								resultAnim(allyLocation(),"Paralysis cured",ResultType.GOOD);
@@ -1839,9 +1738,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							case BURNED:
 								resultAnim(allyLocation(),"Burn cured",ResultType.GOOD);
 								break;
-							case CONFUSED:
-								resultAnim(allyLocation(),"Cured",ResultType.GOOD);
-								break;
 						}
 					}
 				}
@@ -1851,7 +1747,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						oppPony.healStatus();
 					if(oppHPBar != null) {
 						oppHPBar.clearStatuses();
-						oppHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+						oppHPBar.clearPseudoStatus("Confused");
 					}
 					if(!quiet) {
 						appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" healed!");
@@ -1859,12 +1755,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					}
 				} else {
 					if(oppPony != null)
-						oppPony.healStatus(status);
+						oppPony.setStatus(status, false);
 					if(oppHPBar != null) {
-						if(status != Status.CONFUSED)
-							oppHPBar.clearStatus(status);
-						else
-							oppHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+						oppHPBar.clearStatus(status);
 					}
 					if(!quiet) {
 						if(token.length > 3)
@@ -1889,9 +1782,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 							case BURNED:
 								resultAnim(oppLocation(),"Burn cured",ResultType.GOOD);
 								break;
-							case CONFUSED:
-								resultAnim(oppLocation(),"Cured",ResultType.GOOD);
-								break;
 						}
 					}
 				}
@@ -1904,23 +1794,23 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		} else if(token[0].equals("healteam") && token.length > 1) {
 			/* |healteam|(ally/opp) */
 			if(token[1].equals("ally")) {
-				if(allyPony != null)
-					allyPony.healStatus();
+				//if(allyPony != null)
+				//	allyPony.healStatus();
+				p1.getTeam().healTeamStatus();
 				if(allyHPBar != null) {
 					allyHPBar.clearStatuses();
-					allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					allyHPBar.clearPseudoStatus("Confused");
 				}
-				p1.getTeam().healTeamStatus();	
 				appendEvent(EventType.EMPHASIZED, "Team cured!");
 				resultAnim(allyLocation(),"Team cured!",ResultType.GOOD);
 			} else if(token[1].equals("opp")) {
-				if(oppPony != null)
-					oppPony.healStatus();
+				//if(oppPony != null)
+				//	oppPony.healStatus();
+				p2.getTeam().healTeamStatus();
 				if(oppHPBar != null) {
 					oppHPBar.clearStatuses();
-					allyHPBar.clearPseudoStatus(Status.CONFUSED.toString());
+					oppHPBar.clearPseudoStatus("Confused");
 				}
-				p2.getTeam().healTeamStatus();
 				appendEvent(EventType.EMPHASIZED, "Team cured!");
 				resultAnim(oppLocation(),"Team cured!",ResultType.GOOD);
 			} else {
@@ -2089,7 +1979,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				teamMenu1.setFainted(ponyIndex,true);
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						teamP.getToken(ponyIndex).setEnabled(false);	
+						teamP.getToken(ponyIndex).setEnabled(false);
 						if(allyHPBar != null) {
 							synchronized(allyHPBar) {
 								allyHPBar.setVisible(false);
@@ -2140,7 +2030,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 				printDebug("[BP.interpret(effective)] Error: side is "+token[1]);
 				return;
-			}				
+			}			
 			try {
 				double multiplier = Double.parseDouble(token[2]);
 				if(Debug.on) printDebug("[BP.interpret(effective)]: multiplier is "+multiplier);
@@ -2213,7 +2103,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					mb.deductPP();
 					if(Debug.on) printDebug("Deducted 1 PP from "+mb.getMove());
 				}
-	
+
 		} else if(token[0].equals("addhazard") && token.length > 2) {
 			/* |addhazard|(ally/opp)|Hazard ClassName */
 			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
@@ -2222,7 +2112,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			}
 			boolean isAlly = token[1].equals("ally");
 			try {
-				Hazard hazard = HazardCreator.create(token[2]);	
+				Hazard hazard = HazardCreator.create(token[2]);
 
 				// create hazard token
 				Image img = ImageIO.read(hazard.getToken());
@@ -2266,7 +2156,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						hazardTokens.get(1).put(hazard.getName(),new LinkedList<JLabel>(
 							Arrays.asList(new JLabel[] { hzToken })));
 				}
-				
+			
 				hzToken.setBounds(x,y,hzToken.getIcon().getIconWidth(),hzToken.getIcon().getIconHeight());
 				fieldP.add(hzToken,HAZARD_LAYER);
 
@@ -2278,7 +2168,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				return;
 			}
 
-		
+	
 		} else if(token[0].equals("rmhazard") && token.length > 1) {
 			/* |rmhazard|(ally/opp)[|Hazard's Move Name|quiet] */
 			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
@@ -2334,7 +2224,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				printDebug("Caused by: "+e.getCause());
 				return;
 			}
-			
+		
 		} else if(token[0].equals("disconnect")) {
 			/* |disconnect[|message] */
 			if(token.length > 1)
@@ -2498,6 +2388,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 
 		public void actionPerformed(ActionEvent e) {
+			if(guest) return;
 			moveB[num].setSelected(true);
 			for(MoveButton mb : moveB)
 				if(mb != moveB[num])
@@ -2523,7 +2414,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		public void actionPerformed(ActionEvent e) {
 			// don't attempt to switch in currently active pony
-			if(p1.getTeam().getPony(num) == allyPony) return;
+			if(guest || p1.getTeam().getPony(num) == allyPony) return;
 
 			if(connection != null)
 				sendB("|switch|"+(playerID == 0 ? p1.getName() : playerID)+"|"+num);
@@ -2544,7 +2435,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		private Popup popup;
 		private PopupFactory popupFactory;
 		private JToolTip toolTip; 
-		
+	
 		public PonySpriteListener(final boolean isAlly) {
 			this.isAlly = isAlly;
 			popupFactory = PopupFactory.getSharedInstance();
@@ -2574,7 +2465,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				statsString.delete(statsString.length() - 2, statsString.length());
 			} else {
-				// show range of possible enemy speed	
+				// show range of possible enemy speed
 				if(oppPony != null) {
 					int baseSpe = oppPony.getBaseSpeed();
 					int minSpe = (int)((2 * baseSpe * oppPony.getLevel() / 100 + 5) * 0.9);
@@ -2606,19 +2497,14 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					)+"</b>" 
 					: ""
 				)+"</p>"+
-				(pony.hasNegativeCondition() ? 
-				"<p>Status: "+ 
-				(pony.isKO() ? "KO" :
-				pony.isBurned() ? "brn" :
-				pony.isAsleep() ? "slp" :
-				pony.isParalyzed() ? "par" :
-				pony.isIntoxicated() ? "tox" :
-				pony.isPoisoned() ? "psn" :
-				pony.isPetrified() ? "ptr" : "ok") + "</p>" : "")+
+				(pony.hasNegativeCondition() 
+				 	? "<p>Status: "+ (pony.getStatus() != null ? pony.getStatus().toBrief() : "") + "</p>"
+					: ""
+				) +
 				"<p>"+statsString+"</p>"+
 				"</body></html>"
 			);
-			
+		
 			// set fixed coordinates for tooltips
 			int x = 0, y = 0;
 			if(isAlly) {
@@ -2643,6 +2529,106 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 	}
 
+	/** @return A Point with the coordinates of the ally sprite */
+	private Point allyLocation() {
+		if(allySprite != null)
+			return new Point(FIELD_X + 30, FIELD_HEIGHT - allySprite.getHeight() - 30);
+		else
+			return new Point(FIELD_X + 30, FIELD_HEIGHT - 130);
+	}
+
+	/** @return A Point with the coordinates of the opponent sprite */
+	private Point oppLocation() {
+		if(oppSprite != null)
+			return new Point(FIELD_WIDTH - FIELD_X - oppSprite.getWidth() - 30, 30);
+		else
+			return new Point(FIELD_WIDTH - FIELD_X - 130, 30);
+	}
+
+	private Point allyLocation(final JLabel sprite) {
+		if(sprite != null && sprite.getIcon() != null)
+			return new Point(FIELD_X + 30, FIELD_HEIGHT - sprite.getIcon().getIconHeight() - 30);
+		else
+			return new Point(FIELD_X + 30, FIELD_HEIGHT - 130);
+	}
+	private Point oppLocation(final JLabel sprite) {
+		if(sprite != null && sprite.getIcon() != null)
+			return new Point(FIELD_WIDTH - FIELD_X - sprite.getIcon().getIconWidth() - 30, 30);
+		else
+			return new Point(FIELD_WIDTH - FIELD_X - 130, 30);
+	}
+
+	private void setOpponentBounds(final JLabel sprite) {
+		sprite.setBounds(
+			(int)oppLocation(sprite).getX(),
+			(int)oppLocation(sprite).getY(),
+			sprite.getIcon().getIconWidth(),
+			sprite.getIcon().getIconHeight()
+		);
+	}
+
+	/** Spawn a JLabel on opponent side on the PONY_LAYER */
+	private void setOnOpponentSide(final JLabel sprite) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				setOpponentBounds(sprite);
+				if(Debug.pedantic) printDebug("oppSide: "+sprite.getBounds());
+				fieldP.add(sprite,PONY_LAYER);
+				oppSprite = new TransparentLabel(sprite);
+				oppSprite.addMouseListener(new PonySpriteListener(false));
+			}
+		});
+	}
+
+	private void setOnOpponentSide(URL url) {
+		if(url == null) {
+			JLabel sprite = new JLabel(new ImageIcon(PLACEHOLDER_URL[0]));
+			setOnOpponentSide(sprite);
+		} else {
+			JLabel sprite = new JLabel(new ImageIcon(url));
+			if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
+				if(Debug.on) printDebug("[setOnOpponentSide] sprite is null: using placeholder...");
+				sprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
+			}
+			setOnOpponentSide(sprite);
+		}
+	}
+
+	private void setAllyBounds(final JLabel sprite) {
+		sprite.setBounds(
+				(int)allyLocation(sprite).getX(),
+				(int)allyLocation(sprite).getY(),
+				sprite.getIcon().getIconWidth(),
+				sprite.getIcon().getIconHeight()
+		);
+	}
+
+	/** Spawn a JLabel on ally side on the PONY_LAYER */
+	private void setOnAllySide(final JLabel sprite) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				setAllyBounds(sprite);
+				if(Debug.pedantic) printDebug("allySide: "+sprite.getBounds());
+				fieldP.add(sprite,PONY_LAYER);
+				allySprite = new TransparentLabel(sprite);
+				allySprite.addMouseListener(new PonySpriteListener(true));
+			}
+		});
+	}
+
+	private void setOnAllySide(URL url) {
+		if(url == null) {
+			JLabel sprite = new JLabel(new ImageIcon(PLACEHOLDER_URL[1]));
+			setOnAllySide(sprite);
+		} else {
+			JLabel sprite = new JLabel(new ImageIcon(url));
+			if(sprite.getIcon() == null || sprite.getIcon().getIconWidth() < 0) {
+				if(Debug.on) printDebug("[setOnAllySide] sprite is null: using placeholder...");
+				sprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
+			}
+			setOnAllySide(sprite);
+		}
+	}
 
 	/** Utility method that produces the full path of background images */
 	private static URL completeBGPath(String relPath) {
@@ -2817,12 +2803,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 									else
 										sb.append(pny+" turned to stone!");
 									break;
-								case CONFUSED:
-									if(cure)
-										sb.append(pny+" snapped out of its confusion!");
-									else
-										sb.append(pny+" became confused!");
-									break;
 							}
 						} else {
 							sb.append(phrase);
@@ -2855,7 +2835,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					default:
 						sb.append(event);
 				}
-				
+			
 				eventP.append(sb.toString(), false);
 			}
 		});
@@ -2876,51 +2856,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 
 		return phrase.replaceAll("\\[pony\\]", pony.getNickname());
-		/*
-		if(name.startsWith("weather/")) {
-			Weather weather = Weather.forName(name.replaceFirst("weather\\/",""));
-			if(weather != null) 
-				return weather.getPhrase().replaceAll("\\[pony\\]",
-						(pony == oppPony ? "Enemy "+pony.getNickname() : pony.getNickname()));
-			else throw new RuntimeException("Weather not found: "+name);
-		}
-
-		EffectDealer dealer = null;
-
-		try {
-			dealer = MoveCreator.create(name);
-		} catch(ReflectiveOperationException e) {
-			if(Debug.pedantic) printDebug("Exception: "+e);
-			if(Debug.on) printDebug(name+" is not a Move; trying Ability.");
-			try {
-				dealer = AbilityCreator.create(name);
-			} catch(ReflectiveOperationException ee) {
-				if(Debug.pedantic) printDebug("Exception: "+ee);
-				if(Debug.on) printDebug(name+" is not an Ability; trying Item.");
-				try {
-					dealer = ItemCreator.create(name);
-				} catch(ReflectiveOperationException eee) {
-					if(Debug.pedantic) printDebug("Exception: "+eee);
-					printDebug(name+" is not an Item. Giving up.");
-					throw new RuntimeException("dealer not found.");
-				}
-			}
-		}
-
-		if(dealer.getPhrase() != null) 
-			return dealer.getPhrase().replaceAll("\\[pony\\]",(pony == oppPony ? "Enemy "+pony.getNickname() : pony.getNickname()));
-		else {
-			if(pony == allyPony)
-				return pony.getNickname() + (dam < 0 ? " healed " : " lost ") + 
-						Math.min(100,pony.calculateDamagePerc(dam)) + "% of its HP!";
-			else if(pony == oppPony)
-				return "Enemy " + pony.getNickname() + (dam < 0 ? " healed " : " lost ") +
-						Math.min(100,pony.calculateDamagePerc(dam)) + "% of its HP!";
-		}
-
-		// should never happen.
-		throw new RuntimeException("[BP.parseDamageEvent()]: pony is neither ally nor opponent!");
-		*/
 	}
 
 	/** If connection is valid, send messages to the server; else, output on console */
@@ -2932,7 +2867,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		if(Debug.on) printDebug("[BattlePanel] sending msg to server: "+msg);
 		connection.sendMsg(BTL_PREFIX+battleID+" "+msg);
 	}
-	
+
 	/** This method ensures a graceful end when a player wins. */
 	private void runWinEvent(String str) {
 		if(Debug.on) printDebug("[BP] running win event with argument "+str);
@@ -2944,12 +2879,15 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		} else {
 			printDebug("[runWinEvent] unknown argument: "+str);
 		}
-		
+	
 		terminate();
 	}
 
-	public void sendForfeitMsg() {
-		sendB("|forfeit|"+(playerID == 0 ? p1.getName() : playerID));
+	public void leave() {
+		if(guest)
+			sendB("|leave|"+connection.getName());
+		else
+			sendB("|forfeit|"+(playerID == 0 ? p1.getName() : playerID));
 	}
 
 	public void terminate() {
@@ -3113,7 +3051,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("fadeOut",false);
 			opts.put("persistent",true);
 			Animation anim = new Fade(fieldP,opts);
-			if(Debug.on) printDebug("Starting switch-in animation");	
+			if(Debug.on) printDebug("Starting switch-in animation");
 			anim.start();
 			synchronized(anim) {
 				try {
@@ -3132,7 +3070,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalPoint",new Point((ally ? labl.getX() - 50 : labl.getX() + 50), labl.getY()));
 			opts.put("fadeOut",true);
 			Animation anim = new Fade(fieldP,opts);
-			if(Debug.on) printDebug("Starting switch-out animation");	
+			if(Debug.on) printDebug("Starting switch-out animation");
 			anim.start();
 			synchronized(anim) {
 				try {
@@ -3143,7 +3081,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			}
 		}
 	}
-	
+
 	private void faintAnim(TransparentLabel labl) {
 		if(labl != null && labl.getIcon() != null && labl.getIcon().getIconHeight() > 0) {
 			Map<String,Object> opts = new HashMap<>();
@@ -3151,7 +3089,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalPoint",new Point(labl.getX(),labl.getY()+50));
 			opts.put("fadeOut",true);
 			Animation anim = new Fade(fieldP,opts);
-			if(Debug.on) printDebug("Starting faint animation");	
+			if(Debug.on) printDebug("Starting faint animation");
 			anim.start();
 			synchronized(anim) {
 				try {
@@ -3535,7 +3473,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						path = root+persName.toLowerCase().replaceAll(" ","_")+".gif";
 				}
 			}
-					
+				
 			if(Debug.on) printDebug("[setPersistentEffect] loading "+path+"...");
 			// we suppose the persistent sprites are already the correct size, because resizing them would
 			// un-animate the gifs.
@@ -3559,7 +3497,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			}
 			persEffectsSprite.get(ally ? 0 : 1).put(persName,sprite);
 			opts.put("sprite",sprite);
-			Animation anim = new Fade(fieldP,opts);	
+			Animation anim = new Fade(fieldP,opts);
 			anim.start();
 			try {
 				synchronized(anim) {

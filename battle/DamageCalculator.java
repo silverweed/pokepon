@@ -241,7 +241,7 @@ class DamageCalculator {
 				if(be.echoBattle) System.out.println("Critical hit!");
 			}
 		}
-		if(be.getAttacker().isBurned() && move.getMoveType() == Move.MoveType.PHYSICAL)
+		if(be.getAttacker().hasStatus(Pony.Status.BURNED) && move.getMoveType() == Move.MoveType.PHYSICAL)
 			modifier /= 2;
 
 		modifier *= (0.85 + rng.nextFloat()*0.15);	//float from 0.85 to 1

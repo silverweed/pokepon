@@ -249,7 +249,7 @@ public class TeamDealer {
 					if(!Arrays.asList(Pony.statNames()).contains(ev)) return false;
 					pony.setEV(ev,num);
 					if(it.hasNext()) it.next();	//remove trailing "/"
-					if(Debug.on) printDebug(pony+"'s "+ev+" EV are now "+pony.getEV(ev));
+					if(Debug.pedantic) printDebug(pony+"'s "+ev+" EV are now "+pony.getEV(ev));
 				} catch(Exception e) { 
 					printDebug("[parseSaveDataLine] Caught exception while parsing line: "+e);
 					e.printStackTrace();
@@ -268,7 +268,7 @@ public class TeamDealer {
 					if(!Arrays.asList(Pony.statNames()).contains(iv)) return false;
 					pony.setIV(iv,num);
 					if(it.hasNext()) it.next();	//remove trailing "/"
-					if(Debug.on) printDebug(pony+"'s "+iv+" IV are now "+pony.getIV(iv));
+					if(Debug.pedantic) printDebug(pony+"'s "+iv+" IV are now "+pony.getIV(iv));
 				} catch(Exception e) { 
 					printDebug("[parseSaveDataLine] Caught exception while parsing line: "+e);
 					e.printStackTrace();
@@ -362,7 +362,7 @@ public class TeamDealer {
 				e.printStackTrace();
 				return false;
 			}
-			if(Debug.on) printDebug("Team is now: "+team);
+			if(Debug.pedantic) printDebug("Team is now: "+team);
 		}		
 		
 		return true;

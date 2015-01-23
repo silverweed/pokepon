@@ -372,8 +372,10 @@ public class Team implements Iterable<Pony> {
 
 	public void healTeamStatus() {
 		for(Pony p : pony) {
-			if(p != null) 
+			if(p != null) {
 				p.healStatus();
+				p.setConfused(false);
+			}
 		}
 	}
 	

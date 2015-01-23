@@ -42,7 +42,6 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 	protected Team team;
 	protected String format;
 	protected List<Team> teams = new LinkedList<Team>();
-	protected Player player = new Player();
 	protected Map<String,BattlePanel> battles = new HashMap<String,BattlePanel>();
 	protected TeamDealer teamDealer = new TeamDealer();
 	protected boolean loadedTeams;
@@ -214,7 +213,6 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 		return battles;
 	}
 
-	public Player getPlayer() { return player; }
 	public synchronized String getFormat() { return format; }
 
 	public void logBattleLine(final String line) {
@@ -229,15 +227,23 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 	 * associates battle IDs with battlePanels. 
 	 * @param id The unique ID of the battle (given by the server)
 	 * @param format The battle's format
+	 * @param asGuest Join the battle as guest (default: false)
 	 * @param bgNum Background to use (normalized, default: random)
 	 * @param bgmNum Background music to use (normalized, default: random)
 	 */
-	public boolean spawnBattle(final String id, final String format, final float bgNum, final float bgmNum) {
+	public boolean spawnBattle(final String id, final String format, final boolean asGuest, final float bgNum, final float bgmNum) {
 		if(battles.containsKey(id)) throw new RuntimeException("Duplicate ID in battles map!");
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				public void run() {
-					final BattlePanel newbattle = new BattlePanel(connection,id,new Player(player),new Player("<Opponent>"));
+					final BattlePanel newbattle = new BattlePanel(
+										connection,
+										id, 
+										new Player(connection.getName()),
+										new Player("<Opponent>")
+										);
+					if(asGuest)
+						newbattle.watchAsGuest(true);
 					try {
 						if(bgNum != -1f) {
 							if(bgmNum != -1f)
@@ -263,8 +269,9 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 						battleFrame.addWindowListener(new WindowAdapter() {
 							public void windowClosing(WindowEvent e) {
 								if(Debug.on) printDebug("Battle window closing.");
-								newbattle.sendForfeitMsg();
+								newbattle.leave();
 								newbattle.terminate();
+								battles.remove(id);
 							}
 						});
 						battleFrame.setTitle("Battle ["+id+"]");
@@ -288,16 +295,16 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 		return true;
 	}
 
-	public boolean spawnBattle(final String id, final String format, final float bgNum) {
-		return spawnBattle(id, format, bgNum, -1f);
+	public boolean spawnBattle(final String id, final String format, final boolean asGuest, final float bgNum) {
+		return spawnBattle(id, format, asGuest, bgNum, -1f);
+	}
+
+	public boolean spawnBattle(final String id, final String format, final boolean asGuest) {
+		return spawnBattle(id, format, asGuest, -1f);
 	}
 
 	public boolean spawnBattle(final String id, final String format) {
-		return spawnBattle(id, format, -1f);
-	}
-	
-	public boolean spawnBattle(final String id) {
-		return spawnBattle(id, "");
+		return spawnBattle(id, format, false);
 	}
 
 	/** Look for teams in the save directory and load the valid ones into memory. */

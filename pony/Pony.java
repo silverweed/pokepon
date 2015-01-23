@@ -160,8 +160,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		ASLEEP("Asleep"),
 		PETRIFIED("Petrified"), 
 		POISONED("Poisoned"), 
-		INTOXICATED("Intoxicated"),
-		CONFUSED("Confused");
+		INTOXICATED("Intoxicated");
 
 		private final String name;
 
@@ -174,10 +173,22 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			return name;
 		}
 
+		public String toBrief() {
+			switch(this) {
+				case KO: return "ko";
+				case PARALYZED: return "par";
+				case BURNED: return "brn";
+				case ASLEEP: return "slp";
+				case PETRIFIED: return "ptr";
+				case POISONED: return "psn";
+				case INTOXICATED: return "tox";
+			}
+			return null;
+		}
+
 		public static Status forName(final String name) {
 			if(name.length() == 3) {
 				if(name.equalsIgnoreCase("par")) return Status.PARALYZED;
-				if(name.equalsIgnoreCase("cnf")) return Status.CONFUSED;
 				if(name.equalsIgnoreCase("psn")) return Status.POISONED;
 				if(name.equalsIgnoreCase("tox")) return Status.INTOXICATED;
 				if(name.equalsIgnoreCase("brn")) return Status.BURNED;
@@ -287,12 +298,16 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			modifiers.reset();
 			effectiveness.clear();
 			deathScheduled = false;
+			deathCounter = 0;
 			taunted = false;
+			tauntCounter = 0;
 			trapped = false;
 			lockedOnMove = false;
 			substitute = false;
 			abilityDisabled = false;
 			cannotUseItems = false;
+			confused = false;
+			confusionCounter = 0;
 		}
 		/** Copies all volatiles from another Volatiles instance */
 		public void copy(Volatiles vol) {
@@ -300,12 +315,16 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			modifiers.copy(vol.modifiers);
 			substitute = vol.substitute;
 			deathScheduled = vol.deathScheduled;
+			deathCounter = vol.deathCounter;
 			taunted = vol.taunted;
+			tauntCounter = vol.tauntCounter;
 			trapped = vol.trapped;
 			lockedOnMove = vol.lockedOnMove;
 			abilityDisabled = vol.abilityDisabled;
 			cannotUseItems = vol.cannotUseItems;
 			effectiveness = new EnumMap<Type,Float>(vol.effectiveness);
+			confused = vol.confused;
+			confusionCounter = vol.confusionCounter;
 		}
 		@Override
 		public String toString() {
@@ -324,12 +343,16 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 		public Modifiers modifiers = new Modifiers();
 		public boolean deathScheduled;
+		public int deathCounter;
 		public boolean taunted;
+		public int tauntCounter;
 		public boolean trapped;
 		public boolean lockedOnMove;
 		public boolean substitute;
-		private boolean abilityDisabled;
-		private boolean cannotUseItems;
+		public boolean confused;
+		public int confusionCounter;
+		public boolean abilityDisabled;
+		public boolean cannotUseItems;
 		public EnumMap<Type,Float> effectiveness = new EnumMap<>(Type.class);
 	}
 
@@ -630,18 +653,15 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 	}
 
-	public Set<Status> getStatus() { 
-		Set<Status> status = (Set<Status>)EnumSet.noneOf(Status.class);
-		if(paralyzed) status.add(Status.PARALYZED);
-		if(burned) status.add(Status.BURNED);
-		if(petrified) status.add(Status.PETRIFIED);
-		if(confused) status.add(Status.CONFUSED);
-		if(poisoned) status.add(Status.POISONED);
-		if(intoxicated) status.add(Status.INTOXICATED);
-		if(asleep) status.add(Status.ASLEEP);
-		if(isKO()) status.add(Status.KO);
-
-		return status;
+	public Status getStatus() { 
+		if(isKO()) return Status.KO;
+		if(paralyzed) return Status.PARALYZED;
+		if(burned) return Status.BURNED;
+		if(petrified) return Status.PETRIFIED;
+		if(intoxicated) return Status.INTOXICATED;
+		if(poisoned) return Status.POISONED;
+		if(asleep) return Status.ASLEEP;
+		return null;
 	}
 	
 	public int getHappiness() { 
@@ -657,39 +677,23 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	// Temporary statuses
+	public boolean hasStatus(Status status) {
+		switch(status) {
+			case KO: return hp <= 0;
+			case PARALYZED: return paralyzed;
+			case BURNED: return burned;
+			case ASLEEP: return asleep;
+			case PETRIFIED: return petrified;
+			case POISONED: return poisoned;
+			case INTOXICATED: return intoxicated;
+		}
+		return false;
+	}
 
 	public boolean hasNegativeCondition() {
 		return paralyzed || poisoned || petrified || intoxicated || burned || asleep;
 	}
 
-	public boolean isParalyzed() {
-		return paralyzed;
-	}
-	
-	public boolean isConfused() {
-		return confused;
-	}
-	
-	public boolean isPoisoned() {
-		return poisoned;
-	}
-	
-	public boolean isPetrified() {
-		return petrified;
-	}
-	
-	public boolean isIntoxicated() {
-		return intoxicated;
-	}
-	
-	public boolean isBurned() {
-		return burned;
-	}
-	
-	public boolean isAsleep() {
-		return asleep;
-	}
-	
 	public boolean isKO() {
 		return hp <= 0;
 	}
@@ -708,6 +712,10 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public String getUnlockPhrase() {
 		return unlockPhrase;
+	}
+
+	public boolean isConfused() {
+		return volatiles.confused;
 	}
 
 	public boolean isTrapped() {
@@ -987,11 +995,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		// reset counters
 		toxicCounter = 0;
 		protectCounter = 0;
-		deathCounter = 0;
-		tauntCounter = 0;
 		// these volatiles aren't handled by Volatiles class (for now)
 		isProtected = false;
-		confused = false;
 		// reset ability, item and moves
 		if(ability != null)
 			ability.reset();
@@ -1064,12 +1069,9 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	// COUNTERS (public for convenience) //
-	public int deathCounter;
 	public int toxicCounter;
 	public int protectCounter;
 	public int sleepCounter;
-	public int confusionCounter;
-	public int tauntCounter;
 	public int activeTurns;
 	
 	
@@ -1309,7 +1311,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 	
 	public void setConfused(boolean bool) {
-		confused = bool;
+		volatiles.confused = bool;
 	}
 	
 	public void setBurned(boolean bool) {
@@ -1365,15 +1367,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		hp = 0;
 	}
 
-	public void resetAllStatus() {
-		petrified = false;
-		confused = false;
-		burned = false;
-		asleep = false;
-		poisoned = false;
-		intoxicated = false;
-	}
-	
 	public void setProtected(boolean bool) {
 		isProtected = bool;
 	}
@@ -1386,7 +1379,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public void scheduleDeath(int delay) {
 		if(Debug.on) printDebug("[Pony] Scheduling death for "+this+" in "+delay+" turns.");
 		volatiles.deathScheduled = true;
-		deathCounter= delay;
+		volatiles.deathCounter= delay;
 	}
 	public void setAbilityDisabled(boolean b) {
 		volatiles.abilityDisabled = b;
@@ -1714,28 +1707,25 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return volatiles.effectiveness.remove(t);
 	}
 
-	public void addStatus(final Status status) {
+	public void setStatus(final Status status, boolean b) {
 		switch(status) {
 			case PARALYZED:
-				paralyzed = true;
+				paralyzed = b;
 				break;
 			case ASLEEP:
-				asleep = true;
+				asleep = b;
 				break;
 			case PETRIFIED:
-				petrified = true;
+				petrified = b;
 				break;
 			case INTOXICATED:
-				intoxicated = poisoned = true;
+				intoxicated = b;
 				break;
 			case POISONED:
-				poisoned = true;
+				poisoned = b;
 				break;
 			case BURNED:
-				burned = true;
-				break;
-			case CONFUSED:
-				confused = true;
+				burned = b;
 				break;
 		}
 	}
@@ -1749,34 +1739,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		toxicCounter = 0;
 		poisoned = false;
 		burned = false;
-		confused = false;
-		confusionCounter = 0;
-	}
-
-	public void healStatus(final Status status) {
-		switch(status) {
-			case PARALYZED:
-				paralyzed = false;
-				break;
-			case ASLEEP:
-				asleep = false;
-				break;
-			case PETRIFIED:
-				petrified = false;
-				break;
-			case INTOXICATED:
-				intoxicated = poisoned = false;
-				break;
-			case POISONED:
-				poisoned = false;
-				break;
-			case BURNED:
-				burned = false;
-				break;
-			case CONFUSED:
-				confused = false;
-				break;
-		}
 	}
 
 	/** This method uses reflection to invoke methods of item, ability and hazards (all of which
@@ -2043,7 +2005,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	private boolean active;
 
 	private boolean paralyzed;
-	private boolean confused;
 	private boolean burned;
 	private boolean petrified;
 	private boolean poisoned;

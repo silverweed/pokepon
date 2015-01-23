@@ -493,8 +493,7 @@ public class BattleTask implements Runnable {
 	public void sendM(String msg) {
 		c1.sendMsg(msg);
 		c2.sendMsg(msg);
-		int sent = 0;
-		for(int i = 0; i < guests.length && sent < nGuests; ++i)
+		for(int i = 0, sent = 0; i < guests.length && sent < nGuests; ++i)
 			if(guests[i] != null) {
 				guests[i].sendMsg(msg);
 				++sent;
@@ -510,15 +509,14 @@ public class BattleTask implements Runnable {
 		if(cl.getVerbosity() >= 2) printDebug("[BattleTask] sending msg to "+cl.getName()+": "+BTL_PREFIX+battleID+" "+msg);
 		cl.sendMsg(BTL_PREFIX+battleID+" "+msg);
 		if(!broadcastToGuests) return;
-		int sent = 0;
 		if(cl == c1) 
-			for(int i = 0; i < guests.length && sent < nGuests; i += 2) {
+			for(int i = 0, sent = 0; i < guests.length && sent < nGuests; i += 2) {
 				if(guests[i] == null) continue;
 				guests[i].sendMsg(BTL_PREFIX+battleID+" "+msg);
 				++sent;
 			}
 		else if(cl == c2)
-			for(int i = 1; i < guests.length && sent < nGuests; i += 2) {
+			for(int i = 1, sent = 0; i < guests.length && sent < nGuests; i += 2) {
 				if(guests[i] == null) continue;
 				guests[i].sendMsg(BTL_PREFIX+battleID+" "+msg);
 				++sent;
@@ -1120,8 +1118,11 @@ public class BattleTask implements Runnable {
 	}
 	
 	private int guestIndexOf(final Connection c) {
-		for(int i = 0; i < guests.length; ++i)
+		for(int i = 0, n = 0; i < guests.length && n < nGuests; ++i) {
+			if(guests[i] == null) continue;
 			if(guests[i] == c) return i;
+			++n;
+		}
 		return -1;
 	}
 

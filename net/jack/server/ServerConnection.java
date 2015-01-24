@@ -275,7 +275,7 @@ class ServerConnection extends Connection {
 			}
 			
 			if(verbosity >= 2) printMsg(name+" said: "+msg);
-			server.broadcast(null, name+" said: "+msg);
+			server.broadcast(null, "["+now("HH:mm:ss")+"] "+name+" said: "+msg);
 			return 1;
 		}
 	}

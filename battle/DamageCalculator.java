@@ -62,7 +62,7 @@ class DamageCalculator {
 		BattleTask bt = be.getBattleTask();
 		
 		if(Debug.on) {
-			printDebug("[DC] "+attacker.getName()+" => "+defender.getName()+" {weather="+weather+"}");
+			printDebug("[DC] "+attacker.getName()+" => "+defender.getName()+" with "+move.getName()+" {weather="+weather+"}");
 		}
 		if(Debug.pedantic) {
 			printDebug("[DC] Attacker: boosts="+attacker.getBoosts()+",status="+attacker.getStatus());

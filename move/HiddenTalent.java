@@ -39,6 +39,11 @@ public class HiddenTalent extends Move {
 		animation.put("sprite","shadowball.png");
 		animation.put("bounceBack",false);
 	}
+	
+	@Override
+	public String getName() {
+		return name + " " +type;
+	}
 
 	public HiddenTalent(Pony p) {
 		this();

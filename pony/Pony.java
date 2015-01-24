@@ -871,7 +871,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		if(sb.length() > 1) 
 			sb.delete(sb.length()-1,sb.length());
 		sb.append("]");
-		if(Debug.on) printDebug(name+".getBoosts() = " + sb);
+		if(Debug.pedantic) printDebug(name+".getBoosts() = " + sb);
 		return sb.toString();
 	}
 

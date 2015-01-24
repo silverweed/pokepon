@@ -233,8 +233,8 @@ class CommandsExecutor extends ServerConnectionExecutor {
 
 			for(Connection conn : server.getClients()) {
 				if(conn.getName().equals(token[1])) {
-					conn.sendMsg("["+connection.getName()+" whispered]: "+mesg);
-					connection.sendMsg("You whispered to "+token[1]+": "+mesg);
+					conn.sendMsg("["+now("HH:mm:ss")+"] "+connection.getName()+" whispered: "+mesg);
+					connection.sendMsg("["+now("HH:mm:ss")+"] You whispered to "+token[1]+": "+mesg);
 					return 1;
 				}
 			}

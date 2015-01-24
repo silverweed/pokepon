@@ -36,9 +36,9 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 	private BufferedReader in;
 	private PrintWriter out;
 	private String nick = "No nick";
-	private Pattern chatPattern = Pattern.compile("^(?<nick>\\S+) said:.*$");
-	private Pattern whisperPattern = Pattern.compile("^(?<nick>\\[\\S+ whispered\\]):.*$");
-	private Pattern meWhisperPattern = Pattern.compile("^(?<nick>You whispered to [^ :]+):.*$");
+	private Pattern chatPattern = Pattern.compile("^(?<time>\\[[^\\]]+\\]\\s)?(?<nick>\\S+) said:.*$");
+	private Pattern whisperPattern = Pattern.compile("^(?<time>\\[[^\\]]+\\]\\s)?(?<nick>\\S+ whispered):.*$");
+	private Pattern meWhisperPattern = Pattern.compile("^(?<time>\\[[^\\]]+\\]\\s)?(?<nick>You whispered to [^ :]+):.*$");
 
 	public ChatPanel() {
 		super(true);	// enables double buffering
@@ -125,14 +125,22 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 		String _str = escapeHTML ? MessageManager.sanitize(str) : str;
 		// highlight nicknames
 		Matcher matcher = chatPattern.matcher(_str);
-		if(matcher.matches() && matcher.group("nick") != null) {
-			if(matcher.group("nick").equals(nick))
-				_str = _str.replace(matcher.group("nick"),"<b><font color='blue'>"+matcher.group("nick")+"</font></b>");
-			else
-				_str = _str.replace(matcher.group("nick"),"<b><font color='green'>"+matcher.group("nick")+"</font></b>");
+		if(matcher.matches()) {
+			if(matcher.group("time") != null)
+				_str = _str.replace(matcher.group("time"), "<font color='gray'>"+matcher.group("time")+"</font>");
+			if(matcher.group("nick") != null) {
+				if(matcher.group("nick").equals(nick))
+					_str = _str.replace(matcher.group("nick"),"<b><font color='blue'>"+matcher.group("nick")+"</font></b>");
+				else
+					_str = _str.replace(matcher.group("nick"),"<b><font color='green'>"+matcher.group("nick")+"</font></b>");
+			}
 		} else if((matcher = whisperPattern.matcher(_str)).matches() && matcher.group("nick") != null) {
+			if(matcher.group("time") != null)
+				_str = _str.replace(matcher.group("time"), "<font color='gray'>"+matcher.group("time")+"</font>");
 			_str = _str.replace(matcher.group("nick"),"<b><em><font color='#00B800'>"+matcher.group("nick")+"</font></em></b>");
 		} else if((matcher = meWhisperPattern.matcher(_str)).matches() && matcher.group("nick") != null) {
+			if(matcher.group("time") != null)
+				_str = _str.replace(matcher.group("time"), "<font color='gray'>"+matcher.group("time")+"</font>");
 			_str = _str.replace(matcher.group("nick"),"<b><em><font color='#00AAFF'>"+matcher.group("nick")+"</font></em></b>");
 		}
 		try {

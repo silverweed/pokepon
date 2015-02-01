@@ -26,6 +26,10 @@ public class DrumBang extends Move {
 		priority = 0;
 		description = "You can bang on the drums. As in, the opponent.";
 		briefDesc = "50% to hit twice.";
+
+		animation.put("name", "Ballistic");
+		animation.put("sprite", "note.png");
+		animation.put("bounceBack", false);
 		
 		hits = 2;
 		/** Probability of doing 1 or 2 hits */

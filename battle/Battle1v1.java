@@ -108,6 +108,9 @@ public class Battle1v1 extends Battle {
 				Pony pony = PonyCreator.createRandom();
 				if(Debug.on) printDebug("[randomTeam] created pony "+pony.getName());
 
+				// reject if team already has one
+				if(team.getPony(pony.getName()) != null) continue;
+
 				// for now we judge uberness by BST; in future we may introduce tiers.
 				if(pony.bst() >= 600 || pony.getName().equals("Tirek")) ++ubers;
 				else if(pony.bst() <= 420) ++wimps;
@@ -178,6 +181,10 @@ public class Battle1v1 extends Battle {
 								pony.learnMove(m);
 								continue;
 							}
+
+							// Reject move if we already have learned it
+							if(pony.getMove(m.getName()) != null)
+								continue;
 
 							// Mirror Pond is not really viable for a low-HP pony
 							if(m.getName().equals("Mirror Pond") && pony.getBaseHp() < 65 && rng.nextFloat() < 0.9)

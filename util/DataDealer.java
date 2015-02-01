@@ -71,7 +71,7 @@ public class DataDealer {
 						sb.append(pony.getPossibleAbilities().get(i)+"&nbsp;&nbsp;&nbsp;");
 				//sb.append("</tr></table><br>");
 				sb.append("<br>");
-				sb.append("<b>HP&nbsp;&nbsp;Atk&nbsp;&nbsp;Def&nbsp;&nbsp;SpA&nbsp;&nbsp;SpD&nbsp;&nbsp;Spe</b><br>");
+				sb.append("<b>HP&nbsp;&nbsp;&nbsp;Atk&nbsp;&nbsp;&nbsp;Def&nbsp;&nbsp;&nbsp;SpA&nbsp;&nbsp;&nbsp;SpD&nbsp;&nbsp;&nbsp;Spe</b><br>");
 				sb.append(pony.getBaseHp()+"&nbsp;&nbsp;");
 				sb.append(pony.getBaseAtk()+"&nbsp;&nbsp;");
 				sb.append(pony.getBaseDef()+"&nbsp;&nbsp;");

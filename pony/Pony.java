@@ -562,7 +562,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public Move getMove(int i) { return move[i]; }
 	public Move getMove(final String name) {
 		for(Move m : move) {
-			if(m.getName().equals(name)) { return m; }
+			if(m != null && m.getName().equals(name)) { return m; }
 		}
 		return null;
 	}

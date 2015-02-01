@@ -13,6 +13,7 @@ import pokepon.util.*;
 import pokepon.player.*;
 import javax.swing.*;
 import javax.swing.text.*;
+import javax.swing.event.*;
 import javax.swing.border.*;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
@@ -331,9 +332,9 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 	 * client must call showTeamChoiceDialog(String chosenFormat)
 	 */
 	public boolean showTeamChoiceDialog(Set<String> formats) {
-		JComboBox<Team> teamList = new JComboBox<>();
+		final JComboBox<Team> teamList = new JComboBox<>();
 		Object popup = teamList.getUI().getAccessibleChild(teamList, 0);  
-		if (popup instanceof ComboPopup) {  
+		if(popup instanceof ComboPopup) {  
 			JList jlist = ((ComboPopup)popup).getList();  
 			jlist.setFixedCellHeight(55);  
 		}  
@@ -351,6 +352,15 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 		for(String s : formats)
 			formatList.addItem(s);
 		formatList.addItem("Custom");
+
+		formatList.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(formatList.getSelectedItem().equals("RandomBattle"))
+					teamList.setEnabled(false);
+				else
+					teamList.setEnabled(true);
+			}
+		});
 
 		JButton hintButton = new JButton("?");
 		hintButton.addActionListener(new ActionListener() {

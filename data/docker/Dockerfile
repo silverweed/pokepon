@@ -1,14 +1,14 @@
 # Dockerfile for the Pokepon Server; to be run from outside the pokepon rootdir.
 # 10 Oct 2014, silverweed
-from debian:jessie
-maintainer silverweed <silverweed1991@gmail.com>
+FROM debian:jessie
+MAINTAINER silverweed <silverweed1991@gmail.com>
 
-run apt-get update && apt-get install -y openjdk-7-jre
-run useradd -g users pokepon
+RUN apt-get update && apt-get install -y openjdk-7-jre
+RUN useradd -g users pokepon
 
-expose 12344
-add pokepon /opt/pokepon
-run chown -R pokepon:users /opt/pokepon
-user pokepon
-env CLASSPATH /opt
-entrypoint ["/usr/bin/java", "pokepon.net.jack.server.PokeponServer"]
+EXPOSE 12344
+ADD pokepon /opt/pokepon
+RUN chown -R pokepon:users /opt/pokepon
+USER pokepon
+ENV CLASSPATH /opt
+ENTRYPOINT ["/usr/bin/java", "pokepon.net.jack.server.PokeponServer"]

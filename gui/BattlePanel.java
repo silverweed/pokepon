@@ -554,11 +554,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			showBottomAlert("Choose a pony to switch in");
 			StringBuilder sb = new StringBuilder("<font color=#40576A size=3><b>"+p1.getName()+
 				"'s team:</b><br><span style=\"color:#445566;display:block;\">");
-			for(Pony p : p1.getTeam().getAllPonies())
+			for(Pony p : p1.getTeam())
 				sb.append(p.getName()+" / ");
 			sb.delete(sb.length()-2,sb.length());
 			sb.append("</span><br><b>"+p2.getName()+"'s team:</b><br><span style=\"color:#445566;display:block;\">");
-			for(Pony p : p2.getTeam().getAllPonies())
+			for(Pony p : p2.getTeam())
 				sb.append(p.getName()+" / ");
 			sb.delete(sb.length()-2,sb.length());
 			sb.append("</span></font>");
@@ -1333,9 +1333,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						resultAnim(oppLocation(),"Recoil",ResultType.BAD);
 					}
 				}
+				Thread.sleep(INTERPRET_DELAY);
 			} catch(IllegalArgumentException e) {
 				printDebug("[BattlePanel.interpret(recoil): illegal argument "+e);
-			}
+			} catch(InterruptedException ignore) {}
 
 		} else if(token[0].equals("transform") && token.length > 2) {
 			/* |transform|(ally/opp)|Pony Name */

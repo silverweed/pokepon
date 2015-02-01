@@ -51,7 +51,7 @@ public class Player {
 
 	/** @return True if player has at least 1 non-KO pony in team (except Active Pony), false otherwise */
 	public boolean canSwitch() {
-		for(Pony p : team.getAllPonies()) {
+		for(Pony p : team) {
 			if(p.equals(team.getActivePony()) || p.equals(team.getOriginalActivePony())) continue;
 			if(!p.isKO()) return true;
 		}

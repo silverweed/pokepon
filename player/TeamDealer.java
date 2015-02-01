@@ -112,7 +112,7 @@ public class TeamDealer {
 		} 
 
 		if(!success) return false;
-		for(Pony p : team.getAllPonies())
+		for(Pony p : team)
 			p.setHp(p.maxhp());
 		printDebug("Team successfully loaded from "+filename);
 		return true;

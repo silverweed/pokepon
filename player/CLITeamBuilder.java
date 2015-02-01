@@ -64,7 +64,7 @@ public class CLITeamBuilder extends TeamBuilder {
 						
 						if(pony != null) {
 							team.add(pony);
-							consoleMsg("Added "+pony+" to your team. Current team:\n"+team.getAllPonies());
+							consoleMsg("Added "+pony+" to your team. Current team:\n"+team);
 							editPony(pony);
 						}
 					}
@@ -76,7 +76,7 @@ public class CLITeamBuilder extends TeamBuilder {
 						consoleMsg(team.toString());
 						input = Saner.sane(getInput("Select a pony > "),Meta.complete(PONY_DIR),Pony.class);						
 					}
-					for(Pony p : team.getAllPonies()) {
+					for(Pony p : team) {
 						if(p.getClass().getSimpleName().equals(input)) {
 							found = true;
 							parser.popFirstArg();
@@ -189,7 +189,7 @@ public class CLITeamBuilder extends TeamBuilder {
 	}		
 
 	private void editPony(Pony pony) {
-		if(!team.getAllPonies().contains(pony)) {
+		if(!team.contains(pony)) {
 			printDebug("Error: pony "+pony+" not found in team.");
 			return;
 		}

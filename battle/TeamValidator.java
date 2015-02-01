@@ -45,7 +45,7 @@ public class TeamValidator implements Callable<Boolean> {
 			result = false;
 			reasons.add("All the ponies must share at least 1 type ("+rules+").");
 		}
-		for(Pony p : team.getAllPonies()) {
+		for(Pony p : team) {
 			/* Check if this pony is banned in current format */
 			if(rules.getBannedPonies().contains(p.getName())) {
 				result = false;

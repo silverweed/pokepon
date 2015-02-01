@@ -172,9 +172,6 @@ public class BattleTask implements Runnable {
 				bgmNum = battle.getRNG().nextFloat();
 				sendM(CMN_PREFIX+"spawnbtl "+battleID+" "+format.getName().replaceAll(" ","_")+" "+bgNum+" "+bgmNum);
 				// TODO: check both clients could spawn battle
-				// teams should already be compacted, but for extra-insurance, compact them.
-				battle.getTeam(1).compact();
-				battle.getTeam(2).compact();
 
 				// initial joins
 				sendB(c1,"|join|ally:p1|"+c1.getName());
@@ -563,7 +560,7 @@ public class BattleTask implements Runnable {
 		for(int j = 1; j < 3; ++j) {
 			int tmpi = 0;
 			boolean ally = (j == 1 ^ c == c2) || (gIdx > 0 && gIdx % 2 != 0);
-			for(Pony p : battle.getTeam(j).getAllPonies()) {
+			for(Pony p : battle.getTeam(j)) {
 				p.setHp(p.maxhp());
 				sendB(c,"|pony|" + (ally ? "ally" : "opp") +
 							"|" + p.getName()+
@@ -1020,7 +1017,7 @@ public class BattleTask implements Runnable {
 					case 1: // switch to chosen pony
 					case 3:
 					{
-						if(engine.getTeam(i).getViablePonies() <= 1) break;
+						if(engine.getTeam(i).getViablePoniesCount() <= 1) break;
 						Pony curAP = battle.getPlayer(i).getActivePony();
 						sendB(thatC,"|wait");
 						sendB(thisC,"|mustswitch");
@@ -1039,7 +1036,7 @@ public class BattleTask implements Runnable {
 					case 4:
 					{
 						// don't apply effect if there are no more allies alive
-						if(engine.getTeam(i).getViablePonies() <= 1) break;
+						if(engine.getTeam(i).getViablePoniesCount() <= 1) break;
 						int rand = -1;
 						do {
 							rand = engine.getRNG().nextInt(engine.getTeam(i).members());

@@ -38,7 +38,7 @@ public class ChaosBurst extends Move {
 	@Override
 	public boolean validConditions(final BattleEngine be) {
 		if(be.getTeamAttacker().members() < 2) return false;
-		for(Pony p : be.getTeamAttacker().getAllPonies()) {
+		for(Pony p : be.getTeamAttacker()) {
 			if(p == be.getAttacker()) continue;
 			for(Move m : p.getMoves()) {
 				if(m.getBaseDamage() != 0) return true;
@@ -56,7 +56,7 @@ public class ChaosBurst extends Move {
 			throw new RuntimeException("Not enough members in team! Why didn't validConditions prevent this?");
 		}
 
-		for(Pony p : be.getTeamAttacker().getAllPonies()) {
+		for(Pony p : be.getTeamAttacker()) {
 			if(p == be.getAttacker()) continue;
 			for(Move m : p.getMoves()) {
 				if(m.getBaseDamage() != 0) possibleMoves.add(m);

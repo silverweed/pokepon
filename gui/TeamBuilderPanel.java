@@ -337,7 +337,7 @@ public class TeamBuilderPanel extends Ponydex {
 	public static void main(String[] args) {
 		JFrame frame = new JFrame();
 		frame.add(new TeamBuilderPanel());
-		SwingConsole.run(frame,800,600,"Ponydex");
+		SwingConsole.run(frame,800,600,"TeamBuilder");
 	}
 
 	public void clear() {

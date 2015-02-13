@@ -403,6 +403,18 @@ class GUILauncher extends JFrame {
 				try {
 					srvIp.setText(""+InetAddress.getLocalHost().getHostAddress());
 				} catch(UnknownHostException ignore) {}
+				srvIp.addFocusListener(new FocusListener() {
+					public void focusGained(FocusEvent e) {
+						srvIp.selectAll();
+					}
+					public void focusLost(FocusEvent e) {}
+				});
+				srvPort.addFocusListener(new FocusListener() {
+					public void focusGained(FocusEvent e) {
+						srvPort.selectAll();
+					}
+					public void focusLost(FocusEvent e) {}
+				});
 				// port
 				c.gridx = 0;
 				c.gridy = 2;

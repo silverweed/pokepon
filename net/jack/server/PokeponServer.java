@@ -23,12 +23,14 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	private static Set<Format> availableFormats = new LinkedHashSet<>();
 	static {
 		// The clients will see the available formats in this order.
-		availableFormats.add(RuleSet.Predefined.SPECIESCLAUSE);
+		availableFormats.add(RuleSet.Predefined.CLASSIC);
 		availableFormats.add(RuleSet.Predefined.RANDOMBATTLE);
+		availableFormats.add(RuleSet.Predefined.CLASSIC_MONOTYPE);
+		availableFormats.add(RuleSet.Predefined.SPECIESCLAUSE);
 		availableFormats.add(RuleSet.Predefined.NOUBER);
 		availableFormats.add(RuleSet.Predefined.CANON);
 		availableFormats.add(RuleSet.Predefined.ITEMCLAUSE);
-		availableFormats.add(RuleSet.Predefined.MONOTYPE);
+		availableFormats.add(RuleSet.Predefined.MONOTYPE);;
 		availableFormats.add(RuleSet.Predefined.DEFAULT);
 	}
 	private BattleSchedule battleSchedule = new BattleSchedule(); 

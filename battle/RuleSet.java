@@ -21,50 +21,43 @@ public class RuleSet implements Format {
 	public static enum Predefined implements Format {
 		DEFAULT (
 			new RuleSet (
-				"Default",
+				"Default (No Rules)",
 				null
 			)
 		),
-	
 		SPECIESCLAUSE (
 			new RuleSet (
-				"Species Clause",
+				"Species Clause Only",
 				new String[] { ":speciesclause" }
 			)
 		),
-
 		CANON (
 			new RuleSet (
-				"Canon",
+				"Canon Only",
 				new String[] { ":canon" }
 			)
 		),
-
 		ITEMCLAUSE (
 			new RuleSet (
-				"Item Clause",
+				"Item Clause Only",
 				new String[] { ":itemclause" }
 			)
 		),
-
 		MONOTYPE (
 			new RuleSet (
-				"Monotype",
+				"Monotype Only",
 				new String[] { ":monotype" }
 			)
 		),
-
 		RANDOMBATTLE (
 			new RuleSet (
 				"Random Battle",
 				new String[] { ":randombattle" }
 			)
 		),
-
-		// temporary name
 		NOUBER (
 			new RuleSet (
-				"No Uber",
+				"No Uber Only",
 				new String[] {
 					"p:Princess Celestia",
 					"p:Princess Luna",
@@ -73,9 +66,26 @@ public class RuleSet implements Format {
 					"p:Princess Cadance",
 					"p:Chrysalis",
 					"p:Discord",
-					"p:Starswirl"
+					"p:Starswirl",
+					"m:Friendship Cannon"
 				}
 			)
+		),
+		CLASSIC (
+			new RuleSet(
+				"Classic",
+				null
+			)
+			.union(SPECIESCLAUSE)
+			.union(NOUBER)
+		),
+		CLASSIC_MONOTYPE (
+			new RuleSet(
+				"Monotype",
+				null
+			)
+			.union(CLASSIC)
+			.union(MONOTYPE)
 		);
 
 		Predefined(final RuleSet r) {

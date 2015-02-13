@@ -74,7 +74,7 @@ class FancyPonyStatsPanel extends StatsPanel {
 
 			c.gridx = 0;
 			c.gridwidth = 1;
-			add(new JLabel(Pony.statNames()[i].substring(0,Math.min(Pony.statNames()[i].length(),3))),c);
+			add(new JLabel(Pony.STAT_NAMES[i].substring(0,Math.min(Pony.STAT_NAMES[i].length(),3))),c);
 
 			c.gridx = 1;
 			c.anchor = GridBagConstraints.EAST;
@@ -157,14 +157,14 @@ class FancyPonyStatsPanel extends StatsPanel {
 		for(int i = 0; i < 6; ++i) {
 			slider[i].setValue(0);
 			baseStats[i].setText(""+p.getBaseStat(i));
-			ev[i] = p.getEV(Pony.statNames()[i]);
-			iv[i] = p.getIV(Pony.statNames()[i]);
+			ev[i] = p.getEV(Pony.STAT_NAMES[i]);
+			iv[i] = p.getIV(Pony.STAT_NAMES[i]);
 			bstLabel.setText("BST: "+p.bst());
 			remaining.setText(""+p.remainingEVs());
 		}
 		if(pony.getNature().increasedStat() != null) {
-			positiveStatNum = Arrays.asList(Pony.statNames()).indexOf(pony.getNature().increasedStat());
-			negativeStatNum = Arrays.asList(Pony.statNames()).indexOf(pony.getNature().decreasedStat());
+			positiveStatNum = Arrays.asList(Pony.STAT_NAMES).indexOf(pony.getNature().increasedStat());
+			negativeStatNum = Arrays.asList(Pony.STAT_NAMES).indexOf(pony.getNature().decreasedStat());
 		}
 		refresh();
 	}
@@ -351,8 +351,8 @@ class FancyPonyStatsPanel extends StatsPanel {
 			if(nature.equals("neutral")) {
 				positiveStatNum = negativeStatNum = -1;
 			} else {
-				positiveStatNum = Arrays.asList(Pony.statNames()).indexOf(Nature.forName(text).increasedStat());
-				negativeStatNum = Arrays.asList(Pony.statNames()).indexOf(Nature.forName(text).decreasedStat());
+				positiveStatNum = Arrays.asList(Pony.STAT_NAMES).indexOf(Nature.forName(text).increasedStat());
+				negativeStatNum = Arrays.asList(Pony.STAT_NAMES).indexOf(Nature.forName(text).decreasedStat());
 			}
 			refresh();
 			return;
@@ -384,8 +384,8 @@ class FancyPonyStatsPanel extends StatsPanel {
 						}
 				} else {
 					for(Nature n : Nature.values()) {
-						int incInd = Arrays.asList(Pony.statNames()).indexOf(n.increasedStat());
-						int decInd = Arrays.asList(Pony.statNames()).indexOf(n.decreasedStat());
+						int incInd = Arrays.asList(Pony.STAT_NAMES).indexOf(n.increasedStat());
+						int decInd = Arrays.asList(Pony.STAT_NAMES).indexOf(n.decreasedStat());
 						if(incInd == positiveStatNum && decInd == negativeStatNum) {
 							pony.setNature(n);
 							if(Debug.pedantic) printDebug("Set nature to "+n);
@@ -409,11 +409,11 @@ class FancyPonyStatsPanel extends StatsPanel {
 
 				/* Set EVs and IVs (and sliders) */
 				for(int i = 0; i < 6; ++i) {
-					pony.setEV(Pony.statNames()[i],ev[i]);
+					pony.setEV(Pony.STAT_NAMES[i],ev[i]);
 					evField[i].setText(ev[i]+(positiveStatNum == i ? "+" : (negativeStatNum == i ? "-" : "")));
-					pony.setIV(Pony.statNames()[i],iv[i]);
+					pony.setIV(Pony.STAT_NAMES[i],iv[i]);
 					ivField[i].setText(iv[i]+"");
-					slider[i].setValue(pony.getEV(Pony.statNames()[i]));
+					slider[i].setValue(pony.getEV(Pony.STAT_NAMES[i]));
 					totStats[i].setText(pony.getStat(i)+"");
 				}	
 				remaining.setText(""+pony.remainingEVs());
@@ -502,8 +502,8 @@ class FancyPonyStatsPanel extends StatsPanel {
 			((Rectangle)prevBar[i].getShape()).setSize((int)(((Rectangle)bar[i].getShape()).getWidth() / 2f),5);
 			if(pony != null) 
 				prevEV[i] = new JLabel("<html><small>" + 
-							(pony.getEV(Pony.statNames()[i]) != 0 
-								? pony.getEV(Pony.statNames()[i]) + natureModString(i)
+							(pony.getEV(Pony.STAT_NAMES[i]) != 0 
+								? pony.getEV(Pony.STAT_NAMES[i]) + natureModString(i)
 								: natureModString(i))
 							+ "</small></html>"
 						);
@@ -524,8 +524,8 @@ class FancyPonyStatsPanel extends StatsPanel {
 			((Rectangle)prevBar[i].getShape()).setSize((int)(((Rectangle)bar[i].getShape()).getWidth() / 2f),5);
 			if(pony != null) 
 				prevEV[i].setText("<html><small>" + 
-						(pony.getEV(Pony.statNames()[i]) != 0 
-								? pony.getEV(Pony.statNames()[i]) + natureModString(i)
+						(pony.getEV(Pony.STAT_NAMES[i]) != 0 
+								? pony.getEV(Pony.STAT_NAMES[i]) + natureModString(i)
 								: natureModString(i))
 							+ "</small></html>"
 						);
@@ -536,9 +536,9 @@ class FancyPonyStatsPanel extends StatsPanel {
 
 	private String natureModString(int statnum) {
 		if(pony.getNature().increasedStat() == null) return "";
-		return pony.getNature().increasedStat().equals(Pony.statNames()[statnum])
+		return pony.getNature().increasedStat().equals(Pony.STAT_NAMES[statnum])
 			? "+"
-			: pony.getNature().decreasedStat().equals(Pony.statNames()[statnum])
+			: pony.getNature().decreasedStat().equals(Pony.STAT_NAMES[statnum])
 				? "-"
 				: "";
 	}

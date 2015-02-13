@@ -34,7 +34,7 @@ public class PonyCreator {
 		if(Debug.pedantic) printDebug("Created pony "+pony.getName());
 
 		/* Set IV to 31 by default. */
-		for(String s : Pony.statNames()) {
+		for(String s : Pony.STAT_NAMES) {
 			pony.setIV(s,31);
 		}
 		/* Set happiness to MAX by default */
@@ -55,7 +55,7 @@ public class PonyCreator {
 		if(Debug.pedantic) printDebug("Created pony "+pony.getName());
 
 		/* Set IV to 31 by default. */
-		for(String s : Pony.statNames()) {
+		for(String s : Pony.STAT_NAMES) {
 			pony.setIV(s,31);
 		}				
 		/* Set happiness to MAX by default */

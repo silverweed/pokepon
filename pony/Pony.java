@@ -50,7 +50,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	/** Max length of pony name/nickname */
 	public static final int MAX_NAME_LENGTH = 20;
 	/** Stats short names */
-	private static final String[] STAT_NAMES = { "hp","atk","def","spatk","spdef","speed" };
+	public static final String[] STAT_NAMES = { "hp","atk","def","spatk","spdef","speed" };
 
 	////////////// ENUMS ////////////////
 
@@ -108,14 +108,14 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 
 		public String increasedStat() {
-			for(String s : statNames()) 
+			for(String s : STAT_NAMES) 
 				if(natureModifier(s,this) > 1) 
 					return s;
 			return null;
 		}
 
 		public String decreasedStat() {
-			for(String s : statNames()) 
+			for(String s : STAT_NAMES) 
 				if(natureModifier(s,this) < 1) 
 					return s;
 			return null;
@@ -405,7 +405,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		clonedPony.baseSpdef = baseSpdef;
 		clonedPony.baseSpeed = baseSpeed;
 
-		for(String s : statNames()) {
+		for(String s : STAT_NAMES) {
 			if(cloneIVs)
 				clonedPony.setIV(s,getIV(s));
 			if(cloneEVs)
@@ -829,7 +829,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public int getTotalIVs() {
 		int ivs = 0;
-		for(String s : statNames())
+		for(String s : STAT_NAMES)
 			ivs += getIV(s);
 		return ivs;
 	}
@@ -854,7 +854,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public int getTotalEVs() {
 		int evs = 0;
-		for(String s : statNames())
+		for(String s : STAT_NAMES)
 			evs += getEV(s);
 		return evs;
 	}
@@ -1229,7 +1229,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public void setEV(final String stat,int num) {
 		if(num < 0) num = 0;
 		int otherEVs = 0;
-		for(String s : statNames()) {
+		for(String s : STAT_NAMES) {
 			if(s.equals(stat)) continue;
 			otherEVs += getEV(s);
 		}
@@ -1525,6 +1525,9 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return sb.toString();
 	}
 
+	/** This returns a string which can be converted via !htmlconv to produce
+	 * local resources URLs (see Meta.toLocalURL)
+	 */
 	public String getTypingHTMLSpecialTags() {
 		StringBuilder sb = new StringBuilder("");
 		for(Type tp : type)
@@ -1573,12 +1576,12 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	/** @return A nature's bonuses/maluses */
 	public static String printNatureInfo(final Nature n) {
 		StringBuilder sb = new StringBuilder("");
-		for(String s : statNames()) {
+		for(String s : STAT_NAMES) {
 			if(natureModifier(s,n) > 1) {
 				sb.append("("+s+" "+(int)((natureModifier(s,n)-1)*100)+"%),");
 			}
 		}
-		for(String s : statNames()) {
+		for(String s : STAT_NAMES) {
 			if(natureModifier(s,n) < 1) {
 				sb.append("("+s+" "+(int)((natureModifier(s,n)-1)*100)+"%),");
 			}
@@ -1597,9 +1600,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	
 	/** This is public for convenience */
 	public volatile boolean inBattle = false;
-	
-	/** Utility function that returns all stats names */
-	public static final String[] statNames() { return STAT_NAMES; }
 	
 	/** @return Number of known moves */
 	public int knownMoves() {
@@ -1641,7 +1641,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			
 		/* Fifth line: EVs */
 		boolean first = true;
-		for(String s : statNames()) {
+		for(String s : STAT_NAMES) {
 			if(getEV(s) != 0) {
 				if(first) { 
 					sb.append("EVs:");
@@ -1654,7 +1654,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		
 		/* Sixth line: IVs */
 		first = true;
-		for(String s : statNames()) {
+		for(String s : STAT_NAMES) {
 			if(getIV(s) != MAX_IV) {
 				if(first) { 
 					sb.append("IVs:");

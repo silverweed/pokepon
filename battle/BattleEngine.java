@@ -971,7 +971,7 @@ public class BattleEngine {
 								(attacker.getMove(i) == null ? "none" : attacker.getMove(i) + 
 								"|5")
 							);
-				for(String s : Pony.statNames()) {
+				for(String s : Pony.STAT_NAMES) {
 					if(defender.getBoost(s) != 0) {
 						battleTask.sendB(ally,"|boost|ally|"+s+"|"+defender.getBoost(s));
 						battleTask.sendB(opp,"|boost|opp|"+s+"|"+defender.getBoost(s));
@@ -996,7 +996,7 @@ public class BattleEngine {
 								(defender.getMove(i) == null ? "none" : defender.getMove(i) + 
 								"|5")
 							);
-				for(String s : Pony.statNames()) {
+				for(String s : Pony.STAT_NAMES) {
 					if(attacker.getBoost(s) != 0) {
 						battleTask.sendB(ally,"|boost|opp|"+s+"|"+attacker.getBoost(s));
 						battleTask.sendB(opp,"|boost|ally|"+s+"|"+attacker.getBoost(s));
@@ -1333,7 +1333,7 @@ public class BattleEngine {
 				}
 			}
 			if(rng.nextFloat() < dealer.removeUserNegativeStatModifiers()) {
-				for(String mod : Pony.statNames()) {
+				for(String mod : Pony.STAT_NAMES) {
 					int currentMod = attacker.boost(mod,0);
 					if(currentMod < 0) {
 						if(battleTask != null) {
@@ -1345,7 +1345,7 @@ public class BattleEngine {
 				}
 			}
 			if(rng.nextFloat() < dealer.removeUserPositiveStatModifiers()) {
-				for(String mod : Pony.statNames()) {
+				for(String mod : Pony.STAT_NAMES) {
 					int currentMod = attacker.boost(mod,0);
 					if(currentMod > 0) {
 						if(battleTask != null) {
@@ -1369,7 +1369,7 @@ public class BattleEngine {
 
 		if(!defender.isKO()) {
 			if(rng.nextFloat() < dealer.removeTargetNegativeStatModifiers()) {
-				for(String mod : Pony.statNames()) {
+				for(String mod : Pony.STAT_NAMES) {
 					int currentMod = defender.boost(mod,0);
 					if(currentMod < 0) {
 						if(battleTask != null) {
@@ -1381,7 +1381,7 @@ public class BattleEngine {
 				}
 			}
 			if(rng.nextFloat() < dealer.removeTargetPositiveStatModifiers()) {
-				for(String mod : Pony.statNames()) {
+				for(String mod : Pony.STAT_NAMES) {
 					int currentMod = defender.boost(mod,0);
 					if(currentMod > 0) {
 						if(battleTask != null) {

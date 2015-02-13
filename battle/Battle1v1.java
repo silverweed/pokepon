@@ -240,7 +240,7 @@ public class Battle1v1 extends Battle {
 				} // end moves
 				
 				/* IVs are always maxed */
-				for(String s : Pony.statNames())
+				for(String s : Pony.STAT_NAMES)
 					pony.setIV(s, 31);
 
 				/* EVs are given according to the moveset and the base stats.

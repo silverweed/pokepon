@@ -384,7 +384,7 @@ public class BattleTask implements Runnable {
 						// if last move used had copyVolatiles = true, copy them now on the new AP:
 						if(engine.getCurrentMove() != null && engine.getCurrentMove().copyVolatiles() && volatiles != null) {
 							switched.setVolatiles(volatiles);	
-							for(String s : Pony.statNames()) 
+							for(String s : Pony.STAT_NAMES) 
 								if(switched.getBoost(s) != 0) {
 									sendB(thisC,"|boost|ally|"+s+"|"+switched.getBoost(s)+"|quiet");
 									sendB(thatC,"|boost|opp|"+s+"|"+switched.getBoost(s)+"|quiet");

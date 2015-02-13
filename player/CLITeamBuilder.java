@@ -359,7 +359,7 @@ public class CLITeamBuilder extends TeamBuilder {
 				}
 				case 6:	{ //IV
 					String iv = editParser.popFirstArg();
-					if(!Arrays.asList(Pony.statNames()).contains(iv)) {
+					if(!Arrays.asList(Pony.STAT_NAMES).contains(iv)) {
 						consoleMsg("Invalid argument: "+iv);
 						return;
 					}
@@ -376,7 +376,7 @@ public class CLITeamBuilder extends TeamBuilder {
 				}
 				case 7: { //EV
 					String ev = editParser.popFirstArg();
-					if(!Arrays.asList(Pony.statNames()).contains(ev)) {
+					if(!Arrays.asList(Pony.STAT_NAMES).contains(ev)) {
 						consoleMsg("Invalid argument: "+ev);
 						return;
 					}

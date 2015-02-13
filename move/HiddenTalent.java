@@ -55,8 +55,8 @@ public class HiddenTalent extends Move {
 
 	public Type getTypeByIVs(Pony pony) {
 		int sum = 0;
-		for(int i = 0; i < Pony.statNames().length; ++i)
-			sum += (int)(Math.pow(2, i) * (pony.getIV(Pony.statNames()[i]) % 2));
+		for(int i = 0; i < Pony.STAT_NAMES.length; ++i)
+			sum += (int)(Math.pow(2, i) * (pony.getIV(Pony.STAT_NAMES[i]) % 2));
 		
 		return Type.values()[(sum*13) % 14];
 	}
@@ -140,6 +140,6 @@ public class HiddenTalent extends Move {
 			}
 		}
 		for(int i = 0; i < 6; ++i) 
-			p.setIV(p.statNames()[i], 31 - (int)bestcombo[i]);
+			p.setIV(p.STAT_NAMES[i], 31 - (int)bestcombo[i]);
 	}
 }

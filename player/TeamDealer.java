@@ -246,7 +246,7 @@ public class TeamDealer {
 					int num = Integer.parseInt(it.next());
 					if(!it.hasNext()) return false;
 					String ev = it.next();
-					if(!Arrays.asList(Pony.statNames()).contains(ev)) return false;
+					if(!Arrays.asList(Pony.STAT_NAMES).contains(ev)) return false;
 					pony.setEV(ev,num);
 					if(it.hasNext()) it.next();	//remove trailing "/"
 					if(Debug.pedantic) printDebug(pony+"'s "+ev+" EV are now "+pony.getEV(ev));
@@ -265,7 +265,7 @@ public class TeamDealer {
 					int num = Integer.parseInt(it.next());
 					if(!it.hasNext()) return false;
 					String iv = it.next();
-					if(!Arrays.asList(Pony.statNames()).contains(iv)) return false;
+					if(!Arrays.asList(Pony.STAT_NAMES).contains(iv)) return false;
 					pony.setIV(iv,num);
 					if(it.hasNext()) it.next();	//remove trailing "/"
 					if(Debug.pedantic) printDebug(pony+"'s "+iv+" IV are now "+pony.getIV(iv));

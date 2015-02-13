@@ -28,6 +28,7 @@ public class Discord extends Pony {
 		baseSpeed = 85;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Icy Cannon",1);
 		learnableMoves.put("Talon Strike",1);
 		learnableMoves.put("Flit About",1);
 		learnableMoves.put("Kinetic Strike",1);

@@ -30,6 +30,7 @@ public class TwilightSparkle extends Pony {
 		baseSpeed = 64;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Icy Cannon",1);
 		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Hidden Talent",1);

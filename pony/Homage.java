@@ -31,6 +31,7 @@ public class Homage extends Pony {
 		baseSpeed = 75;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Sparkling Orb",1);
 		learnableMoves.put("Talk Out",1);
 		learnableMoves.put("Love And Care",1);
 		learnableMoves.put("Joke",1);

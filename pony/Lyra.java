@@ -31,6 +31,7 @@ public class Lyra extends Pony {
 		baseSpeed = 85;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Sparkling Orb",1);
 		learnableMoves.put("Jingle",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Sonic Barrier",1);

@@ -28,9 +28,9 @@ public class Aversion extends Ability {
 		) {
 			int damage = be.getAttacker().damagePerc(12.5f);
 			if(be.getBattleTask() != null) {
-				be.getBattleTask().sendB(be.getAlly(),"|damage|opp|"+damage+"|"+
+				be.getBattleTask().sendB(be.getAlly(),"|damage|ally|"+damage+"|"+
 					be.getAttacker().getNickname()+" is damaged by "+pony.getNickname()+"'s Aversion!");
-				be.getBattleTask().sendB(be.getOpp(),"|damage|ally|"+damage+"|"+
+				be.getBattleTask().sendB(be.getOpp(),"|damage|opp|"+damage+"|"+
 					be.getAttacker().getNickname()+" is damaged by "+pony.getNickname()+"'s Aversion!");
 			}
 		}

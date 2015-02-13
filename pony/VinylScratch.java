@@ -31,6 +31,7 @@ public class VinylScratch extends Pony {
 		baseSpeed = 70;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Sparkling Orb",1);
 		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Startle",1);
 		learnableMoves.put("Snuggle",1);

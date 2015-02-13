@@ -30,6 +30,7 @@ public class Rarity extends Pony {
 
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",1);
+		learnableMoves.put("Sparkling Orb",1);
 		learnableMoves.put("One-Two Hit",1);
 		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Spa Treatment",1);

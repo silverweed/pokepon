@@ -68,7 +68,7 @@ for MOVE in $(ls $MOVEDIR); do
 		fi
 	fi
 	[[ $DAMAGE == 0 && $DAMAGING_ONLY == true ]] && continue
-	[[ ${#TYPE} < 5 || ${#MOVETYPE} < 7 ]] && continue
+	if (( ${#TYPE} < 5 || ${#MOVETYPE} < 7 )); then continue; fi
 	# insert data into DATA map
 	DATA[$MOVE,type]=$TYPE
 	DATA[$MOVE,movetype]=$MOVETYPE

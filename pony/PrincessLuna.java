@@ -30,6 +30,7 @@ public class PrincessLuna extends Pony {
 		baseSpeed = 125;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Icy Cannon",1);
 		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Rectify",1);
 		learnableMoves.put("Hidden Talent",1);

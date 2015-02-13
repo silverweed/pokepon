@@ -22,7 +22,7 @@ public class ItemCreator {
 	public static Item create(String name) throws ReflectiveOperationException {
 		if(Debug.pedantic) printDebug("Called ItemCreator.create("+name+")");
 
-		Class<? extends Item> itemBuilder = (Class<? extends Item>)Class.forName((POKEPON_ROOTDIR+DIRSEP+ITEM_DIR+DIRSEP+name.replaceAll(" ","")).replaceAll(""+DIRSEP,"."));
+		Class<? extends Item> itemBuilder = (Class<? extends Item>)Class.forName((POKEPON_ROOTDIR+DIRSEP+ITEM_DIR+DIRSEP+name.replaceAll("[^a-zA-Z0-9]","")).replaceAll(""+DIRSEP,"."));
 		Item item = itemBuilder.getConstructor().newInstance();
 
 		if(Debug.pedantic) printDebug("Created item: "+item.toString());

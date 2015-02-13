@@ -29,6 +29,8 @@ public class Colgate extends Pony {
 		baseSpeed = 69;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Sparkling Orb",1);
+		learnableMoves.put("Icy Cannon",1);
 		learnableMoves.put("Night Wind",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Sonic Barrier",1);

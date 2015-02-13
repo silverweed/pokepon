@@ -125,7 +125,7 @@ public class ItemPreviewer extends PokeponPreviewer {
 				for(Item it : allItems) {
 					// find out if item matches string
 					if(	str != null && str.length() > 0 &&
-						it.getName().toLowerCase().startsWith(str.replaceAll(" ","").toLowerCase())
+						it.getName().toLowerCase().startsWith(str.replaceAll("[^a-zA-Z0-9]","").toLowerCase())
 					) {
 					matched.add(it);
 				}

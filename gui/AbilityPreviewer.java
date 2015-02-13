@@ -127,7 +127,7 @@ public class AbilityPreviewer extends PokeponPreviewer {
 		if(Debug.on) printDebug("possibleAbilities: "+abNames);
 		for(Class<?> ability : abilities) {
 			for(String abName : abNames) {
-				if(abName.replaceAll(" ","").equals(ability.getSimpleName())) {
+				if(abName.replaceAll("[^a-zA-Z0-9]","").equals(ability.getSimpleName())) {
 					try {
 						possibleAbilities.add(AbilityCreator.create((Class<? extends Ability>)ability));
 					} catch(ReflectiveOperationException e) {
@@ -150,7 +150,7 @@ public class AbilityPreviewer extends PokeponPreviewer {
 				for(Class<?> a : abilities) {
 					// find out if ability matches string
 					if(	str != null && str.length() > 0 &&
-						a.getSimpleName().toLowerCase().startsWith(str.replaceAll(" ","").toLowerCase())
+						a.getSimpleName().toLowerCase().startsWith(str.replaceAll("[^a-zA-Z0-9]","").toLowerCase())
 					) {
 					try {
 						matched.add(AbilityCreator.create((Class<? extends Ability>)a));

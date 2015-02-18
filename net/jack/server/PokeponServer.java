@@ -38,6 +38,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	private int battleID = 0;
 	private int maxBattles = DEFAULT_MAX_BATTLES;
 	private Welcomer welcomer = new Welcomer();
+	private boolean enableConsole = true;
 
 	public PokeponServer() throws IOException {
 		this(ServerOptions.construct());
@@ -57,6 +58,8 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 			maxBattles = opts.maxBattles;
 		if(opts.serverName == null && !alreadySetName)
 			serverName = getClass().getSimpleName();
+		if(opts.enableConsole != null) 
+			enableConsole = opts.enableConsole;
 
 		return this;
 	}
@@ -72,10 +75,12 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		printConfiguration();
 		printMsg("************************");
 		DataDealer.init();
-		Thread serverConsole = new Thread(new ServerConsole(this));
-		serverConsole.setName("Pokepon Server Console");
-		serverConsole.setDaemon(true);
-		serverConsole.start();
+		if(enableConsole) {
+			Thread serverConsole = new Thread(new ServerConsole(this));
+			serverConsole.setName("Pokepon Server Console");
+			serverConsole.setDaemon(true);
+			serverConsole.start();
+		}
 
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
@@ -411,6 +416,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		"\t-C,--advanced-chat [no]:        enable/disable chat roles and the advanced chat system.\n"+
 		"\t--cmd-ban-limit <integer>:      set maximum commands a client can issue in a minute (-1 = infinite)\n"+
 		"\t--blacklist <rules_file>:       read IP ban rules from rules_file (default: none)\n"+
+		"\t--console [no]:                 enables/disables the server console\n"+
 		"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");
 		System.exit(0);
 	}

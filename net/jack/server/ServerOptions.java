@@ -149,6 +149,7 @@ public class ServerOptions {
 	public Boolean advancedChat = null;
 	public Integer cmdBanLimit = null;
 	public String blacklistFile;
+	public Boolean enableConsole = null;
 
 
 	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {
@@ -312,6 +313,16 @@ public class ServerOptions {
 					printDebug("[ ERROR ] expected string after 'blacklist' option.");
 					e.printStackTrace();
 					System.exit(2);
+				}
+			} else if(token.equals("--console")) {
+				try {
+					String val = opts.remove(0);
+					if(val != null && (val.equalsIgnoreCase("false") || val.equalsIgnoreCase("no")))
+						srvopts.enableConsole = false;
+					else
+						srvopts.enableConsole = true;
+				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
+					srvopts.advancedChat = true;
 				}
 			} else {
 				if(!token.matches("^(-h|--help)$"))

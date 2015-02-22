@@ -328,7 +328,7 @@ public class ServerOptions {
 					else
 						srvopts.enableConsole = true;
 				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
-					srvopts.enableConsole = false;
+					srvopts.enableConsole = true;
 				}
 			} else {
 				if(!token.matches("^(-h|--help)$"))

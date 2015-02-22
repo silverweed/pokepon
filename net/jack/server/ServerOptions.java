@@ -108,6 +108,11 @@ public class ServerOptions {
 		blacklistFile = file;
 		return this;
 	}
+	
+	public ServerOptions enableConsole(boolean b) {
+		enableConsole = b;
+		return this;
+	}
 
 	@Override
 	public String toString() {
@@ -126,6 +131,7 @@ public class ServerOptions {
 		if(maxBattles != -1) sb.append("maxBattles: "+maxBattles+", ");
 		if(cmdBanLimit != null) sb.append("cmdBanLimit: "+cmdBanLimit+", ");
 		if(blacklistFile != null) sb.append("blacklistFile: "+blacklistFile+", ");
+		sb.append("enableConsole: "+enableConsole+", ");
 		sb.delete(sb.length()-1, sb.length());
 		sb.append(" }");
 
@@ -149,7 +155,7 @@ public class ServerOptions {
 	public Boolean advancedChat = null;
 	public Integer cmdBanLimit = null;
 	public String blacklistFile;
-	public Boolean enableConsole = null;
+	public boolean enableConsole = true;
 
 
 	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {
@@ -322,7 +328,7 @@ public class ServerOptions {
 					else
 						srvopts.enableConsole = true;
 				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
-					srvopts.advancedChat = true;
+					srvopts.enableConsole = false;
 				}
 			} else {
 				if(!token.matches("^(-h|--help)$"))

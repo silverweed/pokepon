@@ -27,6 +27,7 @@ ability/Optimism.java
 ability/PestResilience.java
 ability/SelfConfidence.java
 ability/SenseOfDanger.java
+ability/SheepsEyes.java
 ability/ShiningCoat.java
 ability/Simplicity.java
 ability/SolarMagic.java
@@ -163,6 +164,7 @@ move/HindKick.java
 move/HollerOut.java
 move/HopefulStrike.java
 move/HornBeam.java
+move/IcyCannon.java
 move/InnerFocus.java
 move/Jingle.java
 move/Joke.java
@@ -210,6 +212,7 @@ move/Snuggle.java
 move/SonicBarrier.java
 move/SonicRainboom.java
 move/SpaTreatment.java
+move/SparklingOrb.java
 move/SpeedUp.java
 move/Stalking.java
 move/Stampede.java
@@ -359,6 +362,7 @@ pony/Spitfire.java
 pony/Starswirl.java
 pony/SunsetShimmer.java
 pony/Surprise.java
+pony/Sweetcream.java
 pony/SweetieBelle.java
 pony/Tirek.java
 pony/Tracy.java

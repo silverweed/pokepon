@@ -348,7 +348,7 @@ public class BattleTask implements Runnable {
 				 */
 				if(	battleStarted &&
 					(battle.getTeam(pl).getActivePony().isFainted() &&
-					!battle.getTeam((pl == 1 ? 2 : 1)).getActivePony().isFainted()) ||
+					!battle.getTeam(pl == 1 ? 2 : 1).getActivePony().isFainted()) ||
 					engine.isForcedToSwitch(pl) == 1
 				) {
 
@@ -364,7 +364,10 @@ public class BattleTask implements Runnable {
 						sendB(thatC,"|rmsubstitute|opp");
 						curAP.setSubstitute(false);
 					}
-					// don't trigger onSwitchOut
+					// don't trigger onSwitchOut (but clear volatiles unless copyVolatiles is true)
+					if(engine.getCurrentMove() == null || !engine.getCurrentMove().copyVolatiles())
+						engine.clearVolatiles(pl);
+
 					if(battle.getPlayer(pl).switchPony(switched.getName(),engine)) {
 						sendB(thisC,"|switch|ally|"+num+
 									"|"+(switched.hp() == switched.maxhp() ?
@@ -867,12 +870,18 @@ public class BattleTask implements Runnable {
 				if(Debug.on) {
 					printDebug("[BT] Active Pony #"+i+": "+ap.getStatus());
 					printDebug("-- Counters:");
-					if(ap.toxicCounter != 0) printDebug("\ttoxicCounter = "+ap.toxicCounter);
-					if(ap.getVolatiles().deathCounter != 0) printDebug("\tgetVolatiles().deathCounter = "+ap.getVolatiles().deathCounter);
-					if(ap.getVolatiles().tauntCounter != 0) printDebug("\tgetVolatiles().tauntCounter = "+ap.getVolatiles().tauntCounter);
-					if(ap.getVolatiles().confusionCounter != 0) printDebug("\tgetVolatiles().confusionCounter = "+ap.getVolatiles().confusionCounter);
-					if(ap.protectCounter != 0) printDebug("\tprotectCounter = "+ap.protectCounter);
-					if(ap.sleepCounter != 0) printDebug("\tsleepCounter = "+ap.sleepCounter);
+					if(ap.toxicCounter != 0)
+						printDebug("\ttoxicCounter = "+ap.toxicCounter);
+					if(ap.getVolatiles().deathCounter != 0) 
+						printDebug("\tgetVolatiles().deathCounter = "+ap.getVolatiles().deathCounter);
+					if(ap.getVolatiles().tauntCounter != 0)
+						printDebug("\tgetVolatiles().tauntCounter = "+ap.getVolatiles().tauntCounter);
+					if(ap.getVolatiles().confusionCounter != 0) 
+						printDebug("\tgetVolatiles().confusionCounter = "+ap.getVolatiles().confusionCounter);
+					if(ap.protectCounter != 0) 
+						printDebug("\tprotectCounter = "+ap.protectCounter);
+					if(ap.sleepCounter != 0)
+						printDebug("\tsleepCounter = "+ap.sleepCounter);
 				}
 				
 				if(!preventsSec) {

@@ -55,7 +55,7 @@ public class DatabaseServer extends MultiThreadedServer {
 	 * if errors occur, the old database is kept (if existing).
 	 * @return true if database was changed successfully, false otherwise.
 	 */
-	public boolean setDatabaseLocation(String db) {
+	public synchronized boolean setDatabaseLocation(String db) {
 		if(verbosity >= 1) printDebug("[DatabaseServer] Setting database location to "+db);
 		try {
 			URL tmpdbURL = new URL(db);
@@ -117,7 +117,7 @@ public class DatabaseServer extends MultiThreadedServer {
 	/** Reads the database and checks if given nick already exists or not
 	 * @return true - if nick exists; false - otherwise
 	 */
-	public boolean nickExists(String nick) throws FileNotFoundException {
+	public synchronized boolean nickExists(String nick) throws FileNotFoundException {
 		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName)))) {
 			if(verbosity >= 2) printDebug("Opening database: " + dbName + " ...");
 
@@ -154,7 +154,7 @@ public class DatabaseServer extends MultiThreadedServer {
 	}
 	/** @return List of registered names.
 	 */
-	public List<String> getNicks() throws FileNotFoundException {
+	public synchronized List<String> getNicks() throws FileNotFoundException {
 		List<String> nicks = new ArrayList<String>();
 		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName)))) {
 			if(verbosity >= 2) printDebug("Opening database: " + dbName + " ...");
@@ -191,7 +191,7 @@ public class DatabaseServer extends MultiThreadedServer {
 	 * @param passwd The password (non-encrypted) to match
 	 * @return true - if nickname exists and password matches; false - otherwise
 	 */
-	public boolean checkPasswd(String nick,char[] passwd) throws FileNotFoundException {
+	public synchronized boolean checkPasswd(String nick,char[] passwd) throws FileNotFoundException {
 		
 		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName)))) {
 			String input = null;
@@ -241,7 +241,7 @@ public class DatabaseServer extends MultiThreadedServer {
 	 * @param passwd The encrypted password
 	 * @return 0: success; 1: already exists; 2: generic error
 	 */
-	public int registerNick(String nick,char[] passwd) {
+	public synchronized int registerNick(String nick,char[] passwd) {
 		Writer writer = null;
 
 		/* Load database */

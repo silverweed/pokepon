@@ -454,12 +454,14 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	public void printConfiguration(final PrintStream s) {
 		super.printConfiguration(s);
 		s.println("- maxBattles: "+maxBattles);
+		s.println("- consoleEnabled: "+enableConsole);
 	}
 
 	@Override
 	public void printConfiguration() {
 		super.printConfiguration();
 		printMsg("- maxBattles: "+maxBattles);
+		printMsg("- consoleEnabled: "+enableConsole);
 	}
 
 	public static void main(String[] args) {

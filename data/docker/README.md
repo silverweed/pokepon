@@ -1,6 +1,6 @@
 Running a PokeponServer in a Docker container
 --------------------------------------------------
-If you don't know what Docker is, you'd better [have a look here]('https://docker.com').
+If you don't know what Docker is, you'd better [have a look here](https://docker.com).
 
 TL;DR: it's a software which allows you to run a process - or a bunch of processes - in an
 isolated environment, pretty much like a Virtual Machine, but not quite.
@@ -19,10 +19,10 @@ How to use it
 ----------------------------------------------------
 
 * The first requirement is a Linux host (Mac and Windows are viable too, but you'll need
-an extra layer called [boot2docker]('http://boot2docker.io/'), which is actually
+an extra layer called [boot2docker](http://boot2docker.io/), which is actually
 a minimal Linux VM, so you'd kinda lose all the advantage of not having to install a VM).
 * If the step 1 is satisfied, the following step is installing Docker, either via a package
-manager or, if you prefer the latest version, from the [Docker website]('https://docs.docker.com/installation/#installation')
+manager or, if you prefer the latest version, from the [Docker website](https://docs.docker.com/installation/#installation)
 **Sidenote:** on Debian/Ubuntu, the package you need to apt-get is called `docker.io`,
 while on RHEL-based distros is just `docker`.
 * So, if you have successfully installed Docker, open a terminal and ensure its daemon is running.
@@ -41,8 +41,8 @@ you'll want to build the PokeponServer image. To do this, you have 2 options:
   * Create a directory, e.g. `~/pokepon-docker`
   * Download the pokepon source code and put it in `~/pokepon-docker`, or whatever you called it
   * Copy the Dockerfile directly into `~/pokepon-docker`
-  * Open a terminal, `cd` into that directory and issue the command: `docker build -t &lt;image_name&gt; .`
-  * Once completed, you can start your server with `docker run -d -p 12344:12344 &lt;image_name&gt;`
+  * Open a terminal, `cd` into that directory and issue the command: `docker build -t <image_name> .`
+  * Once completed, you can start your server with `docker run -d -p 12344:12344 <image_name>`
 
 2. Else, download the existing PokeponServer image from Docker Hub. This is as simple as running
   ```docker run -d -p 12344:12344 silverweed/pokepon_server:latest```
@@ -51,5 +51,5 @@ you'll want to build the PokeponServer image. To do this, you have 2 options:
   need to logout and login back). This options is the least preferred, since the server image is often
   outdated.
 
-For an explanation on the `docker run` flags, see [here]('https://docs.docker.com/userguide/usingdocker/'), or
+For an explanation on the `docker run` flags, see [here](https://docs.docker.com/userguide/usingdocker/), or
 run `docker run` with no arguments to see a help message.

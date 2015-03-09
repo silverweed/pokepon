@@ -158,7 +158,8 @@ class HPBar extends JPanel {
 		boolean already = false;
 		Iterator<StatusLabel> it = (Iterator<StatusLabel>)statuses.iterator();
 		while(it.hasNext()) {
-			Pony.Status status = it.next().getStatus();
+			StatusLabel label = it.next();
+			Pony.Status status = label.getStatus();
 			if(pony.getStatus() != status)
 				clearStatus(status);
 			else
@@ -169,20 +170,6 @@ class HPBar extends JPanel {
 		// are mutually exclusive)
 		if(pony.getStatus() != null && pony.getStatus() != Pony.Status.KO && !already)
 			addStatus(pony.getStatus());
-
-		// add confusion separately, if not present 
-		/*if(pony.isConfused()) {
-			boolean already = false;
-			for(PseudoStatusLabel ps : pseudoStatuses)
-				if(ps.getName().equals(Pony.Status.CONFUSED.toString())) {
-					already = true;
-					break;
-				}
-			if(!already)	
-				addPseudoStatus(Pony.Status.CONFUSED.toString(), false);
-		}*/
-		
-
 	}
 
 	public void setTextColor(final Color color) {

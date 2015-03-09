@@ -98,7 +98,7 @@ public class Player {
 
 	public boolean switchPony(int i,final BattleEngine be) {
 		Pony curAP = team.getActivePony();
-		if(!team.setActivePony(i)) {
+		if(team.setActivePony(i) == null) {
 			if(Debug.on) printDebug("Couldn't switch in pony #"+i+"!");
 			return false;
 		}
@@ -111,7 +111,7 @@ public class Player {
 
 	public boolean switchPony(String name,final BattleEngine be) {
 		Pony curAP = team.getActivePony();
-		if(!team.setActivePony(name)) {
+		if(team.setActivePony(name) == null) {
 			if(Debug.on) printDebug("Couldn't switch in pony "+name+"!");
 			return false;
 		}

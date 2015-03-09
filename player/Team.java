@@ -274,17 +274,17 @@ public class Team implements Iterable<Pony> {
 	}
 	
 	/** Sets i-th member of team as Active Pony, if exising; If another pony was already Active, it gets Inactive.
-	 * @return Return true if a pony was set as Active Pony, else false.
+	 * @return The new active pony, if switch was successful, null otherwise.
 	 */
-	public boolean setActivePony(int i) {
+	public Pony setActivePony(int i) {
 		if(pony[i] != null) {
 			if(pony[i].isKO()) {
 				printMsg(pony[i].getNickname()+" is fainted and cannot fight!");
-				return false;
+				return null;
 			}
 			if(pony[i].isActive()) {
 				printMsg(pony[i].getNickname()+" is already on the field!");
-				return false;
+				return null;
 			}
 			if(activePonyTransformed())
 				transformBackActivePony();
@@ -294,28 +294,28 @@ public class Team implements Iterable<Pony> {
 			activePony = pony[i];
 			if(Debug.on) printDebug("Set active pony: "+pony[i]);
 			if(Debug.pedantic) printDebug("[Team] successfully switched; new active pony is: "+getActivePony());
-			return true;
+			return activePony;
 		} else {
 			if(Debug.on) printDebug("Error: member #"+i+" is null: not setting active.");
-			return false;
+			return null;
 		}
 	}
 	
 	/** Tries to set a pony named "name" as Active Pony; If another pony was already Active, it get Inactive;
 	 * Will fail if more than one pony is named "name" in team.
-	 * @return Return true if a pony was set as Active Pony, else false.
+	 * @return The new active pony, if switch was successful, null otherwise.
 	 */
-	public boolean setActivePony(String name) {
+	public Pony setActivePony(String name) {
 		for(Pony p : pony) {
-			if(p == null) return false;
+			if(p == null) return null;
 			if(p.getName().equals(name)) {
 				if(p.isKO()) {
 					printMsg(p.getNickname()+" is fainted and cannot fight!");
-					return false;
+					return null;
 				}
 				if(p.isActive()) {
 					printMsg(p.getNickname()+" is already on the field!");
-					return false;
+					return null;
 				}
 				if(activePonyTransformed())
 					transformBackActivePony();
@@ -325,10 +325,10 @@ public class Team implements Iterable<Pony> {
 				activePony = p;
 				if(Debug.on) printDebug("Set active pony: "+p);
 				if(Debug.pedantic) printDebug("[Team] successfully switched; new active pony is: "+getActivePony());
-				return true;
+				return activePony;
 			} 
 		}
-		return false;
+		return null;
 	}
 
 	/** Transforms the Active pony into the given one, backing up the original reference (that can be restored via

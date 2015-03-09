@@ -668,11 +668,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				if(token[1].equals("ally")) {
 				
-					if(allyPony != null && allyPony.isTransformed()) allyPony.transformBack();
-
-					// If activePony is non-null, switch-out animation
-					if(allyPony != null && allySprite != null) {
-						switchOutAnim(allySprite,true);
+					if(allyPony != null) {
+						allyPony.removeVolatiles();
+						if(allyPony.isTransformed()) 
+							allyPony.transformBack();
+						if(allySprite != null) 
+							switchOutAnim(allySprite,true);
 					}
 					if(Debug.on) printDebug("Setting active ally: #"+token[2]);
 
@@ -738,11 +739,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					});
 				} else if(token[1].equals("opp")) {
 
-					if(oppPony != null && oppPony.isTransformed()) oppPony.transformBack();
-
-					// If activePony is non-null, switch-out animation
-					if(oppPony != null && oppSprite != null) {
-						switchOutAnim(oppSprite,false);
+					if(oppPony != null) {
+						oppPony.removeVolatiles();
+						if(oppPony.isTransformed()) 
+							oppPony.transformBack();
+						if(oppSprite != null) 
+							switchOutAnim(oppSprite,false);
 					}
 					if(Debug.on) printDebug("Setting active opponent: #"+token[2]);
 

@@ -217,6 +217,8 @@ public class BattleTask implements Runnable {
 		terminated = true;
 		if(Debug.on) printDebug(this+" terminate() was invoked.");
 		msgQueue.offer("");
+		for(int i = 0; i < guests.length; ++i)
+			guests[i] = null;
 	}
 
 	/** Given a connection ID, returns the corresponding connection;

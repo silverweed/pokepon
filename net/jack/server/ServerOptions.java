@@ -155,7 +155,7 @@ public class ServerOptions {
 	public Boolean advancedChat = null;
 	public Integer cmdBanLimit = null;
 	public String blacklistFile;
-	public boolean enableConsole = true;
+	public Boolean enableConsole = null;
 
 
 	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {
@@ -327,6 +327,7 @@ public class ServerOptions {
 						srvopts.enableConsole = false;
 					else
 						srvopts.enableConsole = true;
+					printDebug("enableConsole: "+ val);
 				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
 					srvopts.enableConsole = true;
 				}

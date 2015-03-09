@@ -58,7 +58,8 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 			maxBattles = opts.maxBattles;
 		if(opts.serverName == null && !alreadySetName)
 			serverName = getClass().getSimpleName();
-		enableConsole = opts.enableConsole;
+		if(opts.enableConsole != null)
+			enableConsole = opts.enableConsole;
 
 		return this;
 	}

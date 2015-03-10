@@ -149,7 +149,6 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 	}
 
 	public ClientConnection getConnection() { return connection; }
-	//public JTextArea getInTxt() { return chatP.getInA(); }
 	public PokeponChat getChat() { return chat; }
 	public void append(String str) { 
 		chat.getChatPanel().append(str); 
@@ -195,7 +194,11 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 	}
 
 	public Socket getSocket() { return socket; }
-	public void stop() {
+	public synchronized void stop() {
+		for(BattlePanel bp : battles.values()) {
+			bp.leave();
+			bp.terminate();
+		}
 		try {
 			chat.dispose();
 			socket.close();

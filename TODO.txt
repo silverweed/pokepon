@@ -30,6 +30,8 @@
 
 - SPEED UP THE GAME IF LAUNCHED FROM JAR! -> Partially fixed
 
+- Sound control in the BattlePanel
+
 === TODO ===
 - Fix HPBar: the labels are sometimes misaligned depending on the length
   of the pony's name
@@ -52,9 +54,9 @@
 
 - (Really) Implement Weather
 
-- Sound control in the BattlePanel
-
 - Nicknames: config option to set default nicks, request nick on login feature 
 
 - Refactor Pony class: separate into Pony (only base stats) and BattlePony (with
   volatiles and stuff you only need during battles)
+
+- Battle timeout

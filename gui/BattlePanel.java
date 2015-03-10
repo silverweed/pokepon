@@ -134,7 +134,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	 */
 	private JLayeredPane fieldP = new JLayeredPane();
 	/** Panel containing move panel and team choice panel */
-	private JPanel bottomP = new JPanel(new GridLayout(2,1,0,20));
+	private JPanel bottomP = new JPanel(new GridLayout(3,1,0,20));
 	/** CardLayout Panel containing the moves and the alerts panels */
 	private JPanel bottomCardP = new JPanel(new CardLayout());
 	// Cards of the bottomCardP
@@ -148,6 +148,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private JLabel alertLabel = new JLabel();
 	/** Team choice panel */
 	private TeamPanel teamP = new TeamPanel(true);
+	/** Utils buttons panel */
+	private JPanel utilsP = new JPanel(new FlowLayout());
+	/** Start/stop timer button */
+	private JButton timerB = new JButton("Start timer");
 	/** Side chat/events panel */
 	private ChatPanel eventP = new ChatPanel();
 	private JLabel bgImage = new JLabel();
@@ -285,16 +289,16 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			e.printStackTrace();
 		}
 		// add background image -- REMEMBER TO SET BOUNDS TO MAKE THE COMPONENT VISIBLE!!!
-		bgImage.setBounds(0,0,bgImage.getIcon().getIconWidth(),bgImage.getIcon().getIconHeight());
-		fieldP.add(bgImage,BG_LAYER);
+		bgImage.setBounds(0, 0, bgImage.getIcon().getIconWidth(), bgImage.getIcon().getIconHeight());
+		fieldP.add(bgImage, BG_LAYER);
 		// add lateral bars
 		int tmp = FIELD_X; 
-		ShapeComponent bar1 = new ShapeComponent(new Rectangle(0,0,tmp,FIELD_HEIGHT),Color.WHITE,0.5f);
-		ShapeComponent bar2 = new ShapeComponent(new Rectangle(FIELD_WIDTH - tmp,0,tmp,FIELD_HEIGHT),Color.WHITE,0.5f);
-		bar1.setBounds(0,0,tmp,FIELD_HEIGHT);
-		bar2.setBounds(FIELD_WIDTH - tmp,0,tmp,FIELD_HEIGHT);
-		fieldP.add(bar1,SIDEBAR_LAYER);
-		fieldP.add(bar2,SIDEBAR_LAYER);
+		ShapeComponent bar1 = new ShapeComponent(new Rectangle(0, 0, tmp,FIELD_HEIGHT), Color.WHITE, 0.5f);
+		ShapeComponent bar2 = new ShapeComponent(new Rectangle(FIELD_WIDTH - tmp, 0, tmp, FIELD_HEIGHT), Color.WHITE, 0.5f);
+		bar1.setBounds(0, 0, tmp, FIELD_HEIGHT);
+		bar2.setBounds(FIELD_WIDTH - tmp, 0, tmp,FIELD_HEIGHT);
+		fieldP.add(bar1, SIDEBAR_LAYER);
+		fieldP.add(bar2, SIDEBAR_LAYER);
 
 		// add team menus
 		teamMenu1 = new TeamMenuPanel(p1);
@@ -314,6 +318,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				);
 		fieldP.add(teamMenu2,TEAM_LAYER);
 
+		/// SETUP BOTTOM PANEL ///
+
 		// SETUP TEAM PANEL //
 		teamP.setPreferredTokenSize(new Dimension(100,50));
 		//teamP.setTokenStyle(TeamPanel.TokenStyle.ONLY_IMAGE);
@@ -322,7 +328,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			teamP.getToken(i).addActionListener(new SwitchListener(i));
 		}
 
-		// SETUP MOVES BUTTON PANEL//
+		// SETUP MOVES BUTTON PANEL //
 		moveP.setLayout(new GridLayout(1,4,15,0));
 		for(int i = 0; i < moveB.length; ++i) {
 			moveB[i] = new MoveButton(null);
@@ -338,6 +344,29 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		alertLabel.setHorizontalAlignment(JLabel.CENTER);
 		alertP.add(alertLabel);
 
+		// construct the looper (needed for utilsP)
+		looper = PresetBGM.getLooper("xy-rival.wav");
+
+		// SETUP UTIL BUTTONS PANEL //
+		// timer start/stop
+		timerB.addActionListener(new ActionListener() {
+			private boolean timerOn = false;
+			public void actionPerformed(ActionEvent e) {
+				appendEvent(EventType.INFO, "Not implemented yet.");
+				/*if(timerOn) {
+					timerB.setText("Start timer");
+					sendB("|timer|"+(playerID == 0 ? p1.getName() : playerID)+"|on");
+				} else {
+					timerB.setText("Stop timer");
+					sendB("|timer|"+(playerID == 0 ? p1.getName() : playerID)+"|off");
+				}
+				timerOn = !timerOn;*/
+			}
+		});
+		utilsP.add(timerB);
+		// volume bar
+		utilsP.add(new VolumeBar(looper, false));
+		
 		// Add moves and alerts to the bottomCardPanel
 		if(!guest) {
 			bottomCardP.add(moveP,MOVE_CARD);
@@ -346,6 +375,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			// Add the bottomCardP and the team panel to the bottom panel
 			bottomP.add(bottomCardP);
 			bottomP.add(teamP);
+			bottomP.add(utilsP);
 		}
 
 		// SETUP EVENT PANEL //
@@ -380,7 +410,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		// Start the BGM
 		if(GUIGlobals.soundOn) {
-			looper = PresetBGM.getLooper("xy-rival.wav");
 			// TODO
 			//volumeBar = new VolumeBar(looper);
 			//volumeBar.setBounds(inputF.getBounds().x + inputF.getBounds().width - 30, inputF.getBounds().y + inputF.getBounds().height - 100, 30, 100);
@@ -544,7 +573,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		} else if(token[0].equals("rule") && token.length > 1) {
 			/* |rule|Rule Name: and description */
-			appendEvent(EventType.RULE,merge(token,1));
+			appendEvent(EventType.RULE, merge(token,1));
+
+		} else if(token[0].equals("info") && token.length > 1) {
+			/* |info|Message */
+			appendEvent(EventType.INFO, merge(token,1));
 
 		} else if(token[0].equals("teampreview")) {
 			if(battleStarted) {

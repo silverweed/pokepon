@@ -22,6 +22,58 @@ class TeamMenuPanel extends JPanel {
 	private Player player;
 	private PonyToken[] token = new PonyToken[Team.MAX_TEAM_SIZE];
 
+	public TeamMenuPanel() {
+		setLayout(new GridLayout(2,3));
+		setOpaque(false);
+	}
+
+	public TeamMenuPanel(final Player p) {
+		this();
+		initialize(p);
+	}
+
+	public void initialize(final Player p) {
+		player = p;
+		for(int i = 0; i < 6; ++i) {
+			token[i] = new PonyToken(player.getTeam().getPony(i));
+			//token[i].addMouseListener(new TeamMenuMouseListener(i));
+			if(Debug.on) printDebug("[TeamMenuPanel] pony "+i+": "+player.getTeam().getPony(i));
+			add(token[i]);
+		}
+		setBorder(new TitledBorder(p.getName()));
+		if(Debug.on) printDebug("Initialized TeamMenuPanel for player "+player.getName());
+	}
+
+	public void addPony(Pony pony) {
+		addPony(pony, false, false);
+	}
+
+	public void addPony(Pony pony, boolean unknown) {
+		addPony(pony, unknown, false);
+	}
+
+	public void addPony(Pony pony, boolean unknown, boolean fainted) {
+		if(Debug.on) printDebug("[TMP] called addPony("+pony+","+unknown+","+fainted+")");
+		for(int i = 0; i < token.length; ++i)
+			if(token[i] == null || token[i].getPony() == null) {
+				if(Debug.on) printDebug("[TMP] token["+i+"] set.");
+				token[i].set(pony, unknown, fainted);
+				return;
+			}
+	}
+
+	public PonyToken[] getTokens() {
+		return token;
+	}
+
+	public void setFainted(int num, boolean fnt) {
+		token[num].setFainted(fnt);
+	}
+
+	public void setUnknown(int num, boolean unk) {
+		token[num].setUnknown(unk);
+	}
+
 	class PonyToken extends JLabel {
 		private Pony pony;
 		private boolean unknown;
@@ -125,57 +177,5 @@ class TeamMenuPanel extends JPanel {
 				return pony != null && !unknown;
 			}
 		};
-	}
-
-	public TeamMenuPanel() {
-		setLayout(new GridLayout(2,3));
-		setOpaque(false);
-	}
-
-	public TeamMenuPanel(final Player p) {
-		this();
-		initialize(p);
-	}
-
-	public void initialize(final Player p) {
-		player = p;
-		for(int i = 0; i < 6; ++i) {
-			token[i] = new PonyToken(player.getTeam().getPony(i));
-			//token[i].addMouseListener(new TeamMenuMouseListener(i));
-			if(Debug.on) printDebug("[TeamMenuPanel] pony "+i+": "+player.getTeam().getPony(i));
-			add(token[i]);
-		}
-		setBorder(new TitledBorder(p.getName()));
-		if(Debug.on) printDebug("Initialized TeamMenuPanel for player "+player.getName());
-	}
-
-	public void addPony(Pony pony) {
-		addPony(pony, false, false);
-	}
-
-	public void addPony(Pony pony, boolean unknown) {
-		addPony(pony, unknown, false);
-	}
-
-	public void addPony(Pony pony, boolean unknown, boolean fainted) {
-		if(Debug.on) printDebug("[TMP] called addPony("+pony+","+unknown+","+fainted+")");
-		for(int i = 0; i < token.length; ++i)
-			if(token[i] == null || token[i].getPony() == null) {
-				if(Debug.on) printDebug("[TMP] token["+i+"] set.");
-				token[i].set(pony, unknown, fainted);
-				return;
-			}
-	}
-
-	public PonyToken[] getTokens() {
-		return token;
-	}
-
-	public void setFainted(int num, boolean fnt) {
-		token[num].setFainted(fnt);
-	}
-
-	public void setUnknown(int num, boolean unk) {
-		token[num].setUnknown(unk);
-	}
+	} // end class PonyToken
 }		

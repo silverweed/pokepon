@@ -313,13 +313,47 @@ public class BattleTask implements Runnable {
 			server.getBattles().remove(battleID);
 			server.dismissBattle(c1,c2);
 			terminate();
-				
+		
+		// TODO: timer
+		//} else if(token[0].equals("timer") && token.length > 2) {
+			/* |timer|(playerID/Player Name)|(on/off) */
+		/*	int pl = parseID(token[1]);
+			if(pl != 1 && pl != 2) {
+				printDebug("[BattleTask.processMsg(timer)]: unknown player: "+token[1]);
+				return;
+			}
+			Connection thisC = pl == 1 ? c1 : c2;
+			Connection thatC = pl == 1 ? c2 : c1;
+			//if(!token[2].equals("on") && !token[2].equals("off")) {
+			if(token[2].equals("on")) {
+				// check if timer was already on
+				if(timer[0] || timer[1]) {
+					sendB(thisC, "|info|Timer is already active.");
+					return;
+				}
+				timer[pl-1] = true;
+				sendB("|html|<font color=red>Timer is on. Players will lose after " + TIMER_TIMEOUT + " seconds of " +
+					"inactivity (requested by " + thisC.getName() + ").</font>");
+
+			} else if(token[2].equals("off")) {
+				if(timer[pl-1]) {
+					timer[pl-1] = false;
+					sendB("|html|<font color=red>" + thisC.getName() + " set the timer off.</font>");
+					return;
+				} 
+				sendB(thisC, "|info|You cannot stop the timer since you weren't the one to activate it.");
+				return;
+			} else {
+				printDebug("[BattleTask.processMsg(timer)]: expecting on/off but received "+token[2]);
+				return;
+			}*/
+			
 		} else if(token[0].equals("switch") && token.length > 2) {
 			/* |switch|(playerID/Player Name)|ponyNum */
 			try {
 				int num = Integer.parseInt(token[2]);
 				if(num < 0 || num > Team.MAX_TEAM_SIZE-1) {
-					printDebug("[BattleTask.processMsg()]: ERROR - received "+num+" as pony num.");
+					printDebug("[BattleTask.processMsg(switch)]: ERROR - received "+num+" as pony num.");
 					return;
 				}
 				
@@ -327,7 +361,7 @@ public class BattleTask implements Runnable {
 				int pl = parseID(token[1]);
 
 				if(pl != 1 && pl != 2) {
-					printDebug("[BattleTask.processMsg()]: Unknown player: "+token[1]);
+					printDebug("[BattleTask.processMsg(switch)]: Unknown player: "+token[1]);
 					return;
 				}
 				
@@ -1183,8 +1217,10 @@ public class BattleTask implements Runnable {
 	 */
 	private Connection[] guests = new Connection[MAX_GUESTS];
 	private int nGuests;
+	/** Whether the timer is on or not and who activated it. */
+	/*private boolean timer[2];
+	BattleTimer timerTask;*/
 
-	
 	private static enum Event { 
 		SWITCH,
 		MOVE;

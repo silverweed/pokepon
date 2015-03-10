@@ -18,13 +18,13 @@ import javax.swing.event.*;
 public class VolumeBar extends JPanel {
 
 	private JSlider slider;
-	private JToggleButton muteBtn = new JToggleButton("<html><small>M</small></html>");
+	private JToggleButton muteBtn = new JToggleButton("M");
 	private Looper looper;
 
-	public VolumeBar(final Looper looper) {
+	public VolumeBar(final Looper looper, boolean vertical) {
 		this.looper = looper;
 		if(looper.canChangeVolume()) {
-			slider = new JSlider(JSlider.VERTICAL, 
+			slider = new JSlider(vertical ? JSlider.VERTICAL : JSlider.HORIZONTAL, 
 					(int)looper.getMinVolume(),
 					(int)(Math.pow(looper.getMaxVolume(),2)/40000),
 					(int)(looper.getMaxVolume() - looper.getMinVolume()) / 2
@@ -38,7 +38,7 @@ public class VolumeBar extends JPanel {
 				}
 			});
 		} else {
-			slider = new JSlider(JSlider.VERTICAL, 0, 1, 0);
+			slider = new JSlider(vertical ? JSlider.VERTICAL : JSlider.HORIZONTAL, 0, 1, 0);
 			slider.setEnabled(false);
 		}
 		if(looper.canMute()) {
@@ -53,11 +53,12 @@ public class VolumeBar extends JPanel {
 			muteBtn.setEnabled(false);
 		}
 
-		setLayout(new BorderLayout());
+		setLayout(new BorderLayout(3, 0));
 		add(slider);
-		add(muteBtn, BorderLayout.SOUTH);
+		add(muteBtn, vertical ? BorderLayout.SOUTH : BorderLayout.WEST);
 		muteBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		muteBtn.setPreferredSize(new Dimension(20, 20));
+		muteBtn.setMargin(new Insets(0,0,0,0));
 		if(Debug.on) printDebug("[VolumeBar] Constructed with volume: "+looper.getMinVolume()+" < "+
 				looper.getVolume() + " < "+looper.getMaxVolume());
 	}
@@ -65,7 +66,7 @@ public class VolumeBar extends JPanel {
 	public static void main(String[] args) {
 		JFrame frame = new JFrame();
 		Looper looper = PresetBGM.getLooper("xy-rival.wav");
-		VolumeBar vb = new VolumeBar(looper);
+		VolumeBar vb = new VolumeBar(looper, true);
 		frame.add(vb);
 		new Thread(looper).start();
 		SwingConsole.run(frame);

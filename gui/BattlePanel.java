@@ -2289,282 +2289,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 	}
 
-	/** Class test: initialize a battle start, then accepts commands
-	 * from the command line.
-	 */
-	public static void main(String[] args) throws Exception {
-		final JFrame frame = new JFrame();
-		final Player p1 = new Player("me");
-		final Player p2 = new Player("opponent");
-		final BattlePanel bp = new BattlePanel(p1,p2);
-		// replays!
-		if(args.length > 0 && args[0].equals("--replay")) {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				public void run() {
-					bp.initialize();
-					frame.add(bp);
-					SwingConsole.run(frame, "Pokepon Replay", false);
-				}
-			});
-			InputStream input = System.in;
-			if(args.length > 1) {
-				input = new FileInputStream(new File(args[1]));
-			}
-			try (BufferedReader bf = new BufferedReader(new InputStreamReader(input))) {
-				String line = null;
-				while((line = bf.readLine()) != null) {
-					bp.interpret(line);
-				}
-			}
-			return;
-		}
-
-		Team team1 = Team.randomTeam(6);
-		p1.setTeam(team1);
-		p2.setTeam(Team.randomTeam(6));
-		for(Pony p : team1) {
-			bp.teamP.addPony(p);
-		}
-
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				bp.initialize();
-				//simulate a battle start
-				bp.interpret("|join|ally|ALLY");
-				bp.interpret("|join|opp|OPPONENT");
-				bp.interpret("|teampreview");
-				bp.interpret("|start");
-			}
-		});
-		frame.add(bp);
-		SwingConsole.run(frame,"Pokepon Battle Panel test");
-
-		Thread.sleep(500);
-		bp.interpret("|switch|ally|0|100");
-		bp.interpret("|switch|opp|0|100");
-
-		try (BufferedReader bf = new BufferedReader(new InputStreamReader(System.in))) {
-			String line = null;
-			while((line = bf.readLine()) != null) {
-				bp.interpret(line);
-			}
-		}
-	}
-
-	/** Class handling the chat input events */
-	private final KeyListener outKeyListener = new KeyListener() {
-		private int index;
-		private LinkedList<String> history = new LinkedList<String>();
-
-		public void keyPressed(KeyEvent e) {
-			//sane history index
-			if(index <= -1) index = 0;
-			else if(index >= history.size()) index = history.size();
-
-			switch(e.getKeyCode()) {
-				case KeyEvent.VK_ENTER:
-					if(inputF.getText() != null && inputF.getText().length() > 0) {
-						// here we use fullname rather than playerID because guests other than
-						// players may use chat as well; this way the server doesn't bother to parse
-						// chat messages.
-						if(inputF.getText().charAt(0) != CMD_PREFIX) {
-							sendB("|chat|"+p1.getName()+"|"+MessageManager.sanitize(inputF.getText())); 
-						} else {
-							String txt = inputF.getText().trim().substring(1);
-							if(txt.equals("export") || txt.equals("save")) {
-								if(battleLogger != null) {
-									// TODO: add capability to select save location
-									battleLogger.processRecord(null);
-									if(battleLogger.getFeedbackMsg() != null)
-										appendEvent(EventType.INFO,battleLogger.getFeedbackMsg());
-								} else {
-									appendEvent(EventType.INFO,"You haven't enabled logging for this battle.");
-								}
-							} else {
-								sendB("|cmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));
-							}
-						}
-						history.add(inputF.getText());
-						if(history.size() > MAX_HIST_SIZE) history.removeFirst();
-						index = history.size()-1;
-						inputF.setText("");
-					}
-					break;
-				case KeyEvent.VK_UP:
-					if(history.size() > 0 && index > -1) {
-						inputF.setText(history.get(index--));
-					}
-					break;
-				case KeyEvent.VK_DOWN:
-					if(history.size() > 0 && index < history.size()-1) {
-						inputF.setText(history.get(++index));
-					} else {
-						if(	inputF.getText() != null && 
-							inputF.getText().length() > 0 && 
-							!history.get(history.size()-1).equals(inputF.getText())
-						) {
-							history.add(inputF.getText());
-							if(history.size() > MAX_HIST_SIZE) history.removeFirst();
-							index = history.size()-1;
-						}
-						inputF.setText("");
-					}
-					break;
-			}
-		}
-		public void keyReleased(KeyEvent e) {}
-		public void keyTyped(KeyEvent e) {}
-	};
-
-	class MoveActionListener implements ActionListener {
-		private final int num;
-
-		public MoveActionListener(final int num) {
-			this.num = num;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			if(guest) return;
-			moveB[num].setSelected(true);
-			for(MoveButton mb : moveB)
-				if(mb != moveB[num])
-					mb.setSelected(false);
-			if(connection != null) 
-				sendB("|move|"+
-					(playerID == 0 ? p1.getName() :	playerID) +
-					"|" +
-					(moveB[num].getMove().getName().equals("Struggle") || allyPony.isLockedOnMove()
-						? moveB[num].getMove().getName()
-						: num
-					)
-				);
-		}
-	}
-
-	class SwitchListener implements ActionListener {
-		private final int num;
-
-		public SwitchListener(final int num) {
-			this.num = num;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			// don't attempt to switch in currently active pony
-			if(guest || p1.getTeam().getPony(num) == allyPony) return;
-
-			if(connection != null)
-				sendB("|switch|"+(playerID == 0 ? p1.getName() : playerID)+"|"+num);
-			else 
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						if(p1.getTeam().getPony(num) == null) return;
-						interpret("|switch|ally|"+p1.getTeam().getPony(num).getNickname()+
-								"|"+p1.getTeam().getPony(num).getName());
-					}
-				});
-		}
-	};
-
-	/** MouseListener for the ponies' sprites */
-	class PonySpriteListener extends MouseAdapter {
-		private final boolean isAlly;
-		private Popup popup;
-		private PopupFactory popupFactory;
-		private JToolTip toolTip; 
-	
-		public PonySpriteListener(final boolean isAlly) {
-			this.isAlly = isAlly;
-			popupFactory = PopupFactory.getSharedInstance();
-			toolTip = createToolTip();
-		}
-		private void showToolTip(MouseEvent e) {
-			Pony pony = isAlly ? allyPony : oppPony;
-			int ponynum = findIndexOf(1, allyPony);
-			if(pony == null) return;
-			String possibleAbs = "";
-			if(!isAlly) 
-				for(String ab : pony.getPossibleAbilities()) {
-					if(possibleAbs.length() > 0)
-						possibleAbs += ", " + ab;
-					else
-						possibleAbs = ab;
-				}
-			StringBuilder statsString = new StringBuilder("");
-			if(isAlly) {
-				// show ally stats
-				String[] stat = "Atk Def SpA SpD Spe".split(" ");
-				for(int i = 0; i < 5; ++i) {
-					if(ponyEffStats[i] != 0)
-						statsString.append(ponyEffStats[i] + " " + stat[i] + " / ");
-					else
-						statsString.append("??? "+stat[i]+" / ");
-				}
-				statsString.delete(statsString.length() - 2, statsString.length());
-			} else {
-				// show range of possible enemy speed
-				if(oppPony != null) {
-					int baseSpe = oppPony.getBaseSpeed();
-					int minSpe = (int)((2 * baseSpe * oppPony.getLevel() / 100 + 5) * 0.9);
-					int maxSpe = (int)(((Pony.MAX_IV + 2 * baseSpe + Pony.MAX_EV / 4) * oppPony.getLevel() / 100 + 5) * 1.1);
-					statsString.append(minSpe+" to "+maxSpe+" Spe (before items/abilities/modifiers)");
-				}
-			}
-			toolTip.setTipText(
-				"<html><body style=\"font-family:"+GUIGlobals.FONT_FAMILY+"\">"+
-				"<b>"+pony.getName()+"</b> "+
-				(pony.getSex() == Pony.Sex.FEMALE 
-					? "<small style=\"color:#C57575\">&#9792;</small>" 
-					: "<small style=\"color:#7575C0\">&#9794;</small>"
-				)+" <small>L"+pony.getLevel()+"</small><br>"+
-				pony.getTypingHTMLTokens()+"<br>"+
-				"<p><small>HP: "+(int)(pony.getHpPerc()*100)+"%"+(isAlly ? " ("+pony.getHp()+")" : "")+"</small></p>"+
-				"<p>"+(isAlly 
-					? "Ability: <b>"+
-						(pony.getAbility() == null 
-							? "" 
-							: pony.getAbility()
-						)+"</b>"
-					: "Possible abilities:&nbsp;"+possibleAbs.trim()
-				)+"</p>"+
-				"<p>"+(isAlly 
-					? "Item: <b>"+(pony.getItem() == null 
-						? "" 
-						: pony.getItem()
-					)+"</b>" 
-					: ""
-				)+"</p>"+
-				(pony.hasNegativeCondition() 
-				 	? "<p>Status: "+ (pony.getStatus() != null ? pony.getStatus().toBrief() : "") + "</p>"
-					: ""
-				) +
-				"<p>"+statsString+"</p>"+
-				"</body></html>"
-			);
-		
-			// set fixed coordinates for tooltips
-			int x = 0, y = 0;
-			if(isAlly) {
-				x = (int)allySprite.getLocationOnScreen().getX() - 20;
-				y = (int)allySprite.getLocationOnScreen().getY() - 120;
-			} else {
-				x = (int)oppSprite.getLocationOnScreen().getX() - 160;
-				y = (int)oppSprite.getLocationOnScreen().getY() - 50;
-			}
-			popup = popupFactory.getPopup((isAlly ? allySprite : oppSprite),toolTip,x,y);
-			popup.show();
-		}
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			if((isAlly && allySprite != null) || (!isAlly && oppSprite != null))
-				showToolTip(e);
-		}
-		@Override
-		public void mouseExited(MouseEvent e) {
-			if(popup != null)
-				popup.hide();
-		}
-	}
-
 	/** @return A Point with the coordinates of the ally sprite */
 	private Point allyLocation() {
 		if(allySprite != null)
@@ -3559,4 +3283,281 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		});
 		return true;
 	}
+
+	/** Class test: initialize a battle start, then accepts commands
+	 * from the command line.
+	 */
+	public static void main(String[] args) throws Exception {
+		final JFrame frame = new JFrame();
+		final Player p1 = new Player("me");
+		final Player p2 = new Player("opponent");
+		final BattlePanel bp = new BattlePanel(p1,p2);
+		// replays!
+		if(args.length > 0 && args[0].equals("--replay")) {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					bp.initialize();
+					frame.add(bp);
+					SwingConsole.run(frame, "Pokepon Replay", false);
+				}
+			});
+			InputStream input = System.in;
+			if(args.length > 1) {
+				input = new FileInputStream(new File(args[1]));
+			}
+			try (BufferedReader bf = new BufferedReader(new InputStreamReader(input))) {
+				String line = null;
+				while((line = bf.readLine()) != null) {
+					bp.interpret(line);
+				}
+			}
+			return;
+		}
+
+		Team team1 = Team.randomTeam(6);
+		p1.setTeam(team1);
+		p2.setTeam(Team.randomTeam(6));
+		for(Pony p : team1) {
+			bp.teamP.addPony(p);
+		}
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				bp.initialize();
+				//simulate a battle start
+				bp.interpret("|join|ally|ALLY");
+				bp.interpret("|join|opp|OPPONENT");
+				bp.interpret("|teampreview");
+				bp.interpret("|start");
+			}
+		});
+		frame.add(bp);
+		SwingConsole.run(frame,"Pokepon Battle Panel test");
+
+		Thread.sleep(500);
+		bp.interpret("|switch|ally|0|100");
+		bp.interpret("|switch|opp|0|100");
+
+		try (BufferedReader bf = new BufferedReader(new InputStreamReader(System.in))) {
+			String line = null;
+			while((line = bf.readLine()) != null) {
+				bp.interpret(line);
+			}
+		}
+	}
+
+	/** Class handling the chat input events */
+	private final KeyListener outKeyListener = new KeyListener() {
+		private int index;
+		private LinkedList<String> history = new LinkedList<String>();
+
+		public void keyPressed(KeyEvent e) {
+			//sane history index
+			if(index <= -1) index = 0;
+			else if(index >= history.size()) index = history.size();
+
+			switch(e.getKeyCode()) {
+				case KeyEvent.VK_ENTER:
+					if(inputF.getText() != null && inputF.getText().length() > 0) {
+						// here we use fullname rather than playerID because guests other than
+						// players may use chat as well; this way the server doesn't bother to parse
+						// chat messages.
+						if(inputF.getText().charAt(0) != CMD_PREFIX) {
+							sendB("|chat|"+p1.getName()+"|"+MessageManager.sanitize(inputF.getText())); 
+						} else {
+							String txt = inputF.getText().trim().substring(1);
+							if(txt.equals("export") || txt.equals("save")) {
+								if(battleLogger != null) {
+									// TODO: add capability to select save location
+									battleLogger.processRecord(null);
+									if(battleLogger.getFeedbackMsg() != null)
+										appendEvent(EventType.INFO,battleLogger.getFeedbackMsg());
+								} else {
+									appendEvent(EventType.INFO,"You haven't enabled logging for this battle.");
+								}
+							} else {
+								sendB("|cmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));
+							}
+						}
+						history.add(inputF.getText());
+						if(history.size() > MAX_HIST_SIZE) history.removeFirst();
+						index = history.size()-1;
+						inputF.setText("");
+					}
+					break;
+				case KeyEvent.VK_UP:
+					if(history.size() > 0 && index > -1) {
+						inputF.setText(history.get(index--));
+					}
+					break;
+				case KeyEvent.VK_DOWN:
+					if(history.size() > 0 && index < history.size()-1) {
+						inputF.setText(history.get(++index));
+					} else {
+						if(	inputF.getText() != null && 
+							inputF.getText().length() > 0 && 
+							!history.get(history.size()-1).equals(inputF.getText())
+						) {
+							history.add(inputF.getText());
+							if(history.size() > MAX_HIST_SIZE) history.removeFirst();
+							index = history.size()-1;
+						}
+						inputF.setText("");
+					}
+					break;
+			}
+		}
+		public void keyReleased(KeyEvent e) {}
+		public void keyTyped(KeyEvent e) {}
+	};
+
+	class MoveActionListener implements ActionListener {
+		private final int num;
+
+		public MoveActionListener(final int num) {
+			this.num = num;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			if(guest) return;
+			moveB[num].setSelected(true);
+			for(MoveButton mb : moveB)
+				if(mb != moveB[num])
+					mb.setSelected(false);
+			if(connection != null) 
+				sendB("|move|"+
+					(playerID == 0 ? p1.getName() :	playerID) +
+					"|" +
+					(moveB[num].getMove().getName().equals("Struggle") || allyPony.isLockedOnMove()
+						? moveB[num].getMove().getName()
+						: num
+					)
+				);
+		}
+	}
+
+	class SwitchListener implements ActionListener {
+		private final int num;
+
+		public SwitchListener(final int num) {
+			this.num = num;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			// don't attempt to switch in currently active pony
+			if(guest || p1.getTeam().getPony(num) == allyPony) return;
+
+			if(connection != null)
+				sendB("|switch|"+(playerID == 0 ? p1.getName() : playerID)+"|"+num);
+			else 
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						if(p1.getTeam().getPony(num) == null) return;
+						interpret("|switch|ally|"+p1.getTeam().getPony(num).getNickname()+
+								"|"+p1.getTeam().getPony(num).getName());
+					}
+				});
+		}
+	};
+
+	/** MouseListener for the ponies' sprites */
+	class PonySpriteListener extends MouseAdapter {
+		private final boolean isAlly;
+		private Popup popup;
+		private PopupFactory popupFactory;
+		private JToolTip toolTip; 
+	
+		public PonySpriteListener(final boolean isAlly) {
+			this.isAlly = isAlly;
+			popupFactory = PopupFactory.getSharedInstance();
+			toolTip = createToolTip();
+		}
+		private void showToolTip(MouseEvent e) {
+			Pony pony = isAlly ? allyPony : oppPony;
+			int ponynum = findIndexOf(1, allyPony);
+			if(pony == null) return;
+			String possibleAbs = "";
+			if(!isAlly) 
+				for(String ab : pony.getPossibleAbilities()) {
+					if(possibleAbs.length() > 0)
+						possibleAbs += ", " + ab;
+					else
+						possibleAbs = ab;
+				}
+			StringBuilder statsString = new StringBuilder("");
+			if(isAlly) {
+				// show ally stats
+				String[] stat = "Atk Def SpA SpD Spe".split(" ");
+				for(int i = 0; i < 5; ++i) {
+					if(ponyEffStats[i] != 0)
+						statsString.append(ponyEffStats[i] + " " + stat[i] + " / ");
+					else
+						statsString.append("??? "+stat[i]+" / ");
+				}
+				statsString.delete(statsString.length() - 2, statsString.length());
+			} else {
+				// show range of possible enemy speed
+				if(oppPony != null) {
+					int baseSpe = oppPony.getBaseSpeed();
+					int minSpe = (int)((2 * baseSpe * oppPony.getLevel() / 100 + 5) * 0.9);
+					int maxSpe = (int)(((Pony.MAX_IV + 2 * baseSpe + Pony.MAX_EV / 4) * oppPony.getLevel() / 100 + 5) * 1.1);
+					statsString.append(minSpe+" to "+maxSpe+" Spe <small>(before items/abilities/modifiers)</small>");
+				}
+			}
+			toolTip.setTipText(
+				"<html><body style=\"font-family:"+GUIGlobals.FONT_FAMILY+"\">"+
+				"<b>"+pony.getName()+"</b> "+
+				(pony.getSex() == Pony.Sex.FEMALE 
+					? "<small style=\"color:#C57575\">&#9792;</small>" 
+					: "<small style=\"color:#7575C0\">&#9794;</small>"
+				)+" <small>L"+pony.getLevel()+"</small><br>"+
+				pony.getTypingHTMLTokens()+"<br>"+
+				"<p><small>HP: "+(int)(pony.getHpPerc()*100)+"%"+(isAlly ? " ("+pony.getHp()+")" : "")+"</small></p>"+
+				"<p>"+(isAlly 
+					? "Ability: <b>"+
+						(pony.getAbility() == null 
+							? "" 
+							: pony.getAbility()
+						)+"</b>"
+					: "Possible abilities:<br>"+possibleAbs.trim()
+				)+"</p>"+
+				"<p>"+(isAlly 
+					? "Item: <b>"+(pony.getItem() == null 
+						? "" 
+						: pony.getItem()
+					)+"</b>" 
+					: ""
+				)+"</p>"+
+				(pony.hasNegativeCondition() 
+				 	? "<p>Status: "+ (pony.getStatus() != null ? pony.getStatus().toBrief() : "") + "</p>"
+					: ""
+				) +
+				"<p>"+statsString+"</p>"+
+				"</body></html>"
+			);
+		
+			// set fixed coordinates for tooltips
+			int x = 0, y = 0;
+			if(isAlly) {
+				x = (int)allySprite.getLocationOnScreen().getX() - 20;
+				y = (int)allySprite.getLocationOnScreen().getY() - 120;
+			} else {
+				x = (int)oppSprite.getLocationOnScreen().getX() - 260;
+				y = (int)oppSprite.getLocationOnScreen().getY() - 50;
+			}
+			popup = popupFactory.getPopup((isAlly ? allySprite : oppSprite),toolTip,x,y);
+			popup.show();
+		}
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			if((isAlly && allySprite != null) || (!isAlly && oppSprite != null))
+				showToolTip(e);
+		}
+		@Override
+		public void mouseExited(MouseEvent e) {
+			if(popup != null)
+				popup.hide();
+		}
+	}
+
 }

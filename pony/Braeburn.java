@@ -37,5 +37,7 @@ public class Braeburn extends Pony {
 		learnableMoves.put("Taunt",1);
 		learnableMoves.put("Dodge",1);
 		learnableMoves.put("Applebuck",35);
+
+		possibleAbilities[0] = "Tenacity";
 	}
 }

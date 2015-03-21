@@ -42,5 +42,7 @@ public class AppleBloom extends Pony {
 		learnableMoves.put("Poison Joke",1);
 		learnableMoves.put("Dodge",1);
 		learnableMoves.put("Martial Arts",60);
+
+		possibleAbilities[0] = "Tenacity";
 	}
 }

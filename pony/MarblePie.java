@@ -39,5 +39,7 @@ public class MarblePie extends Pony {
 		learnableMoves.put("Practice",1);
 		learnableMoves.put("Sneak Attack",1);
 		learnableMoves.put("Dodge",1);
+
+		possibleAbilities[0] = "Tenacity";
 	}
 }

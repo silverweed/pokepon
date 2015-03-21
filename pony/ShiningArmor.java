@@ -41,6 +41,7 @@ public class ShiningArmor extends Pony {
 		learnableMoves.put("Magic Shield",13);	
 		learnableMoves.put("Horn Beam",61);
 		learnableMoves.put("Love Burst",90);
-	}
 
+		possibleAbilities[0] = "Tenacity";
+	}
 }

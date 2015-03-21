@@ -26,6 +26,8 @@ public class Simplicity extends Ability {
 
 	@Override
 	public void onMoveUsage(final BattleEngine be) {
+		if(pony == null)
+			throw new NullPointerException("pony is null for Simplicity!");
 		if(be.getAttacker() != pony) return;
 		if(be.getCurrentMove().getMoveType() == Move.MoveType.PHYSICAL) {
 			move = be.getCurrentMove();
@@ -46,8 +48,6 @@ public class Simplicity extends Ability {
 
 	@Override
 	public void afterMoveUsage(final BattleEngine be) {
-		pony.setBaseStat("Atk", origAtk);
-		if(move != null)
-			move.setAccuracy(origAcc);
+		reset();
 	}
 }

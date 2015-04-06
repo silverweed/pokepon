@@ -8,6 +8,7 @@ import static pokepon.util.MessageManager.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.*;
+import java.awt.Point;
 
 /** An animation that makes the sprite whirl around a given point.
  * 
@@ -22,8 +23,14 @@ public class Whirl extends BasicAnimation {
 	private int period = 400;
 	private int radius = 30;
 
-	@SuppressWarnings("unchecked")
-	/** @param opts Opts: shakes, center, radius */ 
+	/** Whirl constructor
+	 * @param opts Opts:
+	 * <ul>
+	 *   <li>shakes: how many times to whirl around the center (default: 1)</li>
+	 *   <li>center: the central point of the circle (default: sprite X/Y, gets parsed if String: see {@link BasicAnimation#parseShift})</li>
+	 *   <li>radius: the radius of the circle, in pixels (default: 30)</li>
+	 * </ul>
+	 */ 
 	public Whirl(final JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
 		if(delay == -1) delay = 10;
@@ -33,7 +40,11 @@ public class Whirl extends BasicAnimation {
 			if(entry.getKey().equals("shakes")) {
 				shakes = (Integer)entry.getValue();
 			} else if(entry.getKey().equals("center")) {
-				java.awt.Point pt = parseShift((String)entry.getValue());
+				Point pt = new Point();
+				if(entry.getValue() instanceof String)
+					pt = parseShift((String)entry.getValue());
+				else
+					pt = (Point)entry.getValue();
 				initialX = (int)pt.getX();
 				initialY = (int)pt.getY();
 			} else if(entry.getKey().equals("radius")) {

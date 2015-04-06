@@ -31,16 +31,35 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 	protected boolean persistent;
 	protected boolean usedByAlly = true;
 	protected Rectangle originalBounds;
+	/** If true, the animations supporting it will put the sprite back
+	 * to its original location after the animation ends.
+	 */
 	protected boolean rewind;
+	/** If non-null, the animations supporting it will put the sprite
+	 * at this location after the animation ends.
+	 */
 	protected Point rewindTo;
 	/** The number of cycles used by the animation to complete; total duration
 	 * of the animation will be delay * numIterations.
 	 */
 	protected float numIterations = 10f;
 
-	@SuppressWarnings("unchecked")
 	/** @param panel The component where to perform the animation
-	 * @param opts A map { name of option: opt value }
+	 * @param opts A map { name of option: opt value };
+	 * Basic options (bold is mandatory):
+	 * <ul>
+	 *   <li><b>sprite</b>: the sprite to animate, a JComponent</li>
+	 *   <li><b>allyBounds</b>: the Rectangle bounding the ally sprite</li>
+	 *   <li><b>oppBounds</b>: the Rectangle bounding the opponent's sprite</li>
+	 *   <li>persistent: if false (default), the sprite is removed from the panel after terminating the animation</li>
+	 *   <li>usedByAlly: if true (default), it is assumed that the animation is being used by the "ally pony"</li>
+	 *   <li>delay: the delay between frames</li>
+	 *   <li>rewind: (for the animations using it): if true, the sprite is put back at its 
+	         original position/opacity after the animation ends.</li>
+	 *   <li>rewindTo: (for the animations using it): if non-null, the sprite is put at
+	         the specified Point (with its initialOpacity) at the end of the animation.</li>
+	 *   <li>iterations: the number of frames that take to the animation to complete (default: 10)</li>
+	 * </ul>
 	 */
 	public BasicAnimation(final JComponent panel,Map<String,Object> opts) {
 		this.panel = panel;
@@ -109,7 +128,17 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 
 	/** Parses a string of the form: opp/ally (+/-/f/b)[0-9]+(X/Y) and returns a
 	 * Point with the shifted absolute coordinates; for a correct functioning,
-	 * usedByAlly, allyBounds and oppBounds must be properly set.
+	 * usedByAlly, allyBounds and oppBounds must be properly set;
+	 * the meaning of 'phrase' is the following:
+	 * <ul>
+	 *   <li>ally +100X -100Y: is just [ally point] + 100 x - 100 y</li>
+	 *   <li>ally b100X f100Y: is [ally point] (back) 100 x (front) 100 y,
+	 *       where 'back' and 'front' are relative to the animation user's POV,
+	 *       e.g if the user is the opponent pony, "opp f100X" means an absolute
+	 *       'ally +100X', whereas if the user is the ally pony, "opp b100X" is
+	 *       translated as absolute 'opp +100X'. In the end, use +/- if you want
+	 *       absolute coordinates, and use b/f if you want relative ones.</li>
+	 * </ul>
 	 */
 	protected Point parseShift(String phrase) {
 		String[] token = phrase.split(" ");
@@ -138,14 +167,6 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 							? coord == 'X' ? 1 : -1
 							: coord == 'X' ? -1 : 1
 						);
-					/*sign = (byte)(usedByAlly  
-							? token[0].equals("ally")
-								? coord == 'X' ? 1 : -1
-								: coord == 'X' ? -1 : 1
-							: token[0].equals("ally")
-								? coord == 'X' ? -1 : 1
-								: coord == 'X' ? 1 : -1
-						);*/
 					break;
 				case 'b':
 				case 'B':

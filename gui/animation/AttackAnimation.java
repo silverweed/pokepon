@@ -30,7 +30,14 @@ public abstract class AttackAnimation extends BasicAnimation {
 	protected boolean avoided;
 	protected int leftLimit, rightLimit;
 
-	/** @param opts Opts: bounceBack, horizOffset, vertOffset */
+	/** @param opts Opts: 
+	 * <ul>
+	 *   <li>bounceBack: if true (default), a point-to-point animation will trace its path backwards
+	         after hitting the final point, else it will just stop there.</li>
+	 *   <li>horizOffset: offsets the entire animation on the horizontal axis</li>
+	 *   <li>vertOffset: offsets the entire animation on the vertical axis</li>
+	 * </ul>
+	 */
 	public AttackAnimation(final javax.swing.JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
 		for(Map.Entry<String,Object> entry : opts.entrySet()) {

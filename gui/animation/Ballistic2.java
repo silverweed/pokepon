@@ -21,7 +21,11 @@ public class Ballistic2 extends AttackAnimation {
 	private double aCoeff;
 	private boolean bounced;
 
-	/** @param opts Opts: topY */
+	/** @param opts Opts: 
+	 * <ul>
+	 *   <li><b>topY</b>: the parabula top, in units of enemy sprite's height</li>
+	 * </ul>
+	 */
 	public Ballistic2(final JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
 		if(delay == -1) delay = 30;

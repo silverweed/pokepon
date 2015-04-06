@@ -12,7 +12,7 @@ import java.awt.Point;
 import java.util.*;
 
 /** Animation used to fade in/out a sprite from a point A to B;
- * the given TransparentLabel will transition from initialOpacity
+ * the given {@link pokepon.gui.TransparentLabel TransparentLabel} will transition from initialOpacity
  * (default: 1) to finalOpacity (default: 0), which can be explicitly
  * set, or implicitly by giving the fadeOut option.
  * 
@@ -29,8 +29,18 @@ public class Fade extends BasicAnimation {
 	private float perc, prevPerc;
 	private float initialOpacity = 1f, finalOpacity;
 
-	@SuppressWarnings("unchecked")
-	/** @param opts Opts: fadeOut, initialPoint, finalPoint, finalOpacity, rewind */
+	/** @param opts Opts: 
+	 * <ul>
+	 *   <li>initialPoint: the point where the animation starts (gets parsed if String, see {@link pokepon.gui.animation.BasicAnimation#parseShift})</li>
+	 *   <li>finalPoint: the point where the animation ends (gets parsed if String)</li>
+	 *   <li>finalOpacity: final opacity of the sprite, from 0 to 1 (default: 0)</li>
+	 *   <li>initialOpacity: initial opacity of the sprite, from 0 to 1 (default: 1)</li>
+	 *   <li>fadeOut: if true, the fade is fade-out (default, equivalent to initialOpacity=1f, finalOpacity=0f), else it's a fade-in</li>
+	 *   <li>rewind: if true, the sprite is put back at its original position/opacity after the animation ends.</li>
+	 *   <li>rewindTo: if non-null, the sprite is put at the specified Point (with its initialOpacity) at the end of the animation.</li>
+	 *   <li>accelerated: if true, the motion is uniformly accelerated, else it's uniform (default)</li>
+	 * </ul>
+	 */
 	public Fade(final JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
 		if(delay == -1) delay = 25;
@@ -107,7 +117,7 @@ public class Fade extends BasicAnimation {
 		x += vx;
 		y += vy;
 		// update sprite location
-		tSprite.setLocation(x,y); 
+		tSprite.setLocation(x, y); 
 		tSprite.setOpacity(finalOpacity + perc * (initialOpacity - finalOpacity));
 		panel.validate();
 		panel.repaint();

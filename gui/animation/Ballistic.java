@@ -16,7 +16,11 @@ public class Ballistic extends AttackAnimation {
 	private double topY = 5/4.;
 	private double aCoeff;
 
-	/** @param opts Opts: topY */
+	/** @param opts Opts: 
+	 * <ul>
+	 *   <li><b>topY</b>: coordinate of parabula top, in units of enemy sprite's height</li>
+	 * </ul>
+	 */
 	public Ballistic(final JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
 		if(delay == -1) 

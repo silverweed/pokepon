@@ -17,7 +17,16 @@ public class Direct extends AttackAnimation {
 	private boolean passThrough;
 	private double accelerationRate = 1;
 
-	/** @param opts Opts: accelerated, accelerationRate, inverted, passThrough */
+	/** @param opts Opts: 
+	 * <ul>
+	 *   <li>accelerated: if true, the motion is accelerated, else it's uniform (default)</li>
+	 *   <li>accelerationRate: if accelerated == true, determines how fast the acceleration is;
+	         speed is computed as <code>v = maxV * |x - initialX|^accelerationRate / |initialX - finalX|^accelerationRate</code>,
+		 so this value should be near 1 (e.g. 1.1 or 1.5)</li>
+	 *   <li>passThrough: if true, the sprite's motion will pass through the opponent's bounds. 
+	         Cannot be used along with bounceBack.</li>
+	 * </ul>
+	 */
 	public Direct(final JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
 		if(delay == -1)
@@ -36,11 +45,8 @@ public class Direct extends AttackAnimation {
 			if(entry.getKey().equals("accelerated")) 
 				accelerated = (Boolean)entry.getValue();
 
-			if(entry.getKey().equals("accelerationRate"))
+			else if(entry.getKey().equals("accelerationRate"))
 				accelerationRate = (Double)entry.getValue();
-
-			else if(entry.getKey().equals("inverted"))
-				forward ^= (Boolean)entry.getValue();
 
 			else if(entry.getKey().equals("passThrough"))
 				passThrough = true;
@@ -58,9 +64,9 @@ public class Direct extends AttackAnimation {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		int x = sprite.getX();
-		int v = (int)(accelerated ? 
-				maxV * (double)(Math.pow(Math.abs(x - initialX),accelerationRate)/Math.pow(Math.abs(initialX - finalX),accelerationRate)) : 
-				maxV - minV
+		int v = (int)(accelerated
+				? maxV * (double)(Math.pow(Math.abs(x - initialX),accelerationRate)/Math.pow(Math.abs(initialX - finalX),accelerationRate))
+				: maxV - minV
 			) + minV;
 
 		x += (forward ? 1 : -1) * v;

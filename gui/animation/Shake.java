@@ -25,8 +25,13 @@ public class Shake extends BasicAnimation {
 	private boolean forward = true;
 	private byte v = 0;
 
-	@SuppressWarnings("unchecked")
-	/** @param opts Opts: motionWidth, style, shakes */
+	/** @param opts Opts:
+	 * <ul>
+	 *   <li>motionWidth: the width of the motion in pixel (default: 30)</li>
+	 *   <li>style: either "harmonic", "linear" or "const" (default)</li>
+	 *   <li>shakes: the number of shakes to do</li>
+	 * </ul>
+	 */
 	public Shake(final JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
 		if(delay == -1) delay = 15;

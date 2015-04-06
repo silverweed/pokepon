@@ -41,5 +41,7 @@ public class LittleStrongheart extends Pony {
 		learnableMoves.put("Speed Up",25);
 		learnableMoves.put("Practice",27);
 		learnableMoves.put("Hind Kick",30);
+
+		possibleAbilities[0] = "Uprising";
 	}
 }

@@ -50,6 +50,11 @@ public abstract class TriggeredEffectDealer extends EffectDealer {
 
 	/** This is triggered _after_ damage calculation, but _before_ applying the damage (only for the defender) */
 	public void onDamage(final BattleEngine be) {}
+	
+	/** This is triggered whenever a pony receives a stat boost; requires triggerArgs:
+	 * stat, boost
+	 */
+	public void onBoost(final BattleEngine be) {}
 
 	/** This is triggered right after damage application, if move hit */
 	public void afterMoveHit(final BattleEngine be) {}

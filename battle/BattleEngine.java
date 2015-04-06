@@ -121,6 +121,7 @@ public class BattleEngine {
 	public int getInflictedDamage() { return inflictedDamage; }
 	public int getLatestInflictedDamage() { return latestInflictedDamage; }
 	public List<BattleEvent> getBattleEvents() { return battleEvents; }
+	public Object getTriggerArg(String key) { return triggerArgs.get(key); }
 
 	/** @param echo If true (default), the BattleEngine will print battle messages on console, else not. */
 	public void setEcho(boolean echo) {
@@ -1627,6 +1628,12 @@ public class BattleEngine {
 		}
 		if(!immune) {
 			boostStat(pony == attacker, pony, stat, boost);
+			triggerArgs.put("stat", stat);
+			triggerArgs.put("boost", boost);
+			attacker.trigger("onBoost", this);
+			defender.trigger("onBoost", this);
+			triggerEvent("onBoost");
+			triggerArgs.clear();
 		} else {
 			if(battleTask != null)
 				battleTask.sendB("|battle|"+pony.getNickname()+" ignores the stat change!");
@@ -1726,4 +1733,10 @@ public class BattleEngine {
 	private boolean hadSubstitute;
 	private boolean breakCycle;
 	boolean echoBattle = false;
+	/** Optional arguments for a called trigger() method: some triggered events may
+	 * need additional arguments to be passed other than the BattleEngine; in that
+	 * case, fill this map with those arguments before calling the method, then
+	 * clear them after the method returns.
+	 */
+	private Map<String,Object> triggerArgs = Collections.synchronizedMap(new HashMap<String,Object>());
 }

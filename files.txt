@@ -35,6 +35,7 @@ ability/SpellRefractory.java
 ability/Stubborn.java
 ability/Subjection.java
 ability/Swiftness.java
+ability/Tenacity.java
 ability/ToughBody.java
 ability/UpperHoof.java
 battle/Battle.java

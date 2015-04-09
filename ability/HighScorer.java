@@ -26,11 +26,12 @@ public class HighScorer extends Ability {
 	@Override
 	public void afterSwitchIn(final BattleEngine be) {
 		int oppSide = be.getOppositeSide(pony);
+		Pony oppPony = be.getTeam(oppSide).getActivePony();
 		SimpleEntry<String,Integer> maxStat = new SimpleEntry<>("",0);
 		for(String stat : Pony.STAT_NAMES) {
 			if(stat.equalsIgnoreCase("hp")) continue;
-			if(be.getTeam(oppSide).getActivePony().getStat(stat) > maxStat.getValue()) {
-				maxStat = new SimpleEntry<>(stat, be.getTeam(oppSide).getActivePony().getStat(stat));
+			if(oppPony.getStat(stat) > maxStat.getValue()) {
+				maxStat = new SimpleEntry<>(stat, oppPony.getStat(stat));
 			}
 		}
 		origStat = new SimpleEntry<>(maxStat.getKey(), pony.getBaseStat(maxStat.getKey()));

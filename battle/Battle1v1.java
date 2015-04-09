@@ -38,8 +38,8 @@ public class Battle1v1 extends Battle {
 	public boolean initialize(boolean randomBattle) throws InterruptedException {
 		if(randomBattle) {
 			// generate random teams
-			p1.setTeam(this.randomTeam());
-			p2.setTeam(this.randomTeam());
+			p1.setTeam(randomTeam());
+			p2.setTeam(randomTeam());
 		} else {
 			// concurrently retreive teams
 			if(Debug.on) printDebug("[BATTLE "+p1+","+p2+"]: Retrieving teams...");
@@ -404,7 +404,7 @@ public class Battle1v1 extends Battle {
 							pool.add("Flight Goggles");
 							break;
 						case HONESTY:
-							// TODO
+							pool.add("Cowboy Hat");
 							break;
 						case LAUGHTER:
 							pool.add("Party Hat");

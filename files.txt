@@ -38,6 +38,7 @@ ability/Swiftness.java
 ability/Tenacity.java
 ability/ToughBody.java
 ability/UpperHoof.java
+ability/Uprising.java
 battle/Battle.java
 battle/Battle1v1.java
 battle/BattleEngine.java
@@ -337,6 +338,7 @@ pony/MaudPie.java
 pony/MilkyWay.java
 pony/MsHarshwhinny.java
 pony/NeonLights.java
+pony/NightGlider.java
 pony/NightmareMoon.java
 pony/NurseRedheart.java
 pony/Octavia.java
@@ -361,6 +363,7 @@ pony/Soarin.java
 pony/Spike.java
 pony/Spitfire.java
 pony/Starswirl.java
+pony/SugarBelle.java
 pony/SunsetShimmer.java
 pony/Surprise.java
 pony/Sweetcream.java

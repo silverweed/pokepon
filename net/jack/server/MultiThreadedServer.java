@@ -452,4 +452,3 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		System.exit(0);
 	}
 }
-	

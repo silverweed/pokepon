@@ -22,10 +22,13 @@ public class AbilityCreator {
 	public static Ability create(String name) throws ReflectiveOperationException {
 		if(Debug.pedantic) {
 			printDebug("Called AbilityCreator.create("+name+")");
-			printDebug("Attempting to create ability from: "+(Meta.complete(ABILITY_DIR)+DIRSEP+name.replaceAll("[^a-zA-Z0-9]","")).replaceAll(""+DIRSEP,"."));
+			printDebug("Attempting to create ability from: "+(Meta.complete(ABILITY_DIR)+DIRSEP+
+						name.replaceAll("[^a-zA-Z0-9]","")).replaceAll(""+DIRSEP,"."));
 		}
 
-		Class<? extends Ability> abilityBuilder = (Class<? extends Ability>)Class.forName((Meta.complete(ABILITY_DIR)+DIRSEP+name.replaceAll("[^a-zA-Z0-9]","")).replaceAll(""+DIRSEP,"."));
+		Class<? extends Ability> abilityBuilder = (Class<? extends Ability>)Class.forName(
+				(Meta.complete(ABILITY_DIR)+DIRSEP+name.replaceAll("[^a-zA-Z0-9]",""))
+				.replaceAll(""+DIRSEP,"."));
 		Ability ability = abilityBuilder.getConstructor().newInstance();
 
 		if(Debug.pedantic) printDebug("Created ability: "+ability.toString());

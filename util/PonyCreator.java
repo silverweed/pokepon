@@ -28,7 +28,9 @@ public class PonyCreator {
 	public static Pony create(String name) throws ReflectiveOperationException {
 		if(Debug.pedantic) printDebug("Called PonyCreator.create("+name+")");
 
-		Class<? extends Pony> ponyBuilder = (Class<? extends Pony>)Class.forName((POKEPON_ROOTDIR+DIRSEP+PONY_DIR+DIRSEP+name.replaceAll("[\\s']","")).replaceAll(""+DIRSEP,"."));
+		Class<? extends Pony> ponyBuilder = (Class<? extends Pony>)Class.forName(
+				(POKEPON_ROOTDIR+DIRSEP+PONY_DIR+DIRSEP+name.replaceAll("[\\s']",""))
+				.replaceAll(""+DIRSEP,"."));
 		Pony pony = ponyBuilder.getDeclaredConstructor(int.class).newInstance(100);
 		
 		if(Debug.pedantic) printDebug("Created pony "+pony.getName());
@@ -73,7 +75,9 @@ public class PonyCreator {
 	public static Pony create(String name,int level) throws ReflectiveOperationException {
 		if(Debug.pedantic) printDebug("Called PonyCreator.create("+name+","+level+")");
 
-		Class<? extends Pony> ponyBuilder = (Class<? extends Pony>)Class.forName((POKEPON_ROOTDIR+DIRSEP+PONY_DIR+DIRSEP+name.replaceAll("[\\s']","")).replaceAll(""+DIRSEP,"."));
+		Class<? extends Pony> ponyBuilder = (Class<? extends Pony>)Class.forName(
+				(POKEPON_ROOTDIR+DIRSEP+PONY_DIR+DIRSEP+name.replaceAll("[\\s']",""))
+				.replaceAll(""+DIRSEP,"."));
 		Pony pony = ponyBuilder.getDeclaredConstructor(int.class).newInstance(level);
 		
 		if(Debug.pedantic) printDebug("Created pony "+pony.getName());

@@ -22,7 +22,9 @@ public class HazardCreator {
 	public static Hazard create(String name) throws ReflectiveOperationException {
 		if(Debug.pedantic) printDebug("Called HazardCreator.create("+name+")");
 
-		Class<? extends Hazard> hazardBuilder = (Class<? extends Hazard>)Class.forName((POKEPON_ROOTDIR+DIRSEP+HAZARD_DIR+DIRSEP+name.replaceAll("[^a-zA-Z0-9]","")).replaceAll(""+DIRSEP,"."));
+		Class<? extends Hazard> hazardBuilder = (Class<? extends Hazard>)Class.forName(
+				(POKEPON_ROOTDIR+DIRSEP+HAZARD_DIR+DIRSEP+name.replaceAll("[^a-zA-Z0-9]",""))
+				.replaceAll(""+DIRSEP,"."));
 		Hazard hazard = hazardBuilder.getConstructor().newInstance();
 
 		if(Debug.pedantic) printDebug("Created hazard: "+hazard.toString());

@@ -4,6 +4,7 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * The clone of Rapid Spin.
@@ -25,10 +26,8 @@ public class WhirlingHoof extends Move {
 		description = "A rapid spinning attack damages your opponent and removes hazards from your field.";
 		briefDesc = "Removes hazards from ally field.";
 
-		animation.put("name","Compound");
-		animation.put("anims",java.util.Arrays.asList("Whirl","Ballistic2"));
+		animation = new java.util.HashMap<>(AnimPresets.get("whirl-ballistic"));
 		animation.put("sprite","user");
-		animation.put("persistent",true);
 
 		removesAllyHazards = true;
 	}

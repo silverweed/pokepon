@@ -4,6 +4,7 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * Move learnable only by Luna and Celestia;
@@ -11,8 +12,6 @@ import pokepon.pony.Pony;
  *
  * @author silverweed
  */
-
-
 public class CanterlotVoice extends Move {
 	
 	public CanterlotVoice() {
@@ -26,6 +25,9 @@ public class CanterlotVoice extends Move {
 		priority = 0;
 		description = "INFLICTS DAMAGE TO YOUR ENEMIES WITH A CHANCE TO PARALYZE THEM!!!";
 		description = "30% TO PARALYZE THE ENEMY!";
+
+		animation = new java.util.HashMap<>(AnimPresets.get("gatling"));
+		animation.put("sprite", "note.png");
 
 		targetParalysis = 0.3f; 
 	}

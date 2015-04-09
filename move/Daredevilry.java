@@ -4,6 +4,7 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * Inflicts massive physical damage but lowers defenses afterwards. 
@@ -26,11 +27,8 @@ public class Daredevilry extends Move {
 		description = "";
 		briefDesc = "Lowers user Def and SpD by 1.";
 
-		animation.put("anims", java.util.Arrays.asList("Ballistic2", "Direct"));
-		animation.put("name","Compound");
+		animation = new java.util.HashMap<>(AnimPresets.get("ballistic-direct"));
 		animation.put("sprite", "user");
-		animation.put("delay", 30);
-		animation.put("2:passThrough", true);
 		
 		userDef = addEntry(-1, 1f);
 		userSpdef = addEntry(-1, 1f);

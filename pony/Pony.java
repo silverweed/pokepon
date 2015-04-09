@@ -997,6 +997,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		protectCounter = 0;
 		// these volatiles aren't handled by Volatiles class (for now)
 		isProtected = false;
+		setAbilityNullified(false);
 		// reset ability, item and moves
 		if(ability != null)
 			ability.reset();
@@ -1009,6 +1010,17 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public void setVolatiles(final Volatiles vol) {
 		volatiles.copy(vol);
+	}
+
+	public void setAbilityNullified(final boolean bool) {
+		abilityNullified = bool;
+		if(abilityNullified && ability != null) {
+			origAbility = ability;
+			ability = null;
+		} else if(ability == null) {
+			ability = origAbility;
+			origAbility = null;
+		}
 	}
 
 	// Weaknesses/Resistances/Immunities: for these methods, delegate to TypeDealer.
@@ -1998,6 +2010,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	private int maxHp;	//used only if manualMaxHp is true.
 	private boolean transformed;
 	private Pony original;
+	private boolean abilityNullified;
+	private Ability origAbility;
 	private String unlockPhrase;
 	private Volatiles volatiles = new Volatiles();
 

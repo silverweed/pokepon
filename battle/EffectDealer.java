@@ -138,6 +138,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public boolean removesEnemyHazards() { return removesEnemyHazards; }
 	public boolean spawnSubstitute() { return spawnSubstitute; }
 	public boolean effectsAlwaysApply() { return effectsAlwaysApply; }
+	public float nullifyUserAbility() { return nullifyUserAbility; }
+	public float nullifyTargetAbility() { return nullifyTargetAbility; }
 	
 	// protective effects
 	/** Multiplies damage coming from type t by its return value */
@@ -237,6 +239,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	protected byte forceTargetSwitch;
 	protected boolean spawnSubstitute;
 	protected boolean effectsAlwaysApply;
+	protected float nullifyUserAbility;
+	protected float nullifyTargetAbility;
 	
 	/* Healing effects */
 	protected float healUser;	//user regains HP

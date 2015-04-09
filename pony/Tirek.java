@@ -32,6 +32,7 @@ public class Tirek extends Pony {
 		baseSpeed = 85;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Cutie Unmark",1);
 		learnableMoves.put("Hidden Talent",1);
 		learnableMoves.put("Mirror Pond",1);
 		learnableMoves.put("Power Display",1);

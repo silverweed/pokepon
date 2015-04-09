@@ -4,6 +4,7 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * Inflicts massive special damage with higher chance for a critical hit
@@ -27,21 +28,8 @@ public class Trailblazer extends Move {
 
 		critical = 2;
 
-		animation.put("name","Compound");
-		animation.put("anims", java.util.Arrays.asList("Fade","Fade"));
+		animation = new java.util.HashMap<>(AnimPresets.get("cross"));
 		animation.put("sprite","user");
-		animation.put("transparent",true);
-		animation.put("fadeOut",true);
-		animation.put("persistent",true);
-		animation.put("1:iterations",40f);
-		animation.put("1:delay",50);
-		animation.put("1:accelerated",true);
-		animation.put("1:initialPoint","ally");
-		animation.put("1:finalPoint","opp b450X b450Y");
-		animation.put("1:rewind",true);
-		animation.put("2:initialPoint","opp -300X -300Y");
-		animation.put("2:finalPoint","opp +300X +250Y");
-		animation.put("2:rewindTo","ally");
 	}
 	
 	public Trailblazer(Pony p) {

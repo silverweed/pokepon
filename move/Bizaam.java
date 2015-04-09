@@ -5,11 +5,12 @@ package pokepon.move;
 import pokepon.enums.*;
 import pokepon.battle.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * Canni's signature move; sort of like Stored Power (except better)
  *
- * @author 
+ * @author , silverweed
  */
 
 public class Bizaam extends Move {
@@ -26,15 +27,9 @@ public class Bizaam extends Move {
 		description = "Channel the hype! Gets more powerful when you feel better.";
 		briefDesc = "+20/-20 for each positive/negative modifier (min. 20).<br>+10% to confuse for each 40 extra damage.";
 
-		animation.put("name", "Compound");
-		animation.put("anims", java.util.Arrays.asList("Shake","Direct"));
+		animation = new java.util.HashMap<>(AnimPresets.get("shake-direct"));
 		animation.put("1:sprite","user");
-		animation.put("1:shakes", 6);
-		animation.put("1:delay", 10);
 		animation.put("2:sprite", "electroball.png");
-		animation.put("2:initialPoint","ally");
-		animation.put("2:finalPoint","opp");
-		animation.put("2:bounceBack", false);
 	}
 
 	public Bizaam(Pony p) {

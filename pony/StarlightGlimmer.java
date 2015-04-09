@@ -30,6 +30,7 @@ public class StarlightGlimmer extends Pony {
 		baseSpeed = 50;
 		
 		/* learnableMoves ... */
+		learnableMoves.put("Cutie Unmark",1);
 		learnableMoves.put("Evil Plot",1);
 		learnableMoves.put("Horn Beam",1);
 		learnableMoves.put("Rectify",1);

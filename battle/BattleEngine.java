@@ -1088,7 +1088,6 @@ public class BattleEngine {
 						battleTask.sendB(ally,"|damage|ally|"+selfDmg+"|quiet");
 						battleTask.sendB(opp,"|damage|opp|"+selfDmg+"|quiet");
 					}
-					//if(echoBattle && dealer.getPhrase().length() > 0) printMsg(dealer.getPhrase());
 					substitute[allyn] = attacker.setSubstitute(true);
 					if(Debug.on) printDebug("Substitute lives: ["+substitute[0]+","+substitute[1]+"]");
 					if(battleTask != null) {
@@ -1131,6 +1130,14 @@ public class BattleEngine {
 			if(rng.nextFloat() < dealer.boostUserEvasion().getValue()) {
 				int boost = dealer.boostUserEvasion().getKey();
 				tryStatChange(attacker,"evasion",boost);
+			}
+			if(attacker.getAbility() != null && rng.nextFloat() < dealer.nullifyUserAbility()) {
+				attacker.setAbilityNullified(true);
+				if(battleTask != null) {
+					battleTask.sendB("|battle|"+attacker.getNickname()+"'s ability was suppressed!");
+					battleTask.sendB(ally,"|addpseudo|ally|bad|Ability suppressed");
+					battleTask.sendB(opp,"|addpseudo|opp|bad|Ability suppressed");
+				}
 			}
 		}
 		if(!defender.isKO() && !defender.hasSubstitute()) {
@@ -1177,7 +1184,8 @@ public class BattleEngine {
 						battleTask.sendB("|battle|"+defender.getNickname()+" became confused!");
 					}
 					defender.setConfused(true);
-					defender.getVolatiles().confusionCounter = 1 + rng.nextInt(Battle.MAX_CONFUSION_DURATION);	//confusion lasts 1-Y turns.
+					//confusion lasts 1-Y turns.
+					defender.getVolatiles().confusionCounter = 1 + rng.nextInt(Battle.MAX_CONFUSION_DURATION);
 					if(Debug.on) printDebug("Confusion count = "+defender.getVolatiles().confusionCounter);
 				}
 			}
@@ -1199,6 +1207,14 @@ public class BattleEngine {
 					battleTask.sendB(opp,"|rmstatus|ally");
 				}
 			}
+			if(defender.getAbility() != null && rng.nextFloat() < dealer.nullifyTargetAbility()) {
+				defender.setAbilityNullified(true);
+				if(battleTask != null) {
+					battleTask.sendB("|battle|"+defender.getNickname()+"'s ability was suppressed!");
+					battleTask.sendB(ally,"|addpseudo|opp|bad|Ability suppressed");
+					battleTask.sendB(opp,"|addpseudo|ally|bad|Ability suppressed");
+				}
+			}
 		}	
 		// Side effects (special conditions etc)
 		// defender
@@ -1215,7 +1231,7 @@ public class BattleEngine {
 					defender.setParalyzed(true);
 				}
 			}
-			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetPoison() && checkProtect(dealer)) {
+			if(rng.nextFloat() < dealer.getTargetPoison() && checkProtect(dealer)) {
 				float ignore = 0f;
 				for(EffectDealer ed : defender.getEffectDealers())
 					ignore += ed.preventNegativeCondition("psn");
@@ -1227,7 +1243,7 @@ public class BattleEngine {
 					defender.setPoisoned(true);
 				}
 			}
-			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetToxic() && checkProtect(dealer)) {
+			if(rng.nextFloat() < dealer.getTargetToxic() && checkProtect(dealer)) {
 				float ignore = 0f;
 				for(EffectDealer ed : defender.getEffectDealers())
 					ignore += ed.preventNegativeCondition("tox");
@@ -1239,7 +1255,7 @@ public class BattleEngine {
 					defender.setIntoxicated(true);
 				}
 			}
-			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetBurn() && checkProtect(dealer)) {
+			if(rng.nextFloat() < dealer.getTargetBurn() && checkProtect(dealer)) {
 				float ignore = 0f;
 				for(EffectDealer ed : defender.getEffectDealers())
 					ignore += ed.preventNegativeCondition("brn");
@@ -1251,7 +1267,7 @@ public class BattleEngine {
 					defender.setBurned(true);
 				}
 			}
-			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetSleep() && checkProtect(dealer)) {
+			if(rng.nextFloat() < dealer.getTargetSleep() && checkProtect(dealer)) {
 				float ignore = 0f;
 				for(EffectDealer ed : defender.getEffectDealers())
 					ignore += ed.preventNegativeCondition("slp");
@@ -1264,7 +1280,7 @@ public class BattleEngine {
 					defender.sleepCounter = 1 + rng.nextInt(Battle.MAX_SLEEP_DURATION);	//sleep lasts 1-X turns.
 				}
 			}
-			if(!defender.hasNegativeCondition() && rng.nextFloat() < dealer.getTargetPetrify() && checkProtect(dealer)) {
+			if(rng.nextFloat() < dealer.getTargetPetrify() && checkProtect(dealer)) {
 				float ignore = 0f;
 				for(EffectDealer ed : defender.getEffectDealers())
 					ignore += ed.preventNegativeCondition("ptr");

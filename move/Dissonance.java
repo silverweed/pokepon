@@ -4,12 +4,13 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * The basic crappy move (Music-typed, special);
  * No additional effects.
  *
- * @author 
+ * @author , silverweed
  */
 public class Dissonance extends Move {
 	
@@ -24,6 +25,9 @@ public class Dissonance extends Move {
 		priority = 0;
 		description = "The enemy is hurt by dissonant sounds.";
 		briefDesc = "Inflicts regular damage.";
+
+		animation = new java.util.HashMap<>(AnimPresets.get("rise-from-below"));
+		animation.put("sprite", "note.png");
 	}
 
 	public Dissonance(Pony p) {

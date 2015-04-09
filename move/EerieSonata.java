@@ -4,11 +4,12 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * Inflicts special damage and may petrify.
  *
- * @author 
+ * @author , silverweed
  */
 
 public class EerieSonata extends Move {
@@ -24,16 +25,9 @@ public class EerieSonata extends Move {
 		description = "A disturbing tone creeps out the opponent. Has a chance to petrify.";
 		briefDesc = "10% to petrify the target.";
 
-		animation.put("name", "Compound");
-		animation.put("anims", java.util.Arrays.asList("Direct","Whirl"));
+		animation = new java.util.HashMap<>(AnimPresets.get("direct-whirl"));
 		animation.put("1:sprite","note.png");
-		animation.put("1:initialPoint", "ally");
-		animation.put("1:finalPoint", "opp");
-		animation.put("1:bounceBack", false);
-		animation.put("1:persistent", false);
 		animation.put("2:sprite", "note.png");
-		animation.put("2:center","opp +50X +50Y");
-		animation.put("2:radius",50);
 		
 		targetPetrify = 0.1f;
 	}

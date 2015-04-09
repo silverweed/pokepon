@@ -65,14 +65,18 @@ public class Direct extends AttackAnimation {
 	public void actionPerformed(ActionEvent e) {
 		int x = sprite.getX();
 		int v = (int)(accelerated
-				? maxV * (double)(Math.pow(Math.abs(x - initialX),accelerationRate)/Math.pow(Math.abs(initialX - finalX),accelerationRate))
+				? maxV * (double)(Math.pow(Math.abs(x - initialX),accelerationRate)/
+					Math.pow(Math.abs(initialX - finalX),accelerationRate))
 				: maxV - minV
 			) + minV;
 
 		x += (forward ? 1 : -1) * v;
-		int y = (int)(allyBounds.getY() + (x - allyBounds.getX()) * (oppBounds.getY() - allyBounds.getY()) / (oppBounds.getX() - allyBounds.getX()));
+		int y = (int)(allyBounds.getY() + (x - allyBounds.getX()) *
+				(oppBounds.getY() - allyBounds.getY()) / (oppBounds.getX() - allyBounds.getX()));
 
-		if(Debug.pedantic) printDebug("x = "+x+", y = "+y+", initialX = "+initialX+", finalX = "+finalX+", v = "+v+", rightLimit="+rightLimit+",leftLimit="+leftLimit);
+		if(Debug.pedantic) 
+			printDebug("x = "+x+", y = "+y+", initialX = "+initialX+", finalX = "+
+				finalX+", v = "+v+", rightLimit="+rightLimit+",leftLimit="+leftLimit);
 		sprite.setLocation(x + horizOffset, /*(int)(allyBounds.getY()*(1-y))*/ y + vertOffset);
 		panel.repaint();
 

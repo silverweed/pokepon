@@ -60,3 +60,5 @@
   volatiles and stuff you only need during battles)
 
 - Battle timeout
+
+- Fix animations "stand_left" of mane4

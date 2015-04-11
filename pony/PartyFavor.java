@@ -5,8 +5,7 @@ package pokepon.pony;
 import pokepon.enums.*;
 
 /**	Party Favor
- *	High Speed,
- *	good bulk.
+ *	Good def and spa, lacks Hp and Speed
  *
  * @author silverweed
  */

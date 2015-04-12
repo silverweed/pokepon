@@ -1142,10 +1142,10 @@ public class BattleEngine {
 					battleTask.sendB(opp,"|addpseudo|opp|bad|Ability suppressed");
 				}
 			}
-			if(attacker.getAbility() != null && rng.nextFloat() < dealer.nullifyUserItem()) {
-				attacker.setAbilityNullified(true);
+			if(attacker.getItem() != null && rng.nextFloat() < dealer.nullifyUserItem()) {
+				attacker.setItemNullified(true);
 				if(battleTask != null) {
-					battleTask.sendB("|battle|"+attacker.getNickname()+"'s ability was suppressed!");
+					battleTask.sendB("|battle|"+attacker.getNickname()+"'s item was suppressed!");
 					battleTask.sendB(ally,"|addpseudo|ally|bad|Item suppressed");
 					battleTask.sendB(opp,"|addpseudo|opp|bad|Item suppressed");
 				}
@@ -1226,10 +1226,10 @@ public class BattleEngine {
 					battleTask.sendB(opp,"|addpseudo|ally|bad|Ability suppressed");
 				}
 			}
-			if(defender.getAbility() != null && rng.nextFloat() < dealer.nullifyTargetItem()) {
-				defender.setAbilityNullified(true);
+			if(defender.getItem() != null && rng.nextFloat() < dealer.nullifyTargetItem()) {
+				defender.setItemNullified(true);
 				if(battleTask != null) {
-					battleTask.sendB("|battle|"+defender.getNickname()+"'s ability was suppressed!");
+					battleTask.sendB("|battle|"+defender.getNickname()+"'s item was suppressed!");
 					battleTask.sendB(ally,"|addpseudo|opp|bad|Item suppressed");
 					battleTask.sendB(opp,"|addpseudo|ally|bad|Item suppressed");
 				}

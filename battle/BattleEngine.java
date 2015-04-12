@@ -508,11 +508,14 @@ public class BattleEngine {
 			int hits = 1;
 			/* If multiple hits move, first decide the hits count. */
 			if(move.getHits() > 1) {
-				if(	(!attacker.cannotUseItems() && attacker.getItem() != null && attacker.getItem().maximizeHits()) ||
-					(!attacker.hasAbilityDisabled() && attacker.getAbility() != null && attacker.getAbility().maximizeHits())
-				) 
-					hits = move.getHits();
-				else
+				boolean mh = false;
+				for(EffectDealer ed : attacker.getEffectDealers()) 
+					if(ed.maximizeHits()) {
+						hits = move.getHits();
+						mh = true;
+						break;
+					}
+				if(!mh)
 					hits = RandUtil.getRandWithDistribution(move.getHitsChance());
 			}
 			for(; i < hits && !breakCycle; ++i) {
@@ -1139,6 +1142,14 @@ public class BattleEngine {
 					battleTask.sendB(opp,"|addpseudo|opp|bad|Ability suppressed");
 				}
 			}
+			if(attacker.getAbility() != null && rng.nextFloat() < dealer.nullifyUserItem()) {
+				attacker.setAbilityNullified(true);
+				if(battleTask != null) {
+					battleTask.sendB("|battle|"+attacker.getNickname()+"'s ability was suppressed!");
+					battleTask.sendB(ally,"|addpseudo|ally|bad|Item suppressed");
+					battleTask.sendB(opp,"|addpseudo|opp|bad|Item suppressed");
+				}
+			}
 		}
 		if(!defender.isKO() && !defender.hasSubstitute()) {
 			// effects to defender apply only if it isn't protected.
@@ -1213,6 +1224,14 @@ public class BattleEngine {
 					battleTask.sendB("|battle|"+defender.getNickname()+"'s ability was suppressed!");
 					battleTask.sendB(ally,"|addpseudo|opp|bad|Ability suppressed");
 					battleTask.sendB(opp,"|addpseudo|ally|bad|Ability suppressed");
+				}
+			}
+			if(defender.getAbility() != null && rng.nextFloat() < dealer.nullifyTargetItem()) {
+				defender.setAbilityNullified(true);
+				if(battleTask != null) {
+					battleTask.sendB("|battle|"+defender.getNickname()+"'s ability was suppressed!");
+					battleTask.sendB(ally,"|addpseudo|opp|bad|Item suppressed");
+					battleTask.sendB(opp,"|addpseudo|ally|bad|Item suppressed");
 				}
 			}
 		}	

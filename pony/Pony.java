@@ -304,8 +304,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			trapped = false;
 			lockedOnMove = false;
 			substitute = false;
-			abilityDisabled = false;
-			cannotUseItems = false;
 			confused = false;
 			confusionCounter = 0;
 		}
@@ -320,8 +318,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			tauntCounter = vol.tauntCounter;
 			trapped = vol.trapped;
 			lockedOnMove = vol.lockedOnMove;
-			abilityDisabled = vol.abilityDisabled;
-			cannotUseItems = vol.cannotUseItems;
 			effectiveness = new EnumMap<Type,Float>(vol.effectiveness);
 			confused = vol.confused;
 			confusionCounter = vol.confusionCounter;
@@ -335,8 +331,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 				"\n\ttrapped: " + trapped +
 				"\n\tlockedOnMove: " + lockedOnMove +
 				"\n\tsubstitute: " + substitute +
-				"\n\tabilityDisabled: " + abilityDisabled +
-				"\n\tcannotUseItems: " + cannotUseItems +
 				"\n\teffectiveness: "+ effectiveness +
 				"\n}";
 		}
@@ -351,8 +345,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		public boolean substitute;
 		public boolean confused;
 		public int confusionCounter;
-		public boolean abilityDisabled;
-		public boolean cannotUseItems;
 		public EnumMap<Type,Float> effectiveness = new EnumMap<>(Type.class);
 	}
 
@@ -998,6 +990,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		// these volatiles aren't handled by Volatiles class (for now)
 		isProtected = false;
 		setAbilityNullified(false);
+		setItemNullified(false);
 		// reset ability, item and moves
 		if(ability != null)
 			ability.reset();
@@ -1020,6 +1013,17 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		} else if(ability == null) {
 			ability = origAbility;
 			origAbility = null;
+		}
+	}
+
+	public void setItemNullified(final boolean bool) {
+		itemNullified = bool;
+		if(itemNullified && item != null) {
+			origItem = item;
+			item = null;
+		} else if(item == null) {
+			item = origItem;
+			origItem = null;
 		}
 	}
 
@@ -1070,14 +1074,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public boolean isDeathScheduled() {
 		return volatiles.deathScheduled;
-	}
-
-	public boolean hasAbilityDisabled() {
-		return volatiles.abilityDisabled;
-	}
-
-	public boolean cannotUseItems() {
-		return volatiles.cannotUseItems;
 	}
 
 	// COUNTERS (public for convenience) //
@@ -1393,13 +1389,6 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		volatiles.deathScheduled = true;
 		volatiles.deathCounter= delay;
 	}
-	public void setAbilityDisabled(boolean b) {
-		volatiles.abilityDisabled = b;
-	}
-
-	public void setCannotUseItems(boolean b) {
-		volatiles.cannotUseItems = b;
-	}
 
 	/** Like learnMove(Move,boolean) but with move name. */
 	public boolean learnMove(String moveName, boolean verbose) {
@@ -1413,6 +1402,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		} catch(Exception e) {
 			printDebug("Caught exception in "+name+".learnMove("+moveName+"): "+e);
 			e.printStackTrace();
+
 			return false;
 		}
 	}
@@ -1550,18 +1540,18 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public List<EffectDealer> getEffectDealers() {
 		List<EffectDealer> eds = new ArrayList<>();
-		if(ability != null && !volatiles.abilityDisabled)
+		if(ability != null)
 			eds.add(ability);
-		if(item != null && !volatiles.cannotUseItems)
+		if(item != null)
 			eds.add(item);
 		return eds;
 	}
 
 	public List<TriggeredEffectDealer> getTriggeredEffectDealers() {
 		List<TriggeredEffectDealer> eds = new ArrayList<>();
-		if(ability != null && !volatiles.abilityDisabled)
+		if(ability != null)
 			eds.add(ability);
-		if(item != null && !volatiles.cannotUseItems)
+		if(item != null)
 			eds.add(item);
 		return eds;
 	}
@@ -2012,6 +2002,8 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	private Pony original;
 	private boolean abilityNullified;
 	private Ability origAbility;
+	private boolean itemNullified;
+	private Item origItem;
 	private String unlockPhrase;
 	private Volatiles volatiles = new Volatiles();
 

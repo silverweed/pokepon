@@ -140,6 +140,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public boolean effectsAlwaysApply() { return effectsAlwaysApply; }
 	public float nullifyUserAbility() { return nullifyUserAbility; }
 	public float nullifyTargetAbility() { return nullifyTargetAbility; }
+	public float nullifyUserItem() { return nullifyUserItem; }
+	public float nullifyTargetItem() { return nullifyTargetItem; }
 	
 	// protective effects
 	/** Multiplies damage coming from type t by its return value */
@@ -241,6 +243,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	protected boolean effectsAlwaysApply;
 	protected float nullifyUserAbility;
 	protected float nullifyTargetAbility;
+	protected float nullifyUserItem;
+	protected float nullifyTargetItem;
 	
 	/* Healing effects */
 	protected float healUser;	//user regains HP

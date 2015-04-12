@@ -27,12 +27,12 @@ public class VolumeBar extends JPanel {
 			slider = new JSlider(vertical ? JSlider.VERTICAL : JSlider.HORIZONTAL, 
 					(int)looper.getMinVolume(),
 					(int)(Math.pow(looper.getMaxVolume(),2)/40000),
-					(int)(looper.getMaxVolume() - looper.getMinVolume()) / 2
+					(int)(Math.pow(looper.getMaxVolume(),2)/40000)
 			);
 			slider.setValue((int)(Math.pow(looper.getVolume(),2)/40000));
 			slider.addChangeListener(new ChangeListener() {
 				public void stateChanged(ChangeEvent e) {
-					float vol = (float)Math.sqrt(((JSlider)e.getSource()).getValue())*200;
+					float vol = slider.getValue();
 					if(Debug.pedantic) printDebug("[VolumeBar] Volume: "+vol); 
 					looper.setVolume(vol);
 				}

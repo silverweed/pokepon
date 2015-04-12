@@ -4,6 +4,7 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * Special move which inflicts average damage and has 100% precision;
@@ -26,10 +27,8 @@ public class BubbleBurst extends Move {
 		description = "Spray bubbles towards your enemies. Can increase your Special Attack.";
 		briefDesc = "20% to increase SpA by 1.";
 
-		animation.put("name","Direct");
-		animation.put("bounceBack",false);
-		// TODO
-		animation.put("sprite","shadowball.png");
+		animation = new java.util.HashMap<>(AnimPresets.get("gatling"));
+		animation.put("sprite","loveball.png");
 
 		userSpatk = addEntry(1,0.2f);
 	}

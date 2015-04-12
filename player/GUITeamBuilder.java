@@ -2,7 +2,6 @@
 
 package pokepon.player;
 
-//import org.imgscalr.Scalr;
 import pokepon.pony.*;
 import pokepon.move.*;
 import pokepon.enums.*;

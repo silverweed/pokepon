@@ -47,7 +47,7 @@ public class SlimyTrapHazard extends Hazard {
 			case PEGASUS:
 				return;
 			default:
-				pony.boost("speed", -1);
+				pony.boost(Pony.Stat.SPEED, -1);
 				if(be.getBattleTask() != null) {
 					be.getBattleTask().sendB(be.getBattleTask().getConnection(side),"|boost|ally|speed|-1");
 					be.getBattleTask().sendB(be.getBattleTask().getConnection(side == 1 ? 2 : 1),"|boost|opp|speed|-1");

@@ -2,6 +2,7 @@
 
 package pokepon.item;
 
+import pokepon.pony.*;
 import pokepon.battle.*;
 import pokepon.net.jack.*;
 import pokepon.move.Move;
@@ -26,8 +27,8 @@ public class ChoiceBoots extends Item {
 	public void beforeTurnStart(final BattleEngine be) {
 		if(origSpe == -1)
 			origSpe = pony.getBaseStat("speed");
-		pony.setBaseStat("speed", (int)(origSpe * 1.5));	
-		if(Debug.on) printDebug("[ChoiceBoots] Speed: "+origSpe+"->"+pony.getBaseStat("speed"));
+		pony.setBaseStat(Pony.Stat.SPEED, (int)(origSpe * 1.5));	
+		if(Debug.on) printDebug("[ChoiceBoots] Speed: "+origSpe+"->"+pony.getBaseStat(Pony.Stat.SPEED));
 	}
 
 	@Override
@@ -49,7 +50,7 @@ public class ChoiceBoots extends Item {
 	@Override
 	public void onTurnEnd(final BattleEngine be) {
 		if(origSpe != -1) 
-			pony.setBaseStat("speed", origSpe);
+			pony.setBaseStat(Pony.Stat.SPEED, origSpe);
 	}
 
 	@Override

@@ -1310,21 +1310,22 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						sb.append(" fell drastically!");
 					}
 				}
-
+				
+				Pony.Stat stat = Pony.Stat.forName(token[2]);
 				if(token[1].equals("ally")) {
-					allyPony.boost(token[2], value);
+					allyPony.boost(stat, value);
 					if(value > 0)
-						resultAnim(allyLocation(),"+"+value+" "+Pony.toBriefStat(token[2])+"!",ResultType.GOOD);
+						resultAnim(allyLocation(),"+"+value+" "+stat+"!",ResultType.GOOD);
 					else
-						resultAnim(allyLocation(),value+" "+Pony.toBriefStat(token[2])+"!",ResultType.BAD);
+						resultAnim(allyLocation(),value+" "+stat+"!",ResultType.BAD);
 					if(allyHPBar != null) 
 						allyHPBar.update();
 				} else if(token[1].equals("opp")) {
-					oppPony.boost(token[2],value);
+					oppPony.boost(stat, value);
 					if(value > 0)
-						resultAnim(oppLocation(),"+"+value+" "+Pony.toBriefStat(token[2])+"!",ResultType.GOOD);
+						resultAnim(oppLocation(),"+"+value+" "+stat+"!",ResultType.GOOD);
 					else
-						resultAnim(oppLocation(),value+" "+Pony.toBriefStat(token[2])+"!",ResultType.BAD);
+						resultAnim(oppLocation(),value+" "+stat+"!",ResultType.BAD);
 					if(oppHPBar != null) 
 						oppHPBar.update();
 				}

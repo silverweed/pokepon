@@ -2,6 +2,7 @@
 
 package pokepon.item;
 
+import pokepon.pony.*;
 import pokepon.battle.*;
 import pokepon.net.jack.*;
 import pokepon.move.Move;
@@ -26,8 +27,8 @@ public class ChoiceBridle extends Item {
 		if(be.getAttacker() != pony) return;
 		
 		if(origAtk == -1)
-			origAtk = pony.getBaseStat("spatk");
-		pony.setBaseStat("spatk", (int)(origAtk * 1.5));	
+			origAtk = pony.getBaseStat(Pony.Stat.SPATK);
+		pony.setBaseStat(Pony.Stat.SPATK, (int)(origAtk * 1.5));	
 		
 		// prevent BattleTask to unlock this pony
 		be.getLockingTurns()[be.getSide(pony)-1] = -1;
@@ -44,7 +45,7 @@ public class ChoiceBridle extends Item {
 	@Override
 	public void afterMoveUsage(final BattleEngine be) {
 		if(be.getAttacker() == pony)
-			pony.setBaseStat("spatk", origAtk);
+			pony.setBaseStat(Pony.Stat.SPATK, origAtk);
 	}
 
 	@Override

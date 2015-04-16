@@ -31,9 +31,9 @@ public class Equalize extends Ability {
 		if(activated) return;
 		int oppSide = be.getOppositeSide(pony);
 		Pony oppPony = be.getTeam(oppSide).getActivePony();
-		SimpleEntry<String,Integer> maxStat = new SimpleEntry<>("", 0), minStat = new SimpleEntry<>("", 1000);
-		for(String stat : Pony.STAT_NAMES) {
-			if(stat.equalsIgnoreCase("hp")) continue;
+		SimpleEntry<Pony.Stat,Integer> maxStat = new SimpleEntry<>(null, 0), minStat = new SimpleEntry<>(null, 1000);
+		for(Pony.Stat stat : Pony.Stat.core()) {
+			if(stat == Pony.Stat.HP) continue;
 			int val = oppPony.getBaseStat(stat);
 			if(val > maxStat.getValue())
 				maxStat = new SimpleEntry<>(stat, val);
@@ -45,7 +45,7 @@ public class Equalize extends Ability {
 			printDebug("[Equalize] opponent's "+maxStat.getKey()+" set to "+oppPony.getBaseStat(maxStat.getKey()));
 		if(be.getBattleTask() != null)
 			be.getBattleTask().sendB("|battle|"+pony.getNickname()+"'s Equalize minimized "+
-					oppPony.getNickname()+"'s "+Pony.toLongStat(maxStat.getKey())+"!");
+					oppPony.getNickname()+"'s "+maxStat.getKey()+"!");
 		activated = true;
 	}
 }

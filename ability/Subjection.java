@@ -40,7 +40,7 @@ public class Subjection extends Ability {
 			for(EffectDealer ed : opp.getEffectDealers())
 				if(ed.ignoreStatusDrop() || ed.ignoreStatusChange()) return;
 
-			opp.boost("atk", -1);
+			opp.boost(Pony.Stat.ATK, -1);
 			printMsg(pony.getNickname()+"'s Subjection lowered "+opp.getNickname()+"'s Atk!");
 			if(be.getBattleTask() != null) {
 				be.getBattleTask().sendB(allyC,"|boost|opp|atk|-1|"+

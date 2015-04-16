@@ -35,11 +35,11 @@ public class SenseOfDanger extends Ability {
 			origDef = pony.getBaseDef();
 
 		if(pony.hp() <= pony.maxhp() / 3) {
-			pony.setBaseStat("spe",100);
-			pony.setBaseStat("def",origDef/2);
+			pony.setBaseStat(Pony.Stat.SPEED, 100);
+			pony.setBaseStat(Pony.Stat.DEF, origDef/2);
 		} else {
-			pony.setBaseStat("spe",origSpe);
-			pony.setBaseStat("def",origDef);
+			pony.setBaseStat(Pony.Stat.SPEED, origSpe);
+			pony.setBaseStat(Pony.Stat.DEF, origDef);
 		}
 	}
 }

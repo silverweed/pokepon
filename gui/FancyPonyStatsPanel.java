@@ -154,9 +154,10 @@ class FancyPonyStatsPanel extends StatsPanel {
 	/** Changes the currently selected pony, refreshing the GUI accordingly. */
 	public synchronized void setPony(final Pony p) {
 		pony = p;
+		Pony.Stat[] stats = Pony.Stat.core();
 		for(int i = 0; i < 6; ++i) {
 			slider[i].setValue(0);
-			baseStats[i].setText(""+p.getBaseStat(i));
+			baseStats[i].setText(""+stats[i]);
 			ev[i] = p.getEV(Pony.STAT_NAMES[i]);
 			iv[i] = p.getIV(Pony.STAT_NAMES[i]);
 			bstLabel.setText("BST: "+p.bst());

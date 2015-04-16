@@ -32,10 +32,10 @@ public class Tenacity extends Ability {
 		if(origAtk == -1)
 			origAtk = pony.getBaseStat("atk");
 		if(pony.hasNegativeCondition()) 
-			pony.setBaseStat("Atk", (int)(origAtk*1.4f));
+			pony.setBaseStat(Pony.Stat.ATK, (int)(origAtk*1.4f));
 		else 
-			pony.setBaseStat("Atk", origAtk);
+			pony.setBaseStat(Pony.Stat.ATK, origAtk);
 		if(Debug.pedantic)
-			printDebug("[Tenacity] pony's atk is "+pony.getBaseStat("atk")+" (orig: "+origAtk+")");
+			printDebug("[Tenacity] pony's atk is "+pony.getBaseStat(Pony.Stat.ATK)+" (orig: "+origAtk+")");
 	}
 }

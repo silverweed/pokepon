@@ -16,7 +16,7 @@ import static java.util.AbstractMap.SimpleEntry;
 
 public class HighScorer extends Ability {
 	
-	private Map.Entry<String,Integer> origStat;
+	private Map.Entry<Pony.Stat,Integer> origStat;
 
 	public HighScorer() {
 		super("High Scorer");
@@ -27,9 +27,9 @@ public class HighScorer extends Ability {
 	public void afterSwitchIn(final BattleEngine be) {
 		int oppSide = be.getOppositeSide(pony);
 		Pony oppPony = be.getTeam(oppSide).getActivePony();
-		SimpleEntry<String,Integer> maxStat = new SimpleEntry<>("",0);
-		for(String stat : Pony.STAT_NAMES) {
-			if(stat.equalsIgnoreCase("hp")) continue;
+		SimpleEntry<Pony.Stat,Integer> maxStat = new SimpleEntry<>(null, 0);
+		for(Pony.Stat stat : Pony.Stat.core()) {
+			if(stat == Pony.Stat.HP) continue;
 			if(oppPony.getStat(stat) > maxStat.getValue()) {
 				maxStat = new SimpleEntry<>(stat, oppPony.getStat(stat));
 			}

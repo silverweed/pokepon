@@ -22,7 +22,7 @@ public class Swiftness extends Ability {
 	@Override
 	public void afterSwitchIn(final BattleEngine be) {
 		if(pony.evasionMod() < 6) {
-			pony.boost("evasion", 1);
+			pony.boost(Pony.Stat.EVASION, 1);
 			if(be.getBattleTask() != null) {
 				be.getBattleTask().sendB(be.getConnection(be.getSide(pony)), "|boost|ally|eva|1|"+
 					pony.getNickname()+"'s Swiftness raised its Evasion!");

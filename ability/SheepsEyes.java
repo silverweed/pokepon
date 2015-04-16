@@ -40,7 +40,7 @@ public class SheepsEyes extends Ability {
 			for(EffectDealer ed : opp.getEffectDealers())
 				if(ed.ignoreStatusDrop() || ed.ignoreStatusChange()) return;
 
-			opp.boost("spdef", -1);
+			opp.boost(Pony.Stat.SPDEF, -1);
 			printMsg(pony.getNickname()+"'s Sheep's Eyes lowered "+opp.getNickname()+"'s SpD!");
 			if(be.getBattleTask() != null) {
 				be.getBattleTask().sendB(allyC,"|boost|opp|spdef|-1|"+

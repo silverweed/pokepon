@@ -25,7 +25,7 @@ public class Boasting extends Ability {
 		Pony oppP = be.getOpponent(pony); 
 		if(pony.spatk() < oppP.spatk() && pony.spatkMod() < 6) {
 			printMsg(pony.getNickname()+"'s self-confidence increased its Special Attack!");
-			pony.boost("spatk", 1);
+			pony.boost(Pony.Stat.SPATK, 1);
 			if(be.getBattleTask() != null) {
 				be.getBattleTask().sendB(be.getConnection(be.getSide(pony)),"|boost|ally|spatk|1|"+
 					pony.getNickname()+"'s self-confidence increased its Special Attack!");

@@ -149,10 +149,8 @@ class HPBar extends JPanel {
 		setHp(animated);
 		// Update boosts
 		int i = 0;
-		for(Iterator<Map.Entry<String,Integer>> it = pony.getVolatiles().modifiers.iterator(); it.hasNext(); ++i) {
-			Map.Entry<String, Integer> entry = it.next();
-			setBoost(i, entry.getValue());
-		}
+		for(Map.Entry<Pony.Stat,Integer> entry : pony.getVolatiles().modifiers)
+			setBoost(i++, entry.getValue());
 
 		// Remove status labels that don't afflict the pony any more
 		boolean already = false;

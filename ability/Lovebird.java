@@ -32,7 +32,7 @@ public class Lovebird extends Ability {
 			Connection allyC = be.getConnection(be.getSide(pony));
 			Connection oppC = be.getConnection(be.getOppositeSide(pony));
 			if(pony.spatkMod() < 6) {
-				pony.boost("spatk", 1);
+				pony.boost(Pony.Stat.SPATK, 1);
 				if(be.getBattleTask() != null) {
 					be.getBattleTask().sendB(allyC, "|boost|ally|spatk|1");
 					be.getBattleTask().sendB(oppC, "|boost|opp|spatk|1");

@@ -3,6 +3,7 @@
 package pokepon.ability;
 
 import pokepon.pony.*;
+import static pokepon.pony.Pony.Stat.*;
 import pokepon.battle.*;
 import pokepon.net.jack.*;
 import static pokepon.util.MessageManager.*;
@@ -40,21 +41,21 @@ public class MagicDrain extends Ability {
 
 		switch(oppP.getRace()) {
 			case UNICORN:
-				be.tryStatChange(pony,"spatk",1);
+				be.tryStatChange(pony, SPATK, 1);
 				break;
 			case EARTHPONY:
-				be.tryStatChange(pony,"atk",1);
+				be.tryStatChange(pony, ATK, 1);
 				break;
 			case GRYPHON:
 			case PEGASUS:
 			case BREEZIE:
-				be.tryStatChange(pony,"speed",1);
+				be.tryStatChange(pony, SPEED, 1);
 				break;
 			case MYTHICBEAST:
-				be.tryStatChange(pony,"spdef",1);
+				be.tryStatChange(pony, SPDEF, 1);
 				break;
 			case UNGULATE:
-				be.tryStatChange(pony,"def",1);
+				be.tryStatChange(pony, DEF, 1);
 				break;
 			case ZEBRA: {
 				int healed = pony.increaseHpPerc(12.5f);
@@ -65,8 +66,8 @@ public class MagicDrain extends Ability {
 				break;
 			}
 			case ALICORN:
-				be.tryStatChange(pony,"spatk",1);
-				be.tryStatChange(pony,"spdef",1);
+				be.tryStatChange(pony, SPATK, 1);
+				be.tryStatChange(pony, SPDEF, 1);
 				break;
 		}
 	}

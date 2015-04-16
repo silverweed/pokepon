@@ -20,7 +20,7 @@ public class Indifference extends Ability {
 	}
 
 	@Override
-	public boolean ignoreNegativeBoosts(String what) {
+	public boolean ignoreNegativeBoosts(final Pony.Stat what) {
 		return true;
 	}
 }

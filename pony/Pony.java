@@ -665,13 +665,15 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	/** Utility method to retreive a stat by name */
-	public int getStat(String name) {
-		if(name.equalsIgnoreCase("hp")) return maxhp();
-		if(name.equalsIgnoreCase("atk")) return atk();
-		if(name.equalsIgnoreCase("def")) return def();
-		if(name.equalsIgnoreCase("spatk")) return spatk();
-		if(name.equalsIgnoreCase("spdef")) return spdef();
-		if(name.equalsIgnoreCase("speed")) return speed();
+	public int getStat(final Stat stat) {
+		switch(stat) {
+			case HP: return maxhp();
+			case ATK: return atk();
+			case DEF: return def();
+			case SPATK: return spatk();
+			case SPDEF: return spdef();
+			case SPEED: return speed();
+		}
 		return -1;
 	}
 
@@ -700,17 +702,16 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return -1;
 	}
 
-	/** Utility method to retreive a base stat by number */
-	public int getBaseStat(final int num) {
-		switch(num) {
-			case 0: return baseHp;
-			case 1: return baseAtk;
-			case 2: return baseDef;
-			case 3: return baseSpatk;
-			case 4: return baseSpdef;
-			case 5: return baseSpeed;
-			default: return -1;
+	public int getBaseStat(final Stat stat) {
+		switch(stat) {
+			case HP: return baseHp;
+			case ATK: return baseAtk;
+			case DEF: return baseDef;
+			case SPATK: return baseSpatk;
+			case SPDEF: return baseSpdef;
+			case SPEED: return baseSpeed;
 		}
+		return -1;
 	}
 
 	public Status getStatus() { 

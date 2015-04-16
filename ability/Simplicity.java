@@ -34,14 +34,14 @@ public class Simplicity extends Ability {
 			origAcc = move.getAccuracy();
 			move.setAccuracy((int)(origAcc*0.85));
 			if(origAtk == -1)
-				origAtk = pony.getBaseStat("atk");
-			pony.setBaseStat("Atk", (int)(origAtk*1.4f));
+				origAtk = pony.getBaseStat(Pony.Stat.ATK);
+			pony.setBaseStat(Pony.Stat.ATK, (int)(origAtk*1.4f));
 		}
 	}
 
 	@Override
 	public void reset() {
-		pony.setBaseStat("Atk", origAtk);
+		pony.setBaseStat(Pony.Stat.ATK, origAtk);
 		if(move != null)
 			move.setAccuracy(origAcc);
 	}

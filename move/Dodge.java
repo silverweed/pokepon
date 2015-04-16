@@ -38,7 +38,8 @@ public class Dodge extends Move {
 	@Override
 	public void reset() {
 		super.reset();
-		pony.protectCounter = 0;
+		if(pony != null)
+			pony.protectCounter = 0;
 	}
 
 	@Override

@@ -53,6 +53,68 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	public static final String[] STAT_NAMES = { "hp","atk","def","spatk","spdef","speed" };
 
 	////////////// ENUMS ////////////////
+	
+	public static enum Stat {
+		HP("HP", "HP"),
+		ATK("Attack", "Atk"),
+		DEF("Defense", "Def"), 
+		SPATK("Special Attack", "SpA"),
+		SPDEF("Special Defense", "SpD"),
+		SPEED("Speed", "Spe"),
+		ACCURACY("Accuracy", "Acc"),
+		EVASION("Evasion", "Eva");
+
+		Stat(final String full, final String brief) {
+			name = full;
+			this.brief = brief;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+
+		public String toBrief() {
+			return brief;
+		}
+
+		public static Stat forName(final String stat) {
+			if(stat.equalsIgnoreCase("hp")) return HP;
+			if(stat.equalsIgnoreCase("attack") || stat.equalsIgnoreCase("atk")) return ATK;
+			if(stat.equalsIgnoreCase("defense") || stat.equalsIgnoreCase("def")) return DEF;
+			if(	stat.equalsIgnoreCase("spdef") ||
+				stat.equalsIgnoreCase("specialdefense") || 
+				stat.equalsIgnoreCase("special defense") || 
+				stat.equalsIgnoreCase("spd")
+			) 
+				return SPDEF;
+			if(	stat.equalsIgnoreCase("spatk") || 
+				stat.equalsIgnoreCase("specialattack") ||
+				stat.equalsIgnoreCase("special attack") ||
+				stat.equalsIgnoreCase("spa")
+			)
+				return SPATK;
+			if(stat.equalsIgnoreCase("speed") || stat.equalsIgnoreCase("spe")) return SPEED;
+			if(stat.equalsIgnoreCase("evasion") || stat.equalsIgnoreCase("eva")) return EVASION;
+			if(stat.equalsIgnoreCase("accuracy") || stat.equalsIgnoreCase("acc")) return ACCURACY;
+			return null;
+		}
+
+		public static String toLong(final String stat) {
+			return forName(stat).name;
+		}
+
+		public static String toBrief(final String stat) {
+			return forName(stat).brief;
+		}
+
+		public static Stat[] core() {
+			return new Stat[] { HP, ATK, DEF, SPATK, SPDEF, SPEED };
+		}
+		
+		private final String name;
+		private final String brief;
+	}
 
 	public static enum Nature { 
 		// neutral
@@ -215,22 +277,22 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	/** This class represents pony temporary statuses, which get reset when it's withdrawn. */
 	public class Volatiles {
-		public class Modifiers implements Iterable<Map.Entry<String, Integer>> {
+		public class Modifiers implements Iterable<Map.Entry<Stat, Integer>> {
 			public int atk, def, spatk, spdef, speed, evasion, accuracy;
 			@Override
-			public Iterator<Map.Entry<String, Integer>> iterator() {
-				return new Iterator<Map.Entry<String, Integer>>() {
+			public Iterator<Map.Entry<Stat, Integer>> iterator() {
+				return new Iterator<Map.Entry<Stat, Integer>>() {
 					private int idx = 0;
 					@Override
-					public Map.Entry<String, Integer> next() {
+					public Map.Entry<Stat, Integer> next() {
 						switch(idx++) {
-							case 0: return new AbstractMap.SimpleEntry<String,Integer>("atk", atk);
-							case 1: return new AbstractMap.SimpleEntry<String,Integer>("def", def);
-							case 2: return new AbstractMap.SimpleEntry<String,Integer>("spatk", spatk);
-							case 3: return new AbstractMap.SimpleEntry<String,Integer>("spdef", spdef);
-							case 4: return new AbstractMap.SimpleEntry<String,Integer>("speed", speed);
-							case 5: return new AbstractMap.SimpleEntry<String,Integer>("evasion", evasion);
-							case 6: return new AbstractMap.SimpleEntry<String,Integer>("accuracy", accuracy);
+							case 0: return new AbstractMap.SimpleEntry<Stat,Integer>(Stat.ATK, atk);
+							case 1: return new AbstractMap.SimpleEntry<Stat,Integer>(Stat.DEF, def);
+							case 2: return new AbstractMap.SimpleEntry<Stat,Integer>(Stat.SPATK, spatk);
+							case 3: return new AbstractMap.SimpleEntry<Stat,Integer>(Stat.SPDEF, spdef);
+							case 4: return new AbstractMap.SimpleEntry<Stat,Integer>(Stat.SPEED, speed);
+							case 5: return new AbstractMap.SimpleEntry<Stat,Integer>(Stat.EVASION, evasion);
+							case 6: return new AbstractMap.SimpleEntry<Stat,Integer>(Stat.ACCURACY, accuracy);
 							default: throw new NoSuchElementException();
 						}
 					}
@@ -251,27 +313,31 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 				evasion = m.evasion;
 				accuracy = m.accuracy;
 			}
-			public int get(String s) {
-				if(toBriefStat(s).equals("Atk")) return atk;
-				if(toBriefStat(s).equals("Def")) return def;
-				if(toBriefStat(s).equals("SpA")) return spatk;
-				if(toBriefStat(s).equals("SpD")) return spdef;
-				if(toBriefStat(s).equals("Spe")) return speed;
-				if(toBriefStat(s).equals("Eva")) return evasion;
-				if(toBriefStat(s).equals("Acc")) return accuracy;
+			public int get(final Stat s) {
+				switch(s) {
+					case ATK: return atk;
+					case DEF: return def;
+					case SPATK: return spatk;
+					case SPDEF: return spdef;
+					case SPEED: return speed;
+					case ACCURACY: return accuracy;
+					case EVASION: return evasion;
+				}
 				return 0;
 			}
-			public void set(String s, int value) {
-				if(toBriefStat(s).equals("Atk")) atk = value;
-				else if(toBriefStat(s).equals("Def")) def = value;
-				else if(toBriefStat(s).equals("SpA")) spatk = value;
-				else if(toBriefStat(s).equals("SpD")) spdef = value;
-				else if(toBriefStat(s).equals("Spe")) speed = value;
-				else if(toBriefStat(s).equals("Eva")) evasion = value;
-				else if(toBriefStat(s).equals("Acc")) accuracy = value;
-				else printDebug("[Pony] Warning: called set("+s+") ?");
+			public void set(final Stat s, int value) {
+				switch(s) {
+					case ATK: atk = value;
+					case DEF: def = value;
+					case SPATK: spatk = value;
+					case SPDEF: spdef = value;
+					case SPEED: speed = value;
+					case ACCURACY: accuracy = value;
+					case EVASION: evasion = value;
+				}
+				printDebug("[Pony] Warning: called set("+s+") ?");
 			}
-			public int boost(String s, int value) {
+			public int boost(final Stat s, int value) {
 				int mod = get(s);
 				mod += value;
 				if(mod > 6) mod = 6;
@@ -284,7 +350,9 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			}
 			@Override
 			public String toString() {
-				return "[atk:"+atk+",def:"+def+",spa:"+spatk+",spd:"+spdef+",spe:"+speed+",eva:"+evasion+",acc:"+accuracy+"]";
+				return "[atk:"+atk+",def:"+def+",spa:"+
+					spatk+",spd:"+spdef+",spe:"+speed+
+					",eva:"+evasion+",acc:"+accuracy+"]";
 			}
 
 		} // end class Modifiers
@@ -858,8 +926,9 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	// Stats modifiers
 	public String getBoosts() {
 		StringBuilder sb = new StringBuilder("[");
-		for(Map.Entry<String,Integer> entry : volatiles.modifiers)
-			if(entry.getValue() != 0) sb.append(entry.getKey()+":"+entry.getValue()+",");
+		for(Map.Entry<Stat,Integer> entry : volatiles.modifiers)
+			if(entry.getValue() != 0) 
+				sb.append(entry.getKey()+":"+entry.getValue()+",");
 		if(sb.length() > 1) 
 			sb.delete(sb.length()-1,sb.length());
 		sb.append("]");
@@ -867,44 +936,9 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		return sb.toString();
 	}
 
-	public int getBoost(final String s) {
+	public int getBoost(final Stat s) {
 		if(Debug.on) printDebug("Called getBoost("+s+"). Modifiers = "+getBoosts());
 		return volatiles.modifiers.get(s);
-	}
-
-	public static String toBriefStat(final String stat) {
-		if(stat.equalsIgnoreCase("hp")) return "HP";
-		if(stat.equalsIgnoreCase("attack") || stat.equalsIgnoreCase("atk")) return "Atk";
-		if(stat.equalsIgnoreCase("defense") || stat.equalsIgnoreCase("def")) return "Def";
-		if(	stat.equalsIgnoreCase("spdef") ||
-			stat.equalsIgnoreCase("specialdefense") || 
-			stat.equalsIgnoreCase("special defense") || 
-			stat.equalsIgnoreCase("spd")
-		) 
-			return "SpD";
-		if(	stat.equalsIgnoreCase("spatk") || 
-			stat.equalsIgnoreCase("specialattack") ||
-			stat.equalsIgnoreCase("special attack") ||
-			stat.equalsIgnoreCase("spa")
-		)
-			return "SpA";
-		if(stat.equalsIgnoreCase("speed") || stat.equalsIgnoreCase("spe")) return "Spe";
-		if(stat.equalsIgnoreCase("evasion") || stat.equalsIgnoreCase("eva")) return "Eva";
-		if(stat.equalsIgnoreCase("accuracy") || stat.equalsIgnoreCase("acc")) return "Acc";
-		return "";
-	}
-
-	public static String toLongStat(final String stat) {
-		String bstat = toBriefStat(stat);
-		if(bstat.equals("HP")) return "HP";
-		if(bstat.equals("Atk")) return "Attack";
-		if(bstat.equals("Def")) return "Defense";
-		if(bstat.equals("SpA")) return "Special Attack";
-		if(bstat.equals("SpD")) return "Special Defense";
-		if(bstat.equals("Spe")) return "Speed";
-		if(bstat.equals("Eva")) return "Evasion";
-		if(bstat.equals("Acc")) return "Accuracy";
-		return "";
 	}
 
 	public int atkMod() { return volatiles.modifiers.atk; }
@@ -968,14 +1002,14 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	}
 
 	public void removeNegativeStatModifiers() {
-		for(Map.Entry<String,Integer> e : volatiles.modifiers) {
+		for(Map.Entry<Stat,Integer> e : volatiles.modifiers) {
 			if(e.getValue() < 0)
 				volatiles.modifiers.set(e.getKey(), 0);
 		}
 	}
 	
 	public void removePositiveStatModifiers() {
-		for(Map.Entry<String,Integer> e : volatiles.modifiers) {
+		for(Map.Entry<Stat,Integer> e : volatiles.modifiers) {
 			if(e.getValue() > 0)
 				volatiles.modifiers.set(e.getKey(), 0);
 		}
@@ -1145,13 +1179,15 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 		}
 	}
 
-	public void setBaseStat(final String stat, final int val) {
-		if(toBriefStat(stat).equals("Atk")) baseAtk = Math.max(1,val);
-		else if(toBriefStat(stat).equals("Def")) baseDef = Math.max(1,val);
-		else if(toBriefStat(stat).equals("SpA")) baseSpatk = Math.max(1,val);
-		else if(toBriefStat(stat).equals("SpD")) baseSpdef = Math.max(1,val);
-		else if(toBriefStat(stat).equals("Spe")) baseSpeed = Math.max(1,val);
-		else if(stat.equalsIgnoreCase("hp")) baseHp = Math.max(1,val);
+	public void setBaseStat(final Stat stat, final int val) {
+		switch(stat) {
+			case HP: baseHp = Math.max(1, val);
+			case ATK: baseAtk = Math.max(1, val);
+			case DEF: baseDef = Math.max(1, val);
+			case SPATK: baseSpatk = Math.max(1, val);
+			case SPDEF: baseSpdef = Math.max(1, val);
+			case SPEED: baseSpeed = Math.max(1, val);
+		}
 	}
 
 	/** Sets hp = maxhp. */
@@ -1381,7 +1417,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	
 	// Stats modifiers
 	/** Increases pony's stat by value */
-	public int boost(String stat, int value) {
+	public int boost(final Stat stat, final int value) {
 		return volatiles.modifiers.boost(stat, value);
 	}
 	public void scheduleDeath(int delay) {

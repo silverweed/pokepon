@@ -903,14 +903,13 @@ public class BattleEngine {
 		return random > probability;
 	}
 	
-	private void boostStat(boolean isally, Pony pony, String stat, int value) {
+	private void boostStat(final boolean isally, final Pony pony, final Pony.Stat stat, int value) {
 		String name = (isally ? "" : "enemy ") + pony.getNickname();
 		pony.boost(stat, value);
 		if(battleTask != null) {
 			battleTask.sendB(ally,"|boost|"+(isally ? "ally" : "opp")+"|"+stat+"|"+value);
 			battleTask.sendB(opp,"|boost|"+(isally ? "opp" : "ally")+"|"+stat+"|"+value);
 		}
-		stat = Pony.toLongStat(stat);
 		if(echoBattle) {
 			if(value > 2) 
 				printMsg("Hey, "+name+"'s "+stat+" rose drastically!");
@@ -928,7 +927,9 @@ public class BattleEngine {
 				printMsg("Hey, "+name+"'s "+stat+" fell drastically!");
 		}
 
-		if(Debug.on) printDebug("Attacker boosts: "+attacker.getBoosts()+"\nDefender boosts: "+defender.getBoosts());
+		if(Debug.on) 
+			printDebug("Attacker boosts: "+attacker.getBoosts()+
+				"\nDefender boosts: "+defender.getBoosts());
 	}
 	
 	private void addStatus(boolean _ally, Pony pony, Pony.Status status) {
@@ -975,13 +976,12 @@ public class BattleEngine {
 								(attacker.getMove(i) == null ? "none" : attacker.getMove(i) + 
 								"|5")
 							);
-				for(String s : Pony.STAT_NAMES) {
+				for(Pony.Stat s : Pony.Stat.values()) {
 					if(defender.getBoost(s) != 0) {
 						battleTask.sendB(ally,"|boost|ally|"+s+"|"+defender.getBoost(s));
 						battleTask.sendB(opp,"|boost|opp|"+s+"|"+defender.getBoost(s));
 					}
 				}
-
 			}
 		} 
 		if(dealer.transformsTarget() && !defender.isKO() && checkProtect(dealer)) {
@@ -1000,7 +1000,7 @@ public class BattleEngine {
 								(defender.getMove(i) == null ? "none" : defender.getMove(i) + 
 								"|5")
 							);
-				for(String s : Pony.STAT_NAMES) {
+				for(Pony.Stat s : Pony.Stat.values()) {
 					if(attacker.getBoost(s) != 0) {
 						battleTask.sendB(ally,"|boost|opp|"+s+"|"+attacker.getBoost(s));
 						battleTask.sendB(opp,"|boost|ally|"+s+"|"+attacker.getBoost(s));
@@ -1106,33 +1106,11 @@ public class BattleEngine {
 				}
 			}
 			// Stats Modifiers
-			if(rng.nextFloat() < dealer.boostUserAtk().getValue()) {
-				int boost = dealer.boostUserAtk().getKey();
-				tryStatChange(attacker,"atk",boost);
-			}
-			if(rng.nextFloat() < dealer.boostUserDef().getValue()) {
-				int boost = dealer.boostUserDef().getKey();
-				tryStatChange(attacker,"def",boost);
-			}
-			if(rng.nextFloat() < dealer.boostUserSpatk().getValue()) {
-				int boost = dealer.boostUserSpatk().getKey();
-				tryStatChange(attacker,"spatk",boost);
-			}
-			if(rng.nextFloat() < dealer.boostUserSpdef().getValue()) {
-				int boost = dealer.boostUserSpdef().getKey();
-				tryStatChange(attacker,"spdef",boost);
-			}
-			if(rng.nextFloat() < dealer.boostUserSpeed().getValue()) {
-				int boost = dealer.boostUserSpeed().getKey();
-				tryStatChange(attacker,"speed",boost);
-			}
-			if(rng.nextFloat() < dealer.boostUserAccuracy().getValue()) {
-				int boost = dealer.boostUserAccuracy().getKey();
-				tryStatChange(attacker,"accuracy",boost);
-			}
-			if(rng.nextFloat() < dealer.boostUserEvasion().getValue()) {
-				int boost = dealer.boostUserEvasion().getKey();
-				tryStatChange(attacker,"evasion",boost);
+			for(Pony.Stat stat : Pony.Stat.values()) {
+				if(rng.nextFloat() < dealer.boostUserStat(stat).getValue()) {
+					int boost = dealer.boostUserStat(stat).getKey();
+					tryStatChange(attacker, stat, boost);
+				}
 			}
 			if(attacker.getAbility() != null && rng.nextFloat() < dealer.nullifyUserAbility()) {
 				attacker.setAbilityNullified(true);
@@ -1153,33 +1131,11 @@ public class BattleEngine {
 		}
 		if(!defender.isKO() && !defender.hasSubstitute()) {
 			// effects to defender apply only if it isn't protected.
-			if(rng.nextFloat() < dealer.boostTargetAtk().getValue() && checkProtect(dealer)) {
-				int boost = dealer.boostTargetAtk().getKey();
-				tryStatChange(defender,"atk",boost);
-			}
-			if(rng.nextFloat() < dealer.boostTargetDef().getValue() && checkProtect(dealer)) {
-				int boost = dealer.boostTargetDef().getKey();
-				tryStatChange(defender,"def",boost);
-			}
-			if(rng.nextFloat() < dealer.boostTargetSpatk().getValue() && checkProtect(dealer)) {
-				int boost = dealer.boostTargetSpatk().getKey();
-				tryStatChange(defender,"spatk",boost);
-			}
-			if(rng.nextFloat() < dealer.boostTargetSpdef().getValue() && checkProtect(dealer)) {
-				int boost = dealer.boostTargetSpdef().getKey();
-				tryStatChange(defender,"spdef",boost);
-			}
-			if(rng.nextFloat() < dealer.boostTargetSpeed().getValue() && checkProtect(dealer)) {
-				int boost = dealer.boostTargetSpeed().getKey();
-				tryStatChange(defender,"speed",boost);
-			}
-			if(rng.nextFloat() < dealer.boostTargetAccuracy().getValue() && checkProtect(dealer)) {
-				int boost = dealer.boostTargetAccuracy().getKey();
-				tryStatChange(defender,"accuracy",boost);
-			}
-			if(rng.nextFloat() < dealer.boostTargetEvasion().getValue() && checkProtect(dealer)) {
-				int boost = dealer.boostTargetEvasion().getKey();
-				tryStatChange(defender,"evasion",boost);
+			for(Pony.Stat stat : Pony.Stat.values()) {
+				if(rng.nextFloat() < dealer.boostTargetStat(stat).getValue() && checkProtect(dealer)) {
+					int boost = dealer.boostTargetStat(stat).getKey();
+					tryStatChange(defender, stat, boost);
+				}
 			}
 			if(rng.nextFloat() < dealer.getTargetConfusion() && !defender.isConfused() && checkProtect(dealer)) {
 				float ignore = 0f;
@@ -1369,8 +1325,8 @@ public class BattleEngine {
 				}
 			}
 			if(rng.nextFloat() < dealer.removeUserNegativeStatModifiers()) {
-				for(String mod : Pony.STAT_NAMES) {
-					int currentMod = attacker.boost(mod,0);
+				for(Pony.Stat mod : Pony.Stat.values()) {
+					int currentMod = attacker.boost(mod, 0);
 					if(currentMod < 0) {
 						if(battleTask != null) {
 							battleTask.sendB(ally,"|boost|ally|"+mod+"|"+ (-currentMod));
@@ -1381,7 +1337,7 @@ public class BattleEngine {
 				}
 			}
 			if(rng.nextFloat() < dealer.removeUserPositiveStatModifiers()) {
-				for(String mod : Pony.STAT_NAMES) {
+				for(Pony.Stat mod : Pony.Stat.values()) {
 					int currentMod = attacker.boost(mod,0);
 					if(currentMod > 0) {
 						if(battleTask != null) {
@@ -1405,8 +1361,8 @@ public class BattleEngine {
 
 		if(!defender.isKO()) {
 			if(rng.nextFloat() < dealer.removeTargetNegativeStatModifiers()) {
-				for(String mod : Pony.STAT_NAMES) {
-					int currentMod = defender.boost(mod,0);
+				for(Pony.Stat mod : Pony.Stat.values()) {
+					int currentMod = defender.boost(mod, 0);
 					if(currentMod < 0) {
 						if(battleTask != null) {
 							battleTask.sendB(ally,"|boost|opp|"+mod+"|"+ (-currentMod));
@@ -1417,8 +1373,8 @@ public class BattleEngine {
 				}
 			}
 			if(rng.nextFloat() < dealer.removeTargetPositiveStatModifiers()) {
-				for(String mod : Pony.STAT_NAMES) {
-					int currentMod = defender.boost(mod,0);
+				for(Pony.Stat mod : Pony.Stat.values()) {
+					int currentMod = defender.boost(mod, 0);
 					if(currentMod > 0) {
 						if(battleTask != null) {
 							battleTask.sendB(ally,"|boost|opp|"+mod+"|"+ (-currentMod));
@@ -1653,10 +1609,12 @@ public class BattleEngine {
 		}
 	}
 
-	public void tryStatChange(Pony pony,String stat,int boost) {
+	public void tryStatChange(final Pony pony, final Pony.Stat stat, int boost) {
 		boolean immune = false;
 		for(EffectDealer ed : pony.getEffectDealers()) {
-			if(ed.ignoreBoosts(Pony.toBriefStat(stat)) || (ed.ignoreNegativeBoosts(Pony.toBriefStat(stat)) && boost < 0)) {
+			if(	ed.ignoreBoosts(stat) ||
+				(ed.ignoreNegativeBoosts(stat) && boost < 0)
+			) {
 				immune = true;
 				break;
 			}

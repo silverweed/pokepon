@@ -63,20 +63,30 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public float getUserFlinch() { return userFlinch; }
 	
 	// stats modifiers (SimpleEntry<modifier,probability>)
-	public SimpleEntry<Integer,Float> boostUserAtk() { return userAtk; }
-	public SimpleEntry<Integer,Float> boostUserDef() { return userDef; }
-	public SimpleEntry<Integer,Float> boostUserSpatk() { return userSpatk; }
-	public SimpleEntry<Integer,Float> boostUserSpdef() { return userSpdef; }
-	public SimpleEntry<Integer,Float> boostUserSpeed() { return userSpeed; }
-	public SimpleEntry<Integer,Float> boostUserAccuracy() { return userAccuracy; }
-	public SimpleEntry<Integer,Float> boostUserEvasion() { return userEvasion; }
-	public SimpleEntry<Integer,Float> boostTargetAtk() { return targetAtk; }
-	public SimpleEntry<Integer,Float> boostTargetDef() { return targetDef; }
-	public SimpleEntry<Integer,Float> boostTargetSpatk() { return targetSpatk; }
-	public SimpleEntry<Integer,Float> boostTargetSpdef() { return targetSpdef; }
-	public SimpleEntry<Integer,Float> boostTargetSpeed() { return targetSpeed; }
-	public SimpleEntry<Integer,Float> boostTargetAccuracy() { return targetAccuracy; }
-	public SimpleEntry<Integer,Float> boostTargetEvasion() { return targetEvasion; } 
+	public SimpleEntry<Integer,Float> boostUserStat(final Pony.Stat stat) {
+		switch(stat) {
+			case ATK: return userAtk;
+			case DEF: return userDef;
+			case SPATK: return userSpatk;
+			case SPDEF: return userSpdef;
+			case SPEED: return userSpeed;
+			case ACCURACY: return userAccuracy;
+			case EVASION: return userEvasion;
+		}
+		return null;
+	}
+	public SimpleEntry<Integer,Float> boostTargetStat(final Pony.Stat stat) {
+		switch(stat) {
+			case ATK: return targetAtk;
+			case DEF: return targetDef;
+			case SPATK: return targetSpatk;
+			case SPDEF: return targetSpdef;
+			case SPEED: return targetSpeed;
+			case ACCURACY: return targetAccuracy;
+			case EVASION: return targetEvasion;
+		}
+		return null;
+	}
 	
 	// healing effects
 	public float healUser() { return healUser; }
@@ -92,8 +102,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public boolean ignoreWeaknesses() { return ignoreWeaknesses; }
 	public boolean ignoreResistances() { return ignoreResistances; }
 	public boolean ignoreImmunities() { return ignoreImmunities; }
-	public boolean ignoreBoosts(final String toWhat) { return false; }
-	public boolean ignoreNegativeBoosts(final String toWhat) { return false; }
+	public boolean ignoreBoosts(final Pony.Stat toWhat) { return false; }
+	public boolean ignoreNegativeBoosts(final Pony.Stat toWhat) { return false; }
 	public boolean preventsUserOHKO() { return preventsUserOHKO; }
 	public boolean preventsTargetOHKO() { return preventsTargetOHKO; }
 	public boolean ignoreStatusDrop() { return ignoreStatusDrop; }

@@ -72,7 +72,7 @@ public class AbilityPreviewer extends PokeponPreviewer {
 						renderer.setForeground(Color.BLACK);
 						//renderer.setText("<html><body style=\"height:15px;\"><p style=\"color: black; background-color: #99CCFF; font-weight: bold\">"+
 						//	placeholder.getDescription()+"</p></body></html>");
-						renderer.setText("== "+placeholder.getDescription()+" ==");
+						renderer.setText("== "+placeholder.getBriefDescription().replaceAll("<br>", " ")+" ==");
 					}
 					return renderer;
 				}

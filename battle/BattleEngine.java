@@ -1107,9 +1107,11 @@ public class BattleEngine {
 			}
 			// Stats Modifiers
 			for(Pony.Stat stat : Pony.Stat.values()) {
-				if(rng.nextFloat() < dealer.boostUserStat(stat).getValue()) {
-					int boost = dealer.boostUserStat(stat).getKey();
-					tryStatChange(attacker, stat, boost);
+				if(dealer.boostUserStat(stat) != null) {
+					if(rng.nextFloat() < dealer.boostUserStat(stat).getValue()) {
+						int boost = dealer.boostUserStat(stat).getKey();
+						tryStatChange(attacker, stat, boost);
+					}
 				}
 			}
 			if(attacker.getAbility() != null && rng.nextFloat() < dealer.nullifyUserAbility()) {
@@ -1132,9 +1134,11 @@ public class BattleEngine {
 		if(!defender.isKO() && !defender.hasSubstitute()) {
 			// effects to defender apply only if it isn't protected.
 			for(Pony.Stat stat : Pony.Stat.values()) {
-				if(rng.nextFloat() < dealer.boostTargetStat(stat).getValue() && checkProtect(dealer)) {
-					int boost = dealer.boostTargetStat(stat).getKey();
-					tryStatChange(defender, stat, boost);
+				if(dealer.boostTargetStat(stat) != null) {
+					if(rng.nextFloat() < dealer.boostTargetStat(stat).getValue() && checkProtect(dealer)) {
+						int boost = dealer.boostTargetStat(stat).getKey();
+						tryStatChange(defender, stat, boost);
+					}
 				}
 			}
 			if(rng.nextFloat() < dealer.getTargetConfusion() && !defender.isConfused() && checkProtect(dealer)) {

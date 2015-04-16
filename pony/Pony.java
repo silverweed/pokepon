@@ -327,13 +327,27 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			}
 			public void set(final Stat s, int value) {
 				switch(s) {
-					case ATK: atk = value;
-					case DEF: def = value;
-					case SPATK: spatk = value;
-					case SPDEF: spdef = value;
-					case SPEED: speed = value;
-					case ACCURACY: accuracy = value;
-					case EVASION: evasion = value;
+					case ATK: 
+						atk = value;
+						break;
+					case DEF: 
+						def = value;
+						break;
+					case SPATK: 
+						spatk = value;
+						break;
+					case SPDEF: 
+						spdef = value;
+						break;
+					case SPEED: 
+						speed = value;
+						break;
+					case ACCURACY:
+						accuracy = value;
+						break;
+					case EVASION: 
+						evasion = value;
+						break;
 				}
 				printDebug("[Pony] Warning: called set("+s+") ?");
 			}

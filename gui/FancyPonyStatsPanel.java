@@ -157,7 +157,7 @@ class FancyPonyStatsPanel extends StatsPanel {
 		Pony.Stat[] stats = Pony.Stat.core();
 		for(int i = 0; i < 6; ++i) {
 			slider[i].setValue(0);
-			baseStats[i].setText(""+stats[i]);
+			baseStats[i].setText(""+pony.getBaseStat(stats[i]));
 			ev[i] = p.getEV(Pony.STAT_NAMES[i]);
 			iv[i] = p.getIV(Pony.STAT_NAMES[i]);
 			bstLabel.setText("BST: "+p.bst());

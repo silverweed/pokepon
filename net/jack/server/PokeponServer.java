@@ -497,7 +497,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 class ServerConsole implements Runnable {
 	
 	private final static String HELP_STRING = 
-		"Supported commands:\n stop\n ban <ip list>\n unban <ip list>\nsay <message>" +
+		"Supported commands:\n stop\n ban <ip list>\n unban <ip list>\n say <message>" +
 		" banned [ip class]\n users\n kick <user>\n info\n roles\n reload";
 
 	private final PokeponServer server;

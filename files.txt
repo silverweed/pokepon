@@ -11,6 +11,7 @@ ability/Determination.java
 ability/Devotion.java
 ability/DieHard.java
 ability/DragonScales.java
+ability/Equalize.java
 ability/Escapist.java
 ability/HighScorer.java
 ability/HotHeaded.java
@@ -88,6 +89,7 @@ gui/TeamRenderer.java
 gui/TextBubbleBorder.java
 gui/TransparentLabel.java
 gui/Typechart.java
+gui/animation/AnimPresets.java
 gui/animation/Animation.java
 gui/animation/AttackAnimation.java
 gui/animation/Ballistic.java
@@ -101,6 +103,7 @@ item/AlicornAmulet.java
 item/ChoiceBoots.java
 item/ChoiceBridle.java
 item/ChoiceSaddle.java
+item/CowboyHat.java
 item/DarkCloak.java
 item/DiamondRing.java
 item/FashionScarf.java
@@ -140,6 +143,7 @@ move/Charge.java
 move/Chatter.java
 move/CrazyStunt.java
 move/CrystalShield.java
+move/CutieUnmark.java
 move/Daredevilry.java
 move/DarkMagic.java
 move/DimensionTwist.java
@@ -313,6 +317,7 @@ pony/DaringDo.java
 pony/DerpyHooves.java
 pony/DiamondTiara.java
 pony/Discord.java
+pony/DoubleDiamond.java
 pony/Fancypants.java
 pony/Fiddlesticks.java
 pony/Flam.java
@@ -342,6 +347,7 @@ pony/NightGlider.java
 pony/NightmareMoon.java
 pony/NurseRedheart.java
 pony/Octavia.java
+pony/PartyFavor.java
 pony/PinkiePie.java
 pony/Pipsqueak.java
 pony/Pony.java
@@ -362,6 +368,7 @@ pony/Snails.java
 pony/Soarin.java
 pony/Spike.java
 pony/Spitfire.java
+pony/StarlightGlimmer.java
 pony/Starswirl.java
 pony/SugarBelle.java
 pony/SunsetShimmer.java

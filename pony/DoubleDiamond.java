@@ -37,6 +37,6 @@ public class DoubleDiamond extends Pony {
 		learnableMoves.put("Practice",1);
 		learnableMoves.put("Hopeful Strike",1);
 		learnableMoves.put("Dodge",1);
-		learnableMoes.put/("Crazy Stunt",1);
+		learnableMoves.put("Crazy Stunt",1);
 	}
 }

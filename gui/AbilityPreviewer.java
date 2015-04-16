@@ -72,7 +72,7 @@ public class AbilityPreviewer extends PokeponPreviewer {
 						renderer.setForeground(Color.BLACK);
 						//renderer.setText("<html><body style=\"height:15px;\"><p style=\"color: black; background-color: #99CCFF; font-weight: bold\">"+
 						//	placeholder.getDescription()+"</p></body></html>");
-						renderer.setText("== "+placeholder.getBriefDescription().replaceAll("<br>", " ")+" ==");
+						renderer.setText("== "+placeholder.getDescription()+" ==");
 					}
 					return renderer;
 				}
@@ -87,7 +87,7 @@ public class AbilityPreviewer extends PokeponPreviewer {
 					} else {
 						renderer.setText("<html><body style=\"height: 20px; background-color: #CCFFFF; border: 1px ridge #CCFFFF\"><p>"+
 							ab.getName()+"&nbsp;&nbsp;<span style=\"color:gray; font-size: 85%\">"+
-							ab.getDescription()+"</span></p></body></html>");
+							ab.getBriefDescription().replaceAll("<br>", " ")+"</span></p></body></html>");
 					}
 				} else {
 					if(AbilityPreviewer.super.pony != null && !AbilityPreviewer.super.pony.canHaveAbility(ab)) {
@@ -98,7 +98,7 @@ public class AbilityPreviewer extends PokeponPreviewer {
 					} else {
 						renderer.setText("<html><p>"+
 							ab.getName()+"&nbsp;&nbsp;<span style=\"color:gray; font-size: 85%\">"+
-							ab.getDescription()+
+							ab.getBriefDescription().replaceAll("<br>", " ")+
 							"</span></p></html>");
 					}
 				}

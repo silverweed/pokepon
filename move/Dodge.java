@@ -7,13 +7,13 @@ import pokepon.battle.*;
 import pokepon.pony.Pony;
 import pokepon.util.Debug;
 import static pokepon.util.MessageManager.*;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * Like Protect.
  *
  * @author silverweed
  */
-
 public class Dodge extends Move {
 	
 	public Dodge() {
@@ -26,6 +26,9 @@ public class Dodge extends Move {
 		priority = 4;
 		description = "Brace for the next enemy's move and be protected by it.";
 		briefDesc = "Protects from moves. Priority +4";
+
+		animation = new java.util.HashMap<>(AnimPresets.get("dodge"));
+		animation.put("sprite", "user");
 
 		protectUser = true;
 	}

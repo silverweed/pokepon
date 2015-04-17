@@ -3,5 +3,7 @@ equestria_background - http://cl0setbrony.deviantart.com/
 equestria_at_night - http://darcowalways.deviantart.com/
 animated sprites - Desktop Ponies
 (a good deal of the sprites were made by http://botchan-mlp.deviantart.com/)
+smartypants_left - masternodra
+smartypants_right - bronyboy
 
 moves tokens - Zarel et al.

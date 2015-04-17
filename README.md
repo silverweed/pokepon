@@ -130,6 +130,36 @@ before starting a battle, so check the rules of the format you're going to use.
 If you want to bypass any format restriction, just choose the 'Custom' format
 and don't specify any rule.
 
+### Guests ###
+You can watch an ongoing battle as a guest. At the moment, the only way to do
+so is via the chat command `/watch <battleID>`, like this:  
+
+1. in the chat, issue `/battles`. You'll get an output like this:
+```
+-- Battle schedule: 
+[battle#0] blank_flank-1 <=> blank_flank-2 (format: Classic)
+[battle#1] blank_flank-3 <=> blank_flank-4 (format: RandomBattle)
+------------------------- 
+1 battles active 
+0 battle requests pending
+```  
+2. choose the battle you'd like to watch: its battleID is the number after the `#`
+   symbol: `[battle#0]  -> the ID of this battle is 0`.
+3. issue the chat command `/watch 0`
+
+### Exporting and replaying battles ###
+At any time during a battle, whether you're a player or a guest, you can export
+a battle log with `/save`, or `/export` (you must have the `Enable battle
+logging` option enabled, which is the default).
+
+The battle log will be saved as a file, either in `~/.pokepon/battle_records/`
+(on Linux or Mac), or in `%APPDATA%/pokepon/battle_records` on Windows. 
+If you're using the unpackaged version of the game, it will be instead in
+`(pokepon rootdir)/data/battle_records`.
+
+You can replay a saved battle from the launcher by clicking the Replay button
+and selecting the battle record you exported.
+
 Creating custom formats
 ------------------------------------------------------------
 If you select Custom format for a battle, you'll be prompted to insert rules

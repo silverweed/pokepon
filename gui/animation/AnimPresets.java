@@ -22,7 +22,7 @@ public class AnimPresets {
 		Map<String,Object> tmp = new HashMap<>();
 		// Daredevilry
 		tmp.put("name","Compound");
-		tmp.put("anims", java.util.Arrays.asList("Ballistic2", "Direct"));
+		tmp.put("anims", Arrays.asList("Ballistic2", "Direct"));
 		tmp.put("delay", 30);
 		tmp.put("2:passThrough", true);
 		tmp.put("2:accelerated", true);
@@ -31,7 +31,7 @@ public class AnimPresets {
 
 		// Dissonance
 		tmp.put("name", "Compound");
-		tmp.put("anims", java.util.Arrays.asList("Fade", "Fade", "Fade"));
+		tmp.put("anims", Arrays.asList("Fade", "Fade", "Fade"));
 		tmp.put("transparent", true);
 		tmp.put("accelerated", true);
 		tmp.put("delay", 50);
@@ -48,14 +48,14 @@ public class AnimPresets {
 
 		// Whirling Hoof
 		tmp.put("name","Compound");
-		tmp.put("anims",java.util.Arrays.asList("Whirl","Ballistic2"));
+		tmp.put("anims",Arrays.asList("Whirl","Ballistic2"));
 		tmp.put("persistent",true);
 		presets.put("whirl-ballistic", new HashMap<>(tmp));
 		tmp.clear();
 
 		// Sky Dive
 		tmp.put("name","Compound");
-		tmp.put("anims", java.util.Arrays.asList("Fade","Fade"));
+		tmp.put("anims", Arrays.asList("Fade","Fade"));
 		tmp.put("transparent",true);
 		tmp.put("fadeOut",true);
 		tmp.put("persistent",true);
@@ -73,7 +73,7 @@ public class AnimPresets {
 
 		// Cutie Unmark
 		tmp.put("name", "Compound");
-		tmp.put("anims", java.util.Arrays.asList("Whirl", "Fade"));
+		tmp.put("anims", Arrays.asList("Whirl", "Fade"));
 		tmp.put("initialPoint", "opp");
 		tmp.put("1:center","opp +30X +30Y");
 		tmp.put("1:shakes", 1);
@@ -85,7 +85,7 @@ public class AnimPresets {
 
 		// Canterlot Voice
 		tmp.put("name", "Compound");
-		tmp.put("anims", java.util.Arrays.asList("Direct", "Direct", "Direct"));
+		tmp.put("anims", Arrays.asList("Direct", "Direct", "Direct"));
 		tmp.put("bounceBack", false);
 		tmp.put("passThrough", true);
 		tmp.put("delay", 10);
@@ -94,7 +94,7 @@ public class AnimPresets {
 
 		// Bizaam
 		tmp.put("name", "Compound");
-		tmp.put("anims", java.util.Arrays.asList("Shake","Direct"));
+		tmp.put("anims", Arrays.asList("Shake","Direct"));
 		tmp.put("1:shakes", 6);
 		tmp.put("1:delay", 10);
 		tmp.put("2:initialPoint","ally");
@@ -105,7 +105,7 @@ public class AnimPresets {
 
 		// Eerie Sonata
 		tmp.put("name", "Compound");
-		tmp.put("anims", java.util.Arrays.asList("Direct","Whirl"));
+		tmp.put("anims", Arrays.asList("Direct","Whirl"));
 		tmp.put("1:initialPoint", "ally");
 		tmp.put("1:finalPoint", "opp");
 		tmp.put("1:bounceBack", false);
@@ -113,6 +113,18 @@ public class AnimPresets {
 		tmp.put("2:center","opp +50X +50Y");
 		tmp.put("2:radius",50);
 		presets.put("direct-whirl", new HashMap<>(tmp));
+		tmp.clear();
+
+		// Dodge
+		tmp.put("name", "Compound");
+		tmp.put("anims", Arrays.asList("Shift", "Shift"));
+		tmp.put("delay", 10);
+		tmp.put("1:initialPoint", "ally");
+		tmp.put("1:finalPoint", "ally b50X");
+		tmp.put("1:postWait", 300);
+		tmp.put("2:initialPoint", "ally");
+		tmp.put("2:finalPoint", "ally f50X");
+		presets.put("dodge", new HashMap<>(tmp));
 		tmp.clear();
 	}
 }

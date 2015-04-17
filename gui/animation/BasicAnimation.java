@@ -28,8 +28,8 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 	protected int initialX, initialY;
 	protected Rectangle allyBounds;
 	protected Rectangle oppBounds;
-	protected boolean persistent;
 	protected boolean usedByAlly = true;
+	protected boolean persistent;
 	protected Rectangle originalBounds;
 	/** If true, the animations supporting it will put the sprite back
 	 * to its original location after the animation ends.
@@ -51,8 +51,8 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 	 *   <li><b>sprite</b>: the sprite to animate, a JComponent</li>
 	 *   <li><b>allyBounds</b>: the Rectangle bounding the ally sprite</li>
 	 *   <li><b>oppBounds</b>: the Rectangle bounding the opponent's sprite</li>
-	 *   <li>persistent: if false (default), the sprite is removed from the panel after terminating the animation</li>
 	 *   <li>usedByAlly: if true (default), it is assumed that the animation is being used by the "ally pony"</li>
+	 *   <li>persistent: if false (default), the sprite gets removed from the panel after animation ends</li>
 	 *   <li>delay: the delay between frames</li>
 	 *   <li>rewind: (for the animations using it): if true, the sprite is put back at its 
 	         original position/opacity after the animation ends.</li>
@@ -63,31 +63,41 @@ public abstract class BasicAnimation implements ActionListener, Animation {
 	 */
 	public BasicAnimation(final JComponent panel,Map<String,Object> opts) {
 		this.panel = panel;
-		if(opts.containsKey("sprite")) {
-			sprite = (JComponent)opts.remove("sprite");
-		}
-		if(opts.containsKey("delay")) {
-			delay = (Integer)opts.remove("delay");
-		}
-		if(opts.containsKey("allyBounds")) {
-			allyBounds = (Rectangle)opts.remove("allyBounds");
-		} 
-		if(opts.containsKey("oppBounds")) {
-			oppBounds = (Rectangle)opts.remove("oppBounds");
-		}
-		if(opts.containsKey("persistent")) {
-			persistent = (Boolean)opts.remove("persistent");
-		}
-		if(opts.containsKey("usedByAlly")) {
-			usedByAlly = (Boolean)opts.remove("usedByAlly");
-		}
-		if(opts.containsKey("rewind")) {
-			rewind = (Boolean)opts.remove("rewind");
-		} else if(opts.containsKey("rewindTo")) {
-			rewindTo = parseShift((String)opts.remove("rewindTo"));
-		}
-		if(opts.containsKey("iterations")) {
-			numIterations = (Float)opts.remove("iterations");
+		Iterator<Map.Entry<String,Object>> it = opts.entrySet().iterator();
+		while(it.hasNext()) {
+			Map.Entry<String,Object> entry = it.next();
+			if(entry.getKey().equals("sprite")) {
+				sprite = (JComponent)entry.getValue();
+
+			} else if(entry.getKey().equals("delay")) {
+				delay = (Integer)entry.getValue();
+
+			} else if(entry.getKey().equals("allyBounds")) {
+				allyBounds = (Rectangle)entry.getValue();
+
+			} else if(entry.getKey().equals("oppBounds")) {
+				oppBounds = (Rectangle)entry.getValue();
+
+			} else if(entry.getKey().equals("usedByAlly")) {
+				usedByAlly = (Boolean)entry.getValue();
+
+			} else if(entry.getKey().equals("rewind")) {
+				rewind = (Boolean)entry.getValue();
+
+			} else if(entry.getKey().equals("rewindTo")) {
+				rewindTo = parseShift((String)entry.getValue());
+
+			} else if(entry.getKey().equals("iterations")) {
+				numIterations = (Float)entry.getValue();
+
+			} else if(entry.getKey().equals("persistent")) {
+				persistent = (Boolean)entry.getValue();
+
+			} else {
+				continue; // keep this entry in the map
+			}
+			// remove the processed entry
+			it.remove();
 		}
 		
 		if(sprite != null)

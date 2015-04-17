@@ -73,7 +73,7 @@ public class Whirl extends BasicAnimation {
 					
 		if(t % period == (int)(period*.25)) 
 			sprite.setLocation(initialX-radius,initialY-radius);
-		if(t % period == (int)(period/2)) 
+		if(t % period == (int)(period*.5)) 
 			sprite.setLocation(initialX,initialY-2*radius);
 		if(t % period == (int)(period*.75)) 
 			sprite.setLocation(initialX+radius,initialY-radius);

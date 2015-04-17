@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Point;
 import java.util.*;
 
-/** This animation is like {link pokepon.gui.animation.Fade}, but only
+/** This animation is like {@link pokepon.gui.animation.Fade}, but only
  * moves the sprite without changing its opacity; as such, it doesn't
  * require the sprite to be a TransparentLabel.
  * @author silverweed

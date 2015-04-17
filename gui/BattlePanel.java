@@ -1315,17 +1315,17 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				if(token[1].equals("ally")) {
 					allyPony.boost(stat, value);
 					if(value > 0)
-						resultAnim(allyLocation(),"+"+value+" "+stat+"!",ResultType.GOOD);
+						resultAnim(allyLocation(),"+"+value+" "+stat.brief()+"!",ResultType.GOOD);
 					else
-						resultAnim(allyLocation(),value+" "+stat+"!",ResultType.BAD);
+						resultAnim(allyLocation(),value+" "+stat.brief()+"!",ResultType.BAD);
 					if(allyHPBar != null) 
 						allyHPBar.update();
 				} else if(token[1].equals("opp")) {
 					oppPony.boost(stat, value);
 					if(value > 0)
-						resultAnim(oppLocation(),"+"+value+" "+stat+"!",ResultType.GOOD);
+						resultAnim(oppLocation(),"+"+value+" "+stat.brief()+"!",ResultType.GOOD);
 					else
-						resultAnim(oppLocation(),value+" "+stat+"!",ResultType.BAD);
+						resultAnim(oppLocation(),value+" "+stat.brief()+"!",ResultType.BAD);
 					if(oppHPBar != null) 
 						oppHPBar.update();
 				}

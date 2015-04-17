@@ -74,7 +74,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 			return name;
 		}
 
-		public String toBrief() {
+		public String brief() {
 			return brief;
 		}
 

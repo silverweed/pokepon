@@ -26,7 +26,7 @@ public class ChoiceBoots extends Item {
 	@Override
 	public void beforeTurnStart(final BattleEngine be) {
 		if(origSpe == -1)
-			origSpe = pony.getBaseStat("speed");
+			origSpe = pony.getBaseStat(Pony.Stat.SPEED);
 		pony.setBaseStat(Pony.Stat.SPEED, (int)(origSpe * 1.5));	
 		if(Debug.on) printDebug("[ChoiceBoots] Speed: "+origSpe+"->"+pony.getBaseStat(Pony.Stat.SPEED));
 	}

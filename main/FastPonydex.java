@@ -49,7 +49,7 @@ public class FastPonydex implements TestingClass {
 			ponies.add((p = PonyCreator.create((Class<? extends Pony>)(c))));
 			if(stat.equals("type")) bsts.add(p.getTyping());
 			else if(stat.equals("name")) bsts.add(p.getName());
-			else bsts.add(p.getBaseStat(stat));
+			else bsts.add(p.getBaseStat(Pony.Stat.forName(stat)));
 		}
 
 		ReorderLists.doubleQuicksortComparingSecond(ponies,bsts,0,ponies.size()-1);

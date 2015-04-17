@@ -369,8 +369,9 @@ public class CLITeamBuilder extends TeamBuilder {
 					} catch(Exception e) {
 						printDebug("Caught exception while parsing IV args: "+e);
 					}
-					pony.setIV(iv,num2);
-					consoleMsg(pony.getNickname()+"'s "+iv+" IV are now "+pony.getIV(iv));
+					Pony.Stat stat = Pony.Stat.forName(iv);
+					pony.setIV(stat, num2);
+					consoleMsg(pony.getNickname()+"'s "+iv+" IV are now "+pony.getIV(stat));
 					pony.printStats();
 					break;
 				}
@@ -386,9 +387,9 @@ public class CLITeamBuilder extends TeamBuilder {
 					} catch(Exception e) {
 						printDebug("Caught exception while parsing EV args: "+e);
 					}
-					printDebug("ev: "+ev+", num: "+num3);
-					pony.setEV(ev,num3);
-					consoleMsg(pony.getNickname()+"'s "+ev+" EV are now "+pony.getEV(ev));
+					Pony.Stat stat = Pony.Stat.forName(ev);
+					pony.setEV(stat, num3);
+					consoleMsg(pony.getNickname()+"'s "+ev+" EV are now "+pony.getEV(stat));
 					pony.resetHp();
 					pony.printStats();
 					break;	

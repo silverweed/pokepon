@@ -247,9 +247,8 @@ public class TeamDealer {
 					if(!it.hasNext()) return false;
 					String ev = it.next();
 					if(!Arrays.asList(Pony.STAT_NAMES).contains(ev)) return false;
-					pony.setEV(ev,num);
+					pony.setEV(Pony.Stat.forName(ev), num);
 					if(it.hasNext()) it.next();	//remove trailing "/"
-					if(Debug.pedantic) printDebug(pony+"'s "+ev+" EV are now "+pony.getEV(ev));
 				} catch(Exception e) { 
 					printDebug("[parseSaveDataLine] Caught exception while parsing line: "+e);
 					e.printStackTrace();
@@ -266,9 +265,8 @@ public class TeamDealer {
 					if(!it.hasNext()) return false;
 					String iv = it.next();
 					if(!Arrays.asList(Pony.STAT_NAMES).contains(iv)) return false;
-					pony.setIV(iv,num);
+					pony.setIV(Pony.Stat.forName(iv), num);
 					if(it.hasNext()) it.next();	//remove trailing "/"
-					if(Debug.pedantic) printDebug(pony+"'s "+iv+" IV are now "+pony.getIV(iv));
 				} catch(Exception e) { 
 					printDebug("[parseSaveDataLine] Caught exception while parsing line: "+e);
 					e.printStackTrace();

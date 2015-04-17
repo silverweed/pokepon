@@ -36,8 +36,8 @@ public class PonyCreator {
 		if(Debug.pedantic) printDebug("Created pony "+pony.getName());
 
 		/* Set IV to 31 by default. */
-		for(String s : Pony.STAT_NAMES) {
-			pony.setIV(s,31);
+		for(Pony.Stat s : Pony.Stat.core()) {
+			pony.setIV(s, 31);
 		}
 		/* Set happiness to MAX by default */
 		pony.setHappiness(Pony.MAX_HAPPINESS);				
@@ -57,8 +57,8 @@ public class PonyCreator {
 		if(Debug.pedantic) printDebug("Created pony "+pony.getName());
 
 		/* Set IV to 31 by default. */
-		for(String s : Pony.STAT_NAMES) {
-			pony.setIV(s,31);
+		for(Pony.Stat s : Pony.Stat.core()) {
+			pony.setIV(s, 31);
 		}				
 		/* Set happiness to MAX by default */
 		pony.setHappiness(Pony.MAX_HAPPINESS);				

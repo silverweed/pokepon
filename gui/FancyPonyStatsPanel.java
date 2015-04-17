@@ -158,14 +158,14 @@ class FancyPonyStatsPanel extends StatsPanel {
 		for(int i = 0; i < 6; ++i) {
 			slider[i].setValue(0);
 			baseStats[i].setText(""+pony.getBaseStat(stats[i]));
-			ev[i] = p.getEV(Pony.STAT_NAMES[i]);
-			iv[i] = p.getIV(Pony.STAT_NAMES[i]);
+			ev[i] = p.getEV(stats[i]);
+			iv[i] = p.getIV(stats[i]);
 			bstLabel.setText("BST: "+p.bst());
 			remaining.setText(""+p.remainingEVs());
 		}
 		if(pony.getNature().increasedStat() != null) {
-			positiveStatNum = Arrays.asList(Pony.STAT_NAMES).indexOf(pony.getNature().increasedStat());
-			negativeStatNum = Arrays.asList(Pony.STAT_NAMES).indexOf(pony.getNature().decreasedStat());
+			positiveStatNum = Arrays.asList(Pony.Stat.core()).indexOf(pony.getNature().increasedStat());
+			negativeStatNum = Arrays.asList(Pony.Stat.core()).indexOf(pony.getNature().decreasedStat());
 		}
 		refresh();
 	}
@@ -409,13 +409,14 @@ class FancyPonyStatsPanel extends StatsPanel {
 				}
 
 				/* Set EVs and IVs (and sliders) */
+				final Pony.Stat[] stats = Pony.Stat.core();
 				for(int i = 0; i < 6; ++i) {
-					pony.setEV(Pony.STAT_NAMES[i],ev[i]);
+					pony.setEV(stats[i],ev[i]);
 					evField[i].setText(ev[i]+(positiveStatNum == i ? "+" : (negativeStatNum == i ? "-" : "")));
-					pony.setIV(Pony.STAT_NAMES[i],iv[i]);
+					pony.setIV(stats[i],iv[i]);
 					ivField[i].setText(iv[i]+"");
-					slider[i].setValue(pony.getEV(Pony.STAT_NAMES[i]));
-					totStats[i].setText(pony.getStat(i)+"");
+					slider[i].setValue(pony.getEV(stats[i]));
+					totStats[i].setText(pony.getStat(stats[i])+"");
 				}	
 				remaining.setText(""+pony.remainingEVs());
 
@@ -426,19 +427,22 @@ class FancyPonyStatsPanel extends StatsPanel {
 
 				for(int i = 0; i < 6; ++i) {
 					/* Set bars length and color */
+					int stat = pony.getStat(stats[i]);
 					if(i == 0) {
-						((Rectangle)bar[i].getShape()).setSize(Math.min(BAR_MAX_LENGTH,pony.getStat(i)*90/140),10);
+						((Rectangle)bar[i].getShape()).setSize(Math.min(BAR_MAX_LENGTH,stat*90/140),10);
 						bar[i].setColor(new Color(
-							Math.max(0,Math.min(1,1-(pony.getStat(i)-pony.getLevel())/400f)),
-							Math.max(0,Math.min(1,(pony.getStat(i)-pony.getLevel())/400f)),
-							(pony.getStat(i)-pony.getLevel() > 300 ? Math.max(0,Math.min(1,(pony.getStat(i)-pony.getLevel()-300)/200f)) : 0)
+							Math.max(0,Math.min(1,1-(stat-pony.getLevel())/400f)),
+							Math.max(0,Math.min(1,(stat-pony.getLevel())/400f)),
+							(stat-pony.getLevel() > 300 
+							 	? Math.max(0,Math.min(1,(stat-pony.getLevel()-300)/200f)) 
+								: 0)
 						));
 					} else {
-						((Rectangle)bar[i].getShape()).setSize(Math.min(BAR_MAX_LENGTH,pony.getStat(i)*90/100),10);
+						((Rectangle)bar[i].getShape()).setSize(Math.min(BAR_MAX_LENGTH,stat*90/100),10);
 						bar[i].setColor(new Color(
-							Math.max(0,1-pony.getStat(i)/400f),
-							Math.min(1,pony.getStat(i)/400f),
-							(pony.getStat(i) > 300 ? Math.min(1,(pony.getStat(i)-300)/200f) : 0)
+							Math.max(0,1-stat/400f),
+							Math.min(1,stat/400f),
+							(stat > 300 ? Math.min(1,(stat-300)/200f) : 0)
 						));
 					}
 				}
@@ -497,14 +501,15 @@ class FancyPonyStatsPanel extends StatsPanel {
 		ShapeComponent[] prevBar = new ShapeComponent[6];
 		JLabel[] prevEV = new JLabel[6];
 
+		final Pony.Stat[] stats = Pony.Stat.core();
 		for(int i = 0; i < 6; ++i) {
 			prevBar[i] = new ShapeComponent(new Rectangle(0,5));
 			prevBar[i].setColor(bar[i].getColor());
 			((Rectangle)prevBar[i].getShape()).setSize((int)(((Rectangle)bar[i].getShape()).getWidth() / 2f),5);
 			if(pony != null) 
 				prevEV[i] = new JLabel("<html><small>" + 
-							(pony.getEV(Pony.STAT_NAMES[i]) != 0 
-								? pony.getEV(Pony.STAT_NAMES[i]) + natureModString(i)
+							(pony.getEV(stats[i]) != 0 
+								? pony.getEV(stats[i]) + natureModString(i)
 								: natureModString(i))
 							+ "</small></html>"
 						);
@@ -520,13 +525,14 @@ class FancyPonyStatsPanel extends StatsPanel {
 	public void updatePreviewPanel(FancyStatsPreviewPanel prevPanel) {
 		ShapeComponent[] prevBar = prevPanel.getPrevBars();
 		JLabel[] prevEV = prevPanel.getPrevEV();
+		final Pony.Stat[] stats = Pony.Stat.core();
 		for(int i = 0; i < 6; ++i) {
 			prevBar[i].setColor(bar[i].getColor());
 			((Rectangle)prevBar[i].getShape()).setSize((int)(((Rectangle)bar[i].getShape()).getWidth() / 2f),5);
 			if(pony != null) 
 				prevEV[i].setText("<html><small>" + 
-						(pony.getEV(Pony.STAT_NAMES[i]) != 0 
-								? pony.getEV(Pony.STAT_NAMES[i]) + natureModString(i)
+						(pony.getEV(stats[i]) != 0 
+								? pony.getEV(stats[i]) + natureModString(i)
 								: natureModString(i))
 							+ "</small></html>"
 						);
@@ -537,9 +543,9 @@ class FancyPonyStatsPanel extends StatsPanel {
 
 	private String natureModString(int statnum) {
 		if(pony.getNature().increasedStat() == null) return "";
-		return pony.getNature().increasedStat().equals(Pony.STAT_NAMES[statnum])
+		return pony.getNature().increasedStat().equals(Pony.Stat.core()[statnum])
 			? "+"
-			: pony.getNature().decreasedStat().equals(Pony.STAT_NAMES[statnum])
+			: pony.getNature().decreasedStat().equals(Pony.Stat.core()[statnum])
 				? "-"
 				: "";
 	}

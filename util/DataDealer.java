@@ -69,7 +69,7 @@ public class DataDealer {
 						sb.append(pony.getPossibleAbilities().get(i)+"&nbsp;&nbsp;&nbsp;");
 				sb.append("<br>");
 				sb.append("<span style=\"font-family: monospace;\"><b>HP&nbsp;&nbsp;&nbsp;Atk&nbsp;&nbsp;Def&nbsp;&nbsp;SpA&nbsp;&nbsp;SpD&nbsp;&nbsp;Spe</b><br>");
-				for(String s : pony.STAT_NAMES) {
+				for(Pony.Stat s : Pony.Stat.core()) {
 					String space = "&nbsp;";
 					int stat = pony.getBaseStat(s);
 					for(int i = 0; i < 3 - (int)Math.log10(stat); ++i)

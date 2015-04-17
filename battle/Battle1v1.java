@@ -240,7 +240,7 @@ public class Battle1v1 extends Battle {
 				} // end moves
 				
 				/* IVs are always maxed */
-				for(String s : Pony.STAT_NAMES)
+				for(Pony.Stat s : Pony.Stat.core())
 					pony.setIV(s, 31);
 
 				/* EVs are given according to the moveset and the base stats.
@@ -281,19 +281,19 @@ public class Battle1v1 extends Battle {
 						if(Debug.on) printDebug("mixed setup selected");
 						float rand = rng.nextFloat();
 						if(rand > 0.8) {
-							pony.setEV("atk", 126);
-							pony.setEV("spatk", 126);
+							pony.setEV(Pony.Stat.ATK, 126);
+							pony.setEV(Pony.Stat.SPATK, 126);
 						} else if(rand > 0.4) {
-							pony.setEV("atk", 252);
+							pony.setEV(Pony.Stat.ATK, 252);
 						} else {
-							pony.setEV("spatk", 252);
+							pony.setEV(Pony.Stat.SPATK, 252);
 						}
 					} else if(physCounter > specCounter && physViable) {
 						// physical
-						pony.setEV("atk", 252);
+						pony.setEV(Pony.Stat.ATK, 252);
 					} else if(specViable) {
 						// special
-						pony.setEV("spatk", 252);
+						pony.setEV(Pony.Stat.SPATK, 252);
 					} else {
 						// should never happen (no damaging moves), but in case
 						// pick the first damaging moves from viable and use the
@@ -306,12 +306,12 @@ public class Battle1v1 extends Battle {
 								switch(move.getMoveType()) {
 									case PHYSICAL:
 										pony.setMove(3, move);
-										pony.setEV("atk", 252);
+										pony.setEV(Pony.Stat.ATK, 252);
 										ok = true;
 										break outerfor;
 									case SPECIAL:
 										pony.setMove(3, move);
-										pony.setEV("spatk", 252);
+										pony.setEV(Pony.Stat.SPATK, 252);
 										ok = true;
 										break outerfor;
 								}
@@ -329,15 +329,15 @@ public class Battle1v1 extends Battle {
 					// choose whether to give EVs to Speed or HP:
 					// we use the same speed cutoff as PS, 80.
 					if(pony.getBaseSpeed() > 80)
-						pony.setEV("speed", 252);
+						pony.setEV(Pony.Stat.SPEED, 252);
 					else
-						pony.setEV("hp", 252);
+						pony.setEV(Pony.Stat.HP, 252);
 					
 					// last 6 EVs on strong defense:
 					if(pony.getBaseDef() > pony.getBaseSpdef())
-						pony.setEV("def", 6);
+						pony.setEV(Pony.Stat.DEF, 6);
 					else
-						pony.setEV("spdef", 6);
+						pony.setEV(Pony.Stat.SPDEF, 6);
 
 				} else {
 					if(Debug.on) printDebug("defensive setup selected");
@@ -346,13 +346,13 @@ public class Battle1v1 extends Battle {
 					// defensive stat. We choose at random which def to boost, then give remaining
 					// EVs to HP.
 					if(rng.nextFloat() < 0.5) {
-						pony.setEV("def", 252);
-						pony.setEV("spdef", 6);
+						pony.setEV(Pony.Stat.DEF, 252);
+						pony.setEV(Pony.Stat.SPDEF, 6);
 					} else {
-						pony.setEV("spdef", 252);
-						pony.setEV("def", 6);
+						pony.setEV(Pony.Stat.SPDEF, 252);
+						pony.setEV(Pony.Stat.DEF, 6);
 					}
-					pony.setEV("hp", 252);
+					pony.setEV(Pony.Stat.HP, 252);
 				}
 				if(Debug.on) printDebug("EVs are now "+pony.dumpEVs());
 				/* Assign ability: for now, we just choose at random */
@@ -376,16 +376,16 @@ public class Battle1v1 extends Battle {
 				 */
 				List<String> pool = new LinkedList<>();
 				int statusMoves = pony.knownMoves() - damagingMoves;
-				if(pony.getEV("atk") > 0) {
+				if(pony.getEV(Pony.Stat.ATK) > 0) {
 					if(damagingMoves > 1)
 						pool.add("Alicorn Amulet");
-					if(pony.getEV("spatk") > 0) {
+					if(pony.getEV(Pony.Stat.SPATK) > 0) {
 						// mixed
 						pool.add("Alicorn Amulet");
 					} else if(statusMoves == 0) {
 						pool.add("Choice Saddle");
 					}
-				} else if(pony.getEV("spatk") > 0) {
+				} else if(pony.getEV(Pony.Stat.SPATK) > 0) {
 					if(damagingMoves > 1)
 						pool.add("Alicorn Amulet");
 					if(statusMoves == 0)
@@ -441,9 +441,9 @@ public class Battle1v1 extends Battle {
 							break;
 					}
 				}
-				if(pony.getEV("hp") > 0)
+				if(pony.getEV(Pony.Stat.HP) > 0)
 					pool.add("Spare Snacks");
-				if(pony.getEV("def") > 0 || pony.getEV("spdef") > 0)
+				if(pony.getEV(Pony.Stat.DEF) > 0 || pony.getEV(Pony.Stat.SPDEF) > 0)
 					pool.add("Spare Snacks");
 				if(pony.getBaseHp() < 60)
 					pool.add("Zap Apple Juice");

@@ -30,7 +30,7 @@ public class Tenacity extends Ability {
 			throw new NullPointerException("pony is null for Tenacity!");
 		if(pony != be.getAttacker()) return;
 		if(origAtk == -1)
-			origAtk = pony.getBaseStat("atk");
+			origAtk = pony.getBaseStat(Pony.Stat.ATK);
 		if(pony.hasNegativeCondition()) 
 			pony.setBaseStat(Pony.Stat.ATK, (int)(origAtk*1.4f));
 		else 

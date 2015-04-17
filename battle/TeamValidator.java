@@ -161,13 +161,17 @@ public class TeamValidator implements Callable<Boolean> {
 		}
 		if(Debug.on) {
 			printDebug("[TeamValidator] pony "+p+" has incompatible type / HT; adjusting it.");
-			printDebug("Before: { "+p.getIV("hp")+", "+p.getIV("atk")+", "+p.getIV("def")+", "+p.getIV("spatk")+", "+p.getIV("spdef")+", "+p.getIV("speed")+" }");
+			printDebug("Before: { "+p.getIV(Pony.Stat.HP)+", "+p.getIV(Pony.Stat.ATK)+
+					", "+p.getIV(Pony.Stat.DEF)+", "+p.getIV(Pony.Stat.SPATK)+
+					", "+p.getIV(Pony.Stat.SPDEF)+", "+p.getIV(Pony.Stat.SPEED)+" }");
 		}
 		// if we didn't return here, the type is incompatible with pony's IV.
 		// So, adjust them.
 		HiddenTalent.adjustIVs(p, mv.getType());
 		if(Debug.on)
-			printDebug("After: { "+p.getIV("hp")+", "+p.getIV("atk")+", "+p.getIV("def")+", "+p.getIV("spatk")+", "+p.getIV("spdef")+", "+p.getIV("speed")+" }");
+			printDebug("After: { "+p.getIV(Pony.Stat.HP)+", "+p.getIV(Pony.Stat.ATK)+
+					", "+p.getIV(Pony.Stat.DEF)+", "+p.getIV(Pony.Stat.SPATK)+
+					", "+p.getIV(Pony.Stat.SPDEF)+", "+p.getIV(Pony.Stat.SPEED)+" }");
 	}
 
 	private Boolean result;

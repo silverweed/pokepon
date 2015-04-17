@@ -255,31 +255,31 @@ class DamageCalculator {
 		int def = 0;
 		if(move.useTargetAtk()) {
 			atk = defender.atk();
-			if(Debug.pedantic) printDebug("target atk = "+atk+" (mod: "+defender.atkMod()+", base atk = "+defender.getBaseStat("atk")+")");
+			if(Debug.pedantic) printDebug("target atk = "+atk+" (mod: "+defender.atkMod()+", base atk = "+defender.getBaseStat(Pony.Stat.ATK)+")");
 		} else if(move.useTargetSpatk()) {
 			atk = defender.spatk();
-			if(Debug.pedantic) printDebug("target spatk = "+atk+" (mod: "+defender.spatkMod()+", base spatk = "+defender.getBaseStat("spatk")+")");
+			if(Debug.pedantic) printDebug("target spatk = "+atk+" (mod: "+defender.spatkMod()+", base spatk = "+defender.getBaseStat(Pony.Stat.SPATK)+")");
 		} else if(move.getMoveType() == Move.MoveType.PHYSICAL) {
 			atk = attacker.atk();
-			if(Debug.pedantic) printDebug("user atk = "+atk+" (mod: "+attacker.atkMod()+", base atk = "+attacker.getBaseStat("atk")+")");
+			if(Debug.pedantic) printDebug("user atk = "+atk+" (mod: "+attacker.atkMod()+", base atk = "+attacker.getBaseStat(Pony.Stat.ATK)+")");
 		} else if(move.getMoveType() == Move.MoveType.SPECIAL) {
 			atk = attacker.spatk(); 
-			if(Debug.pedantic) printDebug("user spatk = "+atk+" (mod: "+attacker.spatkMod()+", base spatk = "+attacker.getBaseStat("spatk")+")");
+			if(Debug.pedantic) printDebug("user spatk = "+atk+" (mod: "+attacker.spatkMod()+", base spatk = "+attacker.getBaseStat(Pony.Stat.SPATK)+")");
 		}
 
 		if(move.useTargetDef()) {
 			def = defender.def();
-			if(Debug.pedantic) printDebug("target def = "+def+" (mod: "+defender.defMod()+", base def = "+defender.getBaseStat("def")+")");
+			if(Debug.pedantic) printDebug("target def = "+def+" (mod: "+defender.defMod()+", base def = "+defender.getBaseStat(Pony.Stat.DEF)+")");
 		} else if(move.useTargetSpdef()) {
 			def = defender.spdef();
-			if(Debug.pedantic) printDebug("target spdef = "+def+" (mod: "+defender.spdefMod()+", base spdef = "+defender.getBaseStat("spdef")+")");
+			if(Debug.pedantic) printDebug("target spdef = "+def+" (mod: "+defender.spdefMod()+", base spdef = "+defender.getBaseStat(Pony.Stat.SPDEF)+")");
 		} else if(move.getMoveType() == Move.MoveType.PHYSICAL) {
 			// for now, only selfHit case is confusion, which is physical
 			def = selfHit ? attacker.def() : defender.def();
-			if(Debug.pedantic) printDebug("target def = "+def+" (mod: "+defender.defMod()+", base def = "+defender.getBaseStat("def")+")");
+			if(Debug.pedantic) printDebug("target def = "+def+" (mod: "+defender.defMod()+", base def = "+defender.getBaseStat(Pony.Stat.DEF)+")");
 		} else if(move.getMoveType() == Move.MoveType.SPECIAL) {
 			def = defender.spdef();
-			if(Debug.pedantic) printDebug("target spdef = "+def+" (mod: "+defender.spdefMod()+", base spdef = "+defender.getBaseStat("spdef")+")");
+			if(Debug.pedantic) printDebug("target spdef = "+def+" (mod: "+defender.spdefMod()+", base spdef = "+defender.getBaseStat(Pony.Stat.SPDEF)+")");
 		}
 	
 		// Damage = ( (2*Level+10)/250 * Atk/Def * Base + 2) * Modifier

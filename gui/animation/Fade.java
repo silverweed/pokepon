@@ -18,32 +18,21 @@ import java.util.*;
  * 
  * @author silverweed
  */
-public class Fade extends BasicAnimation {
+public class Fade extends Shift {
 
-	private boolean forward;
-	private Point initialPoint, finalPoint;
-	private int vx, vy;
-	private TransparentLabel tSprite;
-	private float initialDistance;
-	private boolean accelerated;
-	private float perc, prevPerc;
-	private float initialOpacity = 1f, finalOpacity;
+	private TransparentLabel tSprite; 
+	private float initialOpacity = 1f, finalOpacity = 0f;
 
 	/** @param opts Opts: 
 	 * <ul>
-	 *   <li>initialPoint: the point where the animation starts (gets parsed if String, see {@link pokepon.gui.animation.BasicAnimation#parseShift})</li>
-	 *   <li>finalPoint: the point where the animation ends (gets parsed if String)</li>
+	 *   {@inheritDoc}
 	 *   <li>finalOpacity: final opacity of the sprite, from 0 to 1 (default: 0)</li>
 	 *   <li>initialOpacity: initial opacity of the sprite, from 0 to 1 (default: 1)</li>
 	 *   <li>fadeOut: if true, the fade is fade-out (default, equivalent to initialOpacity=1f, finalOpacity=0f), else it's a fade-in</li>
-	 *   <li>rewind: if true, the sprite is put back at its original position/opacity after the animation ends.</li>
-	 *   <li>rewindTo: if non-null, the sprite is put at the specified Point (with its initialOpacity) at the end of the animation.</li>
-	 *   <li>accelerated: if true, the motion is uniformly accelerated, else it's uniform (default)</li>
 	 * </ul>
 	 */
 	public Fade(final JComponent panel,Map<String,Object> opts) {
 		super(panel,opts);
-		if(delay == -1) delay = 25;
 		for(Map.Entry<String,Object> entry : opts.entrySet()) {
 			if(entry.getKey().equals("fadeOut")) {
 				if((Boolean)entry.getValue()) {
@@ -54,53 +43,26 @@ public class Fade extends BasicAnimation {
 					initialOpacity = 0f;
 				}
 
-			} else if(entry.getKey().equals("accelerated")) {
-				accelerated = (Boolean)entry.getValue();
-
-			} else if(entry.getKey().equals("initialPoint")) {
-				if(entry.getValue() instanceof String) 
-					initialPoint = parseShift((String)entry.getValue());
-				else 
-					initialPoint = (Point)entry.getValue();
-				
-			} else if(entry.getKey().equals("finalPoint")) {
-				if(entry.getValue() instanceof String) 
-					finalPoint = parseShift((String)entry.getValue());
-				else 
-					finalPoint = (Point)entry.getValue();
-				
 			} else if(entry.getKey().equals("finalOpacity")) {
 				finalOpacity = (Float)entry.getValue();
 
 			} else if(entry.getKey().equals("initialOpacity")) {
 				initialOpacity = (Float)entry.getValue();
+
+			} else if(entry.getKey().equals("persistent")) {
+				persistent = (Boolean)entry.getValue();
 			}
 		}
 		
-		if(initialPoint == null)
-			initialPoint = sprite.getLocation();
-			
-		if(initialPoint == null || finalPoint == null)
-			throw new RuntimeException("[Fade] initialPoint or finalPoint not set!");
 		if(!(sprite instanceof TransparentLabel))
 			throw new RuntimeException("[Fade] sprite should be a TransparentLabel!");
 
 		tSprite = (TransparentLabel)sprite;
 
-		if(Debug.on) printDebug("initialPoint = "+initialPoint+"\nfinalPoint = "+finalPoint);
 		tSprite.setBounds((int)initialPoint.getX(),(int)initialPoint.getY(),
 			sprite.getWidth(),sprite.getHeight());
 
 		tSprite.setOpacity(initialOpacity);
-
-		vx = (int)((float)(finalPoint.getX() - initialPoint.getX())/numIterations);
-		vy = (int)((float)(finalPoint.getY() - initialPoint.getY())/numIterations);
-		initialDistance = (float)distance((int)initialPoint.getX(),(int)initialPoint.getY(),finalPoint);
-		perc = 1f;
-	}
-
-	private double distance(int x,int y,Point p) {
-		return Math.sqrt(Math.pow(x - p.getX(),2) + Math.pow(y - p.getY(),2)); 
 	}
 
 	@Override

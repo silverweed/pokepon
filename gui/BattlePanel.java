@@ -2951,17 +2951,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			} catch(InterruptedException ignore) {}
 			// Fade in the substitute sprite
 			try {
-				JLabel animSprite = new JLabel(
-						new ImageIcon(
-							ImageIO.read(
-								//new URL(/*Meta.getTokensURL().getProtocol()+*/
-									//"file://"+Meta.getTokensURL().getPath()+
-									getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+
-									Meta.DIRSEP+"substitute_back.png")
-								//)
-							)
-						)
-					);
+				JLabel animSprite = new JLabel(new ImageIcon(ImageIO.read(
+								getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+
+								Meta.DIRSEP+"smartypants_right.png")
+							)));
 				allySubstitute = new TransparentLabel(animSprite);
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {
@@ -3023,17 +3016,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			} catch(InterruptedException ignore) {}
 			// Fade in the substitute sprite
 			try {
-				JLabel animSprite = new JLabel(
-						new ImageIcon(
-							ImageIO.read(
-								//new URL(/*Meta.getTokensURL().getProtocol()+*/
-								//	"file://"+Meta.getTokensURL().getPath()+
-									getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+
-									Meta.DIRSEP+"substitute_front.png")
-								//)
-							)
-						)
-					);
+				JLabel animSprite = new JLabel(new ImageIcon(ImageIO.read(
+								getClass().getResource(Meta.complete2(Meta.TOKEN_DIR)+
+								Meta.DIRSEP+"smartypants_left.png")
+							)));
 				oppSubstitute = new TransparentLabel(animSprite);
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {

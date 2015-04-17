@@ -501,6 +501,8 @@ class GUILauncher extends JFrame {
 				"  many of them were made by http://botchan-mlp.deviantart.com\n" +
 				"* Non animated sprites: stupidly enough, I didn't keep track of them. If you recognize one,\n" +
 				"  please tell me so I can add credits.\n" +
+				"* Smartypants sprites (substitute): masternodra & bronyboy\n" +
+				"* Diamond token - zutheskunk\n" +
 				"* Moves fx: mostly taken from PokemonShowdown (https://github.com/zarel/Pokemon-Showdown-Client)\n" +
 				"* Music: from Pokemon X/Y\n" +
 				"* Backgrounds: darcowalyays and cl0setbrony (.deviantart.com)\n" +

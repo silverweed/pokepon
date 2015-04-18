@@ -240,9 +240,11 @@ class ServerConnection extends Connection {
 			}
 		}
 		// change chat user name and role
-		if(server.chat != null)
+		if(server.chat != null) {
 			if(!server.chat.renameUser(name, newname))
 				printDebug("[ServerConnection] Error: couldn't rename "+name+" to "+newname);
+			printDebug("User role: "+server.chat.getUser(newname).getRole());
+		}
 		// notify clients about the change
 		sendMsg(CMN_PREFIX+"setnick "+newname + (server.chat != null ? " " + server.chat.getUser(newname).getRole().getSymbol() : ""));
 		sendMsg("Your nick is now "+newname);

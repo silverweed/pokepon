@@ -98,6 +98,7 @@ gui/animation/BasicAnimation.java
 gui/animation/Direct.java
 gui/animation/Fade.java
 gui/animation/Shake.java
+gui/animation/Shift.java
 gui/animation/Whirl.java
 item/AlicornAmulet.java
 item/ChoiceBoots.java

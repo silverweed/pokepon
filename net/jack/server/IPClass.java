@@ -9,7 +9,7 @@ import static pokepon.util.MessageManager.*;
  * <ul>
  *   <li>127.0.0.1 (single IP)</li>
  *   <li>127.0.* (all IPs starting with 127.0.)</li>
- *   <li>127.0.0.{1-255} (IP ranging from 127.0.0.1 to 127.0.0.255); in this case,
+ *   <li>127.0.0.[1-255] (IP ranging from 127.0.0.1 to 127.0.0.255); in this case,
  *     a `*` is implied after the range if it's not in the last group (i.e 127.{1-3} is valid)</li>
  *   <li>* (all IPs)</li>
  *   <li>127.0.0.1/24 (subnet with base IP 127.0.0.1 and netmask 24)</li>
@@ -24,8 +24,10 @@ class IPClass {
 	private ClassType classType = ClassType.SINGLE;
 	private String startIp, endIp;
 	private int netmask;
+	private int ipInt;
 	private String ip;
 	private short[] octets = new short[4];
+	/** If IP is a range, these are the starting and ending octets */
 	private short[] startOctets = new short[4], endOctets = new short[4];
 	private final String ipStr;
 
@@ -61,7 +63,8 @@ class IPClass {
 				case '*': {
 					// `*` must be the last character
 					if(str.length() > c + 1)
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (`*` not last character)");
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (`*` not last character)");
 
 					if(c == 0) {
 						classType = ClassType.EVERYTHING;
@@ -95,18 +98,21 @@ class IPClass {
 				}
 				case '.':
 					if(numBuf.length() < 1) 
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (empty octet #"+i+")");
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (empty octet #"+i+")");
 					octets[i++] = Short.parseShort(numBuf.toString());
 					if(octets[i-1] < 0 || octets[i-1] > 255)
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (octet must be between 0 and 255)");
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (octet must be between 0 and 255)");
 					// erase the string buffer
 					numBuf.setLength(0);
 					break;
 
-				case '{': {
+				case '[': {
 					if(c > 0 && lastTok != '.')
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (range must be at beginning or after a '.')");
-					// eat up and parse the rest of the string (should be: {start-end})
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (range must be at beginning or after a '.')");
+					// eat up and parse the rest of the string (should be: [start-end])
 					StringBuilder sb = new StringBuilder("");
 					int d = c + 1;
 					short start = -1, end = -1;
@@ -114,32 +120,41 @@ class IPClass {
 					while(d < str.length()) {
 						if(str.charAt(d) == '-') {
 							if(start != -1)
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (too many `-` in IP range)");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (too many `-` in IP range)");
 							if(sb.length() < 1)
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (missing starting IP)");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (missing starting IP)");
 							try {
 								start = Short.parseShort(sb.toString());
 							} catch(IllegalArgumentException e) {
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (invalid range start: "+sb+")");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (invalid range start: "+sb+")");
 							}
 							if(start < 0 || start > 255)
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (octet must be between 0 and 255)");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (octet must be between 0 and 255)");
 							sb.setLength(0);
 
-						} else if(str.charAt(d) == '}') {
+						} else if(str.charAt(d) == ']') {
 							if(sb.length() < 1)
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (missing ending IP)");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (missing ending IP)");
 							try {
 								end = Short.parseShort(sb.toString());
 							} catch(IllegalArgumentException e) {
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (invalid range end: "+sb+")");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (invalid range end: "+sb+")");
 							}
 							if(end < 0 || end > 255)
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (octet must be between 0 and 255)");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (octet must be between 0 and 255)");
 							if(end < start)
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (end < start)");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (end < start)");
 							if(str.length() > d + 1)
-								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (trailing characters)");
+								throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+													str+" (trailing characters)");
 
 						} else if(str.charAt(d) != ' ') {
 							sb.append(str.charAt(d));
@@ -147,7 +162,8 @@ class IPClass {
 						++d;
 					}
 					if(end == -1)
-						throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+str+" (Unterminated range)");
+						throw new IllegalArgumentException("[@pos "+d+"] Invalid IP string: "+
+											str+" (Unterminated range)");
 					classType = ClassType.RANGE;
 					sb = new StringBuilder("");
 					for(byte j = 0; j < i; ++j) {
@@ -173,20 +189,25 @@ class IPClass {
 				}
 				case '/':
 					if(i != 3 || numBuf.length() < 1)
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (netmask expected after 4th octet)");
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (netmask expected after 4th octet)");
 					if(str.length() < c + 2)
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (empty netmask)");
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (empty netmask)");
 
 					octets[i++] = Short.parseShort(numBuf.toString());
 					if(octets[i-1] < 0 || octets[i-1] > 255)
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (octet must be between 0 and 255)");
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (octet must be between 0 and 255)");
 					try {
 						netmask = Short.parseShort(str.substring(c + 1));
 					} catch(IllegalArgumentException e) {
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (non-numeric netmask)");
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (non-numeric netmask)");
 					}
 					if(netmask < 0 || netmask > 32)
-						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (netmask must be between 0 and 32)");
+						throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+											str+" (netmask must be between 0 and 32)");
 					classType = ClassType.NETMASK;
 					// terminate parsing
 					break outer;
@@ -197,31 +218,43 @@ class IPClass {
 					break;
 
 				default:
-					throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+str+" (invalid char: "+str.charAt(c)+")");
+					throw new IllegalArgumentException("[@pos "+c+"] Invalid IP string: "+
+										str+" (invalid char: "+str.charAt(c)+")");
 			}
 			lastTok = str.charAt(c);
 		}
-		if(classType == ClassType.SINGLE && lastTok != '.') {
-			try {
-				octets[i] = Short.parseShort(numBuf.toString());
-			} catch(IllegalArgumentException e) {
-				throw new IllegalArgumentException("[@pos "+str.length()+"] Invalid IP string: "+str+" (invalid octet: "+numBuf+")");
+		switch(classType) {
+			case SINGLE:
+				if(lastTok != '.') {
+					try {
+						octets[i] = Short.parseShort(numBuf.toString());
+					} catch(IllegalArgumentException e) {
+						throw new IllegalArgumentException("[@pos "+str.length()+"] Invalid IP string: "+
+											str+" (invalid octet: "+numBuf+")");
+					}
+					if(octets[i] < 0 || octets[i] > 255)
+						throw new IllegalArgumentException("[@pos "+str.length()+"] Invalid IP string: "+
+											str+" (octet must be between 0 and 255)");
+				}
+				/* falls through */
+			case NETMASK:
+				for(int j = 0; j < 4; ++j)
+					ipInt |= octets[j] << (8 * (3 - j));
+				break;
+			case RANGE: {
+				String[] st = startIp.split("\\.", 4);
+				String[] en = endIp.split("\\.", 4);
+				for(byte j = 0; j < 4; ++j) {
+					startOctets[j] = Short.parseShort(st[j]);
+					endOctets[j] = Short.parseShort(en[j]);
+				}
+				break;
 			}
-			if(octets[i] < 0 || octets[i] > 255)
-				throw new IllegalArgumentException("[@pos "+str.length()+"] Invalid IP string: "+str+" (octet must be between 0 and 255)");
-				
 		}
+
 		ip = "";
 		for(short s : octets)
 			ip += Short.toString(s) + ".";
-		if(classType == ClassType.RANGE) {
-			String[] st = startIp.split("\\.", 4);
-			String[] en = endIp.split("\\.", 4);
-			for(byte j = 0; j < 4; ++j) {
-				startOctets[j] = Short.parseShort(st[j]);
-				endOctets[j] = Short.parseShort(en[j]);
-			}
-		}
 	}
 	
 	public ClassType getClassType() { return classType; }
@@ -254,8 +287,14 @@ class IPClass {
 						return false;
 				return true;
 			case NETMASK:
-				// TODO
-				return false;
+				int addr = 0;
+				for(byte i = 0; i < 4; ++i)
+					addr |= itsOctets[i] << (8 * (3 - i));
+				int mask = 0;
+				for(byte i = 0; i < netmask; ++i)
+					mask |= 1 << (31 - i);
+				int subnet = ipInt & mask;
+				return ((ipInt ^ addr) & mask) == 0;
 		}				
 		return false;
 	}
@@ -268,15 +307,19 @@ class IPClass {
 	/** Testing method */
 	public static void main(String[] args) throws IllegalArgumentException {
 		IPClass ip = new IPClass(args[0]);
-		printMsg("Parsed:\n String = " + args[0] + "\n IP = " + ip.ip + "\n classtype = "+ip.classType+"\n Netmask = "+ip.netmask+"\n range: {"+ip.startIp+"-"+ip.endIp+"}");
+		printMsg("Parsed:\n String = " + args[0] + "\n IP = " + ip.ip + 
+				"\n classtype = "+ip.classType+"\n Netmask = "+ip.netmask+
+				"\n range: {"+ip.startIp+"-"+ip.endIp+"}");
 		IPClass[] testIps = new IPClass[] {
 			new IPClass("*"),
 			new IPClass("127.*"),
-			new IPClass("{10-100}"),
-			new IPClass("127.{0-1}"),
+			new IPClass("[10-100]"),
+			new IPClass("127.[0-1]"),
 			new IPClass("127.0.0.*"),
 			new IPClass("127.0.0.1"),
-			new IPClass("127.0.0.0")
+			new IPClass("127.0.0.0"),
+			new IPClass("127.0.0.1/24"),
+			new IPClass("127.0.0.1/16")
 		};
 		for(IPClass ipc : testIps) {
 			printMsg("Is included in "+ipc+"?  "+ipc.includes(ip.ipStr));

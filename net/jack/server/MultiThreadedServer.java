@@ -309,15 +309,24 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		}
 	}
 
-	public boolean isBanned(String ip) {
-		boolean banned = false;
-		synchronized(banRules) {
-			// iteration will follow insertion order
-			for(Map.Entry<IPClass,Boolean> entry : banRules.entrySet()) 
-				if(entry.getKey().includes(ip))
-					banned = entry.getValue();
+	/** Checks whether the given IP / range is banned by the server
+	 * rules; will always return true if an invalid IP is passed.
+	 * @return false if the IP can connect to the server, true otherwise.
+	 */
+	public boolean isBanned(String ipclass) {
+		try {
+			boolean banned = false;
+			synchronized(banRules) {
+				// iteration will follow insertion order
+				for(Map.Entry<IPClass,Boolean> entry : banRules.entrySet()) 
+					if(entry.getKey().includes(ipclass))
+						banned = entry.getValue();
+			}
+			return banned;
+		} catch(IllegalArgumentException e) {
+			printDebug("["+serverName+".isBanned("+ipclass+")] Illegal IP/range specified.");
+			return true;
 		}
-		return banned;
 	}
 
 	@Override

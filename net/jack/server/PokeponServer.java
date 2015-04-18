@@ -497,8 +497,8 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 class ServerConsole implements Runnable {
 	
 	private final static String HELP_STRING = 
-		"Supported commands:\n stop\n ban <ip list>\n unban <ip list>\n say <message>" +
-		" banned [ip class]\n users\n kick <user>\n info\n roles\n reload";
+		"Supported commands:\n stop\n ban <ip list>\n unban <ip list>\n flush (clear banlist)\n" +
+		" say <message>\n banned [ip class]\n users\n kick <user>\n info\n roles\n reload";
 
 	private final PokeponServer server;
 	private final Scanner scanner;
@@ -546,6 +546,10 @@ class ServerConsole implements Runnable {
 					else
 						consoleDebug("advancedChat is disabled.");
 
+				} else if(token[0].equals("flush")) {
+					server.banRules.clear();
+					consoleDebug("[ OK ] Banlist cleared.");
+
 				} else if(token[0].equals("reload")) {
 					if(server.chat != null) {
 						if(server.chat.reload()) {
@@ -583,7 +587,7 @@ class ServerConsole implements Runnable {
 				}
 					
 			} catch(NoSuchElementException e) {
-				consoleMsg("[EOF] Console is dead!! to stop the server, Ctrl+C");
+				consoleMsg("[EOF] Console is dead!! Server is still up; to stop the server, Ctrl+C");
 				return;
 			} catch(Exception e) {
 				consoleDebug("Caught exception: "+e);

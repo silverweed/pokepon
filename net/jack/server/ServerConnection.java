@@ -8,6 +8,7 @@ import static pokepon.util.MessageManager.*;
 import pokepon.util.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.lang.reflect.*;
 import java.net.*;
 
@@ -28,6 +29,7 @@ class ServerConnection extends Connection {
 
 	MultiThreadedServer server;
 	private static int nConn = 1;
+	private Pinger pinger;
 
 	public ServerConnection(MultiThreadedServer server, Socket client) {
 		this(server, client, 0);
@@ -172,6 +174,12 @@ class ServerConnection extends Connection {
 				sendMsg(CMN_PREFIX+"motd "+msg);
 		}
 
+		// Start ping routine
+		pinger = new Pinger();
+		pinger.setName(name + ".Pinger");
+		pinger.setDaemon(true);
+		pinger.start();
+
 		// Start receiving loop
 		try {
 			receiveMsg();
@@ -315,6 +323,46 @@ class ServerConnection extends Connection {
 			pw.write(msg+"\n");
 		} catch(IOException e) {
 			printDebug("Caught exception while sending message: "+e);
+		}
+	}
+
+	public Pinger getPinger() { return pinger; }
+
+	class Pinger extends Thread {
+		private BlockingQueue<Byte> pongQueue = new ArrayBlockingQueue<>(5);
+
+		public void add() {
+			try {
+				pongQueue.add((byte)1);
+			} catch(IllegalStateException e) {
+				printDebug("["+name+".Pinger] Pongs are accumulating in this Pinger! Disconnecting to prevent flooding.");
+				disconnect();
+			}
+		}
+
+		public void run() {
+			if(Debug.on) printDebug("["+name+"] Started Pinger. Ping delay: "+server.PING_DELAY+" s.");
+			while(true) {
+				try {
+					// send the ping message and wait for a pong to appear in the
+					// pong queue. If a pong does not arrive within
+					// PONG_MAX_WAIT seconds, disconnect with the client.
+					sendMsg(CMN_PREFIX+"ping");
+					Byte response = pongQueue.poll(server.PONG_MAX_WAIT, TimeUnit.SECONDS);
+					if(response == null) {
+						printDebug("["+name+".Pinger] Pong timeout: disconnecting");
+						break;
+					}
+					Thread.sleep(server.PING_DELAY * 1000);
+				} catch(InterruptedException e) {
+					printDebug("["+name+".Pinger] Timeout. Disconnecting.");
+					break;
+				} catch(Exception e) {
+					e.printStackTrace();
+					break;
+				}
+			}
+			disconnect();
 		}
 	}
 }

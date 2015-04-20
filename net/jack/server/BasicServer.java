@@ -22,6 +22,8 @@ public class BasicServer implements Server {
 							).getPath() + Meta.DIRSEP + "server.conf";
 
 	public static final int DEFAULT_VERBOSITY = 1;
+	public static final int PING_DELAY = 120;	// seconds
+	public static final int PONG_MAX_WAIT = 30;	// seconds
 
 	protected static String confFile = DEFAULT_CONF_FILE;
 
@@ -175,16 +177,22 @@ public class BasicServer implements Server {
 		return serverName;
 	}
 
+	/** (Synchronously) pings a client and waits for its response.
+	 * @deprecated Use ServerConnection.Pinger to ping asynchronously.
+	 */
 	public synchronized boolean pingClient(Connection conn) {
 		try {
+			if(Debug.pedantic) printDebug("["+conn.getName()+"] PING ->");
 			conn.getSocket().setSoTimeout(4000);
 			conn.sendMsg(CMN_PREFIX+"ping");
 			String response = conn.getInput().readLine();
+			printDebug("RESPONSE: ^"+response+"$");
 			if(response == null)
 				return false;
 			else if(!response.equals(CMN_PREFIX+"pong")) 
-				consoleDebug("[pingClient("+conn.getName()+")] received "+response
+				printDebug("[pingClient("+conn.getName()+")] received "+response
 							+ " in response to a ping.");
+			if(Debug.pedantic) printDebug("["+conn.getName()+"] <- PONG");
 			return true;
 		} catch(SocketTimeoutException e) {
 			consoleDebug("[pingClient("+conn.getName()+")] Timeout.");

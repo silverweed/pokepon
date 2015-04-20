@@ -36,7 +36,10 @@ class ClientCommunicationsExecutor extends ClientConnectionExecutor {
 		
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token));
 	
-		if(cmd.equals("setnick")) {
+		if(cmd.equals("ping")) {
+			connection.sendMsg(CMN_PREFIX+"pong");
+			return 1;
+		} else if(cmd.equals("setnick")) {
 			if(token.length < 2) return 1;
 			client.setName(token[1]);
 			printMsg("Set nick to "+token[1]);

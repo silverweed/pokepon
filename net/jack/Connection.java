@@ -199,7 +199,7 @@ public abstract class Connection implements Runnable {
 			}
 			if(verbosity >= 3) printDebug("["+name+"] End of cycle");
 			Thread.yield();
-		} while (msg != null);
+		} while(msg != null);
 		if(verbosity >= 1) printDebug("["+name+"] RECEIVED NULL");
 	}
 	

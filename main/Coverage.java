@@ -11,7 +11,7 @@ import static pokepon.util.MessageManager.*;
 import java.io.*;
 import java.util.*;
 
-/** Pok&#233Pon - by jp &#169 2014
+/** Pok&#233Pon - by silverweed &#169 2014
  * Calculates the coverage of a pony.
  *
  * @author silverweed

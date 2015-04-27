@@ -14,7 +14,7 @@ import static pokepon.util.MessageManager.*;
 import pokepon.main.TestingClass;
 import pokepon.util.*;
 
-/** Pok&#233Pon - by jp &#169 2013
+/** Pok&#233Pon - by silverweed &#169 2013
  * Prints typings info
  *
  * @author silverweed

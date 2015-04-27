@@ -375,8 +375,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			// Add the bottomCardP and the team panel to the bottom panel
 			bottomP.add(bottomCardP);
 			bottomP.add(teamP);
-			bottomP.add(utilsP);
 		}
+		bottomP.add(utilsP);
 
 		// SETUP EVENT PANEL //
 		eventP.setPreferredSize(new Dimension(FIELD_WIDTH/2,(int)(DIM_Y*7./8.)));
@@ -415,8 +415,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			//volumeBar.setBounds(inputF.getBounds().x + inputF.getBounds().width - 30, inputF.getBounds().y + inputF.getBounds().height - 100, 30, 100);
 			//volumeBar.setVisible(true);
 			//add(volumeBar);
-			if(looper != null)
-				new Thread(looper).start();
+			if(looper != null) {
+				try {
+					new Thread(looper).start();
+				} catch(RuntimeException e) {
+					printDebug("Cannot play sound: disabling BGM.");
+				}
+			}
 		}
 	}
 
@@ -3349,22 +3354,35 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						// here we use fullname rather than playerID because guests other than
 						// players may use chat as well; this way the server doesn't bother to parse
 						// chat messages.
-						if(inputF.getText().charAt(0) != CMD_PREFIX) {
-							sendB("|chat|"+p1.getName()+"|"+MessageManager.sanitize(inputF.getText())); 
-						} else {
-							String txt = inputF.getText().trim().substring(1);
-							if(txt.equals("export") || txt.equals("save")) {
-								if(battleLogger != null) {
-									// TODO: add capability to select save location
-									battleLogger.processRecord(null);
-									if(battleLogger.getFeedbackMsg() != null)
-										appendEvent(EventType.INFO,battleLogger.getFeedbackMsg());
+						switch(inputF.getText().charAt(0)) {
+							case CMD_PREFIX: {
+								String txt = inputF.getText().trim().substring(1);
+								if(txt.equals("export") || txt.equals("save")) {
+									if(battleLogger != null) {
+										// TODO: add capability to select save location
+										battleLogger.processRecord(null);
+										if(battleLogger.getFeedbackMsg() != null)
+											appendEvent(EventType.INFO,battleLogger.getFeedbackMsg());
+									} else {
+										appendEvent(EventType.INFO,"You haven't enabled logging for this battle.");
+									}
 								} else {
-									appendEvent(EventType.INFO,"You haven't enabled logging for this battle.");
+									sendB("|cmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));
 								}
-							} else {
-								sendB("|cmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));
+								break;
 							}
+							case CMN_PREFIX: {
+								// broadcast command
+								if(guest) {
+									appendEvent(EventType.INFO, "You don't have the permission to issue broadcast commands.");
+									break;
+								}
+								String txt = inputF.getText().trim().substring(1);
+								sendB("|bcmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));
+								break;
+							}
+							default:
+								sendB("|chat|"+p1.getName()+"|"+MessageManager.sanitize(inputF.getText())); 
 						}
 						history.add(inputF.getText());
 						if(history.size() > MAX_HIST_SIZE) history.removeFirst();

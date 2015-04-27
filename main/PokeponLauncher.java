@@ -14,7 +14,7 @@ import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
 
-/** Pok&#233Pon - by jp &#169 2013
+/** Pok&#233Pon - by silverweed &#169 2013
  * The launcher for all testing classes: takes flags `-d' (no debug), `-p' (pedantic debug),
  * `--package PACKAGE' (for searching in a package other than pokepon.main)
  * and argument `testingClass', which is a valid class in package pokepon.main which

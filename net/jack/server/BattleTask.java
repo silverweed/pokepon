@@ -267,6 +267,10 @@ public class BattleTask implements Runnable {
 		} else if(token[0].equals("cmd") && token.length > 2) {
 			/* |cmd|(playerID/Player Name)|Command */
 			final int connId = parseID(token[1]);
+			if(connId < 1) {
+				printDebug(this+" error: received connId = "+connId);
+				return;
+			}
 			final String cmd = token[2];
 			// since this task may take time, do it asynchronously
 			executor.execute(new Runnable() {
@@ -275,9 +279,31 @@ public class BattleTask implements Runnable {
 				}
 			});
 
+		} else if(token[0].equals("bcmd") && token.length > 2) {
+			/* |bcmd|(playerID/Player Name)|Command */
+			final int connId = parseID(token[1]);
+			if(connId < 1) {
+				printDebug(this+" error: received connId = "+connId);
+				return;
+			}
+			if(connId != 1 && connId != 2) {
+				sendB(guests[3-connId], "|error|Guests are not allowed to issue broadcast commands.");
+				return;
+			}
+			final String cmd = token[2];
+			executor.execute(new Runnable() {
+				public void run() {
+					processCommand(connId, cmd, true);
+				}
+			});
+
 		} else if(token[0].equals("leave") && token.length > 1) {
 			sendB("|leave|"+token[1]);
 			int id = parseID(token[1]);
+			if(id < 1) {
+				printDebug(this+" error: received connId = "+id);
+				return;
+			}
 			if(id > 2) {
 				leaveGuest(guests[id-3]);
 			} else {
@@ -552,6 +578,18 @@ public class BattleTask implements Runnable {
 			}
 	}
 
+	/** Like sendB(Connection,String), but send msg to all clients (broadcast to guests) */
+	public void sendB(String msg) {
+		sendB(msg, true);
+	}
+
+	/** Like sendB(String), but can select whether broadcasting to guests or not. */
+	public void sendB(String msg, boolean broadcastToGuests) {
+		sendB(c1, msg);
+		sendB(c2, msg, broadcastToGuests);
+	}
+
+	/** Send battle message to a connection (broadcast to clients too) */
 	public void sendB(Connection cl, String msg) {
 		sendB(cl, msg, true);
 	}
@@ -573,12 +611,6 @@ public class BattleTask implements Runnable {
 				guests[i].sendMsg(BTL_PREFIX+battleID+" "+msg);
 				++sent;
 			}
-	}
-
-	/** Like sendB(Connection,String), but send msg to all clients */
-	public void sendB(String msg) {
-		sendB(c1,msg);
-		sendB(c2,msg);
 	}
 
 	public String toString() {
@@ -988,7 +1020,10 @@ public class BattleTask implements Runnable {
 		}
 	}
 
-	/** Converts passed id/name of connection to the correct integer. */
+	/** Converts passed id/name of connection to the correct integer;
+	 * player 1 is #1, player 2 is #2, guest N is #N+3.
+	 * @return ID of given connection id/name, or 0 if no connection matches.
+	 */
 	private int parseID(String token) {
 		if(token.equals(c1.getName()) || token.equals("1")) return 1;
 		if(token.equals(c2.getName()) || token.equals("2")) return 2;
@@ -997,11 +1032,7 @@ public class BattleTask implements Runnable {
 			if(token.equals(guests[i].getName()) || token.equals(Integer.toString(i+3)))
 				return i + 3;
 		}
-		try {
-			return Integer.parseInt(token);
-		} catch(IllegalArgumentException e) {
-			return -1;
-		}
+		return 0;
 	}
 
 	/** @return True if battle is over, False otherwise */ 
@@ -1098,9 +1129,13 @@ public class BattleTask implements Runnable {
 		else if(battle.getPlayer(2).getActivePony().isFainted() && !battle.getPlayer(1).getActivePony().isFainted())
 			sendB(c1,"|wait");
 	}
-	
-	/** Process a command from a client and send response to it. */
+
 	private void processCommand(int connId, String cmd) {
+		processCommand(connId, cmd, false);
+	}
+
+	/** Process a command from a client and send response to it. */
+	private void processCommand(int connId, String cmd, boolean broadcast) {
 		Connection conn = getConnection(connId);
 		if(conn == null) return;
 		String[] token = cmd.split(" ");
@@ -1112,12 +1147,19 @@ public class BattleTask implements Runnable {
 				return;
 			}
 			String response = dataDealer.getData(ConcatenateArrays.merge(token, 1));
-			if(response == null)
+			if(response == null) {
 				sendB(conn,"|error|"+ConcatenateArrays.merge(token,1)+": no data found.");
-			else if(response.startsWith("|"))
-				sendB(conn,response);
-			else
-				sendB(conn,"|htmlconv|"+response);
+			} else if(response.startsWith("|")) {
+				if(broadcast)
+					sendB(response);
+				else
+					sendB(conn,response, false);
+			} else {
+				if(broadcast)
+					sendB("|htmlconv|"+response);
+				else
+					sendB(conn,"|htmlconv|"+response, false);
+			}
 		} else if(token[0].startsWith("eff")) {
 			if(token.length < 2) {
 				sendB(conn,"|error|Syntax error: correct syntax is :<br>&nbsp;" +
@@ -1126,12 +1168,19 @@ public class BattleTask implements Runnable {
 				return;
 			}
 			String response = dataDealer.getEffectiveness(ConcatenateArrays.merge(token,1));
-			if(response == null)
+			if(response == null) {
 				sendB(conn,"|error|"+ConcatenateArrays.merge(token,1)+": no data found.", false);
-			else if(response.startsWith("|"))
-				sendB(conn,response, false);
-			else
-				sendB(conn,"|htmlconv|"+response, false);
+			} else if(response.startsWith("|")) {
+				if(broadcast)
+					sendB(response);
+				else
+					sendB(conn,response, false);
+			} else {
+				if(broadcast)
+					sendB("|htmlconv|"+response);
+				else
+					sendB(conn,"|htmlconv|"+response, false);
+			}
 		} else {
 			sendB(conn,"|error|Invalid command: "+token[0], false);
 		}

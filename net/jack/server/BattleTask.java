@@ -77,9 +77,11 @@ public class BattleTask implements Runnable {
 					sendB(guest, "|addhazard|"+_ally+"|"+h.getClass().getSimpleName());
 				for(Hazard h : engine.getHazards(2))
 					sendB(guest, "|addhazard|"+_opp+"|"+h.getClass().getSimpleName());
-				if(battle.getPlayer(1).getActivePony().getStatus() != null)
+				Pony ap1 = battle.getPlayer(1).getActivePony();
+				Pony ap2 = battle.getPlayer(2).getActivePony();
+				if(ap1 != null && ap1.getStatus() != null)
 					sendB(guest, "|addstatus|"+_ally+"|"+battle.getPlayer(1).getActivePony().getStatus().toBrief());
-				if(battle.getPlayer(2).getActivePony().getStatus() != null)
+				if(ap2 != null && ap2.getStatus() != null)
 					sendB(guest, "|addstatus|"+_opp+"|"+battle.getPlayer(2).getActivePony().getStatus().toBrief());
 				break;
 			}
@@ -262,7 +264,7 @@ public class BattleTask implements Runnable {
 		if(token[0].equals("chat") && token.length > 2) {
 			/* |chat|Player/Guest Name|Message */
 			//try to sanitize the "<" or ">" tags and bounce the message back.
-			sendB("|chat|"+token[1]+"|"+merge(token,2).replaceAll("<","&#60;").replaceAll(">","&#62;"));
+			sendB("|chat|"+token[1]+"|"+sanitize(merge(token,2)));
 
 		} else if(token[0].equals("cmd") && token.length > 2) {
 			/* |cmd|(playerID/Player Name)|Command */
@@ -291,8 +293,10 @@ public class BattleTask implements Runnable {
 				return;
 			}
 			final String cmd = token[2];
+			final String sender = battle.getPlayer(connId).getName();
 			executor.execute(new Runnable() {
 				public void run() {
+					sendB("|info|"+sender+" issued command: `"+CMN_PREFIX+sanitize(cmd)+"`");
 					processCommand(connId, cmd, true);
 				}
 			});

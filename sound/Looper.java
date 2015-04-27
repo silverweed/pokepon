@@ -69,9 +69,9 @@ public class Looper implements Runnable {
 				}
 			}
 			clip.stop();
-			if(Debug.on) printDebug("[Looper] Stopped.");
+			if(Debug.on) printDebug("[ Looper ] Stopped.");
 		} catch(Exception e) {
-			throw new RuntimeException(e);
+			printDebug("[ Looper ] failed to play sound: giving up.");
 		}
 		if(Debug.on) printDebug("run(): terminated.");
 	}
@@ -106,7 +106,7 @@ public class Looper implements Runnable {
 
 	/** Stop the looper and terminate the run() method */
 	public void stop() {
-		if(Debug.on) printDebug("[Looper] Stopping...");
+		if(Debug.on) printDebug("[ Looper ] Stopping...");
 		shouldStop = true;
 		synchronized(clip) {
 			clip.notifyAll();

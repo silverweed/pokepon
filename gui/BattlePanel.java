@@ -415,13 +415,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			//volumeBar.setBounds(inputF.getBounds().x + inputF.getBounds().width - 30, inputF.getBounds().y + inputF.getBounds().height - 100, 30, 100);
 			//volumeBar.setVisible(true);
 			//add(volumeBar);
-			if(looper != null) {
-				try {
-					new Thread(looper).start();
-				} catch(RuntimeException e) {
-					printDebug("Cannot play sound: disabling BGM.");
-				}
-			}
+			if(looper != null) 
+				new Thread(looper).start();
 		}
 	}
 

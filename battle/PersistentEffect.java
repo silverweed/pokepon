@@ -8,6 +8,7 @@ package pokepon.battle;
  * @author silverweed
  * @deprecated Use BattleEvents instead.
  */
+@Deprecated
 public class PersistentEffect extends TriggeredEffectDealer {
 	
 	public PersistentEffect(int duration) {

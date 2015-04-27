@@ -70,7 +70,7 @@ public class Shake extends BasicAnimation {
 				v = (byte)((forward ? 1 : -1) * MAX_V);
 				break;
 			case LINEAR:
-				v = (byte) (MAX_V * (forward ? 1 : -1) * (float)Math.abs((1 - Math.abs(x - initialX)/(float)motionWidth)));
+				v = (byte) (MAX_V * (forward ? 1 : -1) * Math.abs((1 - Math.abs(x - initialX)/(float)motionWidth)));
 				break;
 			case HARMONIC:
 				v = (byte) (MAX_V * (forward ? 1 : -1) * Math.cos(Math.PI / (2*motionWidth) * (x - initialX)));

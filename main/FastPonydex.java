@@ -42,7 +42,7 @@ public class FastPonydex implements TestingClass {
 
 		List<Class<?>> lc = ClassFinder.findSubclasses(Meta.complete(PONY_DIR),Pony.class);
 		List<Pony> ponies = new ArrayList<Pony>();
-		List<Comparable> bsts = new ArrayList<Comparable>();
+		List bsts = new ArrayList<>();
 
 		for(Class<?> c : lc) {
 			Pony p = null;

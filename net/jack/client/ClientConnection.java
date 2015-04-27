@@ -72,7 +72,7 @@ class ClientConnection extends Connection {
 			PokeponClient pClient = (PokeponClient)client;
 			Iterator<Map.Entry<String,BattlePanel>> it = pClient.getBattles().entrySet().iterator();
 			while(it.hasNext()) {
-				Map.Entry<String,BattlePanel> entry = (Map.Entry<String,BattlePanel>)it.next();
+				Map.Entry<String,BattlePanel> entry = it.next();
 				entry.getValue().interpret("|disconnect");
 				if(verbosity >= 2) printDebug("Removed battle #"+entry.getKey()+" from battles.");
 				it.remove();

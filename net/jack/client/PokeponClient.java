@@ -338,7 +338,7 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 		final JComboBox<Team> teamList = new JComboBox<>();
 		Object popup = teamList.getUI().getAccessibleChild(teamList, 0);  
 		if(popup instanceof ComboPopup) {  
-			JList jlist = ((ComboPopup)popup).getList();  
+			JList<?> jlist = ((ComboPopup)popup).getList();  
 			jlist.setFixedCellHeight(55);  
 		}  
 		synchronized(teams) {
@@ -470,7 +470,7 @@ public class PokeponClient extends JPanel implements ChatClient, TestingClass {
 		JComboBox<Team> teamList = new JComboBox<>();
 		Object popup = teamList.getUI().getAccessibleChild(teamList, 0);  
 		if (popup instanceof ComboPopup) {  
-			JList jlist = ((ComboPopup)popup).getList();  
+			JList<?> jlist = ((ComboPopup)popup).getList();  
 			jlist.setFixedCellHeight(55);  
 		}  
 		synchronized(teams) {

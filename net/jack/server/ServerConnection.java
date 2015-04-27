@@ -191,12 +191,11 @@ class ServerConnection extends Connection {
 		} catch(Exception e) {
 			printDebug("Caught exception in Connection.run()");
 			e.printStackTrace();
-		} finally {
-			server.broadcast(socket,name+" disconnected.");
-			server.broadcast(socket,CMN_PREFIX+"userrm "+name);
-			disconnect();
-			return;
-		}
+		} 
+		server.broadcast(socket,name+" disconnected.");
+		server.broadcast(socket,CMN_PREFIX+"userrm "+name);
+		disconnect();
+		return;
 	}			
 	
 	/** Attempts to assign nick 'nick' to client; this operation will fail if:
@@ -295,15 +294,13 @@ class ServerConnection extends Connection {
 		if(verbosity >= 2) printDebug("Called "+name+".disconnect()");
 		if(server instanceof PokeponServer)
 			((PokeponServer)server).destroyAllBattles(name);
-		if(server instanceof MultiThreadedServer) {
-			synchronized(server) {
-				List<Connection> clients = ((MultiThreadedServer)server).getClients();
-				if(clients.remove(this)) {
-					if(verbosity >= 2)
-						printDebug("ServerConnection "+name+" removed from clients list.");
-				} else {
-					printDebug("[ServerConnection "+name+"] Failed to remove myself from clients list!");
-				}
+		synchronized(server) {
+			List<Connection> clients = server.getClients();
+			if(clients.remove(this)) {
+				if(verbosity >= 2)
+					printDebug("ServerConnection "+name+" removed from clients list.");
+			} else {
+				printDebug("[ServerConnection "+name+"] Failed to remove myself from clients list!");
 			}
 		}
 		super.disconnect();
@@ -341,19 +338,20 @@ class ServerConnection extends Connection {
 		}
 
 		public void run() {
-			if(Debug.on) printDebug("["+name+"] Started Pinger. Ping delay: "+server.PING_DELAY+" s.");
+			if(Debug.on) 
+				printDebug("["+name+"] Started Pinger. Ping delay: "+BasicServer.PING_DELAY+" s.");
 			while(true) {
 				try {
 					// send the ping message and wait for a pong to appear in the
 					// pong queue. If a pong does not arrive within
 					// PONG_MAX_WAIT seconds, disconnect with the client.
 					sendMsg(CMN_PREFIX+"ping");
-					Byte response = pongQueue.poll(server.PONG_MAX_WAIT, TimeUnit.SECONDS);
+					Byte response = pongQueue.poll(BasicServer.PONG_MAX_WAIT, TimeUnit.SECONDS);
 					if(response == null) {
 						printDebug("["+name+".Pinger] Pong timeout: disconnecting");
 						break;
 					}
-					Thread.sleep(server.PING_DELAY * 1000);
+					Thread.sleep(BasicServer.PING_DELAY * 1000);
 				} catch(InterruptedException e) {
 					printDebug("["+name+".Pinger] Timeout. Disconnecting.");
 					break;

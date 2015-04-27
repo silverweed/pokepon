@@ -818,7 +818,7 @@ public class BattleEngine {
 
 	public void triggerEvent(String what) {
 		if(Debug.on) printDebug("[BE] called triggerEvent("+what+")");
-		Iterator<BattleEvent> it = (Iterator<BattleEvent>)battleEvents.iterator();
+		Iterator<BattleEvent> it = battleEvents.iterator();
 		while(it.hasNext()) {
 			BattleEvent event = it.next();
 			if(Debug.on) printDebug("[BE] Triggering BattleEvent "+event.getName());

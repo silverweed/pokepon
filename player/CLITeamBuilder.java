@@ -96,12 +96,13 @@ public class CLITeamBuilder extends TeamBuilder {
 						input = getInput("Give filename > ");
 					}
 					if(team.getName().equals("Untitled Team")) 
-						team.setName(input.endsWith(teamDealer.SAVE_EXT)
-								? input.replaceAll("\\."+teamDealer.SAVE_EXT,"") 
+						team.setName(input.endsWith(TeamDealer.SAVE_EXT)
+								? input.replaceAll("\\."+TeamDealer.SAVE_EXT,"") 
 								: input);
 					String savePath = (input.startsWith("/") ? input : Meta.getSaveURL().getPath()
-						+ Meta.DIRSEP + input) + (input.endsWith(teamDealer.SAVE_EXT) ? "" :
-						teamDealer.SAVE_EXT);
+						+ Meta.DIRSEP + input) + (input.endsWith(TeamDealer.SAVE_EXT) 
+							? "" 
+							: TeamDealer.SAVE_EXT);
 					if(teamDealer.save(team, savePath))
 						consoleMsg("Team successfully saved.");
 					else
@@ -142,8 +143,9 @@ public class CLITeamBuilder extends TeamBuilder {
 						} while(true);
 					}
 					String loadPath = (input.startsWith("/") ? input : Meta.getSaveURL().getPath()
-						+ Meta.DIRSEP + input) + (input.endsWith(teamDealer.SAVE_EXT) ? "" :
-						teamDealer.SAVE_EXT);
+						+ Meta.DIRSEP + input) + (input.endsWith(TeamDealer.SAVE_EXT) 
+							? ""
+							: TeamDealer.SAVE_EXT);
 					if(teamDealer.load(team,loadPath))
 						consoleMsg("\n"+team+"\n");
 					else

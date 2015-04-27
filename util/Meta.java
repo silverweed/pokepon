@@ -52,7 +52,6 @@ public class Meta {
 		if(Debug.on) printDebug("[Meta] cwd: "+cwd+"\nLaunched from jar: "+LAUNCHED_FROM_JAR);
 	}
 	private static String cwdStr = "file://"+cwd.toString();
-	private static final Pattern LOCAL_URL_PATTERN = Pattern.compile("^[^\\[]*(?:\\[(?<sub>[^\\]]+): (?<sprite>[^\\]]+)\\])+?.*$");
 
 	public static URL getCwd() {
 		if(cwdURL != null) return cwdURL;
@@ -68,7 +67,7 @@ public class Meta {
 		return cwd;
 	}
 
-	private static URL getSubURL(String subdir) {
+	private static URL getSubURL(final String subdir) {
 		if(LAUNCHED_FROM_JAR) {
 			if(Debug.pedantic) printDebug("[Meta.getSubURL("+POKEPON_ROOTDIR+DIRSEP+subdir+")]: "+
 				Meta.class.getClassLoader().getResource(POKEPON_ROOTDIR+DIRSEP+subdir));
@@ -82,7 +81,7 @@ public class Meta {
 		}
 	}
 	
-	private static URL getAppDataURL(String subdir) {
+	private static URL getAppDataURL(final String subdir) {
 		try {
 			if(Debug.pedantic) printDebug("[Meta.getAppDataURL("+subdir+")]: "+
 				"file://"+APPDATA_DIR+DIRSEP+subdir);
@@ -168,7 +167,7 @@ public class Meta {
 	}
 
 	/** Takes a string and hides its extension */
-	public static String hideExtension(String str) {
+	public static String hideExtension(final String str) {
 		String[] arr = str.split("\\.");
 		
 		if(arr.length <= 1) return str;	//there was no "." in str.
@@ -185,7 +184,7 @@ public class Meta {
 	 * the initial "pokepon.") or null if no file is found; NOTE: the only searched packages
 	 * are pony, move, ability and item.
 	 */
-	public static String getPackage(String className) {
+	public static String getPackage(final String className) {
 		if(findSubclassesNames(complete(PONY_DIR),Pony.class).contains(className)) return "pony";
 		if(findSubclassesNames(complete(MOVE_DIR),Move.class).contains(className)) return "move";
 		if(findSubclassesNames(complete(ABILITY_DIR),Ability.class).contains(className)) return "ability";
@@ -196,7 +195,7 @@ public class Meta {
 	/** Takes a path name and appends it to POKEPON_ROOTDIR to return a valid "relatively absolute" path
 	 * (id est: absolute relatively to the java classpath directory)
 	 */
-	public static String complete(String path) {
+	public static String complete(final String path) {
 		return POKEPON_ROOTDIR + DIRSEP + path;
 	}
 
@@ -210,64 +209,95 @@ public class Meta {
 	}
 
 	/** Convert all special tags in a string to local URL (e.g [sprite: NameOfPony] =&gt; 
-	 * file://path/to/local/sprite.png) 
+	 * file://path/to/local/sprite.png);
+	 * allowed special tags are: sprite, type, movetype
 	 * @return The converted string
 	 */
-	public static String toLocalURL(String msg) {
-		Matcher matcher = LOCAL_URL_PATTERN.matcher(msg);
-		String replaced = msg;
-		if(Debug.on) printDebug("[Meta.toLocalURL] Text = "+msg);
-		int cycles = 0;
-		while(matcher.matches()) {
-			if(cycles > 50) return replaced;
-			if(Debug.on) printDebug("[Meta.toLocalURL] Matched: '"+matcher.group("sub")+"'.");
-			if(matcher.group("sub").equals("sprite")) {
-				try {
-					Pony tmp = PonyCreator.create(matcher.group("sprite"));
-					replaced = replaced.replaceFirst(
-								"\\["+matcher.group("sub")+": [^\\]]+\\]",
-								//Meta.class.getResource("/"+complete(SPRITE_DIR)+"/
-								""+tmp.getFrontSprite()
-								);
-
-				} catch(ReflectiveOperationException e) {
-					printDebug("[Meta.toLocalURL] Error creating "+matcher.group("sprite")+": "+e);
-				}
-			} else if(matcher.group("sub").equals("type")) {
-				try {
-					URL tk = pokepon.enums.Type.forName(matcher.group("sprite")).getToken();
-					replaced = replaced.replaceFirst(
-								"\\["+matcher.group("sub")+": [^\\]]+\\]",
-								""+tk
-								);
-				} catch(NullPointerException e) {
-					printDebug("[Meta.toLocalURL] Error creating type "+matcher.group("sprite"));
-					e.printStackTrace();
-				}
-			} else if(matcher.group("sub").equals("movetype")) {
-				try {
-					URL tk = Move.MoveType.forName(matcher.group("sprite")).getToken();
-					replaced = replaced.replaceFirst(
-								"\\["+matcher.group("sub")+": [^\\]]+\\]",
-								""+tk
-								);
-				} catch(NullPointerException e) {
-					printDebug("[Meta.toLocalURL] Error creating movetype "+matcher.group("sprite"));
-					e.printStackTrace();
-				}
+	public static String toLocalURL(final String msg) {
+		StringBuilder converted = new StringBuilder();
+		boolean parsingTag = false;
+		boolean inTagName = true;
+		StringBuilder tagName = new StringBuilder(10);
+		StringBuilder tagArg = new StringBuilder(30);
+		for(int i = 0; i < msg.length(); ++i) {
+			char c = msg.charAt(i);
+			switch(c) {
+				case '[':
+					if(!parsingTag) {
+						parsingTag = true;
+					} else {
+						if(inTagName)
+							tagName.append(c);
+						else
+							tagArg.append(c);
+					}
+					break;
+				case ']':
+					if(parsingTag) {
+						parsingTag = false;
+						converted.append(convertLocalURLTag(tagName.toString().trim(), tagArg.toString().trim()));
+						tagName.setLength(0);
+						tagArg.setLength(0);
+						inTagName = true;
+					} else {
+						converted.append(c);
+					}
+					break;
+				case ':':
+					if(parsingTag) {
+						if(inTagName)
+							inTagName = false;
+						else
+							tagArg.append(c);
+					} else {
+						converted.append(c);
+					}
+					break;
+				default:
+					if(parsingTag) {
+						if(inTagName)
+							tagName.append(c);
+						else
+							tagArg.append(c);
+					} else {
+						converted.append(c);
+					}
 			}
-			if(Debug.pedantic) printDebug("[Meta.toLocalURL] Replaced = "+replaced);
-			matcher = LOCAL_URL_PATTERN.matcher(replaced);
-			++cycles;
 		}
-		if(Debug.on) printDebug("[Meta.toLocalURL] replaced:\n"+replaced);
-		return replaced;
+		return converted.toString();
+	}
+
+	private static String convertLocalURLTag(final String name, final String arg) {
+		if(name.equals("sprite")) {
+			try {
+				Pony tmp = PonyCreator.create(arg);
+				return ""+tmp.getFrontSprite();
+			} catch(ReflectiveOperationException e) {
+				printDebug("[Meta.toLocalURL] Error creating pony "+arg+": "+e);
+				e.printStackTrace();
+			}
+		} else if(name.equals("type")) {
+			try {
+				return ""+pokepon.enums.Type.forName(arg).getToken();
+			} catch(NullPointerException e) {
+				printDebug("[Meta.toLocalURL] Error creating type "+arg);
+				e.printStackTrace();
+			}
+		} else if(name.equals("movetype")) {
+			try {
+				return ""+Move.MoveType.forName(arg).getToken();
+			} catch(NullPointerException e) {
+				printDebug("[Meta.toLocalURL] Error creating movetype "+arg);
+				e.printStackTrace();
+			}
+		}
+		return "";
 	}
 
 	/** Searches for the directory 'dirPath'; if not found, tries to create it, then returns
 	 * a File object for that directory.
 	 */
-	public static File ensureDirExists(String dirPath) {
+	public static File ensureDirExists(final String dirPath) {
 		File dirpath = new File(dirPath); 
 		if(!dirpath.isDirectory()) {
 			if(!dirpath.exists()) {
@@ -292,7 +322,7 @@ public class Meta {
 	 * @param file The path of the file that needs to exist
 	 * @param template The path of the template for the file
 	 */
-	public static void ensureFileExists(String file, String template) {
+	public static void ensureFileExists(final String file, final String template) {
 		if(LAUNCHED_FROM_JAR && !Files.exists(Paths.get(file))) {
 			if(Debug.on) printDebug("[Meta] "+file+" does not exist: creating a default one.");
 			InputStream stream = Meta.class.getResourceAsStream(template);

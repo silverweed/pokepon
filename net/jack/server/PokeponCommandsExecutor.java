@@ -63,7 +63,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 				if(conn.getName().equals(token[1])) {
 					// send available formats with the !selectteam message
 					StringBuilder sb = new StringBuilder(CMN_PREFIX+"selectteam ");
-					for(Format fmt : pServer.getAvailableFormats())
+					for(Format fmt : PokeponServer.getAvailableFormats())
 						sb.append(fmt.getName().replaceAll(" ","") + " ");
 
 					Format format = null;

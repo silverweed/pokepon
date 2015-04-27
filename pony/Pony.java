@@ -25,7 +25,7 @@ import java.net.*;
  * anonymous pony with 0 stats.
  * @author silverweed
  */
-public abstract class Pony implements Comparable<Pony>, Serializable {
+public abstract class Pony implements Comparable<Pony> {
 	
 	//////////////// CONSTANT VALUES ////////////////////
 	
@@ -807,7 +807,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public int maxhp() {
 		if(manualMaxHp) return maxHp;
-		return (int)(((hpIV+2*baseHp+hpEV/4)*level/100)+10+level);
+		return ((hpIV+2*baseHp+hpEV/4)*level/100)+10+level;
 	}
 
 	public int atk() {
@@ -1175,12 +1175,24 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 
 	public void setBaseStat(final Stat stat, final int val) {
 		switch(stat) {
-			case HP: baseHp = Math.max(1, val);
-			case ATK: baseAtk = Math.max(1, val);
-			case DEF: baseDef = Math.max(1, val);
-			case SPATK: baseSpatk = Math.max(1, val);
-			case SPDEF: baseSpdef = Math.max(1, val);
-			case SPEED: baseSpeed = Math.max(1, val);
+			case HP: 
+				baseHp = Math.max(1, val);
+				break;
+			case ATK: 
+				baseAtk = Math.max(1, val);
+				break;
+			case DEF: 
+				baseDef = Math.max(1, val);
+				break;
+			case SPATK: 
+				baseSpatk = Math.max(1, val);
+				break;
+			case SPDEF: 
+				baseSpdef = Math.max(1, val);
+				break;
+			case SPEED: 
+				baseSpeed = Math.max(1, val);
+				break;
 		}
 	}
 
@@ -1994,7 +2006,7 @@ public abstract class Pony implements Comparable<Pony>, Serializable {
 	protected Nature nature;
 	protected Race race;
 	protected Move[] move = new Move[MOVES_PER_PONY];
-	protected HashMap<String,Integer> learnableMoves = new LinkedHashMap<String,Integer>(){};
+	protected HashMap<String,Integer> learnableMoves = new LinkedHashMap<String,Integer>();
 	protected String[] possibleAbilities = new String[ABILITIES_PER_PONY];
 	
 	// stats

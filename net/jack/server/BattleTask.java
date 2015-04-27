@@ -920,6 +920,7 @@ public class BattleTask implements Runnable {
 									sendB(thatC,"|damage|opp|"+
 										(int)(ap.maxhp() / 12f)+
 										"weather/Stormy|");
+									break;
 								default:
 									sendB(thisC,"|damage|ally|"+
 										(int)(ap.maxhp() / 16f)+

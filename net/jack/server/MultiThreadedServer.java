@@ -349,9 +349,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			pool.awaitTermination(5,TimeUnit.SECONDS);
 		} catch(InterruptedException e) {
 			printDebug("Interrupted while awaiting termination.");
-		} finally {
-			return super.shutdown();
 		}
+		return super.shutdown();
 	}
 
 	@Override

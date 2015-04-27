@@ -156,7 +156,7 @@ class HPBar extends JPanel {
 
 		// Remove status labels that don't afflict the pony any more
 		boolean already = false;
-		Iterator<StatusLabel> it = (Iterator<StatusLabel>)statuses.iterator();
+		Iterator<StatusLabel> it = statuses.iterator();
 		while(it.hasNext()) {
 			StatusLabel label = it.next();
 			Pony.Status status = label.getStatus();

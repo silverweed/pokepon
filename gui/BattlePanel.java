@@ -1208,11 +1208,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						);
 					if(dam >= 0)
 						resultAnim(allyLocation(),"-" + 
-							(int)(Math.min(prevhp, dam)*100 / allyPony.maxhp()) + "%!",
+							(Math.min(prevhp, dam)*100 / allyPony.maxhp()) + "%!",
 							ResultType.BAD);
 					else
 						resultAnim(allyLocation(),"+" + 
-							(int)(Math.min(prevhp, -dam)*100 / allyPony.maxhp()) + "%!",
+							(Math.min(prevhp, -dam)*100 / allyPony.maxhp()) + "%!",
 							ResultType.GOOD);
 				} catch(IllegalArgumentException e) {
 					printDebug("[BattlePanel.interpret(damage)]: Illegal argument: "+e);
@@ -1233,11 +1233,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						);
 					if(dam > 0)
 						resultAnim(oppLocation(),"-" +
-							(int)(Math.min(prevhp, dam)*100 / oppPony.maxhp()) + "%!",
+							(Math.min(prevhp, dam)*100 / oppPony.maxhp()) + "%!",
 							ResultType.BAD);
 					else
 						resultAnim(oppLocation(),"+" + 
-							(int)(Math.min(prevhp, -dam)*100 / oppPony.maxhp()) + "%!",
+							(Math.min(prevhp, -dam)*100 / oppPony.maxhp()) + "%!",
 							ResultType.GOOD);
 				} catch(IllegalArgumentException e) {
 					printDebug("[BattlePanel.interpret(damage)]: Illegal argument: "+e);

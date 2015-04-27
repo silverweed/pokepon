@@ -32,7 +32,7 @@ public abstract class PokeponPreviewer extends JPanel {
 
 	public Pony getPony() { return pony; }
 	public void setPony(Pony pony) { this.pony = pony; }
-	public JList getPreviewerList() { return _items; } 
+	public JList<Object> getPreviewerList() { return _items; } 
 
 	protected DefaultListModel<Object> listModel = new DefaultListModel<>();
 	/** List of _items to preview */

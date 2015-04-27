@@ -26,19 +26,17 @@ public class CheckTypings implements TestingClass {
 
 		File ponydir = new File(Meta.getPonyURL().toURI());
 		SortedSet<Pony> ponehz = new TreeSet<Pony>();	//note that Pony implements Comparator<Pony>
-		PonyCreator pc = new PonyCreator();
-		
 		for(String s : ponydir.list()) {
 			if(s.matches(".*Pony\\..*") || !s.endsWith(".java")) continue;
 			try {
-				ponehz.add(pc.create(s.split("\\.")[0]));
+				ponehz.add(PonyCreator.create(s.split("\\.")[0]));
 			} catch(ClassNotFoundException e) {
 				System.err.println("Couldn't find class "+s.split("\\.")[0]+";\ntrying to compile on-the-fly...");
 				JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
 				if(javac.run(null,null,null,Meta.getPonyURL().toURI().getPath()+"/"+s) == 0) {
 					System.err.println("[ OK ] Error recovered.");
 					try {
-						ponehz.add(pc.create(s.split("\\.")[0]));
+						ponehz.add(PonyCreator.create(s.split("\\.")[0]));
 					} catch(Exception e2) {
 						System.err.println("Exception while creating "+s+": "+e2);
 					}

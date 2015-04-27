@@ -39,7 +39,7 @@ class DamageCalculator {
 	}
 	
 	/** Overloaded method used to default the value of selfHit */
-	static int calculateBattleDamage(Move move,final BattleEngine be) {
+	int calculateBattleDamage(Move move,final BattleEngine be) {
 		return calculateBattleDamage(move,be,false);
 	}
 
@@ -49,7 +49,7 @@ class DamageCalculator {
 	 * @param selfHit Whether the attack is a self-hit or not (default: false)
 	 * @return Damage inflicted
 	 */
-	public static int calculateBattleDamage(Move move,final BattleEngine be,boolean selfHit) {
+	public int calculateBattleDamage(Move move,final BattleEngine be,boolean selfHit) {
 		if(move == null) printDebug("[DC]: MOVE IS NULL!");
 		
 		//uses the same formula as Pokemon
@@ -302,14 +302,14 @@ class DamageCalculator {
 	
 	///////////////// PRIVATE METHODS / FIELD /////////////////////
 	
-	private static void setRNG() {
+	private void setRNG() {
 		rng = new Random();
 	}
 	
-	private static void setRNG(long seed) {
+	private void setRNG(long seed) {
 		rng = new Random(seed);
 	}
 	
 	/** Random Number Generator */
-	private static Random rng;
+	private Random rng;
 }

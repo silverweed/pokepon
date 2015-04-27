@@ -180,6 +180,7 @@ public class BasicServer implements Server {
 	/** (Synchronously) pings a client and waits for its response.
 	 * @deprecated Use ServerConnection.Pinger to ping asynchronously.
 	 */
+	@Deprecated
 	public synchronized boolean pingClient(Connection conn) {
 		try {
 			if(Debug.pedantic) printDebug("["+conn.getName()+"] PING ->");

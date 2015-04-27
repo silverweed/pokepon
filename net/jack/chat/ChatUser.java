@@ -81,7 +81,7 @@ public class ChatUser {
 		}
 	};
 
-	public static Set<Permission> defaultPermissions = (EnumSet<Permission>)EnumSet.noneOf(Permission.class);
+	public static Set<Permission> defaultPermissions = EnumSet.noneOf(Permission.class);
 	static {
 		defaultPermissions.add(Permission.CAN_TALK);
 		defaultPermissions.add(Permission.CAN_WHISPER);

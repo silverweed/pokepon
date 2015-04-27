@@ -166,7 +166,7 @@ class TeamMenuPanel extends JPanel {
 				if(pony == null) return;
 				text = pony.getName();
 				if(pony.getStatus() != null || pony.hp() < pony.maxhp()) {
-					text += "("+(int)(pony.hp() * 100 / pony.maxhp())+"%";
+					text += "("+(pony.hp() * 100 / pony.maxhp())+"%";
 					if(pony.getStatus() != null) text += "|" + pony.getStatus().toBrief();
 					text += ")";
 				}

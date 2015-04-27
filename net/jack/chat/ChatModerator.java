@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class ChatModerator extends ChatUser {
 	
-	public static Set<Permission> defaultPermissions = (EnumSet<Permission>)EnumSet.copyOf(ChatUser.defaultPermissions);
+	public static Set<Permission> defaultPermissions = EnumSet.copyOf(ChatUser.defaultPermissions);
 	static {
 		defaultPermissions.add(Permission.CAN_LOOKUP_IP);
 		defaultPermissions.add(Permission.CAN_KICK_USERS);

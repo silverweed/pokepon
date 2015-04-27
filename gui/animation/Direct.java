@@ -65,8 +65,8 @@ public class Direct extends AttackAnimation {
 	public void actionPerformed(ActionEvent e) {
 		int x = sprite.getX();
 		int v = (int)(accelerated
-				? maxV * (double)(Math.pow(Math.abs(x - initialX),accelerationRate)/
-					Math.pow(Math.abs(initialX - finalX),accelerationRate))
+				? maxV * Math.pow(Math.abs(x - initialX),accelerationRate)/
+					Math.pow(Math.abs(initialX - finalX),accelerationRate)
 				: maxV - minV
 			) + minV;
 

@@ -74,7 +74,7 @@ class FancyPonyStatsPanel extends StatsPanel {
 
 			c.gridx = 0;
 			c.gridwidth = 1;
-			add(new JLabel(Pony.STAT_NAMES[i].substring(0,Math.min(Pony.STAT_NAMES[i].length(),3))),c);
+			add(new JLabel(Pony.Stat.values()[i].brief()), c);
 
 			c.gridx = 1;
 			c.anchor = GridBagConstraints.EAST;
@@ -352,12 +352,37 @@ class FancyPonyStatsPanel extends StatsPanel {
 			if(nature.equals("neutral")) {
 				positiveStatNum = negativeStatNum = -1;
 			} else {
-				positiveStatNum = Arrays.asList(Pony.STAT_NAMES).indexOf(Nature.forName(text).increasedStat());
-				negativeStatNum = Arrays.asList(Pony.STAT_NAMES).indexOf(Nature.forName(text).decreasedStat());
+				int[] idx = getNatureStatNums(text);
+				positiveStatNum = idx[0];
+				negativeStatNum = idx[1];
 			}
 			refresh();
 			return;
 		}
+	}
+
+	/** @return Array of indexes of positive/negative stat for given nature */
+	private int[] getNatureStatNums(final Nature nature) {
+		int[] idx = new int[2];
+		Pony.Stat inc = nature.increasedStat(), dec = nature.decreasedStat();
+		boolean found = false;
+		for(int i = 0; i < Pony.Stat.values().length; ++i) {
+			Pony.Stat s = Pony.Stat.values()[i];
+			if(s == inc) {
+				idx[0] = i;
+				if(found) break;
+				found = true;
+			} else if(s == dec) {
+				idx[1] = i;
+				if(found) break;
+				found = true;
+			}
+		}
+		return idx;
+	}
+
+	private int[] getNatureStatNums(final String natureName) {
+		return getNatureStatNums(Nature.forName(natureName));
 	}
 
 	//////////////////////////////////////////////// END LISTENERS
@@ -385,8 +410,8 @@ class FancyPonyStatsPanel extends StatsPanel {
 						}
 				} else {
 					for(Nature n : Nature.values()) {
-						int incInd = Arrays.asList(Pony.STAT_NAMES).indexOf(n.increasedStat());
-						int decInd = Arrays.asList(Pony.STAT_NAMES).indexOf(n.decreasedStat());
+						int[] idx = getNatureStatNums(n);
+						int incInd = idx[0], decInd = idx[1];
 						if(incInd == positiveStatNum && decInd == negativeStatNum) {
 							pony.setNature(n);
 							if(Debug.pedantic) printDebug("Set nature to "+n);

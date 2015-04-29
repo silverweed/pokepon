@@ -269,19 +269,18 @@ public class TeamBuilderPanel extends Ponydex {
 								? "Hidden Talent"
 								: selected.getName()
 							);
-					if(mv.getName().equals("Hidden Talent")) {
-						Type type = Type.forName(selected.getName()
-								.replaceAll("Hidden Talent \\(","").replaceAll("\\)",""));
-						mv.setType(type);
-						mv.setName(selected.getName());
-						HiddenTalent.adjustIVs(pony, type);
-						setPony(pony);
-					}
 					if(Debug.on) printDebug("Created move: "+mv);
 					if(movePrev.getPony() != null) {
 						movePrev.getPony().setMove(movePrev.getMoveIndex(),mv);
 						if(Debug.on) printDebug(movePrev.getPony()+"'s move #"+movePrev.getMoveIndex()+
 							" is now "+movePrev.getPony().getMove(movePrev.getMoveIndex()));
+						if(mv instanceof HiddenTalent) {
+							Type type = Type.forName(selected.getName()
+									.replaceAll("Hidden Talent ",""));
+							mv.setType(type);
+							HiddenTalent.adjustIVs(pony, type);
+							setPony(pony);
+						}
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
 								moveField[movePrev.getMoveIndex()].setText(mv.getName());

@@ -21,7 +21,6 @@ public class CLITeamBuilder extends TeamBuilder {
 	public CLITeamBuilder() {
 		super();
 		scan = new Scanner(System.in);
-		initializeCommands();
 	}
 	
 	public void buildTeam() {
@@ -31,17 +30,15 @@ public class CLITeamBuilder extends TeamBuilder {
 		consoleMsg("@----------------------------------------------------------------@");
 		consoleMsg("\n*** Welcome to the Team Builder! ***\n");
 	
-		printCommands(cmd);
-		int c = 42;
-		
+		printCommands(parser);
 		do {
 			parser.clear();
-			switch((c = promptPlayer(parser,cmd))) {
-				case 0:	//list
+			switch((MainCommand)promptPlayer(parser)) {
+				case LIST:
 					listPonies();	
 					consoleMsg("");
 					break;
-				case 1:	//select
+				case SELECT:
 					if(team.members() == Team.MAX_TEAM_SIZE) {
 						consoleMsg("Cannot add more ponies to your team.");
 						break;
@@ -69,7 +66,7 @@ public class CLITeamBuilder extends TeamBuilder {
 						}
 					}
 					break;
-				case 2:	{ //edit:
+				case EDIT: {
 					boolean found = false;
 					String input = null;
 					if((input = parser.getPonyName()) == null) {
@@ -87,10 +84,10 @@ public class CLITeamBuilder extends TeamBuilder {
 					if(!found) consoleMsg("--pony not found: couldn't find valid pony within arguments given.");
 					break;
 				}
-				case 3:	//team
+				case TEAM:
 					consoleMsg(team+"");
 					break;
-				case 4:	{ //save
+				case SAVE: {
 					String input = null;
 					if((input = ConcatenateArrays.merge(parser.getArgs().toArray(new String[0]))) == null) {
 						input = getInput("Give filename > ");
@@ -109,7 +106,7 @@ public class CLITeamBuilder extends TeamBuilder {
 						consoleMsg("Error: could not save team.");
 					break;
 				}
-				case 5:	{ //load
+				case LOAD: {
 					String input = null;
 					if((input = ConcatenateArrays.merge(parser.getArgs().toArray(new String[0]))) == null) {
 						List<File> saveFiles = teamDealer.listSaveFiles();
@@ -152,36 +149,19 @@ public class CLITeamBuilder extends TeamBuilder {
 						consoleMsg("Error: could not load team.");
 					break;
 				}
-				case 6:	//?
-					printCommands(cmd);
+				case HELP:
+					printCommands(parser);
 					break;
-				case 7: //exit
+				case EXIT:
+				case QUIT:
 					return;
-				case 8: //quit
-					return;
-				case 9:	//args (debugging option)
-					if(Debug.on) consoleDebug(parser.toString());
-					else consoleMsg("Invalid option. ('?' for help)");
-					break;
 				default:
 					consoleMsg("Invalid option. ('?' for help)");
 					break;
 			}
-		} while(c != 7 && c != 8); // exit command
+		} while(true);
 	}
 	
-	private void initializeCommands() {
-		cmd.put("list","list available ponies.");
-		cmd.put("select","select <pony> for your team.");
-		cmd.put("edit","edit <pony> in your team (must have that pony already in team).");
-		cmd.put("team","list ponies in your team.");
-		cmd.put("save","save your team to file <file>");
-		cmd.put("load","load a team from file <file>");
-		cmd.put("?","get this help");
-		cmd.put("exit","");
-		cmd.put("quit","");
-	}
-
 	/** Lists all classes derived from Pony in PONY_DIR */
 	private void listPonies() {
 		List<String> lc = ClassFinder.findSubclassesNames(Meta.complete(PONY_DIR),Pony.class);
@@ -215,8 +195,8 @@ public class CLITeamBuilder extends TeamBuilder {
 		
 		do {
 			editParser.clear();
-			switch(promptPlayer(editParser,commands,"[editing "+pony.getName()+"]")) {
-				case 0:	{ //name
+			switch((PonyCommand)promptPlayer(editParser, "[editing "+pony.getName()+"]")) {
+				case NAME: {
 					StringBuilder sb = new StringBuilder("");
 					for(String s : editParser.getArgs()) {
 						sb.append(s);
@@ -225,7 +205,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					consoleMsg(pony.getName()+" is now nicknamed "+pony.getNickname()+".");
 					break;
 				}
-				case 1:	//level
+				case LEVEL:
 					try {
 						pony.setLevel(Integer.parseInt(editParser.popFirstArg()));
 					} catch(Exception e) {
@@ -233,7 +213,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					consoleMsg(pony.getNickname() + " is now at level "+pony.getLevel()+".");
 					break;
-				case 2:	{ //move
+				case MOVE: {
 					int num = -1;
 					try {
 						num = Integer.parseInt(editParser.popFirstArg()) - 1;
@@ -275,7 +255,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					break;
 				}
-				case 3:	{ //nature
+				case NATURE: {
 					consoleMsg("Select nature among these:");
 					int j = 0;
 					for(Pony.Nature n : Pony.Nature.values()) {
@@ -304,7 +284,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					break;
 				}
-				case 4:	{ //ability
+				case ABILITY: {
 					consoleMsg("Select ability among these:");
 					int j= 0;
 					// use this instead of consoleTable because we only expect at most 3 entries
@@ -333,9 +313,9 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					break;
 				}
-				case 5: { // item
+				case ITEM: {
 					consoleMsg("Select item among these:");
-					int j= 0;
+					int j = 0;
 					consoleTable(allItems, 5);
 				
 					String in = getInput("\n"+"CLITB[editing "+pony.getName()+"#item] > ");
@@ -359,44 +339,44 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					break;
 				}
-				case 6:	{ //IV
+				case IV: {
 					String iv = editParser.popFirstArg();
-					if(!Arrays.asList(Pony.STAT_NAMES).contains(iv)) {
+					Pony.Stat stat = Pony.Stat.forName(iv);
+					if(stat == null) {
 						consoleMsg("Invalid argument: "+iv);
 						return;
 					}
-					int num2 = 0;
+					int num = 0;
 					try {
-						num2 = Integer.parseInt(editParser.popFirstArg());
+						num = Integer.parseInt(editParser.popFirstArg());
 					} catch(Exception e) {
 						printDebug("Caught exception while parsing IV args: "+e);
 					}
-					Pony.Stat stat = Pony.Stat.forName(iv);
-					pony.setIV(stat, num2);
+					pony.setIV(stat, num);
 					consoleMsg(pony.getNickname()+"'s "+iv+" IV are now "+pony.getIV(stat));
 					pony.printStats();
 					break;
 				}
-				case 7: { //EV
+				case EV: {
 					String ev = editParser.popFirstArg();
-					if(!Arrays.asList(Pony.STAT_NAMES).contains(ev)) {
+					Pony.Stat stat = Pony.Stat.forName(ev);
+					if(stat == null) {
 						consoleMsg("Invalid argument: "+ev);
 						return;
 					}
-					int num3 = 0;
+					int num = 0;
 					try {
-						num3 = Integer.parseInt(editParser.popFirstArg());
+						num = Integer.parseInt(editParser.popFirstArg());
 					} catch(Exception e) {
 						printDebug("Caught exception while parsing EV args: "+e);
 					}
-					Pony.Stat stat = Pony.Stat.forName(ev);
-					pony.setEV(stat, num3);
+					pony.setEV(stat, num);
 					consoleMsg(pony.getNickname()+"'s "+ev+" EV are now "+pony.getEV(stat));
 					pony.resetHp();
 					pony.printStats();
 					break;	
 				}
-				case 8:	//happiness
+				case HAPPINESS:
 					try {
 						pony.setHappiness(Integer.parseInt(editParser.popFirstArg()));
 					} catch(Exception e) {
@@ -404,34 +384,25 @@ public class CLITeamBuilder extends TeamBuilder {
 					}
 					consoleMsg(pony.getNickname() + "'s happiness is now "+pony.getHappiness()+".");
 					break;		
-				case 9:	//info
+				case INFO:
 					pony.printInfo(true);
 					break;
-				case 10: //help
+				case HELP:
 					consoleMsg("\n------------------------------------------\nCommands:");
-					consoleFormat("  %-10s < string >\n","name");
-					consoleFormat("  %-10s < 0 - %d >\n","level",Pony.MAX_LEVEL);
-					consoleFormat("  %-10s < 1 - %d >\n","move",Pony.MOVES_PER_PONY);
-					consoleFormat("  %-10s\n","nature");
-					consoleFormat("  %-10s\n","ability");
-					consoleFormat("  %-10s <hp|atk|def|spatk|spdef|speed> < 0 - %d >\n","iv",Pony.MAX_IV);
-					consoleFormat("  %-10s <hp|atk|def|spatk|spdef|speed> < 0 - %d >\n","ev",Pony.MAX_EV);
-					consoleFormat("  %-10s < 0 - %d >\n","happiness",Pony.MAX_HAPPINESS);
-					consoleFormat("  %-10s\n","info");
-					consoleFormat("  %-10s - get this help\n","?");
-					consoleFormat("  %-10s\n------------------------------------------\n","done");
+					for(Parser.Command cmd : PonyCommand.values())
+						consoleMsg(cmd.getDescription());
 					break;
 
-				case 11: //done
+				case DONE:
 					return;
 			}
 		} while(true);
 	}
 
 	/** Prints a given Map in a certain fashion. */
-	private void printCommands(Map<String,String> cmds) {
-		for(Map.Entry<String,String> entry : cmds.entrySet()) {
-			System.out.format("%-10s : %s\n",entry.getKey(),entry.getValue());
+	private void printCommands(Parser parser) {
+		for(Parser.Command cmd : parser.getCommands()) {
+			System.out.format("%-10s : %s\n", cmd, cmd.getDescription()); 
 		}
 	}
 	
@@ -450,21 +421,16 @@ public class CLITeamBuilder extends TeamBuilder {
 		return in;
 	}
 
-	/** get command from player and return int corresponding to that command. */
-	private <T> int promptPlayer(Parser prs,Map<String,T> cmds,String... str) {
+	/** Get command from player and return int corresponding to that command. */
+	private Parser.Command promptPlayer(Parser parser, String... str) {
 
-		readInput(prs,str);
-		
-		int i = 0;	
-		for(Map.Entry<String,T> entry : cmds.entrySet()) {
-			if(prs.getCommand().equals(entry.getKey())) return i;
-			++i;
-		}
-		return -1;		
+		readInput(parser, str);
+
+		return parser.getCommand();
 	}
 	
 	/** Continue to prompt player until an acceptable command is passed or EOF is received. */
-	private void readInput(Parser p,String... str) {
+	private void readInput(Parser p, String... str) {
 		String postprompt = "";
 		for(String s : str) postprompt = postprompt + s;
 		do {
@@ -486,16 +452,7 @@ public class CLITeamBuilder extends TeamBuilder {
 	private class CLITBParser extends SanedParser {
 		
 		public CLITBParser() {
-			type.put("list",0);
-			type.put("select",1);
-			type.put("edit",0);
-			type.put("?",0);
-			type.put("team",0);
-			type.put("save",0);
-			type.put("load",0);
-			type.put("exit",0);
-			type.put("quit",0);
-			if(Debug.on) type.put("args",0);
+			super(mainCommands);
 		}
 		
 		public String getPonyName() {
@@ -512,25 +469,89 @@ public class CLITeamBuilder extends TeamBuilder {
 		}
 	}
 		
-	private static Map<String,Integer> commands = new LinkedHashMap<String,Integer>();
-	static {
-		commands.put("name",1);
-		commands.put("level",1);
-		commands.put("move",1);
-		commands.put("nature",0);
-		commands.put("ability",0);
-		commands.put("item",0);
-		commands.put("iv",2);
-		commands.put("ev",2);
-		commands.put("happiness",1);
-		commands.put("info",0);
-		commands.put("?",0);
-		commands.put("done",-1);
-	}
 	private Scanner scan;
-	private Map<String,String> cmd = new LinkedHashMap<String,String>();
+	private Set<? extends Parser.Command> mainCommands = EnumSet.allOf(MainCommand.class);
+	private Set<? extends Parser.Command> ponyCommands = EnumSet.allOf(PonyCommand.class);
 	private CLITBParser parser = new CLITBParser();
 	private TeamDealer teamDealer = new TeamDealer();
-	private Parser editParser = new SanedParser(commands);
+	private Parser editParser = new SanedParser(ponyCommands);
 	private List<String> allItems = ClassFinder.findSubclassesNames(Meta.complete(ITEM_DIR),Item.class);
+
+	private static enum MainCommand implements Parser.Command {
+		LIST, SELECT, EDIT, TEAM, SAVE, LOAD, HELP, EXIT, QUIT;
+
+		public String getDescription() {
+			switch(this) {
+				case LIST: return "list available ponies.";
+				case SELECT: return "select <pony> for your team.";
+				case EDIT: return "edit <pony> in your team (must have that pony already in team).";
+				case TEAM: return "list ponies in your team.";
+				case SAVE: return "save your team to file <file>";
+				case LOAD: return "load a team from file <file>";
+				case HELP: return "get this help";
+				case EXIT: return "quit the program";
+				case QUIT: return "quit the program";
+			}
+			return null;
+		}
+
+		@Override
+		public String toString() {
+			if(this == HELP) return "?";
+			return super.toString().toLowerCase();
+		}
+
+		public int getNArgs() {
+			switch(this) {
+				case SELECT: return 1;
+				default: return 0;
+			}
+		}
+	}
+
+	private static enum PonyCommand implements Parser.Command {
+		NAME, LEVEL, MOVE, NATURE, ABILITY, ITEM, IV, EV,
+		HAPPINESS, INFO, HELP, DONE;
+
+		public String getDescription() {
+			switch(this) {
+				case NAME: return String.format("  %-10s < string >", "name");
+				case LEVEL: return String.format("  %-10s < 0 - %d >", "level", Pony.MAX_LEVEL);
+				case MOVE: return String.format("  %-10s < 1 - %d >", "move", Pony.MOVES_PER_PONY);
+				case NATURE: return String.format("  %-10s", "nature");
+				case ABILITY: return String.format("  %-10s", "ability");
+				case IV: return String.format("  %-10s <hp|atk|def|spatk|spdef|speed> < 0 - %d >", "iv", Pony.MAX_IV);
+				case EV: return String.format("  %-10s <hp|atk|def|spatk|spdef|speed> < 0 - %d >", "ev", Pony.MAX_EV);
+				case HAPPINESS: return String.format("  %-10s < 0 - %d >", "happiness", Pony.MAX_HAPPINESS);
+				case INFO: return String.format("  %-10s", "info");
+				case HELP: return String.format("  %-10s - get this help", "?");
+				case DONE: return String.format("  %-10s------------------------------------------", "done");
+			}
+			return "";
+		}
+
+		@Override
+		public String toString() {
+			if(this == HELP) return "?";
+			return super.toString().toLowerCase();
+		}
+
+		public int getNArgs() {
+			switch(this) {
+				case NAME: return 1;
+				case LEVEL: return 1;
+				case MOVE: return 1;
+				case NATURE: return 0;
+				case ABILITY: return 0;
+				case ITEM: return 0;
+				case IV: return 2;
+				case EV: return 2;
+				case HAPPINESS: return 1;
+				case INFO: return 0;
+				case HELP: return 0;
+				case DONE: return -1;
+			}
+			return -1;
+		}
+	}
 }

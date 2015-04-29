@@ -14,10 +14,16 @@ import java.util.*;
 
 public class Parser {
 	
-	public Parser() {}
-	public Parser(Map<String,Integer> commandTypes) {
-		type = commandTypes;
+	public interface Command {
+		public String getDescription();
+		public int getNArgs();
 	}
+
+	public Parser(Set<? extends Command> commands) {
+		this.commands = commands;
+	}
+
+	public Set<? extends Command> getCommands() { return commands; }
 	
 	public void parse(String str) {
 		if(Debug.on) printDebug("Called Parser::parse("+str+")");
@@ -26,9 +32,10 @@ public class Parser {
 		
 		for(String s : tokens) {
 			if(!commandRead) {
-				if(type.containsKey(s)) {
+				Command cmd = toCommand(s);
+				if(cmd != null) {
 					commandRead = true;
-					command = s;
+					command = cmd;
 					if(Debug.on) printDebug("Read command: "+command);
 				}
 			} else {
@@ -43,17 +50,17 @@ public class Parser {
 			parseErrMsg = "--syntax.error: invalid command provided.";
 		}
 		else {
-			if(args.size() < type.get(command)) {
+			if(args.size() < command.getNArgs()) {
 				parsedOK = false;
-				parseErrMsg = "--syntax.error: you must provide at least "+type.get(command)+" arguments for command "+command;
+				parseErrMsg = "--syntax.error: you must provide at least "+command.getNArgs()+" arguments for command "+command;
 			} else parsedOK = true;
 		} 
 		
 	}
-	
+
 	public final boolean ok() { return parsedOK; }
 	public final String getParsingError() { return parseErrMsg; }
-	public final String getCommand() { return command; }
+	public final Command getCommand() { return command; }
 	public final List<String> getArgs() { return args; }		
 	public String popFirstArg() { 
 		try {
@@ -70,17 +77,23 @@ public class Parser {
 		}
 	}
 	public void clear() {
-		command = "";
+		command = null;
 		args.clear();
 	}
 	
 	public String toString() {
 		return "Command= "+command+"; Args= "+args.toString();
 	}
+
+	protected Command toCommand(final String cmdn) {
+		for(Command cmd : commands)
+			if(cmd.toString().equals(cmdn)) return cmd;
+		return null;
+	}
 	
 	/** This field contains the type of accepted commands (unary,binary,etc.) */
-	protected Map<String,Integer> type = new HashMap<String,Integer>();
-	protected String command;
+	protected Set<? extends Command> commands; 
+	protected Command command;
 	protected String parseErrMsg;
 	protected List<String> args = new LinkedList<String>();
 	protected boolean parsedOK = false;

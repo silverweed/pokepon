@@ -49,24 +49,23 @@ public abstract class Pony implements Comparable<Pony> {
 	public static final int TOT_EV = 510;
 	/** Max length of pony name/nickname */
 	public static final int MAX_NAME_LENGTH = 20;
-	/** Stats short names */
-	public static final String[] STAT_NAMES = { "hp","atk","def","spatk","spdef","speed" };
 
 	////////////// ENUMS ////////////////
 	
 	public static enum Stat {
-		HP("HP", "HP"),
-		ATK("Attack", "Atk"),
-		DEF("Defense", "Def"), 
-		SPATK("Special Attack", "SpA"),
-		SPDEF("Special Defense", "SpD"),
-		SPEED("Speed", "Spe"),
-		ACCURACY("Accuracy", "Acc"),
-		EVASION("Evasion", "Eva");
+		HP("HP", "HP", "hp"),
+		ATK("Attack", "Atk", "atk"),
+		DEF("Defense", "Def", "def"), 
+		SPATK("Special Attack", "SpA", "spatk"),
+		SPDEF("Special Defense", "SpD", "spdef"),
+		SPEED("Speed", "Spe", "speed"),
+		ACCURACY("Accuracy", "Acc", null),
+		EVASION("Evasion", "Eva", null);
 
-		Stat(final String full, final String brief) {
+		Stat(final String full, final String brief, final String lower) {
 			name = full;
 			this.brief = brief;
+			this.lower = lower;
 		}
 
 		@Override
@@ -76,6 +75,10 @@ public abstract class Pony implements Comparable<Pony> {
 
 		public String brief() {
 			return brief;
+		}
+
+		public String lower() {
+			return lower;
 		}
 
 		public static Stat forName(final String stat) {
@@ -114,6 +117,7 @@ public abstract class Pony implements Comparable<Pony> {
 		
 		private final String name;
 		private final String brief;
+		private final String lower;
 	}
 
 	public static enum Nature { 
@@ -1719,7 +1723,7 @@ public abstract class Pony implements Comparable<Pony> {
 					sb.append("EVs:");
 					first = false;
 				} else sb.append(" /");
-				sb.append(" "+getEV(s)+" "+s);
+				sb.append(" "+getEV(s)+" "+s.lower());
 			}
 		}
 		if(!first) sb.append("\n");	//append newline only if any EVs is != 0
@@ -1732,7 +1736,7 @@ public abstract class Pony implements Comparable<Pony> {
 					sb.append("IVs:");
 					first = false;
 				} else sb.append(" /");
-				sb.append(" "+getIV(s)+" "+s);
+				sb.append(" "+getIV(s)+" "+s.lower());
 			}
 		}
 		if(!first) sb.append("\n");	//append newline only if any IVs is != 0

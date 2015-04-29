@@ -246,8 +246,9 @@ public class TeamDealer {
 					int num = Integer.parseInt(it.next());
 					if(!it.hasNext()) return false;
 					String ev = it.next();
-					if(!Arrays.asList(Pony.STAT_NAMES).contains(ev)) return false;
-					pony.setEV(Pony.Stat.forName(ev), num);
+					Pony.Stat stat = Pony.Stat.forName(ev);
+					if(stat == null) return false;
+					pony.setEV(stat, num);
 					if(it.hasNext()) it.next();	//remove trailing "/"
 				} catch(Exception e) { 
 					printDebug("[parseSaveDataLine] Caught exception while parsing line: "+e);
@@ -264,8 +265,9 @@ public class TeamDealer {
 					int num = Integer.parseInt(it.next());
 					if(!it.hasNext()) return false;
 					String iv = it.next();
-					if(!Arrays.asList(Pony.STAT_NAMES).contains(iv)) return false;
-					pony.setIV(Pony.Stat.forName(iv), num);
+					Pony.Stat stat = Pony.Stat.forName(iv);
+					if(stat == null) return false;
+					pony.setIV(stat, num);
 					if(it.hasNext()) it.next();	//remove trailing "/"
 				} catch(Exception e) { 
 					printDebug("[parseSaveDataLine] Caught exception while parsing line: "+e);
@@ -277,34 +279,28 @@ public class TeamDealer {
 			if(Debug.pedantic) printDebug("Parsed: move");
 			try {
 				String movename = ConcatenateArrays.merge(token,1);
-				String sanedMovename = null;
-				Pattern pattern = Pattern.compile("\\s*Hidden Talent \\(([A-Z][a-z]+)\\)\\s*");
+				Pattern pattern = Pattern.compile("\\s*Hidden Talent ([A-Z][a-z]+)\\s*");
 				Matcher matcher = pattern.matcher(movename);
-				Type type = null;
+				Move move = null;
 				if(matcher.matches()) {
-					sanedMovename = "Hidden Talent";
-					type = Type.forName(matcher.group(1));
+					move = new HiddenTalent();
+					Type type = Type.forName(matcher.group(1));
+					if(type == null) {
+						printDebug("[TeamDealer] Invalid type for Hidden Talent: "+matcher.group(1));
+						return false;
+					}
+					move.setType(type);
 				} else {
-					/* Next line is commented out because saning the move names with the
-					 * Saner produces a huge team loading performance loss (more than 10 times
-					 * slower). Just don't make typos in the save files.
-					 */
-					//sanedMovename = Saner.sane(movename,Meta.complete(MOVE_DIR),Move.class);
-					sanedMovename = movename.replaceAll(" ","");
+					move = MoveCreator.create(movename, pony);
 				}
-				if(sanedMovename == null) {
-					if(Debug.on) printDebug("[TeamDealer] Failed to parse move " + movename + ": giving up.");
+				if(move == null) {
+					if(Debug.on) printDebug("[TeamDealer] Inexistent move: "+movename);
 					return false;
 				}
-				if(Debug.pedantic) printDebug("Movename: raw="+token[1]+"; saned="+sanedMovename);
 				// Add the move (without checking if learnable)
-				Move mv = MoveCreator.create(sanedMovename,pony);
-				if(type != null) {
-					mv.setType(type);
-					mv.setName(mv.getName() + " ("+type+")");
-				}
-				if(pony.addMove(mv) == -1) {
-					if(Debug.on) printDebug("[TeamDealer] Move " + sanedMovename + " was not added to pony " + pony);
+				if(pony.addMove(move) == -1) {
+					printDebug("[TeamDealer] Move " + movename + " was not added to pony " + pony);
+					return false;
 				}
 			} catch(Exception e) { 
 				printDebug("[parseSaveDataLine] Caught exception while parsing line: "+e);

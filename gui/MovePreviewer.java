@@ -38,8 +38,8 @@ public class MovePreviewer extends PokeponPreviewer {
 			}
 		});
 		moveClasses.remove(Struggle.class);
+		moveClasses.remove(HiddenTalent.class);
 		for(Class<?> c : moveClasses) {
-			if(c.getSimpleName().equals("HiddenTalent")) continue;
 			try {
 				moves.add(MoveCreator.create((Class<? extends Move>)c).getName());
 			} catch(ReflectiveOperationException e) {
@@ -97,10 +97,7 @@ public class MovePreviewer extends PokeponPreviewer {
 				if(list.getSelectedIndex() == index)
 					text += " style=\"height: 20px; background-color: #CCFFFF; border: 1px ridge #CCFFFF\"";
 
-				text += "><p>"+mv.getName()/* + (mv.getName().equals("Hidden Talent") 
-								? " ("+mv.getType()+")"
-								: "")*/
-					+"&nbsp;&nbsp;";
+				text += "><p>"+mv.getName()+"&nbsp;&nbsp;";
 
 				if(	MovePreviewer.super.pony != null &&
 					!mv.getName().startsWith("Hidden Talent") &&
@@ -158,15 +155,10 @@ public class MovePreviewer extends PokeponPreviewer {
 		}
 		// add hidden talents (one per type)
 		for(Type t : Type.values()) {
-			try {
-				Move ht = MoveCreator.create("Hidden Talent");
-				ht.setName("Hidden Talent ("+t+")");
-				ht.setType(t);
-				possibleMoves.add(ht);
-				moves.add(ht.getName());
-			} catch(ReflectiveOperationException e) {
-				printDebug("[MovePrev] Failed to create Hidden Talent of type "+t+": "+e);
-			}
+			Move ht = new HiddenTalent();
+			ht.setType(t);
+			possibleMoves.add(ht);
+			moves.add(ht.getName());
 		}
 	}
 		
@@ -188,9 +180,8 @@ public class MovePreviewer extends PokeponPreviewer {
 					) {
 						try {
 							if(a.startsWith("Hidden Talent")) {
-								Move ht = MoveCreator.create("Hidden Talent");
-								ht.setName(a);
-								ht.setType(Type.forName(a.replaceAll("Hidden Talent \\(","").replaceAll("\\)","")));
+								Move ht = new HiddenTalent();
+								ht.setType(Type.forName(a.replaceAll("Hidden Talent ","")));
 								matched.add(ht);
 							} else {
 								matched.add(MoveCreator.create(a));

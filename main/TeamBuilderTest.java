@@ -26,7 +26,7 @@ public class TeamBuilderTest implements TestingClass {
 		TeamBuilder tb = null;
 
 		for(String s : args) {
-			if(s.equals("-cli"))
+			if(s.matches("^--?cli(tb)?$"))
 				tb = new CLITeamBuilder();
 		}
 

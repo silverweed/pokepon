@@ -116,6 +116,7 @@ class ServerConnection extends Connection {
 			if(verbosity >= 2) printDebug(name+": timeout. OS set to Unknown.");
 		} catch(Exception e) {
 			printDebug("Unexpected exception in ServerConnection.run(): "+e);
+			e.printStackTrace();
 			printDebug(name+" disconnecting.");
 			disconnect();
 			return;
@@ -316,7 +317,7 @@ class ServerConnection extends Connection {
 	public static void dropWithMsg(Socket client,String msg) {
 		if(Debug.on) printDebug("{"+now()+"} Sending drop message to "+client+": "+msg);
 
-		try(PrintWriter pw = new PrintWriter(client.getOutputStream())) {
+		try(PrintWriter pw = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "UTF-8"))) {
 			pw.write(msg+"\n");
 		} catch(IOException e) {
 			printDebug("Caught exception while sending message: "+e);

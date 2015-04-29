@@ -47,6 +47,7 @@ class IPClass {
 		return false;
 	}
 
+	@SuppressWarnings("fallthrough")
 	public IPClass(final String str) throws IllegalArgumentException {
 		ipStr = str;
 		byte i = 0;

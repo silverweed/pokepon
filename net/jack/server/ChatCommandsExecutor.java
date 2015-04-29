@@ -324,11 +324,15 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 				connection.sendMsg("Cannot reload roles from DB: this server doesn't support a database.");
 				return 1;
 			}
-			if(server.chat.reload()) {
-				connection.sendMsg("[ OK ] chat roles reloaded successfully. New roles:");
-				connection.sendMsg(server.chat.getRolesTable());
-			} else {
-				connection.sendMsg("Errors reloading chat roles: see server logs for details.");
+			try {
+				if(((DatabaseServer)server).loadDBEntries() && server.chat.reload()) {
+					connection.sendMsg("[ OK ] chat roles reloaded successfully. New roles:");
+					connection.sendMsg(server.chat.getRolesTable());
+				} else {
+					connection.sendMsg("Errors reloading chat roles: see server logs for details.");
+				}
+			} catch(FileNotFoundException e) {
+				connection.sendMsg("Error: database not found.");
 			}
 			return 1;
 		} else if(cmd.equals("roles")) {

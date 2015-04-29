@@ -322,7 +322,7 @@ public class RuleSet implements Format {
 	public static void main(String[] args) throws IOException {
 		RuleSet rs = new RuleSet("Custom",null);
 		String line = null;
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
 		while((line = br.readLine()) != null) {
 			rs.addRule(line);
 			rs.printInfo();

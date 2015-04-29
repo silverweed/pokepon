@@ -139,7 +139,7 @@ public class PokeponChat extends JPanel implements AutoCloseable, Chat {
 					JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE,null,opts,opts[0]);
 					
 			try {
-				PrintWriter pw = new PrintWriter(socket.getOutputStream(),true);
+				PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
 				switch(sel) {
 					case 0:
 						return;

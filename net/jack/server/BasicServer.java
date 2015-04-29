@@ -270,7 +270,7 @@ public class BasicServer implements Server {
 		String line = null;
 		List<String> lines = new LinkedList<>();
 		if(verbosity >= 1) printDebug("["+MultiThreadedServer.class.getSimpleName()+"] Reading configuration file: "+file.getPath());
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file.getPath())))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file.getPath()), "UTF-8"))) {
 			if(verbosity >= 1) printDebug("[ OK ] Configuration file is readable.");
 			while((line = reader.readLine()) != null) {
 				line = line.trim();

@@ -192,23 +192,15 @@ public class GUITeamBuilder extends TeamBuilder {
 			if(!saveFile.endsWith(TeamDealer.SAVE_EXT)) {
 				saveFile += TeamDealer.SAVE_EXT;
 			}
-			try(PrintWriter writer = new PrintWriter(new File(saveFile))) {
-				if(!team.getName().equals("Untitled Team"))
-					writer.write("$TEAM_NAME = "+team.getName()+"\n");
-				for(String data : team.getTeamData())
-					writer.write(data+"\n");
-				printMsg("Team saved to " + saveFile); 
-				// if TeamBuilder is bound to a PokeponClient, add the newly-created team to 
-				// client's team list.
-				if(pClient != null) {
-					if(pClient.getTeams().size() >= PokeponClient.MAX_LOADABLE_TEAMS)
-						pClient.getTeams().remove(0);
+			teamDealer.save(team, saveFile);
+			printMsg("Team saved to " + saveFile); 
+			// if TeamBuilder is bound to a PokeponClient, add the newly-created team to 
+			// client's team list.
+			if(pClient != null) {
+				if(pClient.getTeams().size() >= PokeponClient.MAX_LOADABLE_TEAMS)
+					pClient.getTeams().remove(0);
 
-					pClient.getTeams().add(team);
-				}
-
-			} catch(IOException ee) {
-				printDebug("Exception while saving team: "+ee);
+				pClient.getTeams().add(team);
 			}
 		}
 	};

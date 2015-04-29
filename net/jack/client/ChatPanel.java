@@ -92,8 +92,8 @@ public class ChatPanel extends JPanel implements AutoCloseable {
 
 	public void initialize(Socket s) {
 		try {
-			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-			out = new PrintWriter(s.getOutputStream(),true);
+			in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
+			out = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);
 			inputF.addKeyListener(outKeyListener);
 			inputF.requestFocusInWindow();
 			if(Debug.on) printDebug("[ChatPanel] initialized.");

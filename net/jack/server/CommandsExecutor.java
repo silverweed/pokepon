@@ -90,17 +90,12 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				connection.sendMsg("You are not allowed to list registered users.");
 				return 1;
 			}
-			try {
-				List<String> nicks = ((DatabaseServer)server).getNicks();
-				StringBuilder sb = new StringBuilder("Registered users:\n");
-				for(String s : nicks) {
-					sb.append(s+"\n");
-				}
-				connection.sendMsg(sb.toString());
-			} catch(FileNotFoundException e) {
-				printDebug("Caught exception in CommandsExecutor.execute(list): "+e);
-				connection.sendMsg("[Server database error]");
+			Set<String> nicks = ((DatabaseServer)server).getNicks();
+			StringBuilder sb = new StringBuilder("Registered users:\n");
+			for(String s : nicks) {
+				sb.append(s+"\n");
 			}
+			connection.sendMsg(sb.toString());
 			return 1;
 		} else if(cmd.equals("whois")) {
 			if(token.length < 2) {
@@ -127,13 +122,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 						(new Date()).getTime()/1000)+"\n");
 					sb.append("  Operating System:  "+conn.getOS()+"\n");
 					if(server instanceof DatabaseServer) {
-						try {
-							sb.append("  Nick registered:   "+(((DatabaseServer)server)
-								.nickExists(token[1]) ? "yes" : "no")+"\n");
-						} catch(FileNotFoundException e) {
-							printDebug("Caught exception in CommandsExecutor.execute(whois): "+e);
-							connection.sendMsg("[Server database error]");
-						}
+						sb.append("  Nick registered:   "+(((DatabaseServer)server).nickExists(token[1]) ? "yes" : "no")+"\n");
 					}
 					connection.sendMsg(sb.toString());
 					return 1;
@@ -178,13 +167,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			}
 			sb.append("  Operating System:  "+os+"\n");
 			if(server instanceof DatabaseServer) {
-				try {
-					sb.append("  Nick registered:   "+(((DatabaseServer)server)
-						.nickExists(connection.getName()) ? "yes" : "no")+"\n");
-				} catch(FileNotFoundException e) {
-					printDebug("Caught exception in CommandsExcecutor.execute(whoami): "+e);
-					connection.sendMsg("[Server database error]");
-				}
+				sb.append("  Nick registered:   "+(((DatabaseServer)server).nickExists(connection.getName()) ? "yes" : "no")+"\n");
 			}
 			connection.sendMsg(sb.toString());
 			return 1;
@@ -258,76 +241,61 @@ class CommandsExecutor extends ServerConnectionExecutor {
 
 		/* If server is a DatabaseServer, then do the proper checks on nick; else, just assign it. */
 		if(server instanceof DatabaseServer) {
-			try {
-				if(((DatabaseServer)server).nickExists(nick)) {
-					if(token.length > 2) {
-						/* Token 2 is the password */
-						if(((DatabaseServer)server).checkPasswd(nick,token[2].toCharArray())) {
-							// OK
-							connection.sendMsg("Successfully logged in.");
-							token[2] = null;
-							connection.setName(nick);
-							return 1;
-						} else {
-							printDebug("Login failed for nickname "+nick);
-							connection.sendMsg("Incorrect password.");
-							token[2] = null;
-							return 1;
-						}
-					} else { 	// prompt for password
-						connection.sendMsg("Nickname is registered. Give password:");
-						for(ConnectionExecutor ex : connection.getExecutors()) {
-							if(ex instanceof CommunicationsExecutor) {
-								connection.sendMsg(CMN_PREFIX+"givepasswd");
-								try {
-									String line = connection.getInput().readLine();
-									printDebug("Read: "+line);
-									String[] words = line.split(" ");
-									if(words.length < 2 || words[0].equals(CMN_PREFIX+"abort")) {
-										printDebug("Aborted login for nick "+nick);
-										return 1;
-									} else {
-										printDebug("Received password. Logging in nick "+nick+"...");
-										int ret = 42;
-										try {
-											if(((DatabaseServer)server).checkPasswd(nick,words[1].toCharArray())) {
-												if(connection.getVerbosity() >= 2) 
-													printDebug("Password matched for nick "+nick);
-												words[1] = null;
-												connection.sendMsg("Successfully logged in.");
-												connection.setName(nick);
-												return 1;
-											} else {
-												if(connection.getVerbosity() >= 2) 
-													printDebug("Password mismatch for nick "+nick);
-												connection.sendMsg("Incorrect password.");
-												return 1;
-											}
-										} catch(FileNotFoundException e) {
-											printDebug("Database not found: "+e);
-											connection.sendMsg("Server database error. Assigning temporary nicknames.");
-											connection.setName(nick);
-											return 1;
-										}
-									}
-								} catch(IOException e) {
-									printDebug("IOException while registering name: ");
-									e.printStackTrace();
-									return 1;
-								}
-							}
-						}
-						connection.sendMsg("Your client does not support this kind of password validation. Please use /nick <nick> <password>.");
+			if(((DatabaseServer)server).nickExists(nick)) {
+				if(token.length > 2) {
+					/* Token 2 is the password */
+					if(((DatabaseServer)server).checkPasswd(nick,token[2].toCharArray())) {
+						// OK
+						connection.sendMsg("Successfully logged in.");
+						token[2] = null;
+						connection.setName(nick);
+						return 1;
+					} else {
+						printDebug("Login failed for nickname "+nick);
+						connection.sendMsg("Incorrect password.");
+						token[2] = null;
 						return 1;
 					}
-				} else {
-					connection.setName(nick);
+				} else { 	// prompt for password
+					connection.sendMsg("Nickname is registered. Give password:");
+					for(ConnectionExecutor ex : connection.getExecutors()) {
+						if(ex instanceof CommunicationsExecutor) {
+							connection.sendMsg(CMN_PREFIX+"givepasswd");
+							try {
+								String line = connection.getInput().readLine();
+								printDebug("Read: "+line);
+								String[] words = line.split(" ");
+								if(words.length < 2 || words[0].equals(CMN_PREFIX+"abort")) {
+									printDebug("Aborted login for nick "+nick);
+									return 1;
+								} else {
+									printDebug("Received password. Logging in nick "+nick+"...");
+									int ret = 42;
+									if(((DatabaseServer)server).checkPasswd(nick,words[1].toCharArray())) {
+										if(connection.getVerbosity() >= 2) 
+											printDebug("Password matched for nick "+nick);
+										words[1] = null;
+										connection.sendMsg("Successfully logged in.");
+										connection.setName(nick);
+										return 1;
+									} else {
+										if(connection.getVerbosity() >= 2) 
+											printDebug("Password mismatch for nick "+nick);
+										connection.sendMsg("Incorrect password.");
+										return 1;
+									}
+								}
+							} catch(IOException e) {
+								printDebug("IOException while registering name: ");
+								e.printStackTrace();
+								return 1;
+							}
+						}
+					}
+					connection.sendMsg("Your client does not support this kind of password validation. Please use /nick <nick> <password>.");
 					return 1;
 				}
-			} catch(FileNotFoundException e) {
-				printDebug("Database not found: "+e);
-				printDebug("Assigning temporary nicknames to clients.");
-				connection.sendMsg("Server database error: assigning temporary nicknames.");
+			} else {
 				connection.setName(nick);
 				return 1;
 			}
@@ -350,14 +318,8 @@ class CommandsExecutor extends ServerConnectionExecutor {
 		}
 	
 		String nick = token[1];
-		try {
-			if(((DatabaseServer)server).nickExists(nick)) {
-				connection.sendMsg("Nickname already registered.");
-				return 1;
-			}
-		} catch(FileNotFoundException e) {
-			printDebug("Database not found: "+e);
-			connection.sendMsg("Server database error. Cannot register nicknames.");
+		if(((DatabaseServer)server).nickExists(nick)) {
+			connection.sendMsg("Nickname already registered.");
 			return 1;
 		}
 		/* If token > 2 then token[2] is the password */

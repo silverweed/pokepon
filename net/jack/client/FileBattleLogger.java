@@ -52,7 +52,7 @@ public class FileBattleLogger extends BattleLogger {
 			} while(outFile.exists());
 		}
 		if(Debug.on) printDebug("[FileBattleLogger] outfile = "+outFile);
-		try (PrintWriter writer = new PrintWriter(new FileOutputStream(outFile))) {
+		try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"))) {
 			// append header
 			writer.println("# Battle: " + bp.getPlayer(1).getName() + " vs " + bp.getPlayer(2).getName() + 
 				" (" + bp.getFormat() + ")");
@@ -65,8 +65,9 @@ public class FileBattleLogger extends BattleLogger {
 				writer.println(stripped);
 			}
 			feedbackMsg = "Battle saved in "+outFile+".";
-		} catch(FileNotFoundException e) {
-			printDebug("[FileBattleLogger] File not found: "+outFile);
+		} catch(IOException e) {
+			printDebug("[FileBattleLogger] IO Exception:");
+			e.printStackTrace();
 		}
 	}
 }

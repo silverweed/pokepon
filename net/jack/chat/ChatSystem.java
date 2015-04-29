@@ -50,7 +50,7 @@ public class ChatSystem {
 			printDebug("[ChatSystem] cannot read conf file: "+filename);
 			return false;
 		}
-		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
 			String input = null;
 			ChatUser.Role stanzaRole = null;
 			// -: none, +: extend, @: rewrite
@@ -180,7 +180,7 @@ public class ChatSystem {
 		return true;
 	}
 
-	/** If a DatabaseServer was given to this ChatSystem, read its database and
+	/** If a DatabaseServer was given to this ChatSystem, read its in-memory db and
 	 * fill a map { user: role } accordingly to its entries;
 	 * the db should contain lines like:
 	 * 	username	passwordhash	chatrole
@@ -197,48 +197,18 @@ public class ChatSystem {
 			printDebug("[ChatSystem] Cannot reload users: server is null!");
 			return false;
 		}
-		try {
-			File db = new File(server.getDatabaseURL().toURI());
-			if(db == null) {
-				printDebug("[ChatSystem] Error: database not found at "+server.getDatabaseURL());
-				return false;
+		for(Map.Entry<String,String[]> entry : server.getDBEntries().entrySet()) {
+			String[] args = entry.getValue();
+			if(args.length < 2) {
+				// No explicit role implies 'user'
+				registered.put(entry.getKey(), ChatUser.Role.USER);
+			} else {
+				ChatUser.Role r = ChatUser.Role.forSymbol(args[1].charAt(0));
+				if(r == null) r = ChatUser.Role.USER;
+				registered.put(entry.getKey(), r);
 			}
-			try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(db)))) {
-				String input = null;
-				while((input = scanner.readLine()) != null) {
-					if(input.length() < 1 || input.charAt(0) == '#') {
-						continue;
-					}
-					String[] token = input.trim().split("\\s+");
-					if(Debug.pedantic) printDebug("tokens: "+Arrays.asList(token));
-					if(token.length >= 3) {
-						ChatUser.Role r = ChatUser.Role.forSymbol(token[2].charAt(0));
-						if(r == null) r = ChatUser.Role.USER;
-						registered.put(token[0], r);
-					} else if(token.length == 2) {
-						// no role entry implies 'user'
-						registered.put(token[0], ChatUser.Role.USER);
-					} else {
-						printDebug("[ChatSystem.reload] incorrect entry in database: "+input);
-					}
-				}
-			} catch(FileNotFoundException e) {	
-				printDebug("[ChatSystem.reload] File not found: ");
-				e.printStackTrace();
-				return false;
-			} catch(Exception e) {
-				e.printStackTrace();
-				return false;
-			} 
-			if(Debug.on) {
-				printDebug("[ChatSystem.reload] OK - entries reloaded successfully.");
-				printDebug(getRolesTable());
-			}
-			return true;
-		} catch(URISyntaxException ee) {
-			printDebug("[ChatSystem.reload] Exception: "+ee);
-			return false;
 		}
+		return true;
 	}
 
 	/** Returns a string describing the currently registered roles. */
@@ -252,14 +222,23 @@ public class ChatSystem {
 		return sb.toString();
 	}
 
+	/** Adds a new ChatClient to the ChatSystem */
 	public void addUser(ChatClient c) {
 		clients.add(c);
 	}
 
+	/** Attempts to remove a ChatClient from the ChatSystem
+	 * @param c The ChatClient to remove
+	 * @return true on success, false if not found.
+	 */
 	public boolean removeUser(ChatClient c) {
 		return clients.remove(c);
 	}
 
+	/** Attempts to remove a ChatClient from the ChatSystem
+	 * @param name The name of the ChatClient to remove
+	 * @return true on success, false if not found.
+	 */
 	public ChatClient removeUser(String name) {
 		Iterator<ChatClient> it = clients.iterator();
 		while(it.hasNext()) {
@@ -272,10 +251,14 @@ public class ChatSystem {
 		return null;
 	}
 
+	/** @return An Iterable with the clients currently registered on this ChatSystem */
 	public Iterable<ChatClient> getClients() {
 		return clients;
 	}
 
+	/** Get a ChatClient by name; ChatClient contains information about both
+	 * the ChatUser and its Connection.
+	 */
 	public ChatClient getClient(String name) {
 		for(ChatClient c : clients)
 			if(c.getUser().getName().equals(name))
@@ -283,6 +266,10 @@ public class ChatSystem {
 		return null;
 	}
 
+	/** Get a ChatUser by name; ChatUser contains information about name and
+	 * role of this user; it does NOT contain Connection information (see
+	 * {@link pokepon.net.jack.chat.ChatSystem#getClient}).
+	 */
 	public ChatUser getUser(String name) {
 		for(ChatClient c : clients)
 			if(c.getUser().getName().equals(name))
@@ -290,6 +277,9 @@ public class ChatSystem {
 		return null;
 	}
 
+	/** Gets the Global Permissions, if any; global permissions are per-role permissions
+	 * which override the default group ones.
+	 */
 	public Map<ChatUser.Role,Map<ChatUser.Permission,Boolean>> getGlobalPermissions() {
 		return globalPermissions;
 	}
@@ -315,6 +305,11 @@ public class ChatSystem {
 		return usr.hasPermission(perm);
 	}
 
+	/** If ChatClient with name 'old' is found, it is renamed to 'newn';
+	 * this method does NOT check for duplicate names, nor it does
+	 * notify other clients of the change, both of which must be done
+	 * at a higher level.
+	 */
 	public boolean renameUser(String old, String newn) {
 		Iterator<ChatClient> it = clients.iterator();
 		ChatClient c = null;
@@ -347,6 +342,7 @@ public class ChatSystem {
 		return true;
 	}
 
+	/** @return The number of users currently registered on this ChatSystem. */
 	public int connectedUsers() { return clients.size(); }
 
 	private List<ChatClient> clients = new LinkedList<>();

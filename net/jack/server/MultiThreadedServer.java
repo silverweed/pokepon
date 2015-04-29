@@ -396,7 +396,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	 * @return The number of rules added to the server banRules
 	 */
 	protected int loadBlacklist(File blFile) {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(blFile)))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(blFile), "UTF-8"))) {
 			String line = null;
 			boolean inStanza = false;
 			boolean errors = false;

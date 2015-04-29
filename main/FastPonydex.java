@@ -17,7 +17,7 @@ public class FastPonydex implements TestingClass {
 
 	private static enum Order { NORMAL, REVERSED };
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void main(String[] args) throws Exception {
 		if(args.length > 2) {
 			printMsg("Usage: FastPonydex [hp|atk|def|spa|spd|spe|bst (default)|type|name] [rev]");

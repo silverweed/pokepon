@@ -14,16 +14,18 @@ import java.nio.charset.*;
 import java.util.*;
 import java.util.regex.*;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 
-/** A MultiServer with a Database.
+/** A MultiThreadedServer with a file database.
  *
  * @author silverweed
  */
-
 public class DatabaseServer extends MultiThreadedServer {
 
 	protected String dbName;
 	protected URL dbURL;
+	/** Map { nickname: [password, role] } */
+	protected Map<String,String[]> dbEntries = Collections.synchronizedMap(new HashMap<String,String[]>());
 
 	public DatabaseServer() throws IOException {
 		this(ServerOptions.construct());
@@ -50,8 +52,10 @@ public class DatabaseServer extends MultiThreadedServer {
 	}
 
 	public URL getDatabaseURL() { return dbURL; }
+	public Map<String,String[]> getDBEntries() { return dbEntries; }	
 
 	/** Sets a new database location and ensures the file exists by creating it;
+	 * also flush in-memory DB and reloads it (and the chat system, if any);
 	 * if errors occur, the old database is kept (if existing).
 	 * @return true if database was changed successfully, false otherwise.
 	 */
@@ -75,6 +79,9 @@ public class DatabaseServer extends MultiThreadedServer {
 					if(verbosity >= 1) printDebug("[DatabaseServer] Created database file.");
 					dbURL = tmpdbURL;
 					dbName = tmpdbName;
+					loadDBEntries();
+					if(chat != null)
+						chat.reload();
 					return true;
 				} catch(IOException e) {
 					printDebug("[ ERROR ] Caught IOException while creating database: "+e);
@@ -84,8 +91,15 @@ public class DatabaseServer extends MultiThreadedServer {
 				if(verbosity >= 1) printDebug("[DatabaseServer] Database file already exists.");
 				dbURL = tmpdbURL;
 				dbName = tmpdbName;
+				loadDBEntries();
+				if(chat != null)
+					chat.reload();
 				return true;
 			}
+		} catch(FileNotFoundException ee) {
+			printDebug("[DatabaseServer.setDatabaseLocation] Error reloading DB entries after changing DB path!?" +
+					"\n\t\tServer is in a stale state: restarting it is desirable.");
+			return false;
 		} catch(MalformedURLException ee) {
 			printDebug("[DatabaseServer.setDatabaseLocation] Malformed URL: "+ee);
 			return false;
@@ -117,123 +131,28 @@ public class DatabaseServer extends MultiThreadedServer {
 	/** Reads the database and checks if given nick already exists or not
 	 * @return true - if nick exists; false - otherwise
 	 */
-	public synchronized boolean nickExists(String nick) throws FileNotFoundException {
-		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName)))) {
-			if(verbosity >= 2) printDebug("Opening database: " + dbName + " ...");
-
-			String input = null;
-			while((input = scanner.readLine()) != null) {
-				if(verbosity >= 3) printDebug("read line: "+input);
-				if(input.length() < 1) continue;
-				if(input.charAt(0) == '#') {
-					if(verbosity >= 3) printDebug("Read comment: continuing...");
-					continue;
-				}
-				String[] tokens = input.trim().split("\\s+");
-				if(verbosity >= 3) printDebug("tokens: "+Arrays.asList(tokens));
-				if(tokens.length >= 2) {
-					if(verbosity >= 3) 
-						printDebug("Confronting given nick "+nick+" with database entry "+
-							tokens[0]+";\nmatch? = "+tokens[0].equals(nick));
-					if(tokens[0].equals(nick)) {	//nick already exists
-						return true;
-					}
-				} else {
-					if(verbosity >= 2) printDebug("Error: incorrect database entry: "+Arrays.asList(tokens).toString());
-					continue;
-				}
-			}
-
-		} catch(FileNotFoundException e) {	//we want this handled by upper context
-			throw new FileNotFoundException("Thrown by DatabaseServer.nickExists("+nick+")");
-		} catch(Exception e) {
-			printDebug("Caught exception in nickExists: "+e);
-			e.printStackTrace();
-		} 
-		return false;
+	public boolean nickExists(String nick) {
+		return dbEntries.get(nick) != null;
 	}
-	/** @return List of registered names.
-	 */
-	public synchronized List<String> getNicks() throws FileNotFoundException {
-		List<String> nicks = new ArrayList<String>();
-		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName)))) {
-			if(verbosity >= 2) printDebug("Opening database: " + dbName + " ...");
 
-			String input = null;
-			while((input = scanner.readLine()) != null) {
-				if(verbosity >= 3) printDebug("read line: "+input);
-				if(input.length() < 1) continue;
-				if(input.charAt(0) == '#') {
-					if(verbosity >= 3) printDebug("Read comment: continuing...");
-					continue;
-				}
-				String[] tokens = input.trim().split("\\s+");
-				if(verbosity >= 3) printDebug("tokens: "+Arrays.asList(tokens));
-				if(tokens.length >= 2) {
-					nicks.add(tokens[0]);
-				} else {
-					if(verbosity >= 2) printDebug("Error: incorrect database entry: "+Arrays.asList(tokens).toString());
-					continue;
-				}
-			}
-
-		} catch(FileNotFoundException e) {	//we want this handled by upper context
-			throw new FileNotFoundException("Thrown by DatabaseServer.getNicks()");
-		} catch(Exception e) {
-			printDebug("Caught exception in getNicks(): "+e);
-			e.printStackTrace();
-		} 
-		return nicks;
+	/** @return List of registered names. */
+	public Set<String> getNicks() {
+		return dbEntries.keySet();
 	}
 
 	/** Checks if a given password is correct for nickname 'nick'
 	 * @param nick The nickname whose password we want to match
 	 * @param passwd The password (non-encrypted) to match
-	 * @return true - if nickname exists and password matches; false - otherwise
+	 * @return true - if nickname exists, crypto algorithm is supported and password matches; false - otherwise
 	 */
-	public synchronized boolean checkPasswd(String nick,char[] passwd) throws FileNotFoundException {
-		
-		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName)))) {
-			String input = null;
-
-			while((input = scanner.readLine()) != null) {
-				if(verbosity >= 3) printDebug("read line: "+input);
-				if(input.length() < 1) continue;
-				if(input.charAt(0) == '#') {
-					if(verbosity >= 3) printDebug("Read comment: continuing...");
-					continue;
-				}
-				String[] tokens = input.trim().split("\\s+");
-				if(verbosity >= 3) printDebug("tokens: "+Arrays.asList(tokens));
-				if(tokens.length >= 2) {
-					if(verbosity >= 3) 
-						printDebug("Confronting given nick "+nick+
-							" with database entry "+tokens[0]+";\nmatch? = "+tokens[0].equals(nick));
-					if(tokens[0].equals(nick)) {	//nick exists
-						if(PasswordHash.validatePassword(passwd,tokens[1])) {
-							if(verbosity >= 2) printDebug("Password matched for nick "+nick);
-							return true;
-						} else {
-							if(verbosity >= 2) printDebug("Password match failed for nick "+nick);
-							return false;
-						}
-					}
-				} else {
-					if(verbosity >= 2) printDebug("Error: incorrect database entry: "+Arrays.asList(tokens).toString());
-					continue;
-				}
-			}
-		} catch(FileNotFoundException e) {
-			throw new FileNotFoundException("Thrown by: DatabaseServer.checkPasswd("+nick+",<passwd>)");
-		} catch(IOException e) {
-			printDebug("Caught IOException while reading input: "+e);
-		} catch(NoSuchAlgorithmException e) {
-			printDebug("No such algorithm: "+e);
-		} catch(Exception e) {
-			printDebug("Caught exception in checkPasswd: "+e);
-		} 
-		return false;
-
+	public boolean checkPasswd(String nick, char[] passwd) {
+		try {
+			return dbEntries.get(nick) != null && PasswordHash.validatePassword(passwd, dbEntries.get(nick)[0]);
+		} catch(NoSuchAlgorithmException|InvalidKeySpecException e) {
+			printDebug("["+serverName+".checkPasswd] crypto error:");
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/** Attempts to register a nickname
@@ -241,62 +160,39 @@ public class DatabaseServer extends MultiThreadedServer {
 	 * @param passwd The encrypted password
 	 * @return 0: success; 1: already exists; 2: generic error
 	 */
-	public synchronized int registerNick(String nick,char[] passwd) {
-		Writer writer = null;
-
-		/* Load database */
+	public synchronized int registerNick(String nick, char[] passwd) {
+		if(dbEntries.get(nick) != null) return 1;
 		try {
-			/* Read entries */
-			if(nickExists(nick)) return 1;	//may throw a FileNotFoundException
-		
-			// to avoid infinite loops: at this point the database file MUST exist (it should've been created in the 'catch')
-			if(!Files.exists(Paths.get(dbName))) {
-				printDebug("UNEXPECTED ERROR: database was not created correctly. Quitting method registerNick.");
-				return 2;
-			}
-
-			writer = new PrintWriter(new FileOutputStream(dbName,true));
-
-			// if advancedChat is non-null, store in database this user's role as well.
+			// Generate password hash
+			String hash = PasswordHash.createHash(passwd);
 			char role = '-';
+			// If chatSystem is not null, generate role as well
 			if(chat != null) {
-				if(chat.getUser(nick) != null)
-					role = chat.getUser(nick).getRole().getSymbol();
+				ChatUser user = chat.getUser(nick);
+				if(user != null)
+					role = user.getRole().getSymbol();
 				else
 					role = ChatUser.Role.USER.getSymbol();
 			}
-			writer.append(nick+"\t" + PasswordHash.createHash(passwd) + "\t" + role + "\n");
 
-			printDebug("Registered nickname "+nick+" to database.");
-			return 0;
-
-		} catch(FileNotFoundException e) {
-			printDebug("[DatabaseServer] Database "+dbName+" not found. Creating it...");
-			try {
-				//Files.createDirectories(Paths.get(getDataURL().getPath()));
-				Files.createFile(Paths.get(dbName));
-			} catch(Exception ee) {
-				printDebug("Caught exception while creating database: "+ee);
+			// Append entry to file DB
+			try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dbName, true), "UTF-8"))) {
+				output.append(nick + "\t" + hash + "\t" + role + "\n");
+			} catch(IOException e) {
+				printDebug("["+serverName+".registerNick] Error writing to database:");
+				e.printStackTrace();
+				return 2;
 			}
-			if(Files.exists(Paths.get(dbName))) {
-				printDebug("Successfully created database.");
-				return registerNick(nick,passwd);
-			} 
+
+			// If file DB was updated successfully, also update in-memory DB
+			dbEntries.put(nick, new String[] { hash, "" + role });
+
+		} catch(NoSuchAlgorithmException|InvalidKeySpecException ee) {
+			printDebug("["+serverName+".registerNick] crypto error: ");
+			ee.printStackTrace();
 			return 2;
-		} catch(Exception e) {
-			printDebug("Caught exception in registerNick: "+e);
-			e.printStackTrace();
-		} finally {
-			if(writer != null) {
-				try {
-					writer.close();
-				} catch(Exception e) {
-					printDebug("registerNick - Caught Exception while closing writer: "+e);
-				}
-			}
 		}
-
-		return 2;
+		return 0;
 	}	
 	
 	@Override
@@ -314,8 +210,46 @@ public class DatabaseServer extends MultiThreadedServer {
 	@Override
 	public void initialize() throws IOException {
 		super.initialize();
-		if(advancedChat)
-			chat = new ChatSystem(this);
+		if(loadDBEntries()) {
+			if(advancedChat)
+				chat = new ChatSystem(this);
+		} else {
+			printDebug("["+serverName+"] ERROR: couldn't load database!");
+		}
+	}
+
+	/** Reads entries from dbUrl and loads them into memory.
+	 * @return True, if file was read correctly, False otherwise.
+	 */
+	protected boolean loadDBEntries() throws FileNotFoundException {
+		// flush previous entries
+		dbEntries.clear();
+		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName), "UTF-8"))) {
+			String input = null;
+			int lineno = 1;
+			while((input = scanner.readLine()) != null) {
+				if(verbosity >= 3) printDebug("[loadDBEntries] read line: "+input);
+				if(input.length() < 1) continue;
+				if(input.charAt(0) == '#') continue;
+				String[] tokens = input.split("\\s+");
+				if(tokens.length != 2 && tokens.length != 3) {
+					if(verbosity >= 1) printDebug("[loadDBEntries] Incorrect line in DB: "+input);
+					continue;
+				}
+				if(dbEntries.get(tokens[0]) != null) {
+					if(verbosity >= 1) printDebug("[loadDBEntries] Warning: line #" + lineno + " overrides previous entry!");
+				}
+				dbEntries.put(tokens[0], Arrays.copyOfRange(tokens, 1, tokens.length));
+				++lineno;
+			}
+			printDebug("["+serverName+"] loaded DB entries with no errors.");
+			return true;
+
+		} catch(Exception e) {
+			printDebug("["+serverName+"] Caught exception in loadDBEntries:");
+			e.printStackTrace();
+		}
+		return false;			
 	}
 
 	protected static void printUsage() {

@@ -552,7 +552,7 @@ class ServerConsole implements Runnable {
 
 				} else if(token[0].equals("reload")) {
 					if(server.chat != null) {
-						if(server.chat.reload()) {
+						if(server.loadDBEntries() && server.chat.reload()) {
 							consoleDebug("[ OK ] chat roles reloaded successfully. New roles:");
 							consoleDebug(server.chat.getRolesTable());
 						} else {

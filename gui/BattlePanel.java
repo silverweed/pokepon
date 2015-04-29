@@ -3292,7 +3292,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			if(args.length > 1) {
 				input = new FileInputStream(new File(args[1]));
 			}
-			try (BufferedReader bf = new BufferedReader(new InputStreamReader(input))) {
+			try (BufferedReader bf = new BufferedReader(new InputStreamReader(input, "UTF-8"))) {
 				String line = null;
 				while((line = bf.readLine()) != null) {
 					bp.interpret(line);
@@ -3325,7 +3325,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		bp.interpret("|switch|ally|0|100");
 		bp.interpret("|switch|opp|0|100");
 
-		try (BufferedReader bf = new BufferedReader(new InputStreamReader(System.in))) {
+		try (BufferedReader bf = new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
 			String line = null;
 			while((line = bf.readLine()) != null) {
 				bp.interpret(line);

@@ -48,7 +48,7 @@ public class TeamDealer {
 				return false;
 			}
 		}
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "utf-8"))) {
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"))) {
 			if(!team.getName().equals("Untitled Team"))
 				writer.write("$TEAM_NAME = "+team.getName()+"\n");
 			for(Pony p : team) {
@@ -73,7 +73,7 @@ public class TeamDealer {
 		} 
 
 		if(!success) return false;
-		printDebug("Team successfully saved to "+filename);
+		if(Debug.on) printDebug("[TeamDealer] Team successfully saved to "+filename);
 		return true;
 	}
 	

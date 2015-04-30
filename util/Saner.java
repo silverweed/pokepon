@@ -15,7 +15,6 @@ import java.net.*;
  *
  * @author silverweed
  */
-
 public class Saner {
 
 	public static String sane(String str,String path) {
@@ -172,5 +171,4 @@ public class Saner {
 		
 		return sb.toString();
 	}
-	
 }

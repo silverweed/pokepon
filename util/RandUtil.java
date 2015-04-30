@@ -8,11 +8,11 @@ public class RandUtil {
 
 	/** Given a list { a, b, c, ...}, where a, b, ...are floats, interprets it as the
 	 * probability distribution to return 1, 2, ...etc; 
-	 * @param dist A list of floats whose sum is 1.
+	 * @param dist A list of floats whose sum is 100f.
 	 * @return A random integer from 0 to dist.size() - 1
 	 */
 	public static int getRandWithDistribution(List<Float> dist) {
-		float r = rng.nextFloat();
+		float r = 100f * rng.nextFloat();
 		float sum = 0f;
 		for(int i = 0; i < dist.size(); ++i) {
 			sum += dist.get(i);

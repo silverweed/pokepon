@@ -484,7 +484,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	 * |move|ally|MoveName (for a Move used by ally pony)
 	 * </pre>
 	 */
-	@SuppressWarnings("unchecked")
 	public void interpret(String line) {
 		if(line == null || !line.startsWith("|") || line.length() < 2) {
 			if(Debug.on) printDebug("[BattlePanel]: Ignoring malformed line: "+line);
@@ -580,81 +579,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			appendEvent(EventType.INFO, merge(token,1));
 
 		} else if(token[0].equals("teampreview")) {
-			if(battleStarted) {
-				printDebug("Error: received teampreview during the battle!");
-				return;
-			}
-			showBottomAlert("Choose a pony to switch in");
-			StringBuilder sb = new StringBuilder("<font color=#40576A size=3><b>"+p1.getName()+
-				"'s team:</b><br><span style=\"color:#445566;display:block;\">");
-			for(Pony p : p1.getTeam())
-				sb.append(p.getName()+" / ");
-			sb.delete(sb.length()-2,sb.length());
-			sb.append("</span><br><b>"+p2.getName()+"'s team:</b><br><span style=\"color:#445566;display:block;\">");
-			for(Pony p : p2.getTeam())
-				sb.append(p.getName()+" / ");
-			sb.delete(sb.length()-2,sb.length());
-			sb.append("</span></font>");
-			appendEvent(EventType.HTML,sb.toString());
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					moveP.setVisible(false);
-					int offsetx1 = FIELD_X-15;
-					int offsety1 = FIELD_HEIGHT/2-50;
-					int offsetx2 = FIELD_X+150;
-					int offsety2 = 20;
-					int layer = 3;
-					if(allySprite != null) {
-						fieldP.remove(allySprite);
-						allySprite = null;
-					}
-					if(oppSprite != null) {
-						fieldP.remove(oppSprite);
-						oppSprite = null;
-					}
-					if(allyHPBar != null) {
-						fieldP.remove(allyHPBar);
-						allyHPBar = null;
-					}
-					if(oppHPBar != null) {
-						fieldP.remove(oppHPBar);
-						oppHPBar = null;
-					}
-					validate();
-					repaint();
-
-					for(int i = 0; i < 6; ++i) {
-						if(p1.getTeam().getPony(i) != null) {
-							if(p1.getTeam().getPony(i).getBackSprite() == null)
-								previewSprite1[i] = new JLabel(new ImageIcon(PLACEHOLDER_URL[1]));
-							else
-								previewSprite1[i] = new JLabel(new ImageIcon(
-											p1.getTeam().getPony(i).getBackSprite()));
-							previewSprite1[i].setBounds(offsetx1,offsety1,
-										previewSprite1[i].getIcon().getIconWidth(),
-										previewSprite1[i].getIcon().getIconHeight());
-							if(Debug.on) printDebug("Sprite: "+previewSprite1[i].getIcon());
-							fieldP.add(previewSprite1[i],new Integer(layer));
-						}
-						if(p2.getTeam().getPony(i) != null) {
-							if(p2.getTeam().getPony(i).getFrontSprite() == null)
-								previewSprite2[i] = new JLabel(new ImageIcon(PLACEHOLDER_URL[0]));
-							else
-								previewSprite2[i] = new JLabel(new ImageIcon(
-											p2.getTeam().getPony(i).getFrontSprite()));
-							previewSprite2[i].setBounds(offsetx2,offsety2,
-										previewSprite2[i].getIcon().getIconWidth(),
-										previewSprite2[i].getIcon().getIconHeight());
-							fieldP.add(previewSprite2[i],new Integer(layer));
-						}
-						++layer;
-						offsetx1 += 55;
-						offsetx2 += 55;
-						offsety1 += 25;
-						offsety2 += 25;
-					}
-				}
-			});
+			/* |teampreview */
+			teampreview();
 
 		} else if(token[0].equals("start")) {
 			if(battleStarted) {
@@ -684,163 +610,22 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		} else if(token[0].equals("switch") && token.length > 3) {
 			/* |switch|(ally/opp)|Number of Pony in team|hp[|maxhp] */
-			try {
-				/* here we use invokeAndWait because we must be sure both the attacker and the defender
-				 * are set correctly. Doing this asynchronously messes up the order of the actions, e.g.
-				 * a sequence of messages like:
-				 * |switch|ally|Trixie
-				 * |damage|ally|100
-				 * often ends up dealing the damage to the current allyPony _before_ it's switched out.
-				 */
-				if(Debug.on) printDebug("switch: tokens = "+Arrays.asList(token));
-				int index = -1;
-				try {
-					index = Integer.parseInt(token[2]);
-				} catch(IllegalArgumentException e) {
-					throw new RuntimeException("Error parsing pony index: "+e);
-				}
-				if(token[1].equals("ally")) {
-				
-					if(allyPony != null) {
-						allyPony.removeVolatiles();
-						if(allyPony.isTransformed()) 
-							allyPony.transformBack();
-						if(allySprite != null) 
-							switchOutAnim(allySprite,true);
-					}
-					if(Debug.on) printDebug("Setting active ally: #"+token[2]);
-
-					final Pony newActive = p1.getTeam().getPony(index);
-					if(newActive == null) {
-						printDebug("Error: ally pony #"+token[2]+" does not exist.");
-						return;
-					}
-					newActive.setActive(true);
-					allyPony = newActive;
-					if(teamMenu1.getTokens()[index].isUnknown())
-						teamMenu1.setUnknown(index, false);
-
-					// switch-in animation
-					if(allyPony.getBackSprite() == null)
-						allySprite = new TransparentLabel(new JLabel(new ImageIcon(PLACEHOLDER_URL[1])),0f);
-					else {
-						allySprite = new TransparentLabel(new JLabel(new ImageIcon(allyPony.getBackSprite())),0f);
-						if(allySprite.getIcon().getIconWidth() < 0)
-							allySprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
-					}
-					switchInAnim(allySprite,true);
-
-					SwingUtilities.invokeAndWait(new Runnable() {
-						public void run() {
-							try {
-								if(token.length > 4) 
-									newActive.setMaxHp(Integer.parseInt(token[4]));
-								else
-									newActive.setMaxHp(Integer.parseInt(token[3]));
-								newActive.setHp(Integer.parseInt(token[3]));
-							} catch(IllegalArgumentException ee) {
-								throw new RuntimeException("Error while parsing hp:"+ee);
-							}
-							if(Debug.on) printDebug("Ally pony set to "+allyPony);
-							// create new HP bar
-							if(allyHPBar != null) {
-								synchronized(allyHPBar) {
-									allyHPBar.setVisible(false);
-								}
-								fieldP.remove(allyHPBar);
-							}
-							allyHPBar = new HPBar(allyPony,hpBarTxtColor);
-							allyHPBar.setBounds(320,250,240,100);
-							allyHPBar.setVisible(true);
-							fieldP.add(allyHPBar,HPBAR_LAYER);
-							// set moves
-							if(allyPony.finishedPP()) {
-								moveB[0].setMove(new Struggle());
-								for(int i = 1; i < Pony.MOVES_PER_PONY; ++i)
-									moveB[i].setMove(null);
-							} else {
-								for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
-									moveB[i].setMove(allyPony.getMove(i));
-							}
-							moveP.setVisible(true);
-							validate();
-							repaint();
-							appendEvent(EventType.SWITCH, allyPony.getNickname()+
-									(allyPony.hasNickname() ? "|"+allyPony.getName() : ""),
-									"ally");
-						}
-					});
-				} else if(token[1].equals("opp")) {
-
-					if(oppPony != null) {
-						oppPony.removeVolatiles();
-						if(oppPony.isTransformed()) 
-							oppPony.transformBack();
-						if(oppSprite != null) 
-							switchOutAnim(oppSprite,false);
-					}
-					if(Debug.on) printDebug("Setting active opponent: #"+token[2]);
-
-					final Pony newActive = p2.getTeam().getPony(index);
-					if(newActive == null) {
-						printDebug("Error: opponent pony #"+token[2]+" does not exist.");
-						return;
-					}
-					newActive.setActive(true);
-					oppPony = newActive;
-					if(teamMenu2.getTokens()[index].isUnknown())
-						teamMenu2.setUnknown(index, false);
-
-					// switch-in animation
-					if(oppPony.getFrontSprite() == null)
-						oppSprite = new TransparentLabel(new JLabel(new ImageIcon(PLACEHOLDER_URL[0])),0f);
-					else {
-						oppSprite = new TransparentLabel(new JLabel(new ImageIcon(oppPony.getFrontSprite())),0f);
-						if(oppSprite.getIcon().getIconWidth() < 0)
-							oppSprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
-					}
-					switchInAnim(oppSprite,false);			
-
-					SwingUtilities.invokeAndWait(new Runnable() {
-						public void run() {
-							try {
-								if(token.length > 4) 
-									newActive.setMaxHp(Integer.parseInt(token[4]));
-								else
-									newActive.setMaxHp(Integer.parseInt(token[3]));
-								newActive.setHp(Integer.parseInt(token[3]));
-							} catch(IllegalArgumentException ee) {
-								throw new RuntimeException("Error while parsing hp:"+ee);
-							}
-							if(Debug.on) printDebug("Opponent pony set to "+oppPony);
-							// create new HP bar
-							if(oppHPBar != null) {
-								synchronized(oppHPBar) {
-									oppHPBar.setVisible(false);
-								}
-								fieldP.remove(oppHPBar);
-							}
-							oppHPBar = new HPBar(oppPony,hpBarTxtColor);
-							oppHPBar.setBounds(FIELD_X+20,5,240,100);
-							oppHPBar.setVisible(true);
-							fieldP.add(oppHPBar,HPBAR_LAYER);
-							validate();
-							repaint();
-							appendEvent(EventType.SWITCH, oppPony.getNickname()+
-									(oppPony.hasNickname() ? "|"+oppPony.getName() : ""),
-									"opp");
-						}
-					});
-				}
-
-			} catch(InterruptedException e) {
-				printDebug("[BP.interpret(switch)] interrupted!");
-				return;
-			} catch(InvocationTargetException e) {
-				e.printStackTrace();
-				printDebug("Caused by: "+e.getCause());
+			if(!token[1].equals("opp") && !token[1].equals("ally")) {
+				printDebug("[BP.interpret(switch)] Error: side is "+token[1]+"!");
 				return;
 			}
+			int ponyNum = -1, hp = -1, maxhp = -1;
+			try {
+				ponyNum = Integer.parseInt(token[2]);
+				hp = Integer.parseInt(token[3]);
+				if(token.length > 4)
+					maxhp = Integer.parseInt(token[4]);
+			} catch(IllegalArgumentException e) {
+				printDebug("[BP.interpret(switch)] Error parsing integer parameters:");
+				e.printStackTrace();
+				return;
+			}
+			doSwitch(token[1].equals("ally"), ponyNum, hp, maxhp);
 	
 		} else if(token[0].equals("stats") && token.length > 5) {
 			/* |stats|atk|def|spatk|spdef|speed */
@@ -945,109 +730,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	
 		} else if(token[0].equals("move") && token.length > 2) {
 			/* |move|(ally/opp)|Move Name[|avoid] */
-		
-			BasicAnimation anim = null;
-			boolean avoid = token.length > 3 && token[3].equals("avoid");
-
-			try {
-				Map<String,Object> opts = MoveCreator.create(token[2]).getAnimation();
-
-				if(opts == null || opts.get("name") == null) 
-					return;
-
-				List<String> anims = null;
-				List<Map<String,Object>> animsopts = null;
-			
-				/* A Compound animation is a chain of several animations to be reproduced
-				 * in series. To specify a compound animation, the options must look like:
-				 *   animation.put("name", "Compound");
-				 *   animation.put("anims", Arrays.asList("Animation1", "Animation2", ...));
-				 */
-				if(opts.get("name").equals("Compound")) {
-					anims = (List<String>)opts.get("anims");
-					animsopts = new ArrayList<Map<String,Object>>(anims.size());
-					for(int i = 0; i < anims.size(); ++i)
-						animsopts.add(new HashMap<String,Object>());
-
-					/* opts whose keys start with [0-9]: are specific to a single
-					 * animation in the chain; the others are global to all
-					 * animations. e.g. 1:sprite=wisp.png will apply only to the
-					 * FIRST animation in the chain.
-					 */
-					for(String key : opts.keySet()) {
-						if(key.matches("^[0-9]:.*")) {
-							try {
-								animsopts.get(Integer.parseInt(key.substring(0,1))-1)
-									.put(key.substring(2), opts.get(key));
-							} catch(IndexOutOfBoundsException e) {
-								printDebug("[BP.interpret(move)] Invalid key: "+key);
-							}
-						} else if(!key.equals("name")) {
-							for(int i = 0; i < anims.size(); ++i)
-								animsopts.get(i).put(key, opts.get(key));
-						}
-					}
-				} else {
-					anims = Arrays.asList((String)opts.get("name"));
-					animsopts = Arrays.asList(opts);
-				}
-
-				for(int i = 0; i < anims.size(); ++i) {
-					animsopts.get(i).put("name", anims.get(i));
-					if(Debug.on) printDebug("opts = "+animsopts.get(i));
-
-					anim = createAnimation(animsopts.get(i), token[1], avoid);
-
-					if(anim == null) {
-						printDebug("[BP.interpret(move)] no animation found for move "+token[2]);
-						return;
-					}
-					anim.start();
-					synchronized(anim) {
-						try {
-							anim.wait();
-						} catch(InterruptedException e) {
-							printDebug("Animation interrupted.");
-						}
-					}
-					if(anim != null && anim.getSprite() != allySprite && anim.getSprite() != oppSprite && !anim.isPersistent()) {
-						fieldP.remove(anim.getSprite());
-					}
-					if(animsopts.get(i).get("postWait") != null) {
-						try {
-							Thread.sleep((int)animsopts.get(i).get("postWait"));
-						} catch(IllegalArgumentException|ClassCastException ee) {
-							printDebug("[BP.interpret(move)] illegal argument: "+animsopts.get(i).get("postWait"));
-						} catch(InterruptedException ignore2) {}
-					}
-				}
-				if(avoid) {
-					if(token[1].equals("ally")) {
-						appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
-						resultAnim(oppLocation(),"Avoided!");
-					} else if(token[1].equals("opp")) {
-						appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
-						resultAnim(allyLocation(),"Avoided!");
-					}
-					try {
-						Thread.sleep(INTERPRET_DELAY);
-					} catch(InterruptedException ignore) {}
-				}
-				if(Debug.on) printDebug("Ended animation.");
-
-			} catch(ReflectiveOperationException e) {
-				printDebug("[BP.interpret(move)] failed to create move "+token[2]);
-			} catch(Exception e) {
-				e.printStackTrace();
-			} finally {
-				if(allySprite != null)
-					fieldP.setLayer(allySprite,PONY_LAYER);
-				if(oppSprite != null)
-					fieldP.setLayer(oppSprite,PONY_LAYER);
-				if(anim != null && anim.getSprite() != allySprite && anim.getSprite() != oppSprite && !anim.isPersistent()) {
-					fieldP.remove(anim.getSprite());
-				}
+			if(!token[1].equals("opp") && !token[1].equals("ally")) {
+				printDebug("[BP.interpret(move)] Error: side is "+token[1]+"!");
+				return;
 			}
+			moveAnimation(token[1].equals("ally"), token[2], token.length > 3 && token[3].equals("avoid"));
 					
 		} else if(token[0].equals("avoid") && token.length > 1) {
 			/* |avoid|ally/opp */
@@ -1068,64 +755,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				printDebug("[BP.interpret(anim)] Error: side is "+token[1]+"!");
 				return;
 			}
-			Map<String,Object> opts = new HashMap<>();
-			for(int i = 2; i < token.length; ++i) {
-				String[] pair = token[i].split("=", 2);
-				if(pair.length != 2) {
-					printDebug("[BP.interpret(anim)] Bad pair received: "+token[i]+"; ignoring.");
-					continue;
-				}
-				Object value = null;
-				/* Parse optional argument typecast. Since all we receive are strings,
-				 * one can specify a 'typecast pattern' in the value field, like:
-				 * delay=(i)40  // will convert "40" to an Integer
-				 * We don't use implicit casting based on the key because it's a less
-				 * flexible and explicit approach. It's the caller's responsibility to correctly
-				 * cast values types according to their key.
-				 */
-				Matcher matcher = Pattern.compile("^\\(([a-z])\\)(.+)$").matcher(pair[1]);
-				if(matcher.matches()) {
-					if(Debug.on) printDebug("Converting type of "+pair[1]);
-					try {
-						switch(matcher.group(1).charAt(0)) {
-							case 'b':
-								value = Boolean.parseBoolean(matcher.group(2));
-								break;
-							case 'i':
-								value = Integer.parseInt(matcher.group(2));
-								break;
-							case 'f':
-								value = Float.parseFloat(matcher.group(2));
-								break;
-							case 'd':
-								value = Double.parseDouble(matcher.group(2));
-								break;
-							default:
-								value = pair[1];
-						}
-					} catch(IllegalArgumentException e) {
-						printDebug("[BP.interpret(anim)] Cannot convert '"+matcher.group(2)+"' to "+matcher.group(1));
-						continue;
-					}
-				} else {
-					value = pair[1];
-				}
-				opts.put(pair[0], value);
-			}
-			Animation anim = createAnimation(opts, token[1], false);
-			if(anim == null) {
-				printDebug("[BP.interpret(anim)] Error: resulting animation is null!");
-				return;
-			}
-			anim.start();
-			synchronized(anim) {
-				try {
-					anim.wait();
-				} catch(InterruptedException e) {
-					printDebug("Animation interrupted.");
-				}
-			}
-			if(!opts.containsKey("nodelay")) {
+			if(parseAnimation(token)) {
 				try {
 					Thread.sleep(INTERPRET_DELAY);
 				} catch(InterruptedException ignore) {}
@@ -1190,62 +820,16 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		
 		} else if(token[0].equals("damage") && token.length > 2) {
 			/* |damage|(ally/opp)|amount[|phrase] */
-
-			if(token[1].equals("ally")) {
-				try {
-					int prevhp = allyPony.hp();
-					int dam = (int)(Float.parseFloat(token[2]));
-					synchronized(allyPony) {
-						allyPony.damage(dam);
-					}
-					if(allyHPBar != null)
-						allyHPBar.update();
-					if(!(token.length > 3 && token[3].equalsIgnoreCase("quiet")))
-						appendEvent(EventType.BATTLE,parseDamageEvent(
-									allyPony,
-									dam,
-									(token.length > 3 ? token[3] : null))
-						);
-					if(dam >= 0)
-						resultAnim(allyLocation(),"-" + 
-							(Math.min(prevhp, dam)*100 / allyPony.maxhp()) + "%!",
-							ResultType.BAD);
-					else
-						resultAnim(allyLocation(),"+" + 
-							(Math.min(prevhp, -dam)*100 / allyPony.maxhp()) + "%!",
-							ResultType.GOOD);
-				} catch(IllegalArgumentException e) {
-					printDebug("[BattlePanel.interpret(damage)]: Illegal argument: "+e);
-				}
-			} else if(token[1].equals("opp")) {
-				try {
-					int prevhp = oppPony.hp();
-					int dam = (int)(Float.parseFloat(token[2]));
-					synchronized(oppPony) {
-						oppPony.damage(dam);
-					}
-					if(oppHPBar != null)
-						oppHPBar.update();
-					if(!(token.length > 3 && token[3].equalsIgnoreCase("quiet")))
-						appendEvent(EventType.BATTLE,parseDamageEvent(oppPony,
-										dam,
-										(token.length > 3 ? token[3] : null))
-						);
-					if(dam > 0)
-						resultAnim(oppLocation(),"-" +
-							(Math.min(prevhp, dam)*100 / oppPony.maxhp()) + "%!",
-							ResultType.BAD);
-					else
-						resultAnim(oppLocation(),"+" + 
-							(Math.min(prevhp, -dam)*100 / oppPony.maxhp()) + "%!",
-							ResultType.GOOD);
-				} catch(IllegalArgumentException e) {
-					printDebug("[BattlePanel.interpret(damage)]: Illegal argument: "+e);
-				}
+			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+				printDebug("[BP.interpret(damage)] Error: side is "+token[1]);
+				return;
 			}
-
 			try {
+				applyDamage(token[1].equals("ally"), (int)Float.parseFloat(token[2]), token.length > 3 ? token[3] : null);
+
 				Thread.sleep(INTERPRET_DELAY);
+			} catch(IllegalArgumentException e) {
+				printDebug("[BP.interpret(damage)] Invalid amount: "+token[2]);
 			} catch(InterruptedException ignore) {}
 
 		} else if(token[0].equals("rated")) {
@@ -1268,69 +852,28 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			/* |turn|turnCount */
 			if(Debug.on) printDebug("--- TURN "+token[1]+" ---");
 			appendEvent(EventType.TURN,token[1]);
+			// reset move selections
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					if(Debug.pedantic) printDebug("Called unselect()");
+					for(MoveButton tb : moveB) {
+						tb.setSelected(false);
+						if(Debug.pedantic) printDebug("Unselected moveButton: "+tb.getMove());
+						tb.repaint();
+					}
+				}
+			});
 
 		} else if(token[0].equals("boost") && token.length > 3) {
 			/* |boost|(ally/opp)|stat|amount[|Phrase] */
-			String name = "";
-			StringBuilder sb = new StringBuilder("");
-			if(token[1].equals("opp")) {
-				if(token.length < 5)
-					sb.append("Enemy ");
-			} else if(!token[1].equals("ally")) {
-				printDebug("[BattlePanel.interpret(boost)]: error: token[1] is neither ally nor opp.");
+			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+				printDebug("[BP.interpret(boost)] Error: side is "+token[1]);
 				return;
 			}
-
 			try {
-				int value = Integer.parseInt(token[3]);
-				if(token.length > 4) {
-					// custom phrase
-					if(!token[4].equalsIgnoreCase("quiet"))
-						sb.append(token[4]);
-				} else {
-					sb.append((token[1].equals("ally") ?
-							allyPony.getNickname() :
-							oppPony.getNickname())+"'s ");
-					sb.append(token[2]);
-				
-					if(value > 2) {
-						sb.append(" rose drastically!");
-					} else if(value > 1) {
-						sb.append(" sharply rose!");
-					} else if (value > 0) {
-						sb.append(" rose!");
-					} else if (value == 0) {
-						printDebug("[BattlePanel.interpret(boost)]: received boost 0!");
-						return;
-					} else if(value > -2) {
-						sb.append(" fell!");
-					} else if(value > -1) {
-						sb.append(" harshly fell!");
-					} else {
-						sb.append(" fell drastically!");
-					}
-				}
-				
-				Pony.Stat stat = Pony.Stat.forName(token[2]);
-				if(token[1].equals("ally")) {
-					allyPony.boost(stat, value);
-					if(value > 0)
-						resultAnim(allyLocation(),"+"+value+" "+stat.brief()+"!",ResultType.GOOD);
-					else
-						resultAnim(allyLocation(),value+" "+stat.brief()+"!",ResultType.BAD);
-					if(allyHPBar != null) 
-						allyHPBar.update();
-				} else if(token[1].equals("opp")) {
-					oppPony.boost(stat, value);
-					if(value > 0)
-						resultAnim(oppLocation(),"+"+value+" "+stat.brief()+"!",ResultType.GOOD);
-					else
-						resultAnim(oppLocation(),value+" "+stat.brief()+"!",ResultType.BAD);
-					if(oppHPBar != null) 
-						oppHPBar.update();
-				}
-				if(sb.length() > 0)
-					appendEvent(EventType.BOOST,sb.toString());
+				applyBoost(token[1].equals("ally"), Pony.Stat.forName(token[2]),
+						Integer.parseInt(token[3]), token.length > 4 ? token[4] : null);
+
 				Thread.sleep(INTERPRET_DELAY);
 			} catch(IllegalArgumentException e) {
 				printDebug("[BattlePanel.interpret(boost)]: illegal argument "+e);
@@ -1339,36 +882,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		} else if(token[0].equals("recoil") && token.length > 2) {
 			/* |recoil|(ally/opp)|recoilDamage */
+			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+				printDebug("[BP.interpret(transform)] Error: side is "+token[1]);
+				return;
+			}
 			try {
-				if(token[1].equals("ally")) {
-					if(allyPony != null && !allyPony.isFainted()) {
-						synchronized(allyPony) {
-							allyPony.damage(Integer.parseInt(token[2]));
-						}
-						allyHPBar.update();
-						appendEvent(EventType.BATTLE,allyPony.getNickname() + " lost "+ 
-							(Battle.SHOW_HP_PERC ?
-							Math.min(allyPony.hp()*100 / allyPony.maxhp(),
-								allyPony.calculateDamagePerc(Integer.parseInt(token[2])))
-							+ "% of its HP" :
-							Integer.parseInt(token[2]) + " HP") + " due to recoil!");
-						resultAnim(allyLocation(),"Recoil",ResultType.BAD);
-					}
-				} else if(token[1].equals("opp")) {
-					if(oppPony != null && !oppPony.isFainted()) {
-						synchronized(oppPony) {
-							oppPony.damage(Integer.parseInt(token[2]));
-						}
-						oppHPBar.update();
-						appendEvent(EventType.BATTLE,"Enemy "+oppPony.getNickname() + " lost "+ 
-							(Battle.SHOW_HP_PERC ?
-							Math.min(oppPony.hp()*100 / oppPony.maxhp(),
-								oppPony.calculateDamagePerc(Integer.parseInt(token[2])))
-							+ "% of its HP" :
-							Integer.parseInt(token[2]) + " HP") + " due to recoil!");
-						resultAnim(oppLocation(),"Recoil",ResultType.BAD);
-					}
-				}
+				applyRecoilDamage(token[1].equals("ally"), Integer.parseInt(token[2]));
 				Thread.sleep(INTERPRET_DELAY);
 			} catch(IllegalArgumentException e) {
 				printDebug("[BattlePanel.interpret(recoil): illegal argument "+e);
@@ -1376,55 +895,14 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		} else if(token[0].equals("transform") && token.length > 2) {
 			/* |transform|(ally/opp)|Pony Name */
-			if(token[1].equals("ally")) {
-				try {
-					allyPony.transformInto(PonyCreator.create(token[2]));
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							if(allySprite == null)
-								allySprite = new TransparentLabel();
-							if(allyPony.getBackSprite() == null)
-								allySprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
-							else
-								allySprite.setIcon(new ImageIcon(allyPony.getBackSprite()));
-							setAllyBounds(allySprite);
-							validate();
-							repaint();
-						}
-					});
-					allyHPBar.update();
-					resultAnim(allyLocation(),"Transformed!",ResultType.NEUTRAL);
-				} catch(ReflectiveOperationException e) {
-					printDebug("[BP.interpret(transform)]: error creating "+token[2]+": "+e);
-					return;
-				}
-
-			} else if(token[1].equals("opp")) {
-				try {
-					oppPony.transformInto(PonyCreator.create(token[2]));
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							if(oppSprite == null)
-								oppSprite = new TransparentLabel();
-							if(oppPony.getFrontSprite() == null)
-								oppSprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
-							else
-								oppSprite.setIcon(new ImageIcon(oppPony.getFrontSprite()));
-							setOpponentBounds(oppSprite);
-							validate();
-							repaint();
-						}
-					});
-					oppHPBar.update();
-					resultAnim(oppLocation(),"Transformed!",ResultType.NEUTRAL);
-				} catch(ReflectiveOperationException e) {
-					printDebug("[BP.interpret(transform)]: error creating "+token[2]+": "+e);
-					return;
-				}
-			} else {
+			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 				printDebug("[BP.interpret(transform)] Error: side is "+token[1]);
 				return;
 			}
+			transformPony(token[1].equals("ally"), token[2]);
+			try {
+				Thread.sleep(INTERPRET_DELAY);
+			} catch(InterruptedException ignore){}
 
 		} else if(token[0].equals("substitute") && token.length > 1) {
 			/* |substitute|(ally/opp) */
@@ -1516,41 +994,19 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				Thread.sleep(INTERPRET_DELAY);
 			} catch(InterruptedException ignore) {}
 
-		} else if(token[0].equals("par") && token.length > 1) {
-			/* |par|(ally/opp) */
-			if(token[1].equals("ally")) {
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is fully paralyzed!");
-				resultAnim(allyLocation(),"Paralyzed!",new Color(0xCFA600));
-			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is fully paralyzed!");
-				resultAnim(oppLocation(),"Paralyzed!",new Color(0xCFA600));
+		} else if (token[0].equals("effect") && token.length > 2) {
+			/* |effect|(ally/opp)|status */
+			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+				printDebug("[BP.interpret(effect)] Error: side is "+token[1]);
+				return;
 			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
+			Status status = Status.forName(token[2]);
+			if(status == null) {
+				printDebug("[BP.interpret(effect)] Unknown status: "+token[2]);
+				return;
+			}
+			statusEffectAnim(token[1].equals("ally"), status);
 
-		} else if(token[0].equals("ptr") && token.length > 1) {
-			/* |ptr|(ally/opp) */
-			if(token[1].equals("ally")) {
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is petrified and cannot move!");
-				resultAnim(allyLocation(),"Petrified!",new Color(0x666699));
-			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is petrified and cannot move!");
-				resultAnim(oppLocation(),"Petrified!",new Color(0x666699));
-			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("slp") && token.length > 1) {
-			/* |slp|(ally/opp) */
-			if(token[1].equals("ally")) {
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is fast asleep!");
-				resultAnim(allyLocation(),"Asleep!",new Color(0xA3A3C2));
-			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is fast asleep!");
-				resultAnim(oppLocation(),"Asleep!",new Color(0xA3A3C2));
-			}
 			try {
 				Thread.sleep(INTERPRET_DELAY);
 			} catch(InterruptedException ignore) {}
@@ -1573,19 +1029,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					oppHPBar.update();
 				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is hurt by its burn!");
 				resultAnim(oppLocation(),"-"+(int)(Battle.BURN_DAMAGE*100)+"%!",ResultType.BAD);
-			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("cnf") && token.length > 1) {
-			/* |cnf|(ally/opp) */
-			if(token[1].equals("ally")) {
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is confused!");
-				resultAnim(allyLocation(),"Confused!");
-			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is confused!");
-				resultAnim(oppLocation(),"Confused!");
 			}
 			try {
 				Thread.sleep(INTERPRET_DELAY);
@@ -1644,32 +1087,17 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		} else if(token[0].equals("addstatus") && token.length > 2) {
 			/* |addstatus|(ally/opp)|status[|phrase] */
+			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+				printDebug("[BP.interpret(addstatus)] Error: side is "+token[1]);
+				return;
+			}			
 			Status status = Status.forName(token[2]);
 			if(status == null) {
 				printDebug("[BP.interpret(addstatus)] Unknown status: "+token[2]);
 				return;
 			}
 
-			if(token[1].equals("ally")) {
-				allyPony.setStatus(status, true);
-				allyHPBar.update();
-				if(token.length > 3)
-					appendEvent(EventType.STATUS,token[2],"ally|"+token[3]);
-				else
-					appendEvent(EventType.STATUS,token[2],"ally");
-
-				resultAnim(allyLocation(), status+"!", status.getColor());
-
-			} else if(token[1].equals("opp")) {
-				oppPony.setStatus(status, true);
-				oppHPBar.update();
-				if(token.length > 3)
-					appendEvent(EventType.STATUS,token[2],"opp|"+token[3]);
-				else
-					appendEvent(EventType.STATUS,token[2],"opp");
-
-				resultAnim(oppLocation(), status+"!", status.getColor());
-			}
+			addStatus(token[1].equals("ally"), status, token.length > 3 ? token[3] : null);
 
 			try {
 				Thread.sleep(INTERPRET_DELAY);
@@ -1677,102 +1105,16 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		} else if(token[0].equals("rmstatus") && token.length > 1) {
 			/* |rmstatus|(ally/opp)[|status|phrase] */
+			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+				printDebug("[BP.interpret(rmstatus)] Error: side is "+token[1]);
+				return;
+			}			
 			Status status = null;
-			boolean quiet = token.length > 3 && token[3].equalsIgnoreCase("quiet");
 
 			if(token.length > 2) 
 				status = Status.forName(token[2]);
 
-			if(token[1].equals("ally")) {
-				if(status == null) {	// heal all statuses
-					if(allyPony != null)
-						allyPony.healStatus();
-					if(allyHPBar != null) {
-						allyHPBar.clearStatuses();
-						allyHPBar.clearPseudoStatus("Confused");
-					}
-					if(!quiet) {
-						appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" healed!");
-						resultAnim(allyLocation(),"Healed!",ResultType.GOOD);
-					}
-
-				} else { 
-					if(allyPony != null)
-						allyPony.setStatus(status, false);
-					if(allyHPBar != null) {
-						allyHPBar.clearStatus(status);
-					}
-					if(!quiet) {
-						if(token.length > 3) 
-							appendEvent(EventType.STATUS,token[2],"ally|"+token[3]);
-						else
-							appendEvent(EventType.STATUS,token[2],"ally|cure");
-				
-						switch(status) {
-							case PARALYZED:
-								resultAnim(allyLocation(),"Paralysis cured",ResultType.GOOD);
-								break;
-							case POISONED:
-							case INTOXICATED:
-								resultAnim(allyLocation(),"Poison cured",ResultType.GOOD);
-								break;
-							case ASLEEP:
-								resultAnim(allyLocation(),"Woke up",ResultType.GOOD);
-								break;
-							case PETRIFIED:
-								resultAnim(allyLocation(),"Thawed",ResultType.GOOD);
-								break;
-							case BURNED:
-								resultAnim(allyLocation(),"Burn cured",ResultType.GOOD);
-								break;
-						}
-					}
-				}
-			} else if(token[1].equals("opp")) {
-				if(status == null) {
-					if(oppPony != null)
-						oppPony.healStatus();
-					if(oppHPBar != null) {
-						oppHPBar.clearStatuses();
-						oppHPBar.clearPseudoStatus("Confused");
-					}
-					if(!quiet) {
-						appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" healed!");
-						resultAnim(oppLocation(),"Healed!",ResultType.GOOD);
-					}
-				} else {
-					if(oppPony != null)
-						oppPony.setStatus(status, false);
-					if(oppHPBar != null) {
-						oppHPBar.clearStatus(status);
-					}
-					if(!quiet) {
-						if(token.length > 3)
-							appendEvent(EventType.STATUS,token[2],"opp|"+token[3]);
-						else
-							appendEvent(EventType.STATUS,token[2],"opp|cure");
-
-						switch(status) {
-							case PARALYZED:
-								resultAnim(oppLocation(),"Paralysis cured",ResultType.GOOD);
-								break;
-							case POISONED:
-							case INTOXICATED:
-								resultAnim(oppLocation(),"Poison cured",ResultType.GOOD);
-								break;
-							case ASLEEP:
-								resultAnim(oppLocation(),"Woke up",ResultType.GOOD);
-								break;
-							case PETRIFIED:
-								resultAnim(oppLocation(),"Thawed",ResultType.GOOD);
-								break;
-							case BURNED:
-								resultAnim(oppLocation(),"Burn cured",ResultType.GOOD);
-								break;
-						}
-					}
-				}
-			}
+			removeStatus(token[1].equals("ally"), status, token.length > 3 ? token[3] : null);
 
 			try {
 				Thread.sleep(INTERPRET_DELAY);
@@ -2094,64 +1436,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				printDebug("[BP.interpret(addhazard)]: Error - side is "+token[1]);
 				return;
 			}
-			boolean isAlly = token[1].equals("ally");
-			try {
-				Hazard hazard = HazardCreator.create(token[2]);
-
-				// create hazard token
-				Image img = ImageIO.read(hazard.getToken());
-				if(img == null) {
-					printDebug("[BP.interpret(addhazard)]: Error - couldn't load token "+hazard.getToken());
-					return;
-				}
-				JLabel hzToken = new JLabel(new ImageIcon(img));
-				// properly set bounds of token: the position depends on 2 factors:
-				// 1) on ally side or opponent side?
-				// 2) how many layers are allowed?
-				int x = isAlly ? 
-						FIELD_X+140 : 
-						FIELD_WIDTH-FIELD_X-HAZARD_TOKEN_SIZE-140;
-				int y = isAlly ? 
-						FIELD_HEIGHT-HAZARD_TOKEN_SIZE-30 :
-						130;
-
-				Map<String,Integer> hzs = null;
-				Integer hz = null;
-				Map<String,List<JLabel>> hztok = null;
-				String hzname = hazard.getName();
-				if(isAlly) {
-					hzs = hazards.get(0);
-					hz = hzs.get(hzname);
-					hztok = hazardTokens.get(0);
-				} else {
-					hzs = hazards.get(1);
-					hz = hzs.get(hzname);
-					hztok = hazardTokens.get(1);
-				}
-
-				if(hz != null) {
-					x += (isAlly ? -1 : 1 ) * (20*hz);
-					hzs.put(hzname, hz+1);
-				} else {
-					hzs.put(hzname, 1);
-				}
-				if(hztok.get(hzname) != null)
-					hztok.get(hzname).add(hzToken);
-				else
-					hztok.put(hzname, new LinkedList<JLabel>(
-						Arrays.asList(new JLabel[] { hzToken })));
-			
-				hzToken.setBounds(x,y,hzToken.getIcon().getIconWidth(),hzToken.getIcon().getIconHeight());
-				fieldP.add(hzToken,HAZARD_LAYER);
-
-			} catch(ReflectiveOperationException e) {
-				printDebug("Failed to create hazard "+token[2]+": "+e);
-				return;
-			} catch(IOException e) {
-				printDebug("IOException while loading "+token[2]+": "+e);
-				return;
-			}
-
+			addHazard(token[1].equals("ally"), token[2]);
 	
 		} else if(token[0].equals("rmhazard") && token.length > 1) {
 			/* |rmhazard|(ally/opp)[|Hazard's Move Name|quiet] */
@@ -2159,55 +1444,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				printDebug("[BP.interpret(rmhazard)]: Error - side is "+token[1]);
 				return;
 			}
-			final boolean quiet = token.length > 3 && token[3].equals("quiet");
-			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					public void run() {
-						int side = token[1].equals("ally") ? 0 : 1;
-						if(token.length > 2) {
-							// only remove the specified hazard
-							if(hazardTokens.get(side).get(token[2]) == null) {
-								printDebug("[BP.interpret(rmhazard)] Error - no such hazard on side "+side+": "+token[2]);
-								return;
-							}
-							for(JLabel lab : hazardTokens.get(side).get(token[2])) {
-								if(lab != null) {
-									lab.setVisible(false);
-									fieldP.remove(lab);
-
-								} else {
-									printDebug("[BP.interpret(rmhazard)] Error - tried to remove non-existing hazard "
-										+token[2]);
-									return;
-								}
-							}
-							hazards.get(side).remove(token[2]);
-							if(!quiet)
-								appendEvent(EventType.EMPHASIZED,token[2]+" disappeared from your " +
-									(side == 1 ? "opponent's " : "") + "field!");
-						} else {
-							// remove all hazards
-							for(List<JLabel> list : hazardTokens.get(side).values()) {
-								for(JLabel lab : list) {
-									lab.setVisible(false);
-									fieldP.remove(lab);
-								}
-							}
-							hazards.get(side).clear();
-							if(!quiet)
-								appendEvent(EventType.EMPHASIZED,"Hazards disappeared from your " +
-									(side == 1 ? "opponent's " : "") + "field!");
-						}
-					}
-				});
-			} catch(InterruptedException e) {
-				printDebug("[BP.interpret(rmhazard)] interrupted!");
-				return;
-			} catch(InvocationTargetException e) {
-				e.printStackTrace();
-				printDebug("Caused by: "+e.getCause());
-				return;
-			}
+			removeHazard(token[1].equals("ally"), token.length > 2 ? token[2] : null, token.length > 3 && token[3].equals("quiet"));
 		
 		} else if(token[0].equals("disconnect")) {
 			/* |disconnect[|message] */
@@ -2216,24 +1453,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			else
 				appendEvent(EventType.CRITICAL,"Server disconnected: battle aborted.");
 			terminate();
-		}
-		else {
+		} else {
 			printDebug("[BattlePanel]: Unknown command: "+line);
-		}
-
-		// FIXME: this may probably be just called on |turn: verify and fix
-		if(!(token[0].equals("chat") || token[0].equals("html") || token[0].equals("htmlconv"))) {
-			// reset move selections
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					if(Debug.pedantic) printDebug("Called unselect()");
-					for(MoveButton tb : moveB) {
-						tb.setSelected(false);
-						if(Debug.pedantic) printDebug("Unselected moveButton: "+tb.getMove());
-						tb.repaint();
-					}
-				}
-			});
 		}
 	}
 
@@ -2467,7 +1688,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 								phrase = token[1];
 							}
 						}
-						Pony.Status status = Pony.Status.forName(event);
+						Status status = Status.forName(event);
 						if(status == null) {
 							printDebug("[appendEvent]: error - unknown status: "+event);
 							return;
@@ -2613,22 +1834,18 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	}
 
 	@SuppressWarnings("unchecked")
-	private BasicAnimation createAnimation(Map<String,Object> opts,final String side,final boolean avoid) {
+	private BasicAnimation createAnimation(Map<String,Object> opts, final boolean isAlly, final boolean avoid) {
 		if(!opts.containsKey("name") || !opts.containsKey("sprite")) return null;
-		if(!(side.equals("ally") || side.equals("opp"))) {
-			printDebug("[createAnimation] error: side is "+side);
-			return null;
-		}
 
 		String animType = (String)opts.remove("name");
 		BasicAnimation anim = null;
 		JLabel animSprite = null;
 
-		if(opts.get("sprite").equals("user") && side.equals("ally") || opts.get("sprite").equals("target") && side.equals("opp")) {
+		if(opts.get("sprite").equals("user") && isAlly || opts.get("sprite").equals("target") && !isAlly) {
 			opts.put("sprite",allySprite);
 			if(allySprite != null)
 				fieldP.setLayer(allySprite,MOVE_LAYER);
-		} else if(opts.get("sprite").equals("target") && side.equals("ally") || opts.get("sprite").equals("user") && side.equals("opp")) {
+		} else if(opts.get("sprite").equals("target") && isAlly || opts.get("sprite").equals("user") && !isAlly) {
 			opts.put("sprite",oppSprite);
 			fieldP.setLayer(oppSprite,MOVE_LAYER);
 		} else {
@@ -2674,9 +1891,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {
 						_animSprite.setBounds(
-							side.equals("ally") ? allySprite.getX() /*+ allySprite.getIcon().getIconWidth()/2*/ : 
+							isAlly ? allySprite.getX() /*+ allySprite.getIcon().getIconWidth()/2*/ : 
 								oppSprite.getX() /*+ oppSprite.getIcon().getIconWidth()/2*/,
-							side.equals("ally") ? allySprite.getY() /*+ allySprite.getIcon().getIconHeight()/2*/ :
+							isAlly ? allySprite.getY() /*+ allySprite.getIcon().getIconHeight()/2*/ :
 								oppSprite.getY() /*+ oppSprite.getIcon().getIconHeight()/2*/,
 							_animSprite.getIcon().getIconWidth(),
 							_animSprite.getIcon().getIconHeight()
@@ -2705,7 +1922,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("allyBounds",allySprite.getBounds());
 		if(oppSprite != null)
 			opts.put("oppBounds",oppSprite.getBounds());
-		if(side.equals("opp"))
+		if(!isAlly)
 			opts.put("usedByAlly",false);
 		if(avoid)
 			opts.put("avoided",true);
@@ -3218,65 +2435,800 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		return true;
 	}
 
-	/** Class test: initialize a battle start, then accepts commands
-	 * from the command line.
-	 */
-	public static void main(String[] args) throws Exception {
-		final JFrame frame = new JFrame();
-		final Player p1 = new Player("me");
-		final Player p2 = new Player("opponent");
-		final BattlePanel bp = new BattlePanel(p1,p2);
-		// replays!
-		if(args.length > 0 && args[0].equals("--replay")) {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				public void run() {
-					bp.initialize();
-					frame.add(bp);
-					SwingConsole.run(frame, "Pokepon Replay", false);
-				}
-			});
-			InputStream input = System.in;
-			if(args.length > 1) {
-				input = new FileInputStream(new File(args[1]));
-			}
-			try (BufferedReader bf = new BufferedReader(new InputStreamReader(input, "UTF-8"))) {
-				String line = null;
-				while((line = bf.readLine()) != null) {
-					bp.interpret(line);
-				}
-			}
+	private void teampreview() {
+		if(battleStarted) {
+			printDebug("Error: received teampreview during the battle!");
 			return;
 		}
-
-		Team team1 = Team.randomTeam(6);
-		p1.setTeam(team1);
-		p2.setTeam(Team.randomTeam(6));
-		for(Pony p : team1) {
-			bp.teamP.addPony(p);
-		}
-
+		showBottomAlert("Choose a pony to switch in");
+		StringBuilder sb = new StringBuilder("<font color=#40576A size=3><b>"+p1.getName()+
+			"'s team:</b><br><span style=\"color:#445566;display:block;\">");
+		for(Pony p : p1.getTeam())
+			sb.append(p.getName()+" / ");
+		sb.delete(sb.length()-2,sb.length());
+		sb.append("</span><br><b>"+p2.getName()+"'s team:</b><br><span style=\"color:#445566;display:block;\">");
+		for(Pony p : p2.getTeam())
+			sb.append(p.getName()+" / ");
+		sb.delete(sb.length()-2,sb.length());
+		sb.append("</span></font>");
+		appendEvent(EventType.HTML,sb.toString());
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				bp.initialize();
-				//simulate a battle start
-				bp.interpret("|join|ally|ALLY");
-				bp.interpret("|join|opp|OPPONENT");
-				bp.interpret("|teampreview");
-				bp.interpret("|start");
+				moveP.setVisible(false);
+				int offsetx1 = FIELD_X-15;
+				int offsety1 = FIELD_HEIGHT/2-50;
+				int offsetx2 = FIELD_X+150;
+				int offsety2 = 20;
+				int layer = 3;
+				if(allySprite != null) {
+					fieldP.remove(allySprite);
+					allySprite = null;
+				}
+				if(oppSprite != null) {
+					fieldP.remove(oppSprite);
+					oppSprite = null;
+				}
+				if(allyHPBar != null) {
+					fieldP.remove(allyHPBar);
+					allyHPBar = null;
+				}
+				if(oppHPBar != null) {
+					fieldP.remove(oppHPBar);
+					oppHPBar = null;
+				}
+				validate();
+				repaint();
+
+				for(int i = 0; i < 6; ++i) {
+					if(p1.getTeam().getPony(i) != null) {
+						if(p1.getTeam().getPony(i).getBackSprite() == null)
+							previewSprite1[i] = new JLabel(new ImageIcon(PLACEHOLDER_URL[1]));
+						else
+							previewSprite1[i] = new JLabel(new ImageIcon(
+										p1.getTeam().getPony(i).getBackSprite()));
+						previewSprite1[i].setBounds(offsetx1,offsety1,
+									previewSprite1[i].getIcon().getIconWidth(),
+									previewSprite1[i].getIcon().getIconHeight());
+						if(Debug.on) printDebug("Sprite: "+previewSprite1[i].getIcon());
+						fieldP.add(previewSprite1[i],new Integer(layer));
+					}
+					if(p2.getTeam().getPony(i) != null) {
+						if(p2.getTeam().getPony(i).getFrontSprite() == null)
+							previewSprite2[i] = new JLabel(new ImageIcon(PLACEHOLDER_URL[0]));
+						else
+							previewSprite2[i] = new JLabel(new ImageIcon(
+										p2.getTeam().getPony(i).getFrontSprite()));
+						previewSprite2[i].setBounds(offsetx2,offsety2,
+									previewSprite2[i].getIcon().getIconWidth(),
+									previewSprite2[i].getIcon().getIconHeight());
+						fieldP.add(previewSprite2[i],new Integer(layer));
+					}
+					++layer;
+					offsetx1 += 55;
+					offsetx2 += 55;
+					offsety1 += 25;
+					offsety2 += 25;
+				}
 			}
 		});
-		frame.add(bp);
-		SwingConsole.run(frame,"Pokepon Battle Panel test");
+	}
 
-		Thread.sleep(500);
-		bp.interpret("|switch|ally|0|100");
-		bp.interpret("|switch|opp|0|100");
+	private void doSwitch(final boolean isAlly, final int ponyNum, final int hp, final int maxhp) {
+		try {
+			/* here we use invokeAndWait because we must be sure both the attacker and the defender
+			 * are set correctly. Doing this asynchronously messes up the order of the actions, e.g.
+			 * a sequence of messages like:
+			 * |switch|ally|Trixie
+			 * |damage|ally|100
+			 * often ends up dealing the damage to the current allyPony _before_ it's switched out.
+			 */
+			if(isAlly) {
+				if(allyPony != null) {
+					allyPony.removeVolatiles();
+					if(allyPony.isTransformed()) 
+						allyPony.transformBack();
+					if(allySprite != null) 
+						switchOutAnim(allySprite,true);
+				}
+				if(Debug.on) printDebug("Setting active ally: #"+ponyNum);
 
-		try (BufferedReader bf = new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
-			String line = null;
-			while((line = bf.readLine()) != null) {
-				bp.interpret(line);
+				final Pony newActive = p1.getTeam().getPony(ponyNum);
+				if(newActive == null) {
+					printDebug("Error: ally pony #"+ponyNum+" does not exist.");
+					return;
+				}
+				newActive.setActive(true);
+				allyPony = newActive;
+				if(teamMenu1.getTokens()[ponyNum].isUnknown())
+					teamMenu1.setUnknown(ponyNum, false);
+
+				// switch-in animation
+				if(allyPony.getBackSprite() == null) {
+					allySprite = new TransparentLabel(new JLabel(new ImageIcon(PLACEHOLDER_URL[1])),0f);
+				} else {
+					allySprite = new TransparentLabel(new JLabel(new ImageIcon(allyPony.getBackSprite())),0f);
+					if(allySprite.getIcon().getIconWidth() < 0)
+						allySprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
+				}
+				switchInAnim(allySprite,true);
+
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						if(maxhp > 0) 
+							newActive.setMaxHp(maxhp);
+						else
+							newActive.setMaxHp(hp);
+						newActive.setHp(hp);
+						if(Debug.on) printDebug("Ally pony set to "+allyPony);
+						// create new HP bar
+						if(allyHPBar != null) {
+							synchronized(allyHPBar) {
+								allyHPBar.setVisible(false);
+							}
+							fieldP.remove(allyHPBar);
+						}
+						allyHPBar = new HPBar(allyPony,hpBarTxtColor);
+						allyHPBar.setBounds(320,250,240,100);
+						allyHPBar.setVisible(true);
+						fieldP.add(allyHPBar,HPBAR_LAYER);
+						// set moves
+						if(allyPony.finishedPP()) {
+							moveB[0].setMove(new Struggle());
+							for(int i = 1; i < Pony.MOVES_PER_PONY; ++i)
+								moveB[i].setMove(null);
+						} else {
+							for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
+								moveB[i].setMove(allyPony.getMove(i));
+						}
+						moveP.setVisible(true);
+						validate();
+						repaint();
+						appendEvent(EventType.SWITCH, allyPony.getNickname()+
+								(allyPony.hasNickname() ? "|"+allyPony.getName() : ""),
+								"ally");
+					}
+				});
+			} else {
+				if(oppPony != null) {
+					oppPony.removeVolatiles();
+					if(oppPony.isTransformed()) 
+						oppPony.transformBack();
+					if(oppSprite != null) 
+						switchOutAnim(oppSprite,false);
+				}
+				if(Debug.on) printDebug("Setting active opponent: #"+ponyNum);
+
+				final Pony newActive = p2.getTeam().getPony(ponyNum);
+				if(newActive == null) {
+					printDebug("Error: opponent pony #"+ponyNum+" does not exist.");
+					return;
+				}
+				newActive.setActive(true);
+				oppPony = newActive;
+				if(teamMenu2.getTokens()[ponyNum].isUnknown())
+					teamMenu2.setUnknown(ponyNum, false);
+
+				// switch-in animation
+				if(oppPony.getFrontSprite() == null) {
+					oppSprite = new TransparentLabel(new JLabel(new ImageIcon(PLACEHOLDER_URL[0])),0f);
+				} else {
+					oppSprite = new TransparentLabel(new JLabel(new ImageIcon(oppPony.getFrontSprite())),0f);
+					if(oppSprite.getIcon().getIconWidth() < 0)
+						oppSprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
+				}
+				switchInAnim(oppSprite,false);			
+
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						if(maxhp > 0) 
+							newActive.setMaxHp(maxhp);
+						else
+							newActive.setMaxHp(hp);
+						newActive.setHp(hp);
+						if(Debug.on) printDebug("Opponent pony set to "+oppPony);
+						// create new HP bar
+						if(oppHPBar != null) {
+							synchronized(oppHPBar) {
+								oppHPBar.setVisible(false);
+							}
+							fieldP.remove(oppHPBar);
+						}
+						oppHPBar = new HPBar(oppPony,hpBarTxtColor);
+						oppHPBar.setBounds(FIELD_X+20,5,240,100);
+						oppHPBar.setVisible(true);
+						fieldP.add(oppHPBar,HPBAR_LAYER);
+						validate();
+						repaint();
+						appendEvent(EventType.SWITCH, oppPony.getNickname()+
+								(oppPony.hasNickname() ? "|"+oppPony.getName() : ""),
+								"opp");
+					}
+				});
 			}
+
+		} catch(InterruptedException e) {
+			printDebug("[doSwitch] interrupted!");
+			return;
+		} catch(InvocationTargetException e) {
+			e.printStackTrace();
+			printDebug("Caused by: "+e.getCause());
+			return;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void moveAnimation(final boolean isAlly, final String moveName, final boolean avoid) {
+		BasicAnimation anim = null;
+		try {
+			Map<String,Object> opts = MoveCreator.create(moveName).getAnimation();
+
+			if(opts == null || opts.get("name") == null) 
+				return;
+
+			List<String> anims = null;
+			List<Map<String,Object>> animsopts = null;
+		
+			/* A Compound animation is a chain of several animations to be reproduced
+			 * in series. To specify a compound animation, the options must look like:
+			 *   animation.put("name", "Compound");
+			 *   animation.put("anims", Arrays.asList("Animation1", "Animation2", ...));
+			 */
+			if(opts.get("name").equals("Compound")) {
+				anims = (List<String>)opts.get("anims");
+				animsopts = new ArrayList<Map<String,Object>>(anims.size());
+				for(int i = 0; i < anims.size(); ++i)
+					animsopts.add(new HashMap<String,Object>());
+
+				/* opts whose keys start with [0-9]: are specific to a single
+				 * animation in the chain; the others are global to all
+				 * animations. e.g. 1:sprite=wisp.png will apply only to the
+				 * FIRST animation in the chain.
+				 */
+				for(String key : opts.keySet()) {
+					if(key.matches("^[0-9]:.*")) {
+						try {
+							animsopts.get(Integer.parseInt(key.substring(0,1))-1)
+								.put(key.substring(2), opts.get(key));
+						} catch(IndexOutOfBoundsException e) {
+							printDebug("[BP.interpret(move)] Invalid key: "+key);
+						}
+					} else if(!key.equals("name")) {
+						for(int i = 0; i < anims.size(); ++i)
+							animsopts.get(i).put(key, opts.get(key));
+					}
+				}
+			} else {
+				anims = Arrays.asList((String)opts.get("name"));
+				animsopts = Arrays.asList(opts);
+			}
+
+			for(int i = 0; i < anims.size(); ++i) {
+				animsopts.get(i).put("name", anims.get(i));
+				if(Debug.on) printDebug("opts = "+animsopts.get(i));
+
+				anim = createAnimation(animsopts.get(i), isAlly, avoid);
+
+				if(anim == null) {
+					printDebug("[BP.interpret(move)] no animation found for move "+moveName);
+					return;
+				}
+				anim.start();
+				synchronized(anim) {
+					try {
+						anim.wait();
+					} catch(InterruptedException e) {
+						printDebug("Animation interrupted.");
+					}
+				}
+				if(anim != null && anim.getSprite() != allySprite && anim.getSprite() != oppSprite && !anim.isPersistent()) {
+					fieldP.remove(anim.getSprite());
+				}
+				if(animsopts.get(i).get("postWait") != null) {
+					try {
+						Thread.sleep((int)animsopts.get(i).get("postWait"));
+					} catch(IllegalArgumentException|ClassCastException ee) {
+						printDebug("[BP.interpret(move)] illegal argument: "+animsopts.get(i).get("postWait"));
+					} catch(InterruptedException ignore2) {}
+				}
+			}
+			if(avoid) {
+				if(isAlly) {
+					appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
+					resultAnim(oppLocation(),"Avoided!");
+				} else {
+					appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
+					resultAnim(allyLocation(),"Avoided!");
+				}
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+			}
+			if(Debug.on) printDebug("Ended animation.");
+
+		} catch(ReflectiveOperationException e) {
+			printDebug("[BP.interpret(move)] failed to create move "+moveName);
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(allySprite != null)
+				fieldP.setLayer(allySprite,PONY_LAYER);
+			if(oppSprite != null)
+				fieldP.setLayer(oppSprite,PONY_LAYER);
+			if(anim != null && anim.getSprite() != allySprite && anim.getSprite() != oppSprite && !anim.isPersistent()) {
+				fieldP.remove(anim.getSprite());
+			}
+		}
+	}
+
+	/** @return true, if should sleep after this animation, false otherwise */
+	private boolean parseAnimation(final String[] token) {
+		final boolean isAlly = token[1].equals("ally");
+		Map<String,Object> opts = new HashMap<>();
+		for(int i = 2; i < token.length; ++i) {
+			String[] pair = token[i].split("=", 2);
+			if(pair.length != 2) {
+				printDebug("[BP.interpret(anim)] Bad pair received: "+token[i]+"; ignoring.");
+				continue;
+			}
+			Object value = null;
+			/* Parse optional argument typecast. Since all we receive are strings,
+			 * one can specify a 'typecast pattern' in the value field, like:
+			 * delay=(i)40  // will convert "40" to an Integer
+			 * We don't use implicit casting based on the key because it's a less
+			 * flexible and explicit approach. It's the caller's responsibility to correctly
+			 * cast values types according to their key.
+			 */
+			Matcher matcher = Pattern.compile("^\\(([a-z])\\)(.+)$").matcher(pair[1]);
+			if(matcher.matches()) {
+				if(Debug.on) printDebug("Converting type of "+pair[1]);
+				try {
+					switch(matcher.group(1).charAt(0)) {
+						case 'b':
+							value = Boolean.parseBoolean(matcher.group(2));
+							break;
+						case 'i':
+							value = Integer.parseInt(matcher.group(2));
+							break;
+						case 'f':
+							value = Float.parseFloat(matcher.group(2));
+							break;
+						case 'd':
+							value = Double.parseDouble(matcher.group(2));
+							break;
+						default:
+							value = pair[1];
+					}
+				} catch(IllegalArgumentException e) {
+					printDebug("[BP.interpret(anim)] Cannot convert '"+matcher.group(2)+"' to "+matcher.group(1));
+					continue;
+				}
+			} else {
+				value = pair[1];
+			}
+			opts.put(pair[0], value);
+		}
+		Animation anim = createAnimation(opts, isAlly, false);
+		if(anim == null) {
+			printDebug("[BP.interpret(anim)] Error: resulting animation is null!");
+			return false;
+		}
+		anim.start();
+		synchronized(anim) {
+			try {
+				anim.wait();
+			} catch(InterruptedException e) {
+				printDebug("Animation interrupted.");
+			}
+		}
+		return !opts.containsKey("nodelay");
+	}
+
+	private void applyDamage(final boolean isAlly, final int dam, final String phrase) {
+		if(isAlly) {
+			int prevhp = allyPony.hp();
+			synchronized(allyPony) {
+				allyPony.damage(dam);
+			}
+			if(allyHPBar != null)
+				allyHPBar.update();
+			if(!phrase.equalsIgnoreCase("quiet"))
+				appendEvent(EventType.BATTLE,parseDamageEvent(allyPony,	dam, phrase));
+			if(dam >= 0)
+				resultAnim(allyLocation(),"-" + 
+					(Math.min(prevhp, dam)*100 / allyPony.maxhp()) + "%!",
+					ResultType.BAD);
+			else
+				resultAnim(allyLocation(),"+" + 
+					(Math.min(prevhp, -dam)*100 / allyPony.maxhp()) + "%!",
+					ResultType.GOOD);
+		} else {
+			int prevhp = oppPony.hp();
+			synchronized(oppPony) {
+				oppPony.damage(dam);
+			}
+			if(oppHPBar != null)
+				oppHPBar.update();
+			if(!phrase.equalsIgnoreCase("quiet"))
+				appendEvent(EventType.BATTLE,parseDamageEvent(oppPony, dam, phrase));
+			if(dam > 0)
+				resultAnim(oppLocation(),"-" +
+					(Math.min(prevhp, dam)*100 / oppPony.maxhp()) + "%!",
+					ResultType.BAD);
+			else
+				resultAnim(oppLocation(),"+" + 
+					(Math.min(prevhp, -dam)*100 / oppPony.maxhp()) + "%!",
+					ResultType.GOOD);
+		}
+	}
+
+	private void applyBoost(final boolean isAlly, final Pony.Stat stat, final int value, final String phrase) {
+		if(value == 0) return;
+		String name = "";
+		StringBuilder sb = new StringBuilder(isAlly ? "" : "Enemy ");
+
+		if(phrase != null) {
+			// custom phrase
+			if(!phrase.equalsIgnoreCase("quiet"))
+				sb.append(phrase);
+		} else {
+			sb.append((isAlly
+					? allyPony.getNickname()
+					: oppPony.getNickname()) +"'s ");
+			sb.append(stat.toString());
+		
+			if(value > 2) sb.append(" rose drastically!");
+			else if(value > 1) sb.append(" sharply rose!");
+			else if (value > 0) sb.append(" rose!");
+			else if(value > -2) sb.append(" fell!");
+			else if(value > -1) sb.append(" harshly fell!");
+			else sb.append(" fell drastically!");
+		}
+		
+		if(isAlly) {
+			allyPony.boost(stat, value);
+			if(value > 0)
+				resultAnim(allyLocation(),"+"+value+" "+stat.brief()+"!",ResultType.GOOD);
+			else
+				resultAnim(allyLocation(),value+" "+stat.brief()+"!",ResultType.BAD);
+			if(allyHPBar != null) 
+				allyHPBar.update();
+		} else {
+			oppPony.boost(stat, value);
+			if(value > 0)
+				resultAnim(oppLocation(),"+"+value+" "+stat.brief()+"!",ResultType.GOOD);
+			else
+				resultAnim(oppLocation(),value+" "+stat.brief()+"!",ResultType.BAD);
+			if(oppHPBar != null) 
+				oppHPBar.update();
+		}
+		if(sb.length() > 0)
+			appendEvent(EventType.BOOST,sb.toString());
+	}
+
+	private void applyRecoilDamage(final boolean isAlly, final int damage) {
+		if(isAlly) {
+			if(allyPony != null && !allyPony.isFainted()) {
+				synchronized(allyPony) {
+					allyPony.damage(damage);
+				}
+				allyHPBar.update();
+				appendEvent(EventType.BATTLE,allyPony.getNickname() + " lost "+ 
+					(Battle.SHOW_HP_PERC 
+					 ? Math.min(allyPony.hp()*100 / allyPony.maxhp(),
+						allyPony.calculateDamagePerc(damage)) + "% of its HP" 
+					 : damage + " HP") + " due to recoil!");
+				resultAnim(allyLocation(),"Recoil",ResultType.BAD);
+			}
+		} else {
+			if(oppPony != null && !oppPony.isFainted()) {
+				synchronized(oppPony) {
+					oppPony.damage(damage);
+				}
+				oppHPBar.update();
+				appendEvent(EventType.BATTLE,"Enemy "+oppPony.getNickname() + " lost "+ 
+					(Battle.SHOW_HP_PERC 
+					 ? Math.min(oppPony.hp()*100 / oppPony.maxhp(),
+						oppPony.calculateDamagePerc(damage))+ "% of its HP" 
+					 : damage + " HP") + " due to recoil!");
+				resultAnim(oppLocation(),"Recoil",ResultType.BAD);
+			}
+		}
+	}
+
+	private void transformPony(final boolean isAlly, final String ponyName) {
+		if(isAlly) {
+			try {
+				allyPony.transformInto(PonyCreator.create(ponyName));
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						if(allySprite == null)
+							allySprite = new TransparentLabel();
+						if(allyPony.getBackSprite() == null)
+							allySprite.setIcon(new ImageIcon(PLACEHOLDER_URL[1]));
+						else
+							allySprite.setIcon(new ImageIcon(allyPony.getBackSprite()));
+						setAllyBounds(allySprite);
+						validate();
+						repaint();
+					}
+				});
+				allyHPBar.update();
+				resultAnim(allyLocation(),"Transformed!",ResultType.NEUTRAL);
+			} catch(ReflectiveOperationException e) {
+				printDebug("[BP.interpret(transform)]: error creating "+ponyName+": "+e);
+				return;
+			}
+
+		} else {
+			try {
+				oppPony.transformInto(PonyCreator.create(ponyName));
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						if(oppSprite == null)
+							oppSprite = new TransparentLabel();
+						if(oppPony.getFrontSprite() == null)
+							oppSprite.setIcon(new ImageIcon(PLACEHOLDER_URL[0]));
+						else
+							oppSprite.setIcon(new ImageIcon(oppPony.getFrontSprite()));
+						setOpponentBounds(oppSprite);
+						validate();
+						repaint();
+					}
+				});
+				oppHPBar.update();
+				resultAnim(oppLocation(),"Transformed!",ResultType.NEUTRAL);
+			} catch(ReflectiveOperationException e) {
+				printDebug("[BP.interpret(transform)]: error creating "+ponyName+": "+e);
+				return;
+			}
+		}
+	}
+
+	private void statusEffectAnim(final boolean isAlly, final Status status) {
+		String phrase = "";
+		switch(status) {
+			case PARALYZED:
+				phrase = " is fully paralyzed!";
+				break;
+			case ASLEEP:
+				phrase = " is fast asleep!";
+				break;
+			case PETRIFIED:
+				phrase = " is petrified and cannot move!";
+				break;
+		}
+		if(isAlly) {
+			appendEvent(EventType.EMPHASIZED, allyPony.getNickname() + phrase);
+			resultAnim(allyLocation(), status + "!", status.getColor());
+		} else {
+			appendEvent(EventType.EMPHASIZED, "Enemy " + oppPony.getNickname() + phrase);
+			resultAnim(oppLocation(), status + "!", status.getColor());
+		}
+	}
+
+	private void addStatus(final boolean isAlly, final Status status, final String phrase) {
+		if(isAlly) {
+			allyPony.setStatus(status, true);
+			allyHPBar.update();
+			if(phrase != null)
+				appendEvent(EventType.STATUS,status.toString(),"ally|"+phrase);
+			else
+				appendEvent(EventType.STATUS,status.toString(),"ally");
+
+			resultAnim(allyLocation(), status+"!", status.getColor());
+
+		} else {
+			oppPony.setStatus(status, true);
+			oppHPBar.update();
+			if(phrase != null)
+				appendEvent(EventType.STATUS,status.toString(),"opp|"+phrase);
+			else
+				appendEvent(EventType.STATUS,status.toString(),"opp");
+
+			resultAnim(oppLocation(), status+"!", status.getColor());
+		}
+	}
+
+	private void removeStatus(final boolean isAlly, final Status status, final String phrase) {
+		final boolean quiet = phrase != null && phrase.equalsIgnoreCase("quiet");
+		if(isAlly) {
+			if(status == null) {	// heal all statuses
+				if(allyPony != null)
+					allyPony.healStatus();
+				if(allyHPBar != null) {
+					allyHPBar.clearStatuses();
+					allyHPBar.clearPseudoStatus("Confused");
+				}
+				if(!quiet) {
+					appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" healed!");
+					resultAnim(allyLocation(),"Healed!",ResultType.GOOD);
+				}
+
+			} else { 
+				if(allyPony != null)
+					allyPony.setStatus(status, false);
+				if(allyHPBar != null) {
+					allyHPBar.clearStatus(status);
+				}
+				if(!quiet) {
+					if(phrase != null) 
+						appendEvent(EventType.STATUS,status.toString(),"ally|"+phrase);
+					else
+						appendEvent(EventType.STATUS,status.toString(),"ally|cure");
+			
+					switch(status) {
+						case PARALYZED:
+							resultAnim(allyLocation(),"Paralysis cured",ResultType.GOOD);
+							break;
+						case POISONED:
+						case INTOXICATED:
+							resultAnim(allyLocation(),"Poison cured",ResultType.GOOD);
+							break;
+						case ASLEEP:
+							resultAnim(allyLocation(),"Woke up",ResultType.GOOD);
+							break;
+						case PETRIFIED:
+							resultAnim(allyLocation(),"Thawed",ResultType.GOOD);
+							break;
+						case BURNED:
+							resultAnim(allyLocation(),"Burn cured",ResultType.GOOD);
+							break;
+					}
+				}
+			}
+		} else {
+			if(status == null) {
+				if(oppPony != null)
+					oppPony.healStatus();
+				if(oppHPBar != null) {
+					oppHPBar.clearStatuses();
+					oppHPBar.clearPseudoStatus("Confused");
+				}
+				if(!quiet) {
+					appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" healed!");
+					resultAnim(oppLocation(),"Healed!",ResultType.GOOD);
+				}
+			} else {
+				if(oppPony != null)
+					oppPony.setStatus(status, false);
+				if(oppHPBar != null) {
+					oppHPBar.clearStatus(status);
+				}
+				if(!quiet) {
+					if(phrase != null)
+						appendEvent(EventType.STATUS,status.toString(),"opp|"+phrase);
+					else
+						appendEvent(EventType.STATUS,status.toString(),"opp|cure");
+
+					switch(status) {
+						case PARALYZED:
+							resultAnim(oppLocation(),"Paralysis cured",ResultType.GOOD);
+							break;
+						case POISONED:
+						case INTOXICATED:
+							resultAnim(oppLocation(),"Poison cured",ResultType.GOOD);
+							break;
+						case ASLEEP:
+							resultAnim(oppLocation(),"Woke up",ResultType.GOOD);
+							break;
+						case PETRIFIED:
+							resultAnim(oppLocation(),"Thawed",ResultType.GOOD);
+							break;
+						case BURNED:
+							resultAnim(oppLocation(),"Burn cured",ResultType.GOOD);
+							break;
+					}
+				}
+			}
+		}
+	}
+
+	private void addHazard(final boolean isAlly, final String hzName) {
+		try {
+			Hazard hazard = HazardCreator.create(hzName);
+
+			// create hazard token
+			Image img = ImageIO.read(hazard.getToken());
+			if(img == null) {
+				printDebug("[BP.interpret(addhazard)]: Error - couldn't load token "+hazard.getToken());
+				return;
+			}
+			JLabel hzToken = new JLabel(new ImageIcon(img));
+			// properly set bounds of token: the position depends on 2 factors:
+			// 1) on ally side or opponent side?
+			// 2) how many layers are allowed?
+			int x = isAlly ? 
+					FIELD_X+140 : 
+					FIELD_WIDTH-FIELD_X-HAZARD_TOKEN_SIZE-140;
+			int y = isAlly ? 
+					FIELD_HEIGHT-HAZARD_TOKEN_SIZE-30 :
+					130;
+
+			Map<String,Integer> hzs = null;
+			Integer hz = null;
+			Map<String,List<JLabel>> hztok = null;
+			if(isAlly) {
+				hzs = hazards.get(0);
+				hz = hzs.get(hzName);
+				hztok = hazardTokens.get(0);
+			} else {
+				hzs = hazards.get(1);
+				hz = hzs.get(hzName);
+				hztok = hazardTokens.get(1);
+			}
+
+			if(hz != null) {
+				x += (isAlly ? -1 : 1 ) * (20*hz);
+				hzs.put(hzName, hz+1);
+			} else {
+				hzs.put(hzName, 1);
+			}
+			if(hztok.get(hzName) != null)
+				hztok.get(hzName).add(hzToken);
+			else
+				hztok.put(hzName, new LinkedList<JLabel>(
+					Arrays.asList(new JLabel[] { hzToken })));
+		
+			hzToken.setBounds(x,y,hzToken.getIcon().getIconWidth(),hzToken.getIcon().getIconHeight());
+			fieldP.add(hzToken,HAZARD_LAYER);
+
+		} catch(ReflectiveOperationException e) {
+			printDebug("Failed to create hazard "+hzName+": "+e);
+			return;
+		} catch(IOException e) {
+			printDebug("IOException while loading "+hzName+": "+e);
+			return;
+		}
+	}
+
+	private void removeHazard(final boolean isAlly, final String hzName, final boolean quiet) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					int side = isAlly ? 0 : 1;
+					if(hzName != null) {
+						// only remove the specified hazard
+						if(hazardTokens.get(side).get(hzName) == null) {
+							printDebug("[BP.interpret(rmhazard)] Error - no such hazard on side "+side+": "+hzName);
+							return;
+						}
+						for(JLabel lab : hazardTokens.get(side).get(hzName)) {
+							if(lab != null) {
+								lab.setVisible(false);
+								fieldP.remove(lab);
+
+							} else {
+								printDebug("[BP.interpret(rmhazard)] Error - tried to remove non-existing hazard "
+									+hzName);
+								return;
+							}
+						}
+						hazards.get(side).remove(hzName);
+						if(!quiet)
+							appendEvent(EventType.EMPHASIZED,hzName+" disappeared from your " +
+								(side == 1 ? "opponent's " : "") + "field!");
+					} else {
+						// remove all hazards
+						for(List<JLabel> list : hazardTokens.get(side).values()) {
+							for(JLabel lab : list) {
+								lab.setVisible(false);
+								fieldP.remove(lab);
+							}
+						}
+						hazards.get(side).clear();
+						if(!quiet)
+							appendEvent(EventType.EMPHASIZED,"Hazards disappeared from your " +
+								(side == 1 ? "opponent's " : "") + "field!");
+					}
+				}
+			});
+		} catch(InterruptedException e) {
+			printDebug("[removeHazard] interrupted!");
+			return;
+		} catch(InvocationTargetException e) {
+			e.printStackTrace();
+			printDebug("Caused by: "+e.getCause());
+			return;
 		}
 	}
 
@@ -3507,4 +3459,70 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		}
 	}
 
+	/** Class test: initialize a battle start, then accepts commands
+	 * from the command line.
+	 */
+	public static void main(String[] args) throws Exception {
+		final JFrame frame = new JFrame();
+		final Player p1 = new Player("me");
+		final Player p2 = new Player("opponent");
+		final BattlePanel bp = new BattlePanel(p1,p2);
+		// replays!
+		if(args.length > 0 && args[0].equals("--replay")) {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					bp.initialize();
+					frame.add(bp);
+					SwingConsole.run(frame, "Pokepon Replay", false);
+				}
+			});
+			InputStream input = System.in;
+			if(args.length > 1) {
+				input = new FileInputStream(new File(args[1]));
+			}
+			try (BufferedReader bf = new BufferedReader(new InputStreamReader(input, "UTF-8"))) {
+				String line = null;
+				while((line = bf.readLine()) != null) {
+					bp.interpret(line);
+				}
+			}
+			return;
+		}
+
+		Team team1 = Team.randomTeam(6);
+		p1.setTeam(team1);
+		p2.setTeam(Team.randomTeam(6));
+		for(Pony p : team1) {
+			bp.teamP.addPony(p);
+		}
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				bp.initialize();
+				//simulate a battle start
+				bp.interpret("|join|ally|ALLY");
+				bp.interpret("|join|opp|OPPONENT");
+				bp.interpret("|teampreview");
+				bp.interpret("|start");
+			}
+		});
+		frame.add(bp);
+		SwingConsole.run(frame,"Pokepon Battle Panel test");
+
+		Thread.sleep(500);
+		bp.interpret("|switch|ally|0|100");
+		bp.interpret("|switch|opp|0|100");
+
+		try (BufferedReader bf = new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
+			String line = null, prev = null;
+			while((line = bf.readLine()) != null) {
+				if(line.equals("!!")) {
+					bp.interpret(prev);
+				} else {
+					bp.interpret(line);
+					prev = line;
+				}
+			}
+		}
+	}
 }

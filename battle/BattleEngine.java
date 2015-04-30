@@ -283,16 +283,16 @@ public class BattleEngine {
 		/// MOVE PRE-USAGE
 		if(fullParalysis(attacker)) {
 			if(battleTask != null) {
-				battleTask.sendB(ally,"|par|ally");
-				battleTask.sendB(opp,"|par|opp");
+				battleTask.sendB(ally,"|effect|ally|par");
+				battleTask.sendB(opp,"|effect|opp|par");
 			}
 			if(echoBattle) printMsg(attacker.getNickname()+" is paralyzed and can't move!");
 			move.reset();
 			return;
 		} else if(staysPetrified(attacker)) {
 			if(battleTask != null) {
-				battleTask.sendB(ally,"|ptr|ally");
-				battleTask.sendB(opp,"|ptr|opp");
+				battleTask.sendB(ally,"|effect|ally|ptr");
+				battleTask.sendB(opp,"|effect|opp|ptr");
 			}
 			if(echoBattle) printMsg(attacker.getNickname()+" is petrified and can't move!");
 			move.reset();
@@ -308,8 +308,8 @@ public class BattleEngine {
 			return;
 		} else if(staysAsleep(attacker)) {
 			if(battleTask != null) {
-				battleTask.sendB(ally,"|slp|ally");
-				battleTask.sendB(opp,"|slp|opp");
+				battleTask.sendB(ally,"|effect|ally|slp");
+				battleTask.sendB(opp,"|effect|opp|slp");
 			}
 			if(echoBattle) printMsg(attacker.getNickname()+" is fast asleep.");
 			move.reset();
@@ -340,8 +340,9 @@ public class BattleEngine {
 		if(attacker.isConfused()) {
 			if(echoBattle) printMsg(attacker.getNickname()+" is confused.");
 			if(battleTask != null) {
-				battleTask.sendB(ally,"|cnf|ally");
-				battleTask.sendB(opp,"|cnf|opp");
+				battleTask.sendB("|battle|" + attacker.getNickname() + " is confused!");
+				battleTask.sendB(ally,"|resultanim|ally|neutral|Confused!");
+				battleTask.sendB(opp,"|resultanim|opp|neutral|Confused!");
 			}
 			if(rng.nextFloat() < Battle.CHANCE_SELF_DAMAGE_FOR_CONFUSION) {
 				int dmg = attacker.damage(dc.calculateBattleDamage(

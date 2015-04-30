@@ -1644,14 +1644,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		} else if(token[0].equals("addstatus") && token.length > 2) {
 			/* |addstatus|(ally/opp)|status[|phrase] */
-			Status status = null;
-			if(token[2].equals("par")) status = Status.PARALYZED;
-			else if(token[2].equals("slp")) status = Status.ASLEEP;
-			else if(token[2].equals("ptr")) status = Status.PETRIFIED;
-			else if(token[2].equals("psn")) status = Status.POISONED;
-			else if(token[2].equals("tox")) status = Status.INTOXICATED;
-			else if(token[2].equals("brn")) status = Status.BURNED;
-			else {
+			Status status = Status.forName(token[2]);
+			if(status == null) {
 				printDebug("[BP.interpret(addstatus)] Unknown status: "+token[2]);
 				return;
 			}
@@ -1664,26 +1658,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				else
 					appendEvent(EventType.STATUS,token[2],"ally");
 
-				switch(status) {
-					case PARALYZED:
-						resultAnim(allyLocation(),status+"!", new Color(0xCFA600));
-						break;
-					case POISONED:
-					case INTOXICATED:
-						resultAnim(allyLocation(),status+"!", new Color(0x9900CC));
-						break;
-					case BURNED:
-						resultAnim(allyLocation(),status+"!", new Color(0xCC0000));
-						break;
-					case PETRIFIED:
-						resultAnim(allyLocation(),status+"!", new Color(0x666699));
-						break;
-					case ASLEEP:
-						resultAnim(allyLocation(),status+"!", new Color(0xA3A3C2));
-						break;
-					default:
-						resultAnim(allyLocation(),status+"!");
-				}
+				resultAnim(allyLocation(), status+"!", status.getColor());
 
 			} else if(token[1].equals("opp")) {
 				oppPony.setStatus(status, true);
@@ -1693,26 +1668,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				else
 					appendEvent(EventType.STATUS,token[2],"opp");
 
-				switch(status) {
-					case PARALYZED:
-						resultAnim(oppLocation(),status+"!",new Color(0xCFA600));
-						break;
-					case POISONED:
-					case INTOXICATED:
-						resultAnim(oppLocation(),status+"!",new Color(0x9900CC));
-						break;
-					case BURNED:
-						resultAnim(oppLocation(),status+"!",new Color(0xCC0000));
-						break;
-					case PETRIFIED:
-						resultAnim(oppLocation(),status+"!",new Color(0x666699));
-						break;
-					case ASLEEP:
-						resultAnim(oppLocation(),status+"!",new Color(0xA3A3C2));
-						break;
-					default:
-						resultAnim(oppLocation(),status+"!");
-				}
+				resultAnim(oppLocation(), status+"!", status.getColor());
 			}
 
 			try {
@@ -1724,14 +1680,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			Status status = null;
 			boolean quiet = token.length > 3 && token[3].equalsIgnoreCase("quiet");
 
-			if(token.length > 2) {
-				if(token[2].equals("par")) status = Status.PARALYZED;
-				else if(token[2].equals("slp")) status = Status.ASLEEP;
-				else if(token[2].equals("ptr")) status = Status.PETRIFIED;
-				else if(token[2].equals("psn")) status = Status.POISONED;
-				else if(token[2].equals("tox")) status = Status.INTOXICATED;
-				else if(token[2].equals("brn")) status = Status.BURNED;
-			}
+			if(token.length > 2) 
+				status = Status.forName(token[2]);
 
 			if(token[1].equals("ally")) {
 				if(status == null) {	// heal all statuses
@@ -1831,8 +1781,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		} else if(token[0].equals("healteam") && token.length > 1) {
 			/* |healteam|(ally/opp) */
 			if(token[1].equals("ally")) {
-				//if(allyPony != null)
-				//	allyPony.healStatus();
 				p1.getTeam().healTeamStatus();
 				if(allyHPBar != null) {
 					allyHPBar.clearStatuses();
@@ -1841,8 +1789,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				appendEvent(EventType.EMPHASIZED, "Team cured!");
 				resultAnim(allyLocation(),"Team cured!",ResultType.GOOD);
 			} else if(token[1].equals("opp")) {
-				//if(oppPony != null)
-				//	oppPony.healStatus();
 				p2.getTeam().healTeamStatus();
 				if(oppHPBar != null) {
 					oppHPBar.clearStatuses();
@@ -1925,11 +1871,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			/* |taunt|(ally/opp) */
 			if(token[1].equals("ally")) {
 				int cnt = Pony.MOVES_PER_PONY;
-				for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) 
+				for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
 					if(moveB[i].getMove() != null && moveB[i].getMove().getMoveType() == Move.MoveType.STATUS) {
 						moveB[i].setEnabled(false);
 						--cnt;
-				}
+					}
+				}	
 				if(cnt == 0) {
 					try {
 						moveB[0].setMove(MoveCreator.create("Struggle"));
@@ -2168,31 +2115,31 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						FIELD_HEIGHT-HAZARD_TOKEN_SIZE-30 :
 						130;
 
+				Map<String,Integer> hzs = null;
+				Integer hz = null;
+				Map<String,List<JLabel>> hztok = null;
+				String hzname = hazard.getName();
 				if(isAlly) {
-					if(hazards.get(0).get(hazard.getName()) != null) {
-						x -= (20*hazards.get(0).get(hazard.getName()));
-						hazards.get(0).put(hazard.getName(),hazards.get(0).get(hazard.getName())+1);
-					} else {
-						hazards.get(0).put(hazard.getName(),1);
-					}
-					if(hazardTokens.get(0).containsKey(hazard.getName()))
-						hazardTokens.get(0).get(hazard.getName()).add(hzToken);
-					else
-						hazardTokens.get(0).put(hazard.getName(),new LinkedList<JLabel>(
-							Arrays.asList(new JLabel[] { hzToken })));
+					hzs = hazards.get(0);
+					hz = hzs.get(hzname);
+					hztok = hazardTokens.get(0);
 				} else {
-					if(hazards.get(1).get(hazard.getName()) != null) {
-						x += (20*hazards.get(1).get(hazard.getName()));
-						hazards.get(1).put(hazard.getName(),hazards.get(1).get(hazard.getName())+1);
-					} else {
-						hazards.get(1).put(hazard.getName(),1);
-					}
-					if(hazardTokens.get(1).containsKey(hazard.getName()))
-						hazardTokens.get(1).get(hazard.getName()).add(hzToken);
-					else
-						hazardTokens.get(1).put(hazard.getName(),new LinkedList<JLabel>(
-							Arrays.asList(new JLabel[] { hzToken })));
+					hzs = hazards.get(1);
+					hz = hzs.get(hzname);
+					hztok = hazardTokens.get(1);
 				}
+
+				if(hz != null) {
+					x += (isAlly ? -1 : 1 ) * (20*hz);
+					hzs.put(hzname, hz+1);
+				} else {
+					hzs.put(hzname, 1);
+				}
+				if(hztok.get(hzname) != null)
+					hztok.get(hzname).add(hzToken);
+				else
+					hztok.put(hzname, new LinkedList<JLabel>(
+						Arrays.asList(new JLabel[] { hzToken })));
 			
 				hzToken.setBounds(x,y,hzToken.getIcon().getIconWidth(),hzToken.getIcon().getIconHeight());
 				fieldP.add(hzToken,HAZARD_LAYER);

@@ -14,7 +14,7 @@ import pokepon.enums.Type;
 import pokepon.battle.*;
 import static pokepon.util.MessageManager.*;
 import static pokepon.util.Meta.*;
-
+import java.awt.Color;
 import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
@@ -265,6 +265,23 @@ public abstract class Pony implements Comparable<Pony> {
 			for(Status s : values()) 
 				if(s.toString().equalsIgnoreCase(name))
 					return s;
+			return null;
+		}
+
+		public Color getColor() {
+			switch(this) {
+				case PARALYZED:
+					return new Color(0xCFA600);
+				case POISONED:
+				case INTOXICATED:
+					return new Color(0x9900CC);
+				case BURNED:
+					return new Color(0xCC0000);
+				case PETRIFIED:
+					return new Color(0x666699);
+				case ASLEEP:
+					return new Color(0xA3A3C2);
+			}
 			return null;
 		}
 	};

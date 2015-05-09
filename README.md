@@ -160,6 +160,21 @@ If you're using the unpackaged version of the game, it will be instead in
 You can replay a saved battle from the launcher by clicking the Replay button
 and selecting the battle record you exported.
 
+Default battle formats
+------------------------------------------------------------
+These are the battle formats available by default:  
+* **Classic** - "uber" ponies and moves are banned; species clause
+* **RandomBattle** - species clause, teams are randomized (levels are balanced for both teams)
+* **Monotype** - all rules of Classic, plus monotype clause: all ponies in team must share at least 1 type
+* **SpeciesClauseOnly** - no banned ponies/moves/etc, but species clause enabled
+* **MonotypeOnly** - only monotype clause
+* **NoUberOnly** - ubers are banned, but no species clause
+* **ItemClauseOnly** - item clause: only 1 copy of each item is allowed in the team
+* **Default** - no restrictions
+* **Custom** - see *Creating custom formats*
+
+(You can see the rules of each format by clicking the `?` button aside the drop-down menu).
+
 Creating custom formats
 ------------------------------------------------------------
 If you select Custom format for a battle, you'll be prompted to insert rules

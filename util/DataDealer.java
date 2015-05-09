@@ -74,7 +74,6 @@ public class DataDealer {
 					int stat = pony.getBaseStat(s);
 					for(int i = 0; i < 3 - (int)Math.log10(stat); ++i)
 						space += "&nbsp;";
-					printDebug("space: " + space+"; log10("+stat+"): "+Math.log10(stat));
 					sb.append(stat + space);
 				}
 			} catch(ReflectiveOperationException e) {

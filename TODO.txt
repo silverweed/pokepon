@@ -64,3 +64,5 @@
 - Fix animations "stand_left" of mane4
 
 - HP on client != HP on server
+
+- Bug on the client: keeping the team selection window open blocks pongs from the client

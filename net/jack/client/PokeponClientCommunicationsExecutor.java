@@ -55,25 +55,29 @@ class PokeponClientCommunicationsExecutor extends ChatClientCommunicationsExecut
 			 * (first case is for challenger, second for challenged)
 			 * formats order is decided by the server.
 			 */
-			Set<String> formats = new LinkedHashSet<>();
+			final Set<String> formats = new LinkedHashSet<>();
 			for(int i = 1; i < token.length; ++i)
 				formats.add(token[i]);
 			if(connection.getVerbosity() >= 2) printDebug("Selecting team");
-
-			if(formats.size() == 1 && formats.toArray(new String[0])[0].startsWith("@")) {
-				// this is the challenged player
-				if(pClient.showTeamChoiceDialog(formats.toArray(new String[0])[0].substring(1)))
-					connection.sendMsg(CMN_PREFIX+"ok" + (pClient.getFormat() != null ? " "+pClient.getFormat() : ""));
-				else
-					connection.sendMsg(CMN_PREFIX+"abort");
-			} else {
-				// this is the challenger
-				if(pClient.showTeamChoiceDialog(formats)) {
-					connection.sendMsg(CMN_PREFIX+"ok" + (pClient.getFormat() != null ? " "+pClient.getFormat() : ""));
+			
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+				if(formats.size() == 1 && formats.toArray(new String[0])[0].startsWith("@")) {
+					// this is the challenged player
+					if(pClient.showTeamChoiceDialog(formats.toArray(new String[0])[0].substring(1)))
+						connection.sendMsg(CMN_PREFIX+"ok" + (pClient.getFormat() != null ? " "+pClient.getFormat() : ""));
+					else
+						connection.sendMsg(CMN_PREFIX+"abort");
+				} else {
+					// this is the challenger
+					if(pClient.showTeamChoiceDialog(formats)) {
+						connection.sendMsg(CMN_PREFIX+"ok" + (pClient.getFormat() != null ? " "+pClient.getFormat() : ""));
+					}
+					else
+						connection.sendMsg(CMN_PREFIX+"abort");
 				}
-				else
-					connection.sendMsg(CMN_PREFIX+"abort");
-			}
+				}
+			});
 			return 1;
 		
 		} else if(cmd.equals("sendteam")) {

@@ -156,14 +156,16 @@ class HPBar extends JPanel {
 
 		// Remove status labels that don't afflict the pony any more
 		boolean already = false;
-		Iterator<StatusLabel> it = statuses.iterator();
-		while(it.hasNext()) {
-			StatusLabel label = it.next();
-			Pony.Status status = label.getStatus();
-			if(pony.getStatus() != status)
-				clearStatus(status);
-			else
-				already = true;
+		synchronized(statuses) {
+			Iterator<StatusLabel> it = statuses.iterator();
+			while(it.hasNext()) {
+				StatusLabel label = it.next();
+				Pony.Status status = label.getStatus();
+				if(pony.getStatus() != status)
+					clearStatus(status);
+				else
+					already = true;
+			}
 		}
 		
 		// Then, if the pony has a status and its label isn't in the HP bar, add it (statuses
@@ -190,34 +192,52 @@ class HPBar extends JPanel {
 	public void clearPseudoStatuses() {
 		if(Debug.on) printDebug("[HPBar] Called clearPseudoStatuses(); pseudoStatuses.size = "+pseudoStatuses.size());
 			if(Debug.pedantic) printDebug("run(): pseudoStatuses.size = "+pseudoStatuses.size());
-			for(PseudoStatusLabel psl : pseudoStatuses) {
-				if(Debug.pedantic) printDebug("removing:"+psl.getText());
-				synchronized(labelPanel) {
-					labelPanel.remove(psl);
+			synchronized(pseudoStatuses) {
+				Iterator<PseudoStatusLabel> it = pseudoStatuses.iterator();
+				while(it.hasNext()) {
+					PseudoStatusLabel psl = it.next();
+					if(Debug.pedantic) printDebug("removing:"+psl.getText());
+					synchronized(labelPanel) {
+						labelPanel.remove(psl);
+					}
+					synchronized(allStatuses) {
+						allStatuses.remove(psl);
+					}
 				}
-				allStatuses.remove(psl);
+				pseudoStatuses.clear();
 			}
-			pseudoStatuses.clear();
-			for(StatusLabel sl : statuses) {
-				if(Debug.pedantic) printDebug("removing:"+sl);
-				synchronized(labelPanel) {
-					labelPanel.remove(sl);
+			synchronized(statuses) {
+				Iterator<StatusLabel> it = statuses.iterator();
+				while(it.hasNext()) {
+					StatusLabel sl = it.next();
+					if(Debug.pedantic) printDebug("removing:"+sl);
+					synchronized(labelPanel) {
+						labelPanel.remove(sl);
+					}
+				}
+				c.gridx = 0;
+				it = statuses.iterator();
+				while(it.hasNext()) {
+					StatusLabel sl = it.next();
+					if(Debug.pedantic) printDebug("adding: "+sl);
+					addStatus(sl.getStatus());
 				}
 			}
-			c.gridx = 0;
-			for(StatusLabel sl : statuses) {
-				if(Debug.pedantic) printDebug("adding: "+sl);
-				addStatus(sl.getStatus());
-			}
+
 			fixGridBagConstraints();
 			if(Debug.pedantic) printDebug("Ended clearPseudoStatuses()");
 	}
 	public void clearPseudoStatus(final String name) {
-		for(PseudoStatusLabel ps : pseudoStatuses) 
-			if(ps.getName().equals(name)) {
-				clearLabel(ps);
-				return;
+		synchronized(pseudoStatuses) {
+			Iterator<PseudoStatusLabel> it = pseudoStatuses.iterator();
+			while(it.hasNext()) {
+				PseudoStatusLabel ps = it.next();
+				if(ps.getName().equals(name)) {
+					clearLabel(ps);
+					return;
+				}
 			}
+		}
 		if(Debug.on) printDebug("[HPBar] clearPseudoStatus("+name+"): not found in statuses.");
 	}
 
@@ -246,8 +266,12 @@ class HPBar extends JPanel {
 					++c.gridy;
 				}
 				PseudoStatusLabel psl = new PseudoStatusLabel(name,c.gridwidth,good,c.gridx,c.gridy);
-				pseudoStatuses.add(psl);
-				allStatuses.add(psl);
+				synchronized(pseudoStatuses) {
+					pseudoStatuses.add(psl);
+				}
+				synchronized(allStatuses) {
+					allStatuses.add(psl);
+				}
 				// if boost label, keep the reference
 				if(name.startsWith("Atk")) boostLabel[0] = psl;
 				else if(name.startsWith("Def")) boostLabel[1] = psl;
@@ -284,8 +308,12 @@ class HPBar extends JPanel {
 							++c.gridy;
 						}
 						PseudoStatusLabel psl = new PseudoStatusLabel(name,c.gridwidth,good,c.gridx,c.gridy);
-						pseudoStatuses.add(psl);
-						allStatuses.add(psl);
+						synchronized(pseudoStatuses) {
+							pseudoStatuses.add(psl);
+						}
+						synchronized(allStatuses) {
+							allStatuses.add(psl);
+						}
 						// if boost label, keep the reference
 						if(name.startsWith("Atk")) boostLabel[0] = psl;
 						else if(name.startsWith("Def")) boostLabel[1] = psl;
@@ -548,8 +576,12 @@ class HPBar extends JPanel {
 				c.fill = GridBagConstraints.HORIZONTAL;
 				if(Debug.pedantic) printDebug("c: "+c.gridx+","+c.gridy);
 				StatusLabel sl = new StatusLabel(status,c.gridx,c.gridy);
-				statuses.add(sl);
-				allStatuses.add(sl);
+				synchronized(statuses) {
+					statuses.add(sl);
+				}
+				synchronized(allStatuses) {
+					allStatuses.add(sl);
+				}
 				if(Debug.on) {
 					printDebugnb("statuses = ");
 					for(StatusLabel slb : statuses) 
@@ -580,8 +612,12 @@ class HPBar extends JPanel {
 						//if(c.gridy < 2) c.gridy = 2;
 						if(Debug.pedantic) printDebug("c: "+c.gridx+","+c.gridy);
 						StatusLabel sl = new StatusLabel(status,c.gridx,c.gridy);
-						statuses.add(sl);
-						allStatuses.add(sl);
+						synchronized(statuses) {
+							statuses.add(sl);
+						}
+						synchronized(allStatuses) {
+							allStatuses.add(sl);
+						}
 						if(Debug.on) {
 							printDebugnb("statuses = ");
 							for(StatusLabel slb : statuses) 
@@ -619,26 +655,38 @@ class HPBar extends JPanel {
 		if(Debug.pedantic) printDebug("run(): statuses.size = "+statuses.size());
 		synchronized(labelPanel) {
 			// remove all statuses
-			for(StatusLabel sl : statuses) {
-				if(Debug.pedantic) printDebug("removing:"+sl.getText());
-					labelPanel.remove(sl);
-				allStatuses.remove(sl);
+			synchronized(statuses) {
+				Iterator<StatusLabel> it = statuses.iterator();
+				while(it.hasNext()) {
+					StatusLabel sl = it.next();
+					if(Debug.pedantic) printDebug("removing:"+sl.getText());
+						labelPanel.remove(sl);
+					synchronized(allStatuses) {
+						allStatuses.remove(sl);
+					}
+				}
+				statuses.clear();
 			}
-			statuses.clear();
 			// remove pseudostatuses only from panel
-			for(PseudoStatusLabel psl : pseudoStatuses) {
-				if(Debug.pedantic) printDebug("removing:"+psl);
-				labelPanel.remove(psl);
-			}
-			// then re-add them to cover holes
-			c.gridx = 0;
-			for(PseudoStatusLabel psl : pseudoStatuses) {
-				if(Debug.pedantic) printDebug("adding: "+psl);
-				labelPanel.add(psl, c);
-				c.gridx += psl.gridwidth;
-				if(c.gridx > HPBAR_GRIDWIDTH) {
-					c.gridx = 0;
-					++c.gridy;
+			synchronized(pseudoStatuses) {
+				Iterator<PseudoStatusLabel> it = pseudoStatuses.iterator();
+				while(it.hasNext()) {
+					PseudoStatusLabel psl = it.next();
+					if(Debug.pedantic) printDebug("removing:"+psl);
+					labelPanel.remove(psl);
+				}
+				// then re-add them to cover holes
+				c.gridx = 0;
+				it = pseudoStatuses.iterator();
+				while(it.hasNext()) {
+					PseudoStatusLabel psl = it.next();
+					if(Debug.pedantic) printDebug("adding: "+psl);
+					labelPanel.add(psl, c);
+					c.gridx += psl.gridwidth;
+					if(c.gridx > HPBAR_GRIDWIDTH) {
+						c.gridx = 0;
+						++c.gridy;
+					}
 				}
 			}
 			fixGridBagConstraints();
@@ -651,11 +699,15 @@ class HPBar extends JPanel {
 	 * clearPseudoStatus instead.
 	 */
 	protected void clearStatus(final Pony.Status status) {
-		for(StatusLabel st : statuses) {
-			if(Debug.pedantic) printDebug("[HPBar.clearStatus] found status: "+st.getStatus());
-			if(st.getStatus() == status) {
-				clearLabel(st);
-				return;
+		synchronized(statuses) {
+			Iterator<StatusLabel> it = statuses.iterator();
+			while(it.hasNext()) {
+				StatusLabel st = it.next();
+				if(Debug.pedantic) printDebug("[HPBar.clearStatus] found status: "+st.getStatus());
+				if(st.getStatus() == status) {
+					clearLabel(st);
+					return;
+				}
 			}
 		}
 		if(Debug.on) printDebug("[HPBar] clearStatus("+status+"): not found in statuses.");
@@ -681,7 +733,9 @@ class HPBar extends JPanel {
 		free = label.pos();
 
 		// shift all labels back
-		allStatuses.remove(label);
+		synchronized(allStatuses) {
+			allStatuses.remove(label);
+		}
 		if(statuses.contains(label)) statuses.remove(label);
 		else if(pseudoStatuses.contains(label)) pseudoStatuses.remove(label);
 

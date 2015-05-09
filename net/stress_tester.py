@@ -152,8 +152,13 @@ print '@Server IP: ' + serverip + ':' + serverport
 for i in range(0, initial_clients):
 	newclient = Client(serverip, serverport)
 	newclient.start()
-	time.sleep(0.01)
+	if i < 100:
+		time.sleep(0.01)
+	else:
+		time.sleep(0.5)
 	tot_clients += 1
+
+time.sleep(1000000000)
 
 while True:
 	if random.random() < 0.5:

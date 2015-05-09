@@ -293,6 +293,8 @@ class ServerConnection extends Connection {
 	@Override
 	public void disconnect() {
 		if(verbosity >= 2) printDebug("Called "+name+".disconnect()");
+		server.scheduleKill(this);
+		/*
 		if(server instanceof PokeponServer)
 			((PokeponServer)server).destroyAllBattles(name);
 		synchronized(server) {
@@ -303,7 +305,7 @@ class ServerConnection extends Connection {
 			} else {
 				printDebug("[ServerConnection "+name+"] Failed to remove myself from clients list!");
 			}
-		}
+		}*/
 		super.disconnect();
 	}
 

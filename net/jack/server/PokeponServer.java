@@ -75,6 +75,18 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		printConfiguration();
 		printMsg("************************");
 		DataDealer.init();
+
+		// Start server broadcaster
+		Thread broadcaster = new Thread(new Broadcaster());
+		broadcaster.setName("Pokepon Server Broadcaster");
+		broadcaster.setDaemon(true);
+		broadcaster.start();
+
+		// Start connection killer
+		Timer killerTimer = new Timer("Connection Killer", true);
+		killerTimer.scheduleAtFixedRate(new PokeponConnectionKiller(), 5 * 60 * 1000, 5 * 60 * 1000);
+
+		// Start server console
 		if(enableConsole) {
 			Thread serverConsole = new Thread(new ServerConsole(this));
 			serverConsole.setName("Pokepon Server Console");
@@ -292,41 +304,46 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	 * 
 	 */
 	public boolean scheduleBattle(Connection client1,Connection client2,Format format) {
-		if(battles.size() >= maxBattles) {
-			if(verbosity >= 0)
-				printDebug("Dropping battle request "+client1.getName()+" -> "+client2.getName()+
-					": too many active battles ("+battles.size()+" / "+maxBattles+")");
-			client1.sendMsg(CMN_PREFIX+
-				"html <font color=\"#FF2222\">Reached battles limit: cannot accept more battles. Please retry later.</font>");
-			return false;
-		}
-		if(verbosity >= 2) printDebug(client1.getName()+" sent a battle request to "+client2.getName());
-		if(battleSchedule.isScheduled(client2.getName(), client1.getName(), false)) {
-			// retreive this battle's format
-			Format fmt = battleSchedule.getFormat(client2.getName(),client1.getName());
-			if(verbosity >= 1) 
-				printDebug("Starting battle between "+client1.getName()+" and "+client2.getName()+" (format="+fmt.getName()+")");
-			// remove this entry from the battleSchedule
-			battleSchedule.remove(client2.getName(),client1.getName());	
-			// start the battle server-side
-			try {
-				String btlID = getBattleID();
-				if(fmt instanceof RuleSet)
-					((RuleSet)fmt).addRule(":Pre-alpha release: some features are not available.");
-				BattleTask bTask = new BattleTask(this,btlID,client1,client2,fmt);
-				battles.put(btlID,bTask);
-				pool.execute(bTask);
-			} catch(Exception e) {
-				e.printStackTrace();
+		synchronized(battles) {
+			if(battles.size() >= maxBattles) {
+				if(verbosity >= 0)
+					printDebug("Dropping battle request "+client1.getName()+" -> "+client2.getName()+
+						": too many active battles ("+battles.size()+" / "+maxBattles+")");
+				client1.sendMsg(CMN_PREFIX+
+					"html <font color=\"#FF2222\">Reached battles limit: cannot accept more battles." +
+					"Please retry later.</font>");
 				return false;
 			}
-		} else {
-			if(verbosity >= 1) printDebug("Scheduled battle between "+client1.getName()+" and "+client2.getName()+".");
-			battleSchedule.put(client1.getName(),client2.getName(),format);
-			client2.sendMsg(CMN_PREFIX+"btlreq "+client1.getName());
-		}
+			if(verbosity >= 2) printDebug(client1.getName()+" sent a battle request to "+client2.getName());
+			if(battleSchedule.isScheduled(client2.getName(), client1.getName(), false)) {
+				// retreive this battle's format
+				Format fmt = battleSchedule.getFormat(client2.getName(),client1.getName());
+				if(verbosity >= 1) 
+					printDebug("Starting battle between "+client1.getName()+" and "+
+							client2.getName()+" (format="+fmt.getName()+")");
+				// remove this entry from the battleSchedule
+				battleSchedule.remove(client2.getName(),client1.getName());	
+				// start the battle server-side
+				try {
+					String btlID = getBattleID();
+					if(fmt instanceof RuleSet)
+						((RuleSet)fmt).addRule(":Pre-alpha release: some features are not available.");
+					BattleTask bTask = new BattleTask(this,btlID,client1,client2,fmt);
+					battles.put(btlID,bTask);
+					pool.execute(bTask);
+				} catch(Exception e) {
+					e.printStackTrace();
+					return false;
+				}
+			} else {
+				if(verbosity >= 1) printDebug("Scheduled battle between "+client1.getName()+" and "+
+						client2.getName()+".");
+				battleSchedule.put(client1.getName(),client2.getName(),format);
+				client2.sendMsg(CMN_PREFIX+"btlreq "+client1.getName());
+			}
 
-		return true;
+			return true;
+		}
 	}
 
 	/** Check and remove battleSchedule entries client1 -&gt; client2 and client2 -&gt; client1; if neither found, return false. */
@@ -463,6 +480,37 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		super.printConfiguration();
 		printMsg("- maxBattles: "+maxBattles);
 		printMsg("- consoleEnabled: "+enableConsole);
+	}
+	
+	class PokeponConnectionKiller extends TimerTask {
+		public void run() {
+			if(verbosity >= 2) printDebug("["+serverName+".ConnectionKiller] Started");
+			int count = 0;
+			synchronized(killableConnections) {
+				Iterator<ServerConnection> it = killableConnections.iterator();
+				while(it.hasNext()) {
+					ServerConnection conn = it.next();
+					if(verbosity >= 2) 
+						printDebugnb("["+serverName+".ConnectionKiller] removing "+conn+"...");
+					synchronized(clients) {
+						Iterator<Connection> cit = clients.iterator();
+						while(cit.hasNext()) {
+							Connection client = cit.next();
+							if(client == conn) {
+								if(verbosity >= 2) printDebug("Found.");
+								destroyAllBattles(conn.getName());
+								cit.remove();
+								it.remove();
+								break;
+							}
+						}
+					}
+					if(verbosity >= 2) printDebug("Not found.");
+					it.remove();
+				}
+			}
+			if(verbosity >= 2) printDebug("["+serverName+".ConnectionKiller] Ended; removed " + count + " connections.");
+		}
 	}
 
 	public static void main(String[] args) {

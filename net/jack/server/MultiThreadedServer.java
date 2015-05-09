@@ -38,6 +38,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	/** (Optional) File containing ban rules to preload */
 	protected String blacklistFile;
 	protected boolean advancedChat;
+	/** Connections that should be killed */
+	protected Set<ServerConnection> killableConnections = new HashSet<>();
 	/** The policy for allowing clients to connect to this server: see server.conf for details */
 	ConnectPolicy connectPolicy = ConnectPolicy.AVERAGE;
 	/** If null, clients will get a default name of the form clientHostname-N, else
@@ -53,6 +55,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	 * ignore following.
 	 */
 	int cmdBanLimit = 40;
+	/** The queue of messages to broadcast */
+	BlockingQueue<Map.Entry<Socket,String>> broadcastMsgQueue = new LinkedBlockingQueue<Map.Entry<Socket,String>>();
 	
 	public MultiThreadedServer() throws IOException {
 		this(ServerOptions.construct());
@@ -67,8 +71,16 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				if(r instanceof Connection) {
 					Connection c = (Connection)r;
 					if(verbosity >= 1) printDebug("Closing connection with "+c.getName()+" ("+c.getSocket()+").");
-					if(clients.remove((Connection)r) && verbosity >= 1) {
-						printDebug("Connection "+c.getName()+" removed from clients list.");
+					synchronized(clients) {
+						Iterator<Connection> it = clients.iterator();
+						while(it.hasNext()) {
+							Connection client = it.next();
+							if(client == c) {
+								it.remove();
+								printDebug("Connection "+c.getName()+" removed from clients list.");
+								break;
+							}
+						}
 					}
 					if(verbosity >= 1) {
 						if(clients.size() < 10)
@@ -183,15 +195,25 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	@Override
 	public void start() throws IOException {
 		initialize();
-	
+
+		Thread broadcaster = new Thread(new Broadcaster());
+		broadcaster.setName("Broadcaster");
+		broadcaster.setDaemon(true);
+		broadcaster.start();
+
+		Timer killerTimer = new Timer("Connection Killer", true);
+		killerTimer.scheduleAtFixedRate(new ConnectionKiller(), 5 * 1 * 1000, 5 * 60 * 1000);
+
 		consoleHeader(new String[] {" Java Awful Client-server Kit ","v 2.0"},'*');
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
 			Socket newClient = accept();
-			if(clients.size() >= maxClients) {
-				if(verbosity >= 1) printDebug("Client number exceeded: dropping connection from "+newClient+"...");
-				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
-				continue;
+			synchronized(clients) {
+				if(clients.size() >= maxClients) {
+					if(verbosity >= 1) printDebug("Client number exceeded: dropping connection from "+newClient+"...");
+					ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
+					continue;
+				}
 			}
 			if(isBanned(newClient.getInetAddress().getHostAddress())) {
 				if(verbosity >= 1) printDebug("Dropping connection with banned IP: "+newClient);
@@ -203,7 +225,9 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			if(advancedChat)
 				newConnection.addConnectionExecutor(new ChatCommandsExecutor());
 			newConnection.addConnectionExecutor(new CommunicationsExecutor());
-			clients.add(newConnection);
+			synchronized(clients) {
+				clients.add(newConnection);
+			}
 			pool.execute(newConnection);
 			if(verbosity >= 2) printDebug("Constructed connection.");
 		}
@@ -214,57 +238,54 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	}
 
 	public Connection getClient(String name) {
-		for(Connection c : clients) 
-			if(c.getName().equals(name)) 
-				return c;
+		synchronized(clients) {
+			Iterator<Connection> it = clients.iterator();
+			while(it.hasNext()) {
+				Connection c = it.next();
+				if(c.getName().equals(name)) 
+					return c;
+			}
+		}
 		return null;
 	}
 
 	public LinkedHashMap<IPClass,Boolean> getBanRules() { return banRules; }
 	
 	public boolean isConnected(String name) {
-		Iterator<Connection> it = clients.iterator();
-		while(it.hasNext())
-			if(it.next().getName().equals(name)) return true;
+		synchronized(clients) {
+			Iterator<Connection> it = clients.iterator();
+			while(it.hasNext())
+				if(it.next().getName().equals(name)) return true;
+		}
 		return false;
 	}
 
 	/** Send msg to all clients but 'client'. */
-	public void broadcast(Socket client,String msg) {
-		if(verbosity >= 1) printDebug("["+serverName+"] Broadcasting message: "+msg);
-		if(verbosity >= 3) printDebug("clients: "+clients);
-		Iterator<Connection> it = clients.iterator();
-		while(it.hasNext()) {
-			Connection conn = it.next();
-			if(verbosity >= 3) printDebug("Connection: "+conn);
-			if(client != null && conn.getSocket().equals(client)) {
-				if(verbosity >= 4) printDebug("continuing.");
-				continue;
-			}
-			if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
-			conn.getOutput().println(msg);
-		}
+	public void broadcast(Socket client, String msg) {
+		broadcastMsgQueue.add(new AbstractMap.SimpleEntry<Socket,String>(client, msg));
 	}
 
 	/** Forces an user to be disconnected from this server; useful with the advancedChat system. */
 	public boolean kickUser(String name, String kicker) {
-		Iterator<Connection> it = clients.iterator();
-		while(it.hasNext()) {
-			Connection conn = it.next();
-			if(conn.getName().equals(name)) {
-				if(kicker != null)
-					conn.sendMsg(CMN_PREFIX+"html <b><em><font color='red'>"+kicker+" kicked you out from the server.</font></em></b>");
-				else
-					conn.sendMsg(CMN_PREFIX+"html <b><em><font color='red'>You were kicked out from the server.</font></em></b>");
-				conn.sendMsg(CMN_PREFIX+"disconnect");
-				conn.disconnect();
-				broadcast(null, name+" was kicked out of the server" + (kicker != null ? " by "+kicker : "")+".");
-				if(verbosity >= 2) 
-					printDebug("["+serverName+"] kicked "+name+" out of the server." + (kicker != null ? 
-						"(kicked by "+kicker+")" : ""));
-				return true;
-			}
-		} 
+		synchronized(clients) {
+			Iterator<Connection> it = clients.iterator();
+			while(it.hasNext()) {
+				Connection conn = it.next();
+				if(conn.getName().equals(name)) {
+					if(kicker != null)
+						conn.sendMsg(CMN_PREFIX+"html <b><em><font color='red'>"+kicker+" kicked you out from the server.</font></em></b>");
+					else
+						conn.sendMsg(CMN_PREFIX+"html <b><em><font color='red'>You were kicked out from the server.</font></em></b>");
+					conn.sendMsg(CMN_PREFIX+"disconnect");
+					conn.disconnect();
+					broadcast(null, name+" was kicked out of the server" + (kicker != null ? " by "+kicker : "")+".");
+					if(verbosity >= 2) 
+						printDebug("["+serverName+"] kicked "+name+" out of the server." + (kicker != null ? 
+							"(kicked by "+kicker+")" : ""));
+					return true;
+				}
+			} 
+		}
 		if(verbosity >= 2) {
 			printDebug("["+serverName+"] kick attempt to "+name+" failed: client not found."+(kicker != null ?
 				" (kick attempted by "+kicker+")" : ""));
@@ -329,6 +350,15 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		}
 	}
 
+	/** Marks the given ServerConnection as killable: the server will remove it
+	 * from its list when possible.
+	 */
+	public void scheduleKill(final ServerConnection conn) {
+		synchronized(killableConnections) {
+			killableConnections.add(conn);
+		}
+	}
+
 	@Override
 	public void close() {
 		shutdown();
@@ -337,11 +367,15 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	@Override
 	public synchronized boolean shutdown() {
 		if(clients.size() > 0) broadcast(null,"*** SERVER SHUTTING DOWN NOW ***");
-		for(Connection client : clients) {
-			printDebug(client+": sending disconnect");
-			client.sendMsg(CMD_PREFIX+"disconnect");
-			printDebug(client+": disconnecting");
-			client.disconnect();
+		synchronized(clients) {
+			Iterator<Connection> it = clients.iterator();
+			while(it.hasNext()) {
+				Connection client = it.next();
+				printDebug(client+": sending disconnect");
+				client.sendMsg(CMD_PREFIX+"disconnect");
+				printDebug(client+": disconnecting");
+				client.disconnect();
+			}
 		}
 		printDebug("shutting down pool");
 		pool.shutdownNow();
@@ -458,5 +492,67 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	protected static void printUsage() {
 		consoleMsg("Usage: "+MultiThreadedServer.class.getSimpleName()+" [port] [verbosity]");
 		System.exit(0);
+	}
+
+	protected class Broadcaster implements Runnable {
+		public void run() {
+			if(verbosity >= 1) printDebug("["+serverName+".Broadcaster] Started.");
+			while(true) {
+				try {
+					Map.Entry<Socket,String> pair = broadcastMsgQueue.take();
+					Socket client = pair.getKey();
+					String msg = pair.getValue();
+					if(verbosity >= 1) {
+						printDebug("["+serverName+"] Broadcasting message: "+msg);
+						if(verbosity >= 3) printDebug("clients: "+clients);
+					}
+					synchronized(clients) {
+						Iterator<Connection> it = clients.iterator();
+						while(it.hasNext()) {
+							Connection conn = it.next();
+							if(verbosity >= 3) printDebug("Connection: "+conn);
+							if(client != null && conn.getSocket().equals(client)) {
+								if(verbosity >= 4) printDebug("continuing.");
+								continue;
+							}
+							if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
+							conn.getOutput().println(msg);
+						}
+					}
+				} catch(InterruptedException e) {
+					printDebug("["+serverName+".Broadcaster] interrupted on take()!");
+				}
+			}
+		}
+	}
+
+	protected class ConnectionKiller extends TimerTask {
+		public void run() {
+			if(verbosity >= 2) printDebug("["+serverName+".ConnectionKiller] Started");
+			int count = 0;
+			synchronized(killableConnections) {
+				Iterator<ServerConnection> it = killableConnections.iterator();
+				while(it.hasNext()) {
+					ServerConnection conn = it.next();
+					if(verbosity >= 2) 
+						printDebugnb("["+serverName+".ConnectionKiller] removing "+conn+"...");
+					synchronized(clients) {
+						Iterator<Connection> cit = clients.iterator();
+						while(cit.hasNext()) {
+							Connection client = cit.next();
+							if(client == conn) {
+								if(verbosity >= 2) printDebug("Found.");
+								cit.remove();
+								it.remove();
+								break;
+							}
+						}
+					}
+					if(verbosity >= 2) printDebug("Not found.");
+					it.remove();
+				}
+			}
+			if(verbosity >= 2) printDebug("["+serverName+".ConnectionKiller] Ended");
+		}
 	}
 }

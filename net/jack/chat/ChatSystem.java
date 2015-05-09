@@ -272,8 +272,11 @@ public class ChatSystem {
 	 */
 	public ChatUser getUser(String name) {
 		for(ChatClient c : clients)
-			if(c.getUser().getName().equals(name))
+			if(	c.getUser() != null && c.getUser().getName() != null &&
+				c.getUser().getName().equals(name)
+			) {
 				return c.getUser();
+			}
 		return null;
 	}
 

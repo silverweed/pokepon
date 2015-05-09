@@ -52,7 +52,7 @@ public class DatabaseServer extends MultiThreadedServer {
 	}
 
 	public URL getDatabaseURL() { return dbURL; }
-	public Map<String,String[]> getDBEntries() { return dbEntries; }	
+	public synchronized Map<String,String[]> getDBEntries() { return dbEntries; }	
 
 	/** Sets a new database location and ensures the file exists by creating it;
 	 * also flush in-memory DB and reloads it (and the chat system, if any);
@@ -132,12 +132,16 @@ public class DatabaseServer extends MultiThreadedServer {
 	 * @return true - if nick exists; false - otherwise
 	 */
 	public boolean nickExists(String nick) {
-		return dbEntries.get(nick) != null;
+		synchronized(dbEntries) {
+			return dbEntries.get(nick) != null;
+		}
 	}
 
 	/** @return List of registered names. */
 	public Set<String> getNicks() {
-		return dbEntries.keySet();
+		synchronized(dbEntries) {
+			return dbEntries.keySet();
+		}
 	}
 
 	/** Checks if a given password is correct for nickname 'nick'
@@ -146,12 +150,14 @@ public class DatabaseServer extends MultiThreadedServer {
 	 * @return true - if nickname exists, crypto algorithm is supported and password matches; false - otherwise
 	 */
 	public boolean checkPasswd(String nick, char[] passwd) {
-		try {
-			return dbEntries.get(nick) != null && PasswordHash.validatePassword(passwd, dbEntries.get(nick)[0]);
-		} catch(NoSuchAlgorithmException|InvalidKeySpecException e) {
-			printDebug("["+serverName+".checkPasswd] crypto error:");
-			e.printStackTrace();
-			return false;
+		synchronized(dbEntries) {
+			try {
+				return dbEntries.get(nick) != null && PasswordHash.validatePassword(passwd, dbEntries.get(nick)[0]);
+			} catch(NoSuchAlgorithmException|InvalidKeySpecException e) {
+				printDebug("["+serverName+".checkPasswd] crypto error:");
+				e.printStackTrace();
+				return false;
+			}
 		}
 	}
 	
@@ -223,33 +229,35 @@ public class DatabaseServer extends MultiThreadedServer {
 	 */
 	protected boolean loadDBEntries() throws FileNotFoundException {
 		// flush previous entries
-		dbEntries.clear();
-		try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName), "UTF-8"))) {
-			String input = null;
-			int lineno = 1;
-			while((input = scanner.readLine()) != null) {
-				if(verbosity >= 3) printDebug("[loadDBEntries] read line: "+input);
-				if(input.length() < 1) continue;
-				if(input.charAt(0) == '#') continue;
-				String[] tokens = input.split("\\s+");
-				if(tokens.length != 2 && tokens.length != 3) {
-					if(verbosity >= 1) printDebug("[loadDBEntries] Incorrect line in DB: "+input);
-					continue;
+		synchronized(dbEntries) {
+			dbEntries.clear();
+			try (BufferedReader scanner = new BufferedReader(new InputStreamReader(new FileInputStream(dbName), "UTF-8"))) {
+				String input = null;
+				int lineno = 1;
+				while((input = scanner.readLine()) != null) {
+					if(verbosity >= 3) printDebug("[loadDBEntries] read line: "+input);
+					if(input.length() < 1) continue;
+					if(input.charAt(0) == '#') continue;
+					String[] tokens = input.split("\\s+");
+					if(tokens.length != 2 && tokens.length != 3) {
+						if(verbosity >= 1) printDebug("[loadDBEntries] Incorrect line in DB: "+input);
+						continue;
+					}
+					if(dbEntries.get(tokens[0]) != null) {
+						if(verbosity >= 1) printDebug("[loadDBEntries] Warning: line #" + lineno + " overrides previous entry!");
+					}
+					dbEntries.put(tokens[0], Arrays.copyOfRange(tokens, 1, tokens.length));
+					++lineno;
 				}
-				if(dbEntries.get(tokens[0]) != null) {
-					if(verbosity >= 1) printDebug("[loadDBEntries] Warning: line #" + lineno + " overrides previous entry!");
-				}
-				dbEntries.put(tokens[0], Arrays.copyOfRange(tokens, 1, tokens.length));
-				++lineno;
-			}
-			printDebug("["+serverName+"] loaded DB entries with no errors.");
-			return true;
+				printDebug("["+serverName+"] loaded DB entries with no errors.");
+				return true;
 
-		} catch(Exception e) {
-			printDebug("["+serverName+"] Caught exception in loadDBEntries:");
-			e.printStackTrace();
+			} catch(Exception e) {
+				printDebug("["+serverName+"] Caught exception in loadDBEntries:");
+				e.printStackTrace();
+			}
+			return false;
 		}
-		return false;			
 	}
 
 	protected static void printUsage() {

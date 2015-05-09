@@ -49,9 +49,11 @@ public class ClassFinder {
 	 * cached the first time a new relpath is read and then read from the cache on next requests.
 	 */
 	public static List<String> allFilesIn(final String relpath) {
-		if(filesCache.get(relpath) != null) {
-			if(Debug.on) printDebug("[allFilesIn] reading from cache: "+relpath);
-			return filesCache.get(relpath);
+		synchronized(filesCache) {
+			if(filesCache.get(relpath) != null) {
+				if(Debug.on) printDebug("[allFilesIn] reading from cache: "+relpath);
+				return filesCache.get(relpath);
+			}
 		}
 
 		List<String> filenames = new ArrayList<>();

@@ -3,6 +3,7 @@
 package pokepon.net.jack.server;
 
 import pokepon.net.jack.*;
+import pokepon.util.*;
 import static pokepon.util.MessageManager.*;
 import java.security.*;
 import java.net.*;
@@ -42,9 +43,10 @@ public class CommunicationsExecutor extends ServerConnectionExecutor {
 			return 1;
 		} else if(cmd.equals("myos")) {
 			//receives and sets this connection's OS
-			if(token.length != 2) return 1;
-			connection.setOS(token[1]);
-			if(connection.getVerbosity() >= 2) printDebug("Set "+connection.getName()+"'s OS to "+token[1]);
+			String os = ConcatenateArrays.merge(token, 1);
+			connection.setOS(os);
+			if(connection.getVerbosity() >= 2) 
+				printDebug("Set "+connection.getName()+"'s OS to "+os);
 			return 1;
 		}
 		return 1;

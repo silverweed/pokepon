@@ -293,19 +293,13 @@ class ServerConnection extends Connection {
 	@Override
 	public void disconnect() {
 		if(verbosity >= 2) printDebug("Called "+name+".disconnect()");
+		// Mark this connection as killable for the ConnectionKiller
 		server.scheduleKill(this);
-		/*
-		if(server instanceof PokeponServer)
-			((PokeponServer)server).destroyAllBattles(name);
-		synchronized(server) {
-			List<Connection> clients = server.getClients();
-			if(clients.remove(this)) {
-				if(verbosity >= 2)
-					printDebug("ServerConnection "+name+" removed from clients list.");
-			} else {
-				printDebug("[ServerConnection "+name+"] Failed to remove myself from clients list!");
-			}
-		}*/
+		// Stop the pinger and release it
+		if(pinger != null) {
+			pinger.interrupt();
+			pinger = null;
+		}
 		super.disconnect();
 	}
 

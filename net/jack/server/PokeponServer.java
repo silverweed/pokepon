@@ -32,6 +32,11 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		availableFormats.add(RuleSet.Predefined.ITEMCLAUSE);
 		availableFormats.add(RuleSet.Predefined.MONOTYPE);;
 		availableFormats.add(RuleSet.Predefined.DEFAULT);
+
+		// Additional server options
+		serverOpts +=
+			"\t--console [no]:                 enables/disables the server console\n"+
+			"\t--max-battles <integer>:        set the limit of concurrent battles allowed by the server.\n";
 	}
 	private BattleSchedule battleSchedule = new BattleSchedule(); 
 	private Map<String,BattleTask> battles = Collections.synchronizedMap(new HashMap<String,BattleTask>());
@@ -96,18 +101,26 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
-			Socket newClient = accept();
-			if(clients.size() >= maxClients) {
-				if(verbosity >= 1) printDebug("Client number exceeded: dropping connection from "+newClient+"...");
-				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
-				continue;
+			try {
+				Socket newClient = accept();
+				if(clients.size() >= maxClients) {
+					if(verbosity >= 1) printDebug("Client number exceeded: dropping connection from "+newClient+"...");
+					ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Couldn't connect: server is full.");
+					continue;
+				}
+				if(isBanned(newClient.getInetAddress().getHostAddress())) {
+					if(verbosity >= 1) printDebug("Dropping connection with banned IP: "+newClient);
+					ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Your IP is banned from this server.");
+					continue;
+				}
+				welcomer.offer(newClient);
+			} catch(SocketException e) {
+				if(pool.isShutdown()) {
+					if(verbosity >= 0) printDebug("["+serverName+"] Terminating.");
+				} else {
+					throw e;
+				}
 			}
-			if(isBanned(newClient.getInetAddress().getHostAddress())) {
-				if(verbosity >= 1) printDebug("Dropping connection with banned IP: "+newClient);
-				ServerConnection.dropWithMsg(newClient,CMN_PREFIX+"drop Your IP is banned from this server.");
-				continue;
-			}
-			welcomer.offer(newClient);
 		}
 	}
 
@@ -413,31 +426,6 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		return availableFormats;
 	}
 
-	public static void printUsage() {
-		consoleMsg("Usage: PokeponServer [opts]\n"+
-		"Options are:\n"+
-		"\t--conf <conf_file>:             use a different configuration file than the default one.\n"+
-		"\t-i,--ip <ip>:                   bind the server to the ip <ip>\n"+
-		"\t-p,--port <port>:               listen on port <port> (default: 12344)\n"+
-		"\t-v(vv...),-v <verb.Lv>:         set verbosity to <verb.Lv> (-1~4)\n"+
-		"\t-m,--max-clients <max-clients>: limit the number of clients allowed to <max-clients>\n"+
-		"\t--name <name>:                  set the server name\n"+
-		"\t--forbid <list of regexes>:     forbid patterns from being used as chat nicknames\n"+
-		"\t-d,--database <dbUrl>:          change the server database file location\n"+
-		"\t-c,--policy <connect-policy>:   change the server connection policy\n"+
-		"\t--default-nick <string>:        set the default nick to be given to anon clients\n"+
-		"\t--welcome-message <string>:     set a welcome message to be given to clients\n"+
-		"\t--min-nick-len <integer>:       set the minimum accepted nickname length\n"+
-		"\t--max-nick-len <integer>:       longer nicknames will be truncated to this length\n"+
-		"\t--max-battles <integer>:        set the limit of concurrent battles allowed by the server.\n"+
-		"\t-C,--advanced-chat [no]:        enable/disable chat roles and the advanced chat system.\n"+
-		"\t--cmd-ban-limit <integer>:      set maximum commands a client can issue in a minute (-1 = infinite)\n"+
-		"\t--blacklist <rules_file>:       read IP ban rules from rules_file (default: none)\n"+
-		"\t--console [no]:                 enables/disables the server console\n"+
-		"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");
-		System.exit(0);
-	}
-
 	/** Creates a default conf file from net/server.conf (if not existing) */
 	public static void createDefaultConf() {
 		try {
@@ -448,24 +436,11 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		}
 	}
 
-	/** Ensures conf file exists, reads pre config from CLI, config from conf file and CLI config;
-	 * pre-config are options like --conf, which must be processed before reading the conf file;
-	 * additional options may be passed via a ServerOptions object: these will be added after
-	 * reading the conf file but before applying eventual CLI options.
-	 * @param args The command line options
-	 * @param opts (optional) additional options
-	 */
+	/** {@inheritDoc pokepon.net.jack.server.MultiThreadedServer#configure} */
+	@Override
 	public PokeponServer configure(String[] args, ServerOptions... opts) throws MalformedURLException, UnknownOptionException {
-		if(verbosity >= 2) printDebug("["+serverName+"] CONFIGURING");
 		createDefaultConf();
-		loadOptions(readConfigFile(new URL("file://"+confFile)));
-		for(ServerOptions o : opts) {
-			printDebug("Loading additional option: "+o);
-			loadOptions(o);
-		}
-		if(verbosity >= 1) printDebug("["+serverName+"] loaded "+opts.length+" additional options");
-		loadOptions(ServerOptions.parseServerOptions(args));
-		return this;
+		return (PokeponServer)super.configure(args, opts);
 	}
 
 	@Override
@@ -572,6 +547,7 @@ class ServerConsole implements Runnable {
 					synchronized(server) {
 						server.shutdown();
 					}
+					System.exit(0);
 				} else if(token[0].equals("users")) {
 					consoleDebug(server.clients.toString());
 

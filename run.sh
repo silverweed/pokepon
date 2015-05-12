@@ -50,7 +50,7 @@ while [[ $# -gt 0 ]]; do
 				;;
 			ct)
 				PRG="TeamBuilderTest"
-				ARGS="$ARGS -cli"
+				ARGS="$ARGS --cli"
 				shift
 				;;
 			f|dex)

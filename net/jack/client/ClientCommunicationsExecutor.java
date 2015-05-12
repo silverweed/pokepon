@@ -51,7 +51,7 @@ class ClientCommunicationsExecutor extends ClientConnectionExecutor {
 			JPasswordField pass = new JPasswordField(15);
 			panel.add(label);
 			panel.add(pass);
-			String[] options = new String[]{"OK", "Cancel"};
+			String[] options = new String[] { "OK", "Cancel" };
 			int option = JOptionPane.showOptionDialog(
 								(Component)client, 
 								panel, 

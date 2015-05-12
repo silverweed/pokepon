@@ -114,6 +114,11 @@ public class ServerOptions {
 		return this;
 	}
 
+	public ServerOptions connGCRate(int i) {
+		connGCRate = i;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{ ");
@@ -131,6 +136,7 @@ public class ServerOptions {
 		if(maxBattles != -1) sb.append("maxBattles: "+maxBattles+", ");
 		if(cmdBanLimit != null) sb.append("cmdBanLimit: "+cmdBanLimit+", ");
 		if(blacklistFile != null) sb.append("blacklistFile: "+blacklistFile+", ");
+		if(connGCRate != null) sb.append("connGCRate: "+connGCRate+", ");
 		sb.append("enableConsole: "+enableConsole+", ");
 		sb.delete(sb.length()-1, sb.length());
 		sb.append(" }");
@@ -139,7 +145,7 @@ public class ServerOptions {
 	}
 
 	public int port = -1;
-	public Integer verbosity = null;
+	public Integer verbosity;
 	public String address;
 	public int maxNickLen = -1;
 	public int minNickLen = -1;
@@ -148,14 +154,15 @@ public class ServerOptions {
 	public String database;
 	public Set<String> forbiddenNames;
 	public String confFile;
-	public MultiThreadedServer.ConnectPolicy connPolicy = null;
+	public MultiThreadedServer.ConnectPolicy connPolicy;
 	public String defaultNick;
 	public String welcomeMessage;
 	public int maxBattles = -1;
-	public Boolean advancedChat = null;
-	public Integer cmdBanLimit = null;
+	public Boolean advancedChat;
+	public Integer cmdBanLimit;
 	public String blacklistFile;
-	public Boolean enableConsole = null;
+	public Boolean enableConsole;
+	public Integer connGCRate;
 
 
 	protected static ServerOptions parseServerOptions(String[] args) throws UnknownOptionException {
@@ -330,6 +337,14 @@ public class ServerOptions {
 					printDebug("enableConsole: "+ val);
 				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
 					srvopts.enableConsole = true;
+				}
+			} else if(token.equals("--conn-gc-rate")) {
+				try {
+					srvopts.connGCRate = Integer.parseInt(opts.remove(0));
+				} catch(IndexOutOfBoundsException|IllegalArgumentException e) {
+					printDebug("[ ERROR ] expected integer after 'conn-gc-rate' option.");
+					e.printStackTrace();
+					System.exit(2);
 				}
 			} else {
 				if(!token.matches("^(-h|--help)$"))

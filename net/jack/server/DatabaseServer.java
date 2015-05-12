@@ -22,6 +22,10 @@ import java.security.spec.InvalidKeySpecException;
  */
 public class DatabaseServer extends MultiThreadedServer {
 
+	static {
+		// Additional server options
+		serverOpts += "\t-d,--database <dbUrl>:          change the server database file location\n";
+	}
 	protected String dbName;
 	protected URL dbURL;
 	/** Map { nickname: [password, role] } */
@@ -103,28 +107,6 @@ public class DatabaseServer extends MultiThreadedServer {
 		} catch(MalformedURLException ee) {
 			printDebug("[DatabaseServer.setDatabaseLocation] Malformed URL: "+ee);
 			return false;
-		}
-	}
-
-	public static void main(String[] args) {
-		DatabaseServer server = null;
-
-		try {
-			args = loadPreConfig(args);
-			server = new DatabaseServer();
-			server.loadOptions(readConfigFile(new URL(confFile)));
-			server.loadOptions(ServerOptions.parseServerOptions(args));
-			server.start();
-		} catch(IOException e) {
-			printDebug("Caught IOException while starting DatabaseServer: ");
-			server.shutdown();
-			e.printStackTrace();
-		} catch(UnknownOptionException e) {
-			if(!e.isQuiet())
-				printDebug("Unknown option: "+e);
-			consoleMsg("");
-			printUsage();
-			consoleMsg("");
 		}
 	}
 
@@ -260,8 +242,24 @@ public class DatabaseServer extends MultiThreadedServer {
 		}
 	}
 
-	protected static void printUsage() {
-		System.out.println("Usage: "+DatabaseServer.class.getSimpleName()+" [address (- for localhost)] [port] [verbosity]");
-		System.exit(0);
+	public static void main(String[] args) {
+		DatabaseServer server = null;
+
+		try {
+			args = loadPreConfig(args);
+			server = new DatabaseServer();
+			server.configure(args).start();
+		} catch(IOException e) {
+			printDebug("Caught IOException while starting DatabaseServer: ");
+			server.shutdown();
+			e.printStackTrace();
+		} catch(UnknownOptionException e) {
+			if(!e.isQuiet())
+				printDebug("Unknown option: "+e);
+			consoleMsg("");
+			printUsage();
+			consoleMsg("");
+		}
 	}
+
 }

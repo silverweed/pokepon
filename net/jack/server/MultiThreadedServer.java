@@ -16,7 +16,6 @@ import java.net.*;
  *
  * @author silverweed
  */
-
 public class MultiThreadedServer extends BasicNameValidatingServer implements AutoCloseable {
 
 	public static final int DEFAULT_MAX_CLIENTS = 100;
@@ -25,6 +24,24 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		AVERAGE,	// disallow HTTP requests (but allow clients like netcat and telnet)
 		PARANOID	// disallow all but requests compliant with our protocol 
 	};
+
+	protected static String serverOpts =
+		"\t--conf <conf_file>:             use a different configuration file than the default one.\n"+
+		"\t-i,--ip <ip>:                   bind the server to the ip <ip>\n"+
+		"\t-p,--port <port>:               listen on port <port> (default: 12344)\n"+
+		"\t-v(vv...),-v <verb.Lv>:         set verbosity to <verb.Lv> (-1~4)\n"+
+		"\t-m,--max-clients <max-clients>: limit the number of clients allowed to <max-clients>\n"+
+		"\t--name <name>:                  set the server name\n"+
+		"\t--forbid <list of regexes>:     forbid patterns from being used as chat nicknames\n"+
+		"\t-c,--policy <connect-policy>:   change the server connection policy\n"+
+		"\t--default-nick <string>:        set the default nick to be given to anon clients\n"+
+		"\t--welcome-message <string>:     set a welcome message to be given to clients\n"+
+		"\t--min-nick-len <integer>:       set the minimum accepted nickname length\n"+
+		"\t--max-nick-len <integer>:       longer nicknames will be truncated to this length\n"+
+		"\t-C,--advanced-chat [no]:        enable/disable chat roles and the advanced chat system.\n"+
+		"\t--cmd-ban-limit <integer>:      set maximum commands a client can issue in a minute (-1 = infinite)\n"+
+		"\t--blacklist <rules_file>:       read IP ban rules from rules_file (default: none)\n"+
+		"\t--conn-gc-rate <minutes>:       rate of connection GC in minutes; <= 0 means 'never' (default: 5)\n";
 	protected int maxClients = DEFAULT_MAX_CLIENTS;
 	protected ThreadPoolExecutor pool;
 	/** Queue used by the ThreadPoolExecutor to store tasks */
@@ -38,6 +55,10 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	/** (Optional) File containing ban rules to preload */
 	protected String blacklistFile;
 	protected boolean advancedChat;
+	/** Rate (in minutes) at which connections should be garbage-collected 
+	 * by the ConnectionKiller; 0 or negative values means "never".
+	 */
+	protected int connGCRate = 5;
 	/** Connections that should be killed */
 	protected Set<ServerConnection> killableConnections = new HashSet<>();
 	/** The policy for allowing clients to connect to this server: see server.conf for details */
@@ -67,7 +88,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		super(opts);
 		loadOptions(opts);
 		pool = new ThreadPoolExecutor(5*maxClients,200*maxClients,60,TimeUnit.SECONDS,queue) {
-			protected void afterExecute(Runnable r,Throwable t) {
+			protected void afterExecute(Runnable r, Throwable t) {
 				if(r instanceof Connection) {
 					Connection c = (Connection)r;
 					if(verbosity >= 1) printDebug("Closing connection with "+c.getName()+" ("+c.getSocket()+").");
@@ -132,35 +153,38 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			blacklistFile = opts.blacklistFile;
 			if(verbosity >= 2) printDebug("[MultiThreadedServer] blacklistFile set to "+blacklistFile);
 		}
+		if(opts.connGCRate != null) {
+			connGCRate = opts.connGCRate;
+			if(verbosity >= 2) printDebug("[MultiThreadedServer] connGCRate set to "+connGCRate);
+		}
 
 		return this;
 	}
-	
-	public static void main(String[] args) {
-		MultiThreadedServer server = null;
 
-		try {
-			args = loadPreConfig(args);
-			server = new MultiThreadedServer();
-			server.loadOptions(readConfigFile(new URL(confFile)));
-			server.loadOptions(ServerOptions.parseServerOptions(args));
-			server.start();
-		} catch(IOException e) {
-			printDebug("Caught IOException while starting MultiThreadedServer: ");
-			server.shutdown();
-			e.printStackTrace();
-		} catch(UnknownOptionException e) {
-			if(!e.isQuiet())
-				printDebug("Unknown option: "+e);
-			consoleMsg("");
-			printUsage();
-			consoleMsg("");
+	/** Reads pre config from CLI, config from conf file and CLI config;
+	 * pre-config are options like --conf, which must be processed before reading the conf file;
+	 * additional options may be passed via a ServerOptions object: these will be added after
+	 * reading the conf file but before applying eventual CLI options.
+	 * @param args The command line options
+	 * @param opts (optional) additional options
+	 */
+	public MultiThreadedServer configure(String[] args, ServerOptions... opts) throws MalformedURLException, UnknownOptionException {
+		if(verbosity >= 2) printDebug("["+serverName+"] CONFIGURING");
+
+		loadOptions(readConfigFile(new URL("file://"+confFile)));
+		for(ServerOptions o : opts) {
+			printDebug("Loading additional option: "+o);
+			loadOptions(o);
 		}
+		if(verbosity >= 1) printDebug("["+serverName+"] loaded "+opts.length+" additional options");
+		loadOptions(ServerOptions.parseServerOptions(args));
+		return this;
 	}
 
 	@Override
-	public void initialize() throws IOException {
+	protected void initialize() throws IOException {
 		super.initialize();
+		// Create ChatSystem
 		if(advancedChat) {
 			chat = new ChatSystem();
 			try {
@@ -175,7 +199,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				e.printStackTrace();
 			}
 		}
-		// create default rules.conf
+		// Create default rules.conf
 		Meta.ensureFileExists((Meta.LAUNCHED_FROM_JAR 
 						? Meta.getDataURL()
 						: Meta.getNetURL()
@@ -190,21 +214,23 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 				printDebug("["+serverName+"] WARNING: blacklist file " + blacklistFile + " couldn't be found!");
 			}
 		}
+		// Start server broadcaster
+		Thread broadcaster = new Thread(new Broadcaster());
+		broadcaster.setName("Broadcaster");
+		broadcaster.setDaemon(true);
+		broadcaster.start();
+		// Start ConnectionKiller
+		if(connGCRate > 0) {
+			Timer killerTimer = new Timer("Connection Killer", true);
+			killerTimer.scheduleAtFixedRate(new ConnectionKiller(), connGCRate * 60 * 1000, connGCRate * 60 * 1000);
+		}
 	}
 
 	@Override
 	public void start() throws IOException {
 		initialize();
 
-		Thread broadcaster = new Thread(new Broadcaster());
-		broadcaster.setName("Broadcaster");
-		broadcaster.setDaemon(true);
-		broadcaster.start();
-
-		Timer killerTimer = new Timer("Connection Killer", true);
-		killerTimer.scheduleAtFixedRate(new ConnectionKiller(), 5 * 1 * 1000, 5 * 60 * 1000);
-
-		consoleHeader(new String[] {" Java Awful Client-server Kit ","v 2.0"},'*');
+		consoleHeader(new String[] { " Java Awful Client-server Kit ", "v 3.0" },'*');
 		while(!pool.isShutdown()) {
 			if(verbosity >= 2) printDebug("Waiting for new connection...");
 			Socket newClient = accept();
@@ -372,7 +398,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			while(it.hasNext()) {
 				Connection client = it.next();
 				printDebug(client+": sending disconnect");
-				client.sendMsg(CMD_PREFIX+"disconnect");
+				client.sendMsg(CMN_PREFIX+"disconnect");
 				printDebug(client+": disconnecting");
 				client.disconnect();
 			}
@@ -399,6 +425,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 
 	@Override
 	public void printConfiguration() {
+		printConfiguration(System.out);
+
 		super.printConfiguration();
 		printMsg("- maxClients: "+maxClients);
 		printMsg("- connectPolicy: "+connectPolicy);
@@ -490,10 +518,35 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	}
 
 	protected static void printUsage() {
-		consoleMsg("Usage: "+MultiThreadedServer.class.getSimpleName()+" [port] [verbosity]");
+		consoleMsg("Usage: "+MultiThreadedServer.class.getSimpleName()+" [opts]\n" +
+			"Options are:\n"+ serverOpts + 
+			"\nAll the long options can be used in the configuration file as well, with the format option: value(s)\n");
 		System.exit(0);
 	}
 
+	public static void main(String[] args) {
+		MultiThreadedServer server = null;
+
+		try {
+			args = loadPreConfig(args);
+			server = new MultiThreadedServer();
+			server.configure(args).start();
+		} catch(IOException e) {
+			printDebug("Caught IOException while starting MultiThreadedServer: ");
+			server.shutdown();
+			e.printStackTrace();
+		} catch(UnknownOptionException e) {
+			if(!e.isQuiet())
+				printDebug("Unknown option: "+e);
+			consoleMsg("");
+			printUsage();
+			consoleMsg("");
+		}
+	}
+
+	/** This task asynchronously takes messages from the broadcasting queue and sends them
+	 * to all clients.
+	 */
 	protected class Broadcaster implements Runnable {
 		public void run() {
 			if(verbosity >= 1) printDebug("["+serverName+".Broadcaster] Started.");
@@ -515,7 +568,8 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 								if(verbosity >= 4) printDebug("continuing.");
 								continue;
 							}
-							if(verbosity >= 2) printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
+							if(verbosity >= 2) 
+								printDebug("["+serverName+"] Sending message to "+conn.getName()+" ("+conn.getSocket()+")");
 							conn.getOutput().println(msg);
 						}
 					}
@@ -526,6 +580,12 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		}
 	}
 
+	/** This task performs a sort of garbage collection of the killableConnections
+	 * which may haven't been removed yet from the clients' list; in normal conditions,
+	 * this shouldn't be needed, as the ThreadPoolExecutor.afterExecute function 
+	 * does this as soon as the connection disconnects, but in rare cases it
+	 * may happen that some ghost connection remains alive.
+	 */
 	protected class ConnectionKiller extends TimerTask {
 		public void run() {
 			if(verbosity >= 2) printDebug("["+serverName+".ConnectionKiller] Started");

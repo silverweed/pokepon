@@ -87,7 +87,7 @@ public class BasicServer implements Server {
 	/** Bind socket to port (only works if port was already given in constructor, else
 	 * use create(int port); Note that you can only start the server on the local host.	
 	 */
-	public void initialize() throws IOException {
+	protected void initialize() throws IOException {
 		if(verbosity >= 1) printDebug("Attempting to bind server to port "+port+"...");
 		if(port == -1) {
 			throw new RuntimeException("Error: port was not selected.");
@@ -101,31 +101,6 @@ public class BasicServer implements Server {
 			connectionTime = new Date();
 		} catch(IOException e) {
 			throw new IOException("caught in BasicServer.start()",e);
-		}
-
-		if(ss.isBound()) {
-			printDebug("Successfully bound socket to [" + ss.getInetAddress().getHostName() + "] " +
-				ss.getInetAddress().getHostAddress() + ":" + ss.getLocalPort());
-		} else {
-			throw new RuntimeException("Error: couldn't bind socket to port " + port);
-		}
-	}
-
-	/** Assign port to 'port' and bind socket */
-	public void initialize(int port) throws IOException {
-		if(verbosity >= 1) printDebug("Attempting to bind server to port "+port+"...");
-		if(ss.isBound()) {
-			throw new RuntimeException("Error: server already bound to port " + ss.getLocalPort());
-		}
-		
-		this.port = port;
-		
-		try {
-			printDebug("Creating server socket...");
-			ss.bind(new InetSocketAddress(myAddress,port));
-			connectionTime = new Date();
-		} catch(IOException e) {
-			throw new IOException("caught in BasicServer.start("+port+")",e);
 		}
 
 		if(ss.isBound()) {

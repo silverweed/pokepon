@@ -5,7 +5,7 @@ import java.util.*;
 /** A collection of preset Compound animations;
  * use like this:
  * <pre>
- * animation = new HashMap<>(AnimPresets.get(name);
+ * animation = new HashMap<>(AnimPresets.get(name));
  * animation.put("sprite", "sprite.png");
  * </pre>
  * @author silverweed

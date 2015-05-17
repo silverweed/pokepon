@@ -67,7 +67,8 @@ public class RuleSet implements Format {
 					"p:Chrysalis",
 					"p:Discord",
 					"p:Starswirl",
-					"m:Friendship Cannon"
+					"p:Tirek",
+					"m:Friendship Cannon",
 				}
 			)
 		),

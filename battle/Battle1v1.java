@@ -102,6 +102,7 @@ public class Battle1v1 extends Battle {
 		// a flat logic-less random algorithm.
 		Team team = new Team();
 		int count = 0, wimps = 0, ubers = 0;
+		Set<String> uberPonies = RuleSet.Predefined.NOUBER.getBannedPonies();
 		ponies:
 		while(count < Team.MAX_TEAM_SIZE) {
 			try {
@@ -112,7 +113,7 @@ public class Battle1v1 extends Battle {
 				if(team.getPony(pony.getName()) != null) continue;
 
 				// for now we judge uberness by BST; in future we may introduce tiers.
-				if(pony.bst() >= 600 || pony.getName().equals("Tirek")) ++ubers;
+				if(uberPonies.contains(pony.getName())) ++ubers;
 				else if(pony.bst() <= 420) ++wimps;
 				
 				// to keep things balanced, prevent too many ubers or wimps in a team.

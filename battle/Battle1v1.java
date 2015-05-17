@@ -52,29 +52,19 @@ public class Battle1v1 extends Battle {
 				if(Debug.pedantic) printDebug("Future.get(1)...");
 				if(!results.get(0).get(15,TimeUnit.SECONDS)) {
 					printDebug(p1.getName()+"'s team not retreived correctly.");
-					printMsg("Error starting battle between "+p1+" and "+p2+": aborting battle.");
-					c1.sendMsg(BTL_PREFIX+"ko");
-					c2.sendMsg(BTL_PREFIX+"ko");
 					return false;
 				}
 				if(Debug.pedantic) printDebug("Future.get(2)...");
 				if(!results.get(1).get(15,TimeUnit.SECONDS)) {
 					printDebug(p2.getName()+"'s team not retreived correctly");
-					printMsg("Error starting battle between "+p1+" and "+p2+": aborting battle.");
-					c1.sendMsg(BTL_PREFIX+"ko");
-					c2.sendMsg(BTL_PREFIX+"ko");
 					return false;
 				}
 			} catch(TimeoutException e) {
 				printDebug("Timeout: "+e);
-				c1.sendMsg(BTL_PREFIX+"ko");
-				c2.sendMsg(BTL_PREFIX+"ko");
 				return false;
 			} catch(ExecutionException e) {
 				printDebug("Caught exception in result.get(): "+e);
 				e.printStackTrace();
-				c1.sendMsg(BTL_PREFIX+"ko");
-				c2.sendMsg(BTL_PREFIX+"ko");
 				return false;
 			}
 			if(Debug.on) printDebug("[BATTLE "+c1.getName()+" ~ "+c2.getName()+"] Teams retreived correctly.");

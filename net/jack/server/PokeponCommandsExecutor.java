@@ -51,6 +51,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token));
 
 		if(cmd.equals("battle")) {
+			/* /battle <clientname> */
 			if(token.length != 2) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"battle <username>.");
 				return 1;
@@ -77,6 +78,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 							if(connection.getVerbosity() >= 1)
 								printDebug("Battle request "+connection.getName()+"->"+token[1]+" aborted (team not selected).");
 							connection.sendMsg("Aborted battle request to "+token[1]+" (team not selected).");
+							pServer.dismissBattle(connection.getName(), token[1]);
 							return 1;
 						} 
 						// parse format (response is !ok @Format OR !ok @Custom: p:bannedPony$i:bannedItem...)
@@ -122,6 +124,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 			}
 			connection.sendMsg("User "+token[1]+" not found.");
 		} else if(cmd.equals("acceptbtl")) {
+			/* /acceptbtl <clientname> */
 			if(token.length < 2) {
 				if(connection.getVerbosity() >= 2) 
 					printDebug("[PKPCMDEXEC ("+connection.getName()+")] Received /acceptblt with no argument!");
@@ -153,6 +156,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 					printDebug("[PKPCMDEXEC ("+connection.getName()+")] Tried to accept non-existing battle with "+token[1]);
 			}
 		} else if(cmd.equals("btldel")) {
+			/* /btldel <clientname> */
 			if(token.length != 2) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"btldel <username>.");
 				return 1;
@@ -169,6 +173,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 			}
 			connection.sendMsg("User "+token[1]+" not found.");
 		} else if(cmd.equals("battles")) {
+			/* /battles */
 			if(token.length > 1) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"battles.");
 				return 1;
@@ -209,6 +214,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 			}
 			connection.sendMsg(sb.toString());
 		} else if(cmd.equals("data")) {
+			/* /data <pony/item/move/ability name> */
 			if(token.length < 2) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"data <query>.");
 				return 1;
@@ -219,6 +225,9 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 			else 
 				connection.sendMsg(CMN_PREFIX+"htmlconv "+data);
 		} else if(cmd.equals("eff")) {
+			/* /eff <typename>[, typename2]
+			 * /eff <typename> -> <typename>[, typename2]
+			 */
 			if(token.length < 2) {
 				connection.sendMsg("Syntax error. Correct syntax is one of:<br>&nbsp;"+
 					CMD_PREFIX+"eff <type1[,type2]><br>&nbsp;"+
@@ -231,6 +240,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 			else 
 				connection.sendMsg(CMN_PREFIX+"htmlconv "+data);
 		} else if(cmd.equals("watch")) {
+			/* /watch <battleID> */
 			if(token.length < 2) {
 				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"watch <id>");
 				return 1;
@@ -241,6 +251,12 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 				return 1;
 			}
 			battle.joinAsGuest(connection);
+		} else if(cmd.equals("disconnect")) {
+			/* If the client disconnects normally, remove its battles now
+			 * to spare the ConnectionKiller extra work.
+			 */
+			pServer.destroyAllBattles(connection.getName());
+			return super.execute(msg);
 		}
 		else return super.execute(msg);
 

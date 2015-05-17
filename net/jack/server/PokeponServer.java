@@ -306,15 +306,17 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	public BattleSchedule getBattleSchedule() { return battleSchedule; }
 
 	/** Battle scheduling happens this way: 
-	 * first, client1 makes a battle request to the server via '/battle client2';
-	 * an entry (client1,client2) is added to the battleSchedule, and client2 is
-	 * prompted;
-	 * then, if client2 accepts, another battle request is sent to the server with
-	 * '/battle client1': since this battle was already on schedule, the actual battle
-	 * starts; if client2 refuses, the entry is removed from battleSchedule;
-	 * note that only 1 battle per client is allowed simultaneously: a second battle 
-	 * request will cancel the previous one.
-	 * 
+	 * <ol>
+	 *   <li>Client1: "/battle Client2"</li>
+	 *   <li>Server: "!selectteam format1 &hellip; formatN" -&gt; Client1</li>
+	 *   <li>Client1: "!ok ChosenFormat"</li>
+	 *   <li>Server calls scheduleBattle(Client1, Client2, ChosenFormat)</li>
+	 *   <li>Server: "!btlreq Client1" -&gt; Client2</li>
+	 *   <li>Client2: "/acceptbtl Client1"</li>
+	 *   <li>Server: "!selectteam &#64;ChosenFormat" -&gt; Client2</li>
+	 *   <li>Client2: "!ok"</li>
+	 *   <li>Server starts battle.</li>
+	 * </ol>
 	 */
 	public boolean scheduleBattle(Connection client1,Connection client2,Format format) {
 		synchronized(battles) {
@@ -380,8 +382,11 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		return false;
 	}
 
-	/** Removes all battles involving client 'name' from battles and battleSchedule. */
-	public void destroyAllBattles(String name) {
+	/** Removes all battles involving client 'name' from battles and battleSchedule. 
+	 * @return The number of battles destroyed.
+	 */
+	public int destroyAllBattles(String name) {
+		int cnt = 0;
 		if(verbosity >= 1)
 			printDebug("[PokeponServer] Destroying all battles with player "+name);
 
@@ -400,16 +405,18 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		}
 
 		synchronized(battleSchedule) {
-			Iterator<Map.Entry<String,List<Map.Entry<String,Format>>>> it2 = battleSchedule.entrySet().iterator();
-			while(it2.hasNext()) {
-				Map.Entry<String,List<Map.Entry<String,Format>>> entry = it2.next();
+			Iterator<Map.Entry<String,List<Map.Entry<String,Format>>>> it = battleSchedule.entrySet().iterator();
+			while(it.hasNext()) {
+				Map.Entry<String,List<Map.Entry<String,Format>>> entry = it.next();
 				if(entry.getKey().equals(name)) {
-					it2.remove();
+					it.remove();
+					++cnt;
 					if(verbosity >= 3) printDebug("[PokeponServer] Removed entry "+entry+" from battleSchedule.");
 				} else {
 					for(Map.Entry<String,Format> lEntry : entry.getValue()) {
 						if(lEntry.getKey().equals(name)) {
-							it2.remove();
+							it.remove();
+							++cnt;
 							if(verbosity >= 3) printDebug("[PokeponServer] Removed entry "+lEntry+" from battleSchedule.");
 							break;
 						}
@@ -419,7 +426,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		}
 
 		if(verbosity >= 2) printDebug("[PokeponServer] battles active: "+battles.size());
-
+		return cnt;
 	}
 
 	public static Set<Format> getAvailableFormats() {
@@ -467,13 +474,14 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 					ServerConnection conn = it.next();
 					if(verbosity >= 2) 
 						printDebugnb("["+serverName+".ConnectionKiller] removing "+conn+"...");
+					int dst = destroyAllBattles(conn.getName());
+					if(dst > 0 && verbosity >= 2) printDebugnb("Removed "+dst+" battles. ");
 					synchronized(clients) {
 						Iterator<Connection> cit = clients.iterator();
 						while(cit.hasNext()) {
 							Connection client = cit.next();
 							if(client == conn) {
 								if(verbosity >= 2) printDebug("Found.");
-								destroyAllBattles(conn.getName());
 								cit.remove();
 								it.remove();
 								break;

@@ -138,21 +138,21 @@ public class BattleTask implements Runnable {
 							c2.sendMsg(CMN_PREFIX+"popup-err [Invalid team] Your team was rejected for the following reasons:<br>"+
 								tr.get(1).getReasons().replaceAll("\n","<br>"));
 							if(!sentKo) {
-								c1.sendMsg(CMN_PREFIX+"btlko opponent's team was rejected.");
-								c2.sendMsg(CMN_PREFIX+"btlko");
+								c1.sendMsg(CMN_PREFIX+"btlko " + battleID + " opponent's team was rejected.");
+								c2.sendMsg(CMN_PREFIX+"btlko " + battleID);
 								sentKo = true;
 							}
 						}
 					} catch(TimeoutException e) {
 						printDebug("Timeout: "+e);
-						c1.sendMsg(CMN_PREFIX+"btlko timeout.");
-						c2.sendMsg(CMN_PREFIX+"btlko timeout.");
+						c1.sendMsg(CMN_PREFIX+"btlko "+battleID+" timeout.");
+						c2.sendMsg(CMN_PREFIX+"btlko "+battleID+" timeout.");
 						server.dismissBattle(c1,c2);	
 					} catch(ExecutionException e) {
 						printDebug("Caught exception in result.get(): "+e);
 						e.printStackTrace();
-						c1.sendMsg(CMN_PREFIX+"btlko (unknown reason)");
-						c2.sendMsg(CMN_PREFIX+"btlko (unknown reason)");
+						c1.sendMsg(CMN_PREFIX+"btlko "+battleID+" (unknown reason)");
+						c2.sendMsg(CMN_PREFIX+"btlko "+battleID+" (unknown reason)");
 						server.dismissBattle(c1,c2);	
 					}
 
@@ -201,6 +201,8 @@ public class BattleTask implements Runnable {
 
 			} else {
 				printDebug(this+" battle failed to initialize: aborting.");
+				c1.sendMsg(CMN_PREFIX+"btlko "+battleID+" (init failed)");
+				c2.sendMsg(CMN_PREFIX+"btlko "+battleID+" (init failed)");
 				return;
 			}
 		} catch(InterruptedException e) {	

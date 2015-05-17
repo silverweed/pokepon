@@ -43,6 +43,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 
 	public void reset() {}
 
+	public Pony getPony() { return pony; }
+
 	// probability of side effects (on target or on user)
 	public float getCritical() { return critical; }
 	public float getTargetParalysis() { return targetParalysis; }

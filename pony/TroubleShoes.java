@@ -5,8 +5,8 @@ package pokepon.pony;
 import pokepon.enums.*;
 
 /**	TroubleShoes
- *	Very good HP and atk, average defenses;
- *	Lacks speed and spatk.
+ *	Great stats, but its ability nerfs it overall,
+ *	quite like Regigigas.
  *
  * @author silverweed
  */
@@ -23,11 +23,11 @@ public class TroubleShoes extends Pony {
 		sex = Sex.MALE;
 
 		baseHp = 135;
-		baseAtk = 90;
-		baseDef = 88;
-		baseSpatk = 42;
-		baseSpdef = 65;
-		baseSpeed = 59;
+		baseAtk = 150;
+		baseDef = 100;
+		baseSpatk = 40;
+		baseSpdef = 75;
+		baseSpeed = 100;
 
 		/* Learnable Moves */
 		learnableMoves.put("Tackle",1);
@@ -43,6 +43,7 @@ public class TroubleShoes extends Pony {
 		learnableMoves.put("Dodge",1);
 		learnableMoves.put("Applebuck",15);
 		learnableMoves.put("Relax",30);
-
+		
+		possibleAbilities[0] = "Bad Luck";
 	}
 }

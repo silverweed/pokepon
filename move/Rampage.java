@@ -50,18 +50,18 @@ public class Rampage extends Move {
 			new BattleEvent(rand < 0.25 ? 2 : (rand < 0.75 ? 3 : 4),name) {
 				@Override
 				public void onTurnEnd(final BattleEngine be) {
-					Pony ap = be.getTeam(be.getSide(source)).getActivePony();
-					if(ap != source) {
-						// suicide if the source is switched out
+					Pony ap = be.getTeam(be.getSide(pony)).getActivePony();
+					if(ap != pony) {
+						// suicide if the pony is switched out
 						count = 0;
 						return;
 					}
-					if(--count == 0 && !source.isFainted() && !source.isConfused()) {
-						source.setConfused(true);
+					if(--count == 0 && !pony.isFainted() && !pony.isConfused()) {
+						pony.setConfused(true);
 						if(be.getBattleTask() != null) {
-							be.getBattleTask().sendB("|battle|"+source.getNickname()+" is confused due to the fatigue!");
-							be.getBattleTask().sendB(be.getConnection(be.getSide(source)),"|addstatus|ally|cnf");
-							be.getBattleTask().sendB(be.getConnection(be.getOppositeSide(source)),"|addstatus|opp|cnf");
+							be.getBattleTask().sendB("|battle|"+pony.getNickname()+" is confused due to the fatigue!");
+							be.getBattleTask().sendB(be.getConnection(be.getSide(pony)),"|addstatus|ally|cnf");
+							be.getBattleTask().sendB(be.getConnection(be.getOppositeSide(pony)),"|addstatus|opp|cnf");
 						}
 					}
 				}

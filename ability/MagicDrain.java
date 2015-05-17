@@ -31,8 +31,6 @@ public class MagicDrain extends Ability {
 		if(pony.activeTurns < 1) return;
 
 		Pony oppP = be.getTeam(be.getOppositeSide(pony)).getActivePony();
-		Connection ally = be.getConnection(be.getSide(pony));
-		Connection opp = be.getConnection(be.getOppositeSide(pony));
 		
 		if(oppP == null || oppP.isKO()) return;
 
@@ -60,6 +58,8 @@ public class MagicDrain extends Ability {
 			case ZEBRA: {
 				int healed = pony.increaseHpPerc(12.5f);
 				if(be.getBattleTask() != null) {
+					Connection ally = be.getConnection(be.getSide(pony));
+					Connection opp = be.getConnection(be.getOppositeSide(pony));
 					be.getBattleTask().sendB(ally,"|damage|ally|"+healed+"|"+getPhrase());
 					be.getBattleTask().sendB(opp,"|damage|opp|"+healed+"|"+getPhrase());
 				}

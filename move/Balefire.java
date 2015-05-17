@@ -51,13 +51,13 @@ public class Balefire extends Move {
 				public void afterMoveUsage(final BattleEngine be) {
 					if(Debug.on) printDebug("[Balefire] triggering afterMoveUsage...");
 					count = 0;
-					if(source.isFainted()) return;	//should never happen
+					if(pony.isFainted()) return;	//should never happen
 					if(be.getBattleTask() != null) {
-						Connection ally = be.getConnection(be.getSide(source));
-						Connection opp = be.getConnection(be.getOppositeSide(source));
-						be.getBattleTask().sendB(ally,"|damage|ally|"+(source.hp()+1));
-						be.getBattleTask().sendB(opp,"|damage|opp|"+(source.hp()+1));
-						source.damagePerc(100f);
+						Connection ally = be.getConnection(be.getSide(pony));
+						Connection opp = be.getConnection(be.getOppositeSide(pony));
+						be.getBattleTask().sendB(ally,"|damage|ally|"+(pony.hp()+1));
+						be.getBattleTask().sendB(opp,"|damage|opp|"+(pony.hp()+1));
+						pony.damagePerc(100f);
 					}
 				}
 			}

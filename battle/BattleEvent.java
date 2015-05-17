@@ -26,20 +26,12 @@ public class BattleEvent extends TriggeredEffectDealer {
 		count = this.delay = delay;
 	}
 
-	public BattleEvent(int delay, String name, Pony p) {
-		super(name, p);
+	public BattleEvent(int delay, String name, Pony source) {
+		super(name, source);
 		count = this.delay = delay;
 	}
 
 	public void delayInit(final BattleEngine be) {}
-
-	public void setSource(Pony p) {
-		source = p;
-	}
-
-	public Pony getSource() {
-		return source;
-	}
 
 	public final int getCount() {
 		return count;
@@ -50,11 +42,10 @@ public class BattleEvent extends TriggeredEffectDealer {
 	}
 
 	public String toString() {
-		if(source == null) throw new NullPointerException("[BattleEvent] source is null for "+name);
-		return name + " (source = "+source.getName()+", count = "+count+" / "+delay+", willSurvive = "+willSurvive+")";
+		if(pony == null) throw new NullPointerException("[BattleEvent] source is null for "+name);
+		return name + " (source = "+pony.getName()+", count = "+count+" / "+delay+", willSurvive = "+willSurvive+")";
 	}
 	
-	protected Pony source;
 	protected boolean willSurvive;
 	protected final int delay;
 	protected int count;

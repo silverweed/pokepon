@@ -24,10 +24,10 @@ public class MagicHeal extends Ability {
 
 	@Override
 	public void onSwitchOut(final BattleEngine be) {
-		Connection allyC = be.getConnection(be.getSide(pony));
-		Connection oppC = be.getConnection(be.getOppositeSide(pony));
 		pony.healStatus();
 		if(be.getBattleTask() != null) {
+			Connection allyC = be.getConnection(be.getSide(pony));
+			Connection oppC = be.getConnection(be.getOppositeSide(pony));
 			be.getBattleTask().sendB(allyC,"|rmstatus|ally||quiet");
 			be.getBattleTask().sendB(oppC,"|rmstatus|opp||quiet");
 		}

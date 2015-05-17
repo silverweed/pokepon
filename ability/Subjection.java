@@ -33,8 +33,6 @@ public class Subjection extends Ability {
 		// we must find out if we're currently on 'ally' or 'opponent' side
 		int oppSide = be.getOppositeSide(pony);
 		Pony opp = be.getTeam(oppSide).getActivePony();
-		Connection allyC = be.getConnection(be.getSide(pony));
-		Connection oppC = be.getConnection(oppSide);
 		if(opp != null) {
 			if(opp.hasSubstitute()) return;
 			for(EffectDealer ed : opp.getEffectDealers())
@@ -43,6 +41,8 @@ public class Subjection extends Ability {
 			opp.boost(Pony.Stat.ATK, -1);
 			printMsg(pony.getNickname()+"'s Subjection lowered "+opp.getNickname()+"'s Atk!");
 			if(be.getBattleTask() != null) {
+				Connection allyC = be.getConnection(be.getSide(pony));
+				Connection oppC = be.getConnection(oppSide);
 				be.getBattleTask().sendB(allyC,"|boost|opp|atk|-1|"+
 					pony.getNickname()+"'s Subjection lowered "+
 					opp.getNickname()+"'s Atk!");

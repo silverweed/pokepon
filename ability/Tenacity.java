@@ -21,7 +21,7 @@ public class Tenacity extends Ability {
 
 	public Tenacity() {
 		super("Tenacity");
-		briefDesc = "Boosts Atk by 50% when user<br>has a negative condition.";
+		briefDesc = "Boosts Atk by 50% when user has a negative condition.";
 	}
 	
 	@Override

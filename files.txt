@@ -380,6 +380,7 @@ pony/Tirek.java
 pony/Tracy.java
 pony/Trenderhoof.java
 pony/Trixie.java
+pony/TroubleShoes.java
 pony/TwilightSparkle.java
 pony/VinylScratch.java
 pony/Wildfire.java

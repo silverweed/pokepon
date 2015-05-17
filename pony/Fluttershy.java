@@ -49,5 +49,6 @@ public class Fluttershy extends Pony {
 		learnableMoves.put("Stare",70);	
 
 		possibleAbilities[0] = "Compassion";
+		possibleAbilities[1] = "Natural Empathy";
 	}
 }

@@ -2831,7 +2831,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			}
 			if(allyHPBar != null)
 				allyHPBar.update();
-			if(!phrase.equalsIgnoreCase("quiet"))
+			if(phrase == null || !phrase.equalsIgnoreCase("quiet"))
 				appendEvent(EventType.BATTLE,parseDamageEvent(allyPony,	dam, phrase));
 			if(dam >= 0)
 				resultAnim(allyLocation(),"-" + 
@@ -2848,7 +2848,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			}
 			if(oppHPBar != null)
 				oppHPBar.update();
-			if(!phrase.equalsIgnoreCase("quiet"))
+			if(phrase == null || !phrase.equalsIgnoreCase("quiet"))
 				appendEvent(EventType.BATTLE,parseDamageEvent(oppPony, dam, phrase));
 			if(dam > 0)
 				resultAnim(oppLocation(),"-" +

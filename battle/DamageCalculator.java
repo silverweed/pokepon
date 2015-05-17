@@ -187,38 +187,6 @@ class DamageCalculator {
 				}
 			}
 		}
-		/*for(PersistentEffect d : be.getPersistentEffects()) {
-			if(Debug.on) printDebug("[DC] Considering PersistentEffect: "+d.getName());
-			if(d.getSide() == be.currentPlayer()) {
-				if(Debug.on) printDebug("  -> is on Attacker side("+d.getSide()+")");
-				typeModifier *= d.changeDamageDealtBy(move.getType());
-				typeModifier *= d.changeDamageDealtBy(move.getMoveType());
-				if(d.preventsTargetOHKO()) {
-					sturdy = true;
-					sturdyFallback = d.getName();
-					if(d.getPhrase() != null) {
-						if(sturdyMsg.length() > 0)
-							sturdyMsg += "<br>" + d.getPhrase().replaceAll("\\[pony\\]",defender.getNickname());
-						else
-							sturdyMsg = d.getPhrase().replaceAll("\\[pony\\]",defender.getNickname());
-					}
-				}
-			} else {
-				if(Debug.on) printDebug("  -> is on Defender side ("+d.getSide()+")");
-				typeModifier *= d.changeDamageTakenFrom(move.getType());
-				typeModifier *= d.changeDamageTakenFrom(move.getMoveType());
-				if(d.preventsUserOHKO()) {
-					sturdy = true;
-					sturdyFallback = d.getName();
-					if(d.getPhrase() != null) {
-						if(sturdyMsg.length() > 0)
-							sturdyMsg += "<br>" + d.getPhrase().replaceAll("\\[pony\\]",defender.getNickname());
-						else
-							sturdyMsg = d.getPhrase().replaceAll("\\[pony\\]",defender.getNickname());
-					}
-				}
-			}
-		}*/
 		if(Debug.on) printDebug("[DC] typeModifier: "+typeModifier);
 
 		boolean isCritical = (rng.nextFloat() < 0.0625 * move.getCritical());

@@ -39,14 +39,14 @@ public class Nap extends Move {
 			new BattleEvent(1, name) {
 				@Override
 				public void afterMoveUsage(final BattleEngine be) {
-					if(be.getAttacker() == source && !source.isFainted()) {
-						source.setAsleep(true);
+					if(be.getAttacker() == pony && !pony.isFainted()) {
+						pony.setAsleep(true);
 						if(be.getBattleTask() != null) {
-							be.getBattleTask().sendB("|battle|"+source.getNickname()+" takes a nap and becomes healthy!");
-							be.getBattleTask().sendB(be.getConnection(be.getSide(source)),"|addstatus|ally|slp");
-							be.getBattleTask().sendB(be.getConnection(be.getOppositeSide(source)),"|addstatus|opp|slp");
+							be.getBattleTask().sendB("|battle|"+pony.getNickname()+" takes a nap and becomes healthy!");
+							be.getBattleTask().sendB(be.getConnection(be.getSide(pony)),"|addstatus|ally|slp");
+							be.getBattleTask().sendB(be.getConnection(be.getOppositeSide(pony)),"|addstatus|opp|slp");
 						}
-						source.sleepCounter = 3;
+						pony.sleepCounter = 3;
 						count = 0;
 					}
 				}

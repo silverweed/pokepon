@@ -43,10 +43,6 @@ public class PoisonJokeHazard extends Hazard {
 			return;
 		}
 
-		for(EffectDealer ed : pony.getEffectDealers())
-			if(ed.ignoreSecondaryDamage())
-				return;
-
 		switch(pony.getRace()) {
 			case GRYPHON:
 			case ALICORN:

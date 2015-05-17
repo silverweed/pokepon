@@ -42,19 +42,6 @@ public class LoveAndCare extends Move {
 		pony = p;
 	}
 
-	/*@Override
-	public void prepareDelayEffects(final BattleEngine be) {
-		turnDelay = 1;
-		countDelay = turnDelay;
-	}
-	
-	@Override
-	public EffectDealer delayEffects() {
-		return new EffectDealer() {
-			public float getUserHeal() { return 0.5f; }
-		};
-	};*/
-
 	@Override
 	public BattleEvent[] getBattleEvents() {
 		return new BattleEvent[] {
@@ -63,18 +50,18 @@ public class LoveAndCare extends Move {
 				public void onTurnEnd(final BattleEngine be) {
 					if(Debug.on) printDebug("[Love and Care] count = "+(count-1));
 					if(--count == 0) {
-						Pony pony = be.getTeam(be.getSide(source)).getActivePony();
-						if(pony != null && !pony.isFainted()) {
-							int heal = pony.increaseHpPerc(50f);	
+						Pony ap = be.getTeam(be.getSide(pony)).getActivePony();
+						if(ap != null && !ap.isFainted()) {
+							int heal = ap.increaseHpPerc(50f);	
 							if(be.getBattleTask() != null) {
-								Connection ally = be.getConnection(be.getSide(source));
+								Connection ally = be.getConnection(be.getSide(pony));
 								be.getBattleTask().sendB(ally,"|damage|ally|-"+heal);
 								be.getBattleTask().sendB(ally,"|anim|ally|"+
 									"|name=Fade|sprite=wisp.png|transparent=(b)true"+
 									"|fadeOut=(b)false|initialPoint=ally -50Y"+
 									"|finalPoint=ally +20Y");
 								be.getBattleTask().sendB(
-									be.getConnection(be.getOppositeSide(source)),"|damage|opp|-"+heal);
+									be.getConnection(be.getOppositeSide(pony)),"|damage|opp|-"+heal);
 							}
 						}
 					}

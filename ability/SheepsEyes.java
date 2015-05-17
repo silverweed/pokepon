@@ -33,8 +33,6 @@ public class SheepsEyes extends Ability {
 		// we must find out if we're currently on 'ally' or 'opponent' side
 		int oppSide = be.getOppositeSide(pony);
 		Pony opp = be.getTeam(oppSide).getActivePony();
-		Connection allyC = be.getConnection(be.getSide(pony));
-		Connection oppC = be.getConnection(oppSide);
 		if(opp != null) {
 			if(opp.hasSubstitute()) return;
 			for(EffectDealer ed : opp.getEffectDealers())
@@ -43,6 +41,8 @@ public class SheepsEyes extends Ability {
 			opp.boost(Pony.Stat.SPDEF, -1);
 			printMsg(pony.getNickname()+"'s Sheep's Eyes lowered "+opp.getNickname()+"'s SpD!");
 			if(be.getBattleTask() != null) {
+				Connection allyC = be.getConnection(be.getSide(pony));
+				Connection oppC = be.getConnection(oppSide);
 				be.getBattleTask().sendB(allyC,"|boost|opp|spdef|-1|"+
 					pony.getNickname()+"'s Sheep's Eyes lowered "+
 					opp.getNickname()+"'s SpD!");

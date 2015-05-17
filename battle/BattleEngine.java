@@ -82,18 +82,6 @@ public class BattleEngine {
 		hz.add(hazards2);
 		return hz;
 	}
-	// these have been replaced by BattleEvents
-	/*public List<PersistentEffect> getPersistentEffects() {
-		return persistentEffects;
-	}
-	public List<PersistentEffect> getPersistentEffects(int i) {
-		List<PersistentEffect> eff = new LinkedList<>();
-		for(PersistentEffect pe : persistentEffects) {
-			if(pe.getSide() == i)
-				eff.add(pe);
-		}
-		return eff;
-	}*/
 	public int getSide(Pony pony) {
 		if(team1.contains(pony)) return 1;
 		if(team2.contains(pony)) return 2;
@@ -122,6 +110,11 @@ public class BattleEngine {
 	public int getLatestInflictedDamage() { return latestInflictedDamage; }
 	public List<BattleEvent> getBattleEvents() { return battleEvents; }
 	public Object getTriggerArg(String key) { return triggerArgs.get(key); }
+
+	/** Manually set a BattleEvent for this BattleEngine; may be used by an Item or Ability */
+	public void addBattleEvent(final BattleEvent evt) {
+		battleEvents.add(evt);
+	}
 
 	/** @param echo If true (default), the BattleEngine will print battle messages on console, else not. */
 	public void setEcho(boolean echo) {
@@ -259,8 +252,6 @@ public class BattleEngine {
 			printDebug("Status defender: " + defender.getStatus());
 			printDebug("Attacker boosts: "+attacker.getBoosts());
 			printDebug("Defender boosts: "+defender.getBoosts());
-			//printDebug("PersistentEffects: ");
-			//for(PersistentEffect pe : persistentEffects) printDebug("  "+pe);
 			printDebug("Battle Events: ");
 			for(BattleEvent be : battleEvents) printDebug("  "+be);
 			printDebug("---end BattleEvents");
@@ -758,10 +749,6 @@ public class BattleEngine {
 	/** Subtract 1 from all delayed moves' countDelay, remove flinch flags etc */
 	public void incrementTurn() {
 		if(Debug.on) printDebug("Delayed Moves: ");
-		/*for(Map.Entry<Move,Integer> entry : delayedMoves) {
-			--entry.getKey().countDelay;
-			if(Debug.on) printDebug("P"+entry.getValue()+": "+entry.getKey()+" [count = "+entry.getValue()+"]");
-		}*/
 		if(attacker != null) {
 			attacker.setFlinched(false);
 			attacker.setProtected(false);
@@ -772,19 +759,6 @@ public class BattleEngine {
 			defender.setProtected(false);
 			++defender.activeTurns;
 		}
-		/*Iterator<PersistentEffect> it = persistentEffects.iterator();
-		while(it.hasNext()) {
-			PersistentEffect pe = it.next();
-			if(--pe.count == 0) {
-				String side = pe.getSide() == currentPlayer() ? "ally" : "opp";
-				if(battleTask != null) {
-					battleTask.sendB(ally,"|rmpersistent|"+side+"|"+pe.getName());
-					battleTask.sendB(opp,"|rmpersistent|"+(side.equals("ally") ? "opp" : "ally")+"|"+pe.getName());
-					battleTask.sendB("|battle|"+pe.getEndPhrase());
-				}
-				it.remove();
-			}
-		}*/
 		if(weather != null && weather.get() != null && weather.get() != Weather.CLEAR && weather.count > 0)
 			--weather.count; // check is done by BattleTask on turn's end.
 		sentFaintedMsg[0] = sentFaintedMsg[1] = false;
@@ -853,7 +827,7 @@ public class BattleEngine {
 	private boolean manageTurnDelay(Move move) {
 		for(BattleEvent event : move.getBattleEvents()) {
 			if(Debug.on) printDebug("[BE] inserting BattleEvent "+event.getName());
-			event.setSource(attacker);
+			event.setPony(attacker);
 			battleEvents.add(event);
 		}
 		if(!attacker.isLockedOnMove()) {
@@ -1060,27 +1034,6 @@ public class BattleEngine {
 				battleTask.sendB(opp,"|damage|ally|"+inflictedDamage);
 			}
 		}
-		/*if(dealer.spawnPersistentEffect() != null) {
-			PersistentEffect pe = dealer.spawnPersistentEffect().getValue();
-			boolean ok = true;
-			String side = dealer.spawnPersistentEffect().getKey();
-			if(side.equals("ally")) {
-				pe.setSide(currentPlayer());
-			} else if(side.equals("opp")) {
-				pe.setSide(currentPlayer() == 1 ? 2 : 1);
-			} else {
-				printDebug("[BE] Error: side is " + dealer.spawnPersistentEffect().getKey() + " for spawnPersistentEffect!");
-				ok = false;
-			}
-			if(ok) {
-				if(battleTask != null) {
-					battleTask.sendB(ally,"|persistent|"+side+"|"+pe.getName());
-					battleTask.sendB(opp,"|persistent|"+(side.equals("ally") ? "opp" : "ally")+"|"+pe.getName());
-					battleTask.sendB("|battle|"+pe.getPhrase());
-				}
-				persistentEffects.add(pe);
-			}
-		}*/
 		if(!attacker.isKO()) {
 			if(dealer.spawnSubstitute()) {
 				if(attacker.hp() <= attacker.maxhp() / 4) {
@@ -1712,8 +1665,6 @@ public class BattleEngine {
 	private BattleTask battleTask;
 	private int moveStack;
 	private List<BattleEvent> battleEvents = new LinkedList<>();
-	/** List of persistent effects on p1/2's field */
-	//private List<PersistentEffect> persistentEffects = new LinkedList<>();
 	/** Remaining HP of substitutes */
 	private int[] substitute = { 0, 0 };
 	/** 0: false, 1: true - can decide pony to switch in, 2: true - switch to random. */

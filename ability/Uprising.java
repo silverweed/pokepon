@@ -19,7 +19,7 @@ public class Uprising extends Ability {
 
 	public Uprising() {
 		super("Uprising");
-		briefDesc = "Whenever a stat is lowered,<br>it is instead boosted by 2.";
+		briefDesc = "Whenever a stat is lowered, it is instead boosted by 2.";
 	}
 	
 	@Override

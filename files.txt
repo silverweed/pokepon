@@ -2,6 +2,7 @@ ability/Ability.java
 ability/Appeal.java
 ability/Ataraxy.java
 ability/Aversion.java
+ability/BadLuck.java
 ability/Boasting.java
 ability/BruteForce.java
 ability/ChaosMagic.java
@@ -23,6 +24,7 @@ ability/MagicDrain.java
 ability/MagicHeal.java
 ability/Mastery.java
 ability/Mildness.java
+ability/NaturalEmpathy.java
 ability/Nocturnality.java
 ability/Optimism.java
 ability/PestResilience.java
@@ -378,6 +380,7 @@ pony/Sweetcream.java
 pony/SweetieBelle.java
 pony/Tirek.java
 pony/Tracy.java
+pony/TreeHugger.java
 pony/Trenderhoof.java
 pony/Trixie.java
 pony/TroubleShoes.java

@@ -1380,7 +1380,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				appendEvent(EventType.BATTLE,"It doesn't affect "+allyPony.getNickname()+"...");
 				resultAnim(allyLocation(),"Immune!");
 			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.BATTLE,"It doesn't affect enemy "+oppPony.getNickname())+"...";
+				appendEvent(EventType.BATTLE,"It doesn't affect enemy "+oppPony.getNickname()+"...");
 				resultAnim(oppLocation(),"Immune!");
 			}
 

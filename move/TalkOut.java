@@ -4,6 +4,7 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /** 
  * Like Clear Smog
@@ -24,6 +25,10 @@ public class TalkOut extends Move {
 		priority = 0;
 		description = "";
 		briefDesc = "Removes all target's stat changes";
+
+		animation = new java.util.HashMap<>(AnimPresets.get("whirl-shake"));
+		animation.put("1:sprite","user");
+		animation.put("2:sprite","target");
 
 		removeTargetPositiveStatModifiers = 1f;
 		removeTargetNegativeStatModifiers = 1f;

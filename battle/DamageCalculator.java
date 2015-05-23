@@ -162,6 +162,14 @@ class DamageCalculator {
 		for(EffectDealer d : defender.getEffectDealers()) {
 			typeModifier *= d.changeDamageTakenFrom(move.getType());
 			typeModifier *= d.changeDamageTakenFrom(move.getMoveType());
+			if(typeModifier == 0) {
+				if(bt != null) {
+					bt.sendB(be.getAlly(),"|immune|opp");
+					bt.sendB(be.getOpp(),"|immune|ally");
+				}
+				if(be.echoBattle) printMsg("It does not affect "+defender.getName()+"...");
+				return 0;
+			}
 			if(d.preventsUserOHKO()) {
 				sturdy = true;
 				sturdyFallback = d.getName();

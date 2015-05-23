@@ -25,6 +25,11 @@ public class Lullaby extends Move {
 		description = "Sing with melodious voice to soothe listeners' heart.";
 		briefDesc = "Sets the target Asleep.";
 
+		animation.put("name","Whirl");
+		animation.put("sprite","note.png");
+		animation.put("center","opp +40X +40Y");
+		animation.put("shakes", 2);
+
 		targetSleep = 1f;
 	}
 

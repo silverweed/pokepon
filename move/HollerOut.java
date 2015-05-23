@@ -4,6 +4,7 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 
 /**
  * Special move which inflicts good damage;
@@ -26,6 +27,9 @@ public class HollerOut extends Move {
 		description = "Shout out with enthusiasm; target may end up confused.";
 		briefDesc = "10% to confuse the target.";
 		
+		animation = new java.util.HashMap<>(AnimPresets.get("gatling"));
+		animation.put("sprite", "note.png");
+
 		targetConfusion = 0.1f;
 	}
 

@@ -44,6 +44,76 @@ import static pokepon.util.ConcatenateArrays.merge;
  */
 public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
+	private static enum BPCommand {
+		JOIN, LEAVE, FORFEIT, PONY, RULE, INFO, TEAMPREVIEW, START, SWITCH, STATS, SETMV,
+		SETMVTYPE, MUSTSWITCH, MOVE, AVOID, ANIM, LOCKON, UNLOCK, PROTECTED, CHAT, HTML, HTMLCONV, 
+		ERROR, DAMAGE, RATED, BATTLE, TURN, BOOST, RECOIL, TRANSFORM, SUBSTITUTE, RMSUBSTITUTE, 
+		PERSISTENT, RMPERSISTENT, FAIL, RESULTANIM, WIN, FLINCH, EFFECT, BRN, PSN, TOX, ADDSTATUS,
+		RMSTATUS, HEALTEAM, ADDPSEUDO, RMPSEUDO, TAUNT, RMTAUNT, FAINTED, EFFECTIVE, IMMUNE, WAIT,
+		ENDWAIT, DEDUCTPP, ADDHAZARD, RMHAZARD, DISCONNECT 
+	}
+
+	private static Map<String,BPCommand> bpCommands = new HashMap<>();
+	static {
+		bpCommands.put("join", BPCommand.JOIN);
+		bpCommands.put("leave", BPCommand.LEAVE);
+		bpCommands.put("forfeit", BPCommand.FORFEIT);
+		bpCommands.put("pony", BPCommand.PONY);
+		bpCommands.put("rule", BPCommand.RULE);
+		bpCommands.put("info", BPCommand.INFO);
+		bpCommands.put("teampreview", BPCommand.TEAMPREVIEW);
+		bpCommands.put("start", BPCommand.START);
+		bpCommands.put("switch", BPCommand.SWITCH);
+		bpCommands.put("stats", BPCommand.STATS);
+		bpCommands.put("setmv", BPCommand.SETMV);
+		bpCommands.put("setmvtype", BPCommand.SETMVTYPE);
+		bpCommands.put("mustswitch", BPCommand.MUSTSWITCH);
+		bpCommands.put("move", BPCommand.MOVE);
+		bpCommands.put("avoid", BPCommand.AVOID);
+		bpCommands.put("anim", BPCommand.ANIM);
+		bpCommands.put("lockon", BPCommand.LOCKON);
+		bpCommands.put("unlock", BPCommand.UNLOCK);
+		bpCommands.put("protected", BPCommand.PROTECTED);
+		bpCommands.put("chat", BPCommand.CHAT);
+		bpCommands.put("html", BPCommand.HTML);
+		bpCommands.put("htmlconv", BPCommand.HTMLCONV);
+		bpCommands.put("error", BPCommand.ERROR);
+		bpCommands.put("damage", BPCommand.DAMAGE);
+		bpCommands.put("rated", BPCommand.RATED);
+		bpCommands.put("battle", BPCommand.BATTLE);
+		bpCommands.put("turn", BPCommand.TURN);
+		bpCommands.put("boost", BPCommand.BOOST);
+		bpCommands.put("recoil", BPCommand.RECOIL);
+		bpCommands.put("transform", BPCommand.TRANSFORM);
+		bpCommands.put("substitute", BPCommand.SUBSTITUTE);
+		bpCommands.put("rmsubstitute", BPCommand.RMSUBSTITUTE);
+		bpCommands.put("persistent", BPCommand.PERSISTENT);
+		bpCommands.put("rmpersistent", BPCommand.RMPERSISTENT);
+		bpCommands.put("fail", BPCommand.FAIL);
+		bpCommands.put("resultanim", BPCommand.RESULTANIM);
+		bpCommands.put("win", BPCommand.WIN);
+		bpCommands.put("flinch", BPCommand.FLINCH);
+		bpCommands.put("effect", BPCommand.EFFECT);
+		bpCommands.put("brn", BPCommand.BRN);
+		bpCommands.put("psn", BPCommand.PSN);
+		bpCommands.put("tox", BPCommand.TOX);
+		bpCommands.put("addstatus", BPCommand.ADDSTATUS);
+		bpCommands.put("rmstatus", BPCommand.RMSTATUS);
+		bpCommands.put("healteam", BPCommand.HEALTEAM);
+		bpCommands.put("addpseudo", BPCommand.ADDPSEUDO);
+		bpCommands.put("rmpseudo", BPCommand.RMPSEUDO);
+		bpCommands.put("taunt", BPCommand.TAUNT);
+		bpCommands.put("rmtaunt", BPCommand.RMTAUNT);
+		bpCommands.put("fainted", BPCommand.FAINTED);
+		bpCommands.put("effective", BPCommand.EFFECTIVE);
+		bpCommands.put("immune", BPCommand.IMMUNE);
+		bpCommands.put("wait", BPCommand.WAIT);
+		bpCommands.put("endwait", BPCommand.ENDWAIT);
+		bpCommands.put("deductpp", BPCommand.DEDUCTPP);
+		bpCommands.put("addhazard", BPCommand.ADDHAZARD);
+		bpCommands.put("rmhazard", BPCommand.RMHAZARD);
+		bpCommands.put("disconnect", BPCommand.DISCONNECT);
+	}
 	public static URL EMPTY_TOKEN_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
 	public static URL UNKNOWN_PONY_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
 	public static final String[] BG_IMG_URL = {
@@ -496,965 +566,1039 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		if(token.length < 1) throw new RuntimeException("[BattlePanel.interpret()]: token length < 1!");
 
-		if(token[0].equals("join") && token.length > 2) {
-			/* |join|(ally[:p1/p2]/opp)|Name Of Player */
-			appendEvent(EventType.JOIN,merge(token,2));
-			if(token[1].startsWith("ally")) {
-				String[] tk = token[1].split(":");
-				if(tk.length > 1) {
-					p1.setName(token[2]);
-					if(Debug.on) printDebug("Set player name to "+p1.getName());
-					if(tk[1].equals("p1")) playerID = 1;
-					else if(tk[1].equals("p2")) playerID = 2;
-				} else {
-					p1.setName(token[2]);
-				}
-				if(Debug.on) printDebug("playerID is "+playerID+(playerID == 0 ? " (unset)" : ""));
-				((TitledBorder)teamMenu1.getBorder()).setTitle(p1.getName());
-			} else if(token[1].startsWith("opp")) {
-				p2.setName(merge(token,2));
-				((TitledBorder)teamMenu2.getBorder()).setTitle(p2.getName());
-				try {
-					((JFrame)SwingUtilities.getWindowAncestor(this)).setTitle("Battle vs "+p2.getName());
-				} catch(ClassCastException ignore) {}
-			} 
-
-		} else if(token[0].equals("leave") && token.length > 1) {
-			/* |leave|Name Of Player */
-			appendEvent(EventType.LEAVE,token[1]);
-	
-		} else if(token[0].equals("forfeit") && token.length > 1) {
-			/* |forfeit|Name Of Player */
-			appendEvent(EventType.LEAVE,token[1],"forfeited");
-
-		} else if(token[0].equals("pony") && token.length > 3) {
-			/* |pony|(ally/opp)|Name Of Pony|Level|[|Nickname|Ability|Item] */
-			try {
-				Pony newpony = PonyCreator.create(token[2]);
-				try {
-					newpony.setLevel(Integer.parseInt(token[3]));
-				} catch(IllegalArgumentException e) {
-					printDebug("Illegal level: "+token[3]+"; setting lv to 1.");
-					newpony.setLevel(1);
-				}
-				if(token.length > 4 && token[4].length() > 0)
-					newpony.setNickname(token[4]);
-				if(token.length > 5 && token[5].length() > 0) {
-					try {
-						newpony.setAbility(AbilityCreator.create(token[5]));
-						if(Debug.on) printDebug("[BP.interpret(pony)] Set "+newpony.getNickname()+"'s ability to "+token[5]);
-					} catch(ReflectiveOperationException e) {
-						printDebug("[BP.interpret(pony)] Failed to create ability: "+token[5]);
+		BPCommand cmd = bpCommands.get(token[0]);
+		switch(cmd) {
+			case JOIN:
+				/* |join|[ally:(p1/p2)/opp]|Name of Player */
+				if(token.length < 3) return;
+				appendEvent(EventType.JOIN,merge(token,2));
+				if(token[1].startsWith("ally")) {
+					String[] tk = token[1].split(":");
+					if(tk.length > 1) {
+						p1.setName(token[2]);
+						if(Debug.on) printDebug("Set player name to "+p1.getName());
+						if(tk[1].equals("p1")) playerID = 1;
+						else if(tk[1].equals("p2")) playerID = 2;
+					} else {
+						p1.setName(token[2]);
 					}
-				}
-				if(token.length > 6 && token[6].length() > 0) {
+					if(Debug.on) printDebug("playerID is "+playerID+(playerID == 0 ? " (unset)" : ""));
+					((TitledBorder)teamMenu1.getBorder()).setTitle(p1.getName());
+				} else if(token[1].startsWith("opp")) {
+					p2.setName(merge(token,2));
+					((TitledBorder)teamMenu2.getBorder()).setTitle(p2.getName());
 					try {
-						newpony.setItem(ItemCreator.create(token[6]));
-						if(Debug.on) printDebug("[BP.interpret(pony)] Set "+newpony.getNickname()+"'s item to "+token[6]);
-					} catch(ReflectiveOperationException e) {
-						printDebug("[BP.interpret(pony)] Failed to create item: "+token[6]);
+						((JFrame)SwingUtilities.getWindowAncestor(this)).setTitle("Battle vs "+p2.getName());
+					} catch(ClassCastException ignore) {}
+				} // else guest: no setup required.
+				break;
+			case LEAVE:
+				if(token.length < 2) return;
+				/* |leave|Name Of Player */
+				appendEvent(EventType.LEAVE,token[1]);
+				break;
+			case FORFEIT:
+				if(token.length < 2) return;	
+				/* |forfeit|Name Of Player */
+				appendEvent(EventType.LEAVE,token[1],"forfeited");
+				break;
+			case PONY:
+				if(token.length < 4) return;
+				/* |pony|(ally/opp)|Name Of Pony|Level|[|Nickname|Ability|Item] */
+				try {
+					Pony newpony = PonyCreator.create(token[2]);
+					try {
+						newpony.setLevel(Integer.parseInt(token[3]));
+					} catch(IllegalArgumentException e) {
+						printDebug("Illegal level: "+token[3]+"; setting lv to 1.");
+						newpony.setLevel(1);
 					}
-				}
-				newpony.setHp(newpony.maxhp());
-				if(Debug.on) printDebug("[BP] set "+newpony.getNickname()+"'s hp to "+newpony.getHp());
-
-				if(token[1].equals("ally")) {
-					p1.getTeam().add(newpony);
-					teamMenu1.addPony(newpony, isRandomBattle);
-					teamP.addPony(newpony);
-				} else if(token[1].equals("opp")) {
-					p2.getTeam().add(newpony);
-					teamMenu2.addPony(newpony, isRandomBattle);
-				}
-			} catch(ReflectiveOperationException e) {
-				printDebug("[BattlePanel.interpret(pony)]: while creating pony: "+e);
-			}
-
-		} else if(token[0].equals("rule") && token.length > 1) {
-			/* |rule|Rule Name: and description */
-			appendEvent(EventType.RULE, merge(token,1));
-
-		} else if(token[0].equals("info") && token.length > 1) {
-			/* |info|Message */
-			appendEvent(EventType.INFO, merge(token,1));
-
-		} else if(token[0].equals("teampreview")) {
-			/* |teampreview */
-			teampreview();
-
-		} else if(token[0].equals("start")) {
-			if(battleStarted) {
-				appendEvent(EventType.CRITICAL,"Error: battle started again!?");
-				printDebug("Error: battle started more than once!");
-				return;
-			}
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					for(int i = 0; i < 6; ++i) {
-						if(previewSprite1[i] != null) {
-							fieldP.remove(previewSprite1[i]);
-							previewSprite1[i] = null;
-						}
-						if(previewSprite2[i] != null) {
-							fieldP.remove(previewSprite2[i]);
-							previewSprite2[i] = null;
+					if(token.length > 4 && token[4].length() > 0)
+						newpony.setNickname(token[4]);
+					if(token.length > 5 && token[5].length() > 0) {
+						try {
+							newpony.setAbility(AbilityCreator.create(token[5]));
+							if(Debug.on) printDebug("[BP.interpret(pony)] Set "+
+									newpony.getNickname()+"'s ability to "+token[5]);
+						} catch(ReflectiveOperationException e) {
+							printDebug("[BP.interpret(pony)] Failed to create ability: "+token[5]);
 						}
 					}
-					showBottomMoves();
-					moveP.setVisible(true);
-					validate();
-					repaint();
-					battleStarted = true;
-				}
-			});
-
-		} else if(token[0].equals("switch") && token.length > 3) {
-			/* |switch|(ally/opp)|Number of Pony in team|hp[|maxhp] */
-			if(!token[1].equals("opp") && !token[1].equals("ally")) {
-				printDebug("[BP.interpret(switch)] Error: side is "+token[1]+"!");
-				return;
-			}
-			int ponyNum = -1, hp = -1, maxhp = -1;
-			try {
-				ponyNum = Integer.parseInt(token[2]);
-				hp = Integer.parseInt(token[3]);
-				if(token.length > 4)
-					maxhp = Integer.parseInt(token[4]);
-			} catch(IllegalArgumentException e) {
-				printDebug("[BP.interpret(switch)] Error parsing integer parameters:");
-				e.printStackTrace();
-				return;
-			}
-			doSwitch(token[1].equals("ally"), ponyNum, hp, maxhp);
-	
-		} else if(token[0].equals("stats") && token.length > 5) {
-			/* |stats|atk|def|spatk|spdef|speed */
-			String[] stats = "Atk Def Spa SpD Spe".split(" ");
-			for(int i = 1; i < 6; ++i) {
-				try {
-					int s = Integer.parseInt(token[i]);
-					if(s < 1) {
-						printDebug("[BP.interpret(stats)] Invalid stat received: "+s);
-						continue;
+					if(token.length > 6 && token[6].length() > 0) {
+						try {
+							newpony.setItem(ItemCreator.create(token[6]));
+							if(Debug.on) printDebug("[BP.interpret(pony)] Set "+
+									newpony.getNickname()+"'s item to "+token[6]);
+						} catch(ReflectiveOperationException e) {
+							printDebug("[BP.interpret(pony)] Failed to create item: "+token[6]);
+						}
 					}
-					ponyEffStats[i-1] = s;
-				} catch(IllegalArgumentException ee) {
-					printDebug("[BP.interpret(stats)] Exception while parsing token["+i+"]: "+ee);
-					continue;
+					newpony.setHp(newpony.maxhp());
+					if(Debug.on) printDebug("[BP] set "+newpony.getNickname()+"'s hp to "+newpony.getHp());
+
+					if(token[1].equals("ally")) {
+						p1.getTeam().add(newpony);
+						teamMenu1.addPony(newpony, isRandomBattle);
+						teamP.addPony(newpony);
+					} else if(token[1].equals("opp")) {
+						p2.getTeam().add(newpony);
+						teamMenu2.addPony(newpony, isRandomBattle);
+					}
+				} catch(ReflectiveOperationException e) {
+					printDebug("[BattlePanel.interpret(pony)]: while creating pony: "+e);
 				}
-			}
-	
-		} else if(token[0].equals("setmv") && token.length > 3) {
-			/* |setmv|ponynum|movenum|(Move Name/none)[|pp] */
-			try {
-				final int ponynum = Integer.parseInt(token[1]);
-				final int movenum = Integer.parseInt(token[2]);
-				if(ponynum < 0 || ponynum >= Team.MAX_TEAM_SIZE || movenum < 0 || movenum >= Pony.MOVES_PER_PONY) {
-					printDebug("[BattlePanel.interpret(setmv)]: ERROR - received setmv ponynum: "+ponynum+", movenum: "+movenum);
+				break;
+			case RULE:
+				if(token.length < 2) return;
+				/* |rule|Rule Name: and description */
+				appendEvent(EventType.RULE, merge(token,1));
+				break;
+			case INFO:
+				if(token.length < 2) return;
+				/* |info|Message */
+				appendEvent(EventType.INFO, merge(token,1));
+				break;
+			case TEAMPREVIEW:
+				/* |teampreview */
+				teampreview();
+				break;
+			case START:
+				/* |start */
+				if(battleStarted) {
+					appendEvent(EventType.CRITICAL,"Error: battle started again!?");
+					printDebug("Error: battle started more than once!");
 					return;
 				}
-				if(token[3].equals("none")) {
-					if(Debug.on) printDebug("Set move["+movenum+"] of "+p1.getTeam().getPony(ponynum)+" to none");
-					p1.getTeam().getPony(ponynum).setMove(movenum, null);
-				} else {
-					try { 
-						final Move move = MoveCreator.create(token[3]);
-						if(move == null) {
-							throw new NullPointerException("Move is null in BP.interpret(setmv)!");
-						}
-						if(Debug.on) 
-							printDebug("Set move["+movenum+"] of "+p1.getTeam().getPony(ponynum)+
-									" to "+move.getName()+" (type: "+move.getType()+
-									",color: "+move.getType().getBGColor()+", "+move.getType().getFGColor()+")");
-						if(token.length > 4) {
-							try {
-								move.setPP(Integer.parseInt(token[4]));
-								if(Debug.on) printDebug("[BP.interpret(setmv)] set "+move+" PP to "+move.getPP());
-							} catch(IllegalArgumentException ee) {
-								printDebug("[BP.interpret(setmv)] illegal PP number: "+token[4]);
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						for(int i = 0; i < 6; ++i) {
+							if(previewSprite1[i] != null) {
+								fieldP.remove(previewSprite1[i]);
+								previewSprite1[i] = null;
+							}
+							if(previewSprite2[i] != null) {
+								fieldP.remove(previewSprite2[i]);
+								previewSprite2[i] = null;
 							}
 						}
-						p1.getTeam().getPony(ponynum).setMove(movenum, move);
-						if(battleStarted)
-							moveB[movenum].setMove(move);
-					
-					} catch(ReflectiveOperationException e) {
-						printDebug("[BP.interpret(setmv)]: "+e);
-						return;
-					}
-				}
-			} catch(IllegalArgumentException e) {
-				printDebug("[BP.interpret(setmv)] Illegal argument: "+e);
-			}
-
-		} else if(token[0].equals("setmvtype")) {
-			/* |setmvtype|ponynum|movenum|Type */
-			try {
-				final int ponynum = Integer.parseInt(token[1]);
-				final int movenum = Integer.parseInt(token[2]);
-				if(ponynum < 0 || ponynum >= Team.MAX_TEAM_SIZE || movenum < 0 || movenum >= Pony.MOVES_PER_PONY) {
-					printDebug("[BattlePanel.interpret(setmvtype)]: ERROR - received setmvtype ponynum: "+ponynum+", movenum: "+movenum);
-					return;
-				}
-				Type type = Type.forName(token[3]);
-				if(type != null) 
-					p1.getTeam().getPony(ponynum).getMove(movenum).setType(type);
-				else
-					printDebug("[BattlePanel.interpret(setmvtype)] ERROR: received unknown type "+token[3]);
-
-			} catch(IllegalArgumentException e) {
-				printDebug("[BP.interpret(setmvtype)] Illegal argument: "+e);
-			}
-	
-		} else if(token[0].equals("mustswitch")) {
-			/* |mustswitch */
-			if(Debug.on) printDebug("[BP] invoking mustswitch...");
-			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					public void run() {
-						//moveP.setVisible(false);
-						showBottomAlert("Choose a pony to switch in");
+						showBottomMoves();
+						moveP.setVisible(true);
 						validate();
 						repaint();
+						battleStarted = true;
 					}
 				});
-				appendEvent(EventType.BATTLE,"Choose a pony to switch in.");
-			} catch(InterruptedException e) {
-				printDebug("[BP.interpret(mustswitch)]: interrupted.");
-				return;
-			} catch(InvocationTargetException e) {
-				printDebug("[BP.interpret(mustswitch)]: "+e);
-				printDebug("Caused by: "+e.getCause());
-				return;
+				break;
+			case SWITCH: {
+				if(token.length < 4) return;
+				/* |switch|(ally/opp)|Number of Pony in team|hp[|maxhp] */
+				if(!token[1].equals("opp") && !token[1].equals("ally")) {
+					printDebug("[BP.interpret(switch)] Error: side is "+token[1]+"!");
+					return;
+				}
+				int ponyNum = -1, hp = -1, maxhp = -1;
+				try {
+					ponyNum = Integer.parseInt(token[2]);
+					hp = Integer.parseInt(token[3]);
+					if(token.length > 4)
+						maxhp = Integer.parseInt(token[4]);
+				} catch(IllegalArgumentException e) {
+					printDebug("[BP.interpret(switch)] Error parsing integer parameters:");
+					e.printStackTrace();
+					return;
+				}
+				doSwitch(token[1].equals("ally"), ponyNum, hp, maxhp);
+				break;
 			}
-	
-		} else if(token[0].equals("move") && token.length > 2) {
-			/* |move|(ally/opp)|Move Name[|avoid] */
-			if(!token[1].equals("opp") && !token[1].equals("ally")) {
-				printDebug("[BP.interpret(move)] Error: side is "+token[1]+"!");
-				return;
+			case STATS: {
+				if(token.length < 6) return;
+				/* |stats|atk|def|spatk|spdef|speed */
+				String[] stats = "Atk Def Spa SpD Spe".split(" ");
+				for(int i = 1; i < 6; ++i) {
+					try {
+						int s = Integer.parseInt(token[i]);
+						if(s < 1) {
+							printDebug("[BP.interpret(stats)] Invalid stat received: "+s);
+							continue;
+						}
+						ponyEffStats[i-1] = s;
+					} catch(IllegalArgumentException ee) {
+						printDebug("[BP.interpret(stats)] Exception while parsing token["+i+"]: "+ee);
+						continue;
+					}
+				}
+				break;
 			}
-			moveAnimation(token[1].equals("ally"), token[2], token.length > 3 && token[3].equals("avoid"));
-					
-		} else if(token[0].equals("avoid") && token.length > 1) {
-			/* |avoid|ally/opp */
-			if(token[1].equals("ally")) {
-				appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
-				resultAnim(allyLocation(),"Avoided!");
-			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
-				resultAnim(oppLocation(),"Avoided!");
-			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
+			case SETMV:
+				if(token.length < 4) return;
+				/* |setmv|ponynum|movenum|(Move Name/none)[|pp] */
+				try {
+					final int ponynum = Integer.parseInt(token[1]);
+					final int movenum = Integer.parseInt(token[2]);
+					if(ponynum < 0 || ponynum >= Team.MAX_TEAM_SIZE || movenum < 0 || movenum >= Pony.MOVES_PER_PONY) {
+						printDebug("[BattlePanel.interpret(setmv)]: ERROR - received setmv ponynum: "+
+								ponynum+", movenum: "+movenum);
+						return;
+					}
+					if(token[3].equals("none")) {
+						if(Debug.on) printDebug("Set move["+movenum+"] of "+p1.getTeam().getPony(ponynum)+" to none");
+						p1.getTeam().getPony(ponynum).setMove(movenum, null);
+					} else {
+						try { 
+							final Move move = MoveCreator.create(token[3]);
+							if(move == null) {
+								throw new NullPointerException("Move is null in BP.interpret(setmv)!");
+							}
+							if(Debug.on) 
+								printDebug("Set move["+movenum+"] of "+p1.getTeam().getPony(ponynum)+
+										" to "+move.getName()+" (type: "+move.getType()+
+										",color: "+move.getType().getBGColor()+", "+
+										move.getType().getFGColor()+")");
+							if(token.length > 4) {
+								try {
+									move.setPP(Integer.parseInt(token[4]));
+									if(Debug.on) printDebug("[BP.interpret(setmv)] set "+move+" PP to "+
+											move.getPP());
+								} catch(IllegalArgumentException ee) {
+									printDebug("[BP.interpret(setmv)] illegal PP number: "+token[4]);
+								}
+							}
+							p1.getTeam().getPony(ponynum).setMove(movenum, move);
+							if(battleStarted)
+								moveB[movenum].setMove(move);
+						
+						} catch(ReflectiveOperationException e) {
+							printDebug("[BP.interpret(setmv)]: "+e);
+							return;
+						}
+					}
+				} catch(IllegalArgumentException e) {
+					printDebug("[BP.interpret(setmv)] Illegal argument: "+e);
+				}
+				break;
+			case SETMVTYPE:
+				if(token.length < 4) return;
+				/* |setmvtype|ponynum|movenum|Type */
+				try {
+					final int ponynum = Integer.parseInt(token[1]);
+					final int movenum = Integer.parseInt(token[2]);
+					if(ponynum < 0 || ponynum >= Team.MAX_TEAM_SIZE || movenum < 0 || movenum >= Pony.MOVES_PER_PONY) {
+						printDebug("[BattlePanel.interpret(setmvtype)]: ERROR - received setmvtype ponynum: "+
+								ponynum+", movenum: "+movenum);
+						return;
+					}
+					Type type = Type.forName(token[3]);
+					if(type != null) 
+						p1.getTeam().getPony(ponynum).getMove(movenum).setType(type);
+					else
+						printDebug("[BattlePanel.interpret(setmvtype)] ERROR: received unknown type "+token[3]);
 
-		} else if(token[0].equals("anim") && token.length > 2) {
-			/* |anim|(opp/ally)|key1=value1|key2=value2|... */
-			if(!token[1].equals("opp") && !token[1].equals("ally")) {
-				printDebug("[BP.interpret(anim)] Error: side is "+token[1]+"!");
-				return;
-			}
-			if(parseAnimation(token)) {
+				} catch(IllegalArgumentException e) {
+					printDebug("[BP.interpret(setmvtype)] Illegal argument: "+e);
+				}
+				break;
+			case MUSTSWITCH:
+				/* |mustswitch */
+				if(Debug.on) printDebug("[BP] invoking mustswitch...");
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						public void run() {
+							//moveP.setVisible(false);
+							showBottomAlert("Choose a pony to switch in");
+							validate();
+							repaint();
+						}
+					});
+					appendEvent(EventType.BATTLE,"Choose a pony to switch in.");
+				} catch(InterruptedException e) {
+					printDebug("[BP.interpret(mustswitch)]: interrupted.");
+					return;
+				} catch(InvocationTargetException e) {
+					printDebug("[BP.interpret(mustswitch)]: "+e);
+					printDebug("Caused by: "+e.getCause());
+					return;
+				}
+				break;
+			case MOVE:
+				if(token.length < 3) return;
+				/* |move|(ally/opp)|Move Name[|avoid] */
+				if(!token[1].equals("opp") && !token[1].equals("ally")) {
+					printDebug("[BP.interpret(move)] Error: side is "+token[1]+"!");
+					return;
+				}
+				moveAnimation(token[1].equals("ally"), token[2], token.length > 3 && token[3].equals("avoid"));
+				break;
+			case AVOID:
+				if(token.length < 2) return;
+				/* |avoid|ally/opp */
+				if(token[1].equals("ally")) {
+					appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
+					resultAnim(allyLocation(),"Avoided!");
+				} else if(token[1].equals("opp")) {
+					appendEvent(EventType.BATTLE,oppPony.getName() + " avoids the attack!");
+					resultAnim(oppLocation(),"Avoided!");
+				}
 				try {
 					Thread.sleep(INTERPRET_DELAY);
 				} catch(InterruptedException ignore) {}
-			}
-
-		} else if(token[0].equals("lockon") && token.length > 1) {
-			/* |lockon|Move Name */
-			for(Move m : allyPony.getMoves()) 
-				if(m.getName().equals(token[1])) {
-					moveB[0].setMove(m);
+				break;
+			case ANIM:
+				if(token.length < 3) return;
+				/* |anim|(opp/ally)|key1=value1|key2=value2|... */
+				if(!token[1].equals("opp") && !token[1].equals("ally")) {
+					printDebug("[BP.interpret(anim)] Error: side is "+token[1]+"!");
+					return;
+				}
+				if(parseAnimation(token)) {
+					try {
+						Thread.sleep(INTERPRET_DELAY);
+					} catch(InterruptedException ignore) {}
+				}
+				break;
+			case LOCKON:
+				if(token.length < 2) return;
+				/* |lockon|Move Name */
+				for(Move m : allyPony.getMoves()) 
+					if(m.getName().equals(token[1])) {
+						moveB[0].setMove(m);
+						for(int i = 1; i < Pony.MOVES_PER_PONY; ++i)
+							moveB[i].setMove(null);
+						allyPony.setLockedOnMove(true);
+						return;
+					}
+				try {
+					moveB[0].setMove(MoveCreator.create(token[1], allyPony));
 					for(int i = 1; i < Pony.MOVES_PER_PONY; ++i)
 						moveB[i].setMove(null);
 					allyPony.setLockedOnMove(true);
+				} catch(ReflectiveOperationException e) {
+					printDebug("[BP.interpret(lockon)] couldn't create move "+token[1]);
+				}
+				break;
+			case UNLOCK:
+				/* |unlock */
+				if(allyPony == null || !allyPony.isLockedOnMove()) {
+					appendEvent(EventType.ERROR,"Received 'unlock' but ally is not locked on move!");
+					printDebug("[BP.interpret(unlock)] allyPony is not locked on move!");
 					return;
 				}
-			try {
-				moveB[0].setMove(MoveCreator.create(token[1], allyPony));
-				for(int i = 1; i < Pony.MOVES_PER_PONY; ++i)
-					moveB[i].setMove(null);
-				allyPony.setLockedOnMove(true);
-			} catch(ReflectiveOperationException e) {
-				printDebug("[BP.interpret(lockon)] couldn't create move "+token[1]);
+				for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
+					moveB[i].setMove(allyPony.getMove(i));
+				allyPony.setLockedOnMove(false);
+				break;
+			case PROTECTED:
+				if(token.length < 2) return;
+				/* |protected|ally/opp */
+				if(token[1].equals("ally")) {
+					appendEvent(EventType.BATTLE,allyPony.getName() + " is protected!");
+					resultAnim(allyLocation(),"Protected!");
+				} else if(token[1].equals("opp")) {
+					appendEvent(EventType.BATTLE,oppPony.getName() + " is protected!");
+					resultAnim(oppLocation(),"Protected!");
+				}
+				break;
+			case CHAT:
+				if(token.length < 3) return;
+				/* |chat|Name|msg */
+				appendEvent(EventType.CHAT,token[1],merge(token,2));
+				break;
+			case HTML:
+				if(token.length < 2) return;
+				/* |html|Message */
+				appendEvent(EventType.HTML,token[1]);
+				break;
+			case HTMLCONV: {
+				if(token.length < 2) return;
+				/* |htmlconv|Message with tags to convert */
+				String replaced = Meta.toLocalURL(merge(token,1));
+				appendEvent(EventType.HTML,replaced);
+				break;
 			}
+			case ERROR:
+				if(token.length < 2) return;
+				/* |error|Message */
+				appendEvent(EventType.ERROR,token[1]);
+				break;
+			case DAMAGE:
+				if(token.length < 3) return;
+				/* |damage|(ally/opp)|amount[|phrase] */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(damage)] Error: side is "+token[1]);
+					return;
+				}
+				try {
+					applyDamage(token[1].equals("ally"), (int)Float.parseFloat(token[2]), token.length > 3 ? token[3] : null);
 
-		} else if(token[0].equals("unlock")) {
-			/* |unlock */
-			if(allyPony == null || !allyPony.isLockedOnMove()) {
-				appendEvent(EventType.ERROR,"Received 'unlock' but ally is not locked on move!");
-				printDebug("[BP.interpret(unlock)] allyPony is not locked on move!");
-				return;
-			}
-			for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
-				moveB[i].setMove(allyPony.getMove(i));
-			allyPony.setLockedOnMove(false);
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(IllegalArgumentException e) {
+					printDebug("[BP.interpret(damage)] Invalid amount: "+token[2]);
+				} catch(InterruptedException ignore) {}
+				break;
+			case RATED:
+				/* |rated */
+				appendEvent(EventType.RULE,"Rated battle");
+				break;
+			case BATTLE:
+				if(token.length < 2) return;
+				/* |battle|message[|(emph/html/move)] */
+				if(token.length > 2) {
+					if(token[2].equals("emph"))
+						appendEvent(EventType.EMPHASIZED,token[1]);
+					else if(token[2].equals("html"))
+						appendEvent(EventType.HTML,token[1]);
+					else if(token[2].equals("move") && token.length > 3)
+						appendEvent(EventType.MOVE,token[1],token[3]);
+				} else {
+					appendEvent(EventType.BATTLE,token[1]);
+				}
+				break;
+			case TURN:
+				if(token.length < 1) return;
+				/* |turn|turnCount */
+				if(Debug.on) printDebug("--- TURN "+token[1]+" ---");
+				appendEvent(EventType.TURN,token[1]);
+				// reset move selections
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						if(Debug.pedantic) printDebug("Called unselect()");
+						for(MoveButton tb : moveB) {
+							tb.setSelected(false);
+							if(Debug.pedantic) printDebug("Unselected moveButton: "+tb.getMove());
+							tb.repaint();
+						}
+					}
+				});
+				break;
+			case BOOST:
+				if(token.length < 4) return;
+				/* |boost|(ally/opp)|stat|amount[|Phrase] */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(boost)] Error: side is "+token[1]);
+					return;
+				}
+				try {
+					applyBoost(token[1].equals("ally"), Pony.Stat.forName(token[2]),
+							Integer.parseInt(token[3]), token.length > 4 ? token[4] : null);
 
-		} else if(token[0].equals("protected") && token.length > 1) {
-			/* |protected|ally/opp */
-			if(token[1].equals("ally")) {
-				appendEvent(EventType.BATTLE,allyPony.getName() + " is protected!");
-				resultAnim(allyLocation(),"Protected!");
-			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.BATTLE,oppPony.getName() + " is protected!");
-				resultAnim(oppLocation(),"Protected!");
-			}
-	
-		} else if(token[0].equals("chat") && token.length > 2) {
-			/* |chat|Name|msg */
-			appendEvent(EventType.CHAT,token[1],merge(token,2));
-
-		} else if(token[0].equals("html") && token.length > 1) {
-			/* |html|Message */
-			appendEvent(EventType.HTML,token[1]);
-
-		} else if(token[0].equals("htmlconv") && token.length > 1) {
-			/* |htmlconv|Message with tags to convert */
-			String replaced = Meta.toLocalURL(merge(token,1));
-			appendEvent(EventType.HTML,replaced);
-
-		} else if(token[0].equals("error") && token.length > 1) {
-			/* |error|Message */
-			appendEvent(EventType.ERROR,token[1]);
-		
-		} else if(token[0].equals("damage") && token.length > 2) {
-			/* |damage|(ally/opp)|amount[|phrase] */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(damage)] Error: side is "+token[1]);
-				return;
-			}
-			try {
-				applyDamage(token[1].equals("ally"), (int)Float.parseFloat(token[2]), token.length > 3 ? token[3] : null);
-
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(IllegalArgumentException e) {
-				printDebug("[BP.interpret(damage)] Invalid amount: "+token[2]);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("rated")) {
-			appendEvent(EventType.RULE,"Rated battle");
-
-		} else if(token[0].equals("battle") && token.length > 1) {
-			/* |battle|message[|(emph/html/move)] */
-			if(token.length > 2) {
-				if(token[2].equals("emph"))
-					appendEvent(EventType.EMPHASIZED,token[1]);
-				else if(token[2].equals("html"))
-					appendEvent(EventType.HTML,token[1]);
-				else if(token[2].equals("move") && token.length > 3)
-					appendEvent(EventType.MOVE,token[1],token[3]);
-			} else {
-				appendEvent(EventType.BATTLE,token[1]);
-			}
-
-		} else if(token[0].equals("turn") && token.length > 1) {
-			/* |turn|turnCount */
-			if(Debug.on) printDebug("--- TURN "+token[1]+" ---");
-			appendEvent(EventType.TURN,token[1]);
-			// reset move selections
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					if(Debug.pedantic) printDebug("Called unselect()");
-					for(MoveButton tb : moveB) {
-						tb.setSelected(false);
-						if(Debug.pedantic) printDebug("Unselected moveButton: "+tb.getMove());
-						tb.repaint();
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(IllegalArgumentException e) {
+					printDebug("[BattlePanel.interpret(boost)]: illegal argument "+e);
+					return;
+				} catch(InterruptedException ignore) {}
+				break;
+			case RECOIL:
+				if(token.length < 3) return;
+				/* |recoil|(ally/opp)|recoilDamage */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(transform)] Error: side is "+token[1]);
+					return;
+				}
+				try {
+					applyRecoilDamage(token[1].equals("ally"), Integer.parseInt(token[2]));
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(IllegalArgumentException e) {
+					printDebug("[BattlePanel.interpret(recoil): illegal argument "+e);
+				} catch(InterruptedException ignore) {}
+				break;
+			case TRANSFORM:
+				if(token.length < 3) return;
+				/* |transform|(ally/opp)|Pony Name */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(transform)] Error: side is "+token[1]);
+					return;
+				}
+				transformPony(token[1].equals("ally"), token[2]);
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore){}
+				break;
+			case SUBSTITUTE:
+				if(token.length < 2) return;
+				/* |substitute|(ally/opp) */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(substitute)] Error: side is "+token[1]);
+					return;
+				}
+				setSubstitute(token[1].equals("ally"));
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore){}
+				break;
+			case RMSUBSTITUTE:
+				if(token.length < 2) return;
+				/* |rmsubstitute|(ally/opp)[|noanim] */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(rmsubstitute)] Error: side is "+token[1]);
+					return;
+				}
+				removeSubstitute(token[1].equals("ally"), token.length > 2 && token[2].equals("noanim"));
+				break;
+			case PERSISTENT:
+				if(token.length < 3) return;
+				/* |persistent|(ally/opp)|Name */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(persistent)] Error: side is "+token[1]);
+					return;
+				}
+				setPersistentEffect(token[1].equals("ally"), token[2]);
+				break;
+			case RMPERSISTENT:
+				if(token.length < 3) return;
+				/* |rmpersistent|(ally/opp)|Name */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(rmpersistent)] Error: side is "+token[1]);
+					return;
+				}
+				removePersistentEffect(token[1].equals("ally"), token[2]);
+				break;
+			case FAIL:
+				if(token.length < 2) return;
+				/* |fail|(ally/opp) */
+				appendEvent(EventType.BATTLE, "But it failed...");
+				if(token[1].equals("ally")) 
+					resultAnim(allyLocation(), "Failed");
+				else if(token[1].equals("opp"))
+					resultAnim(oppLocation(), "Failed");
+				else
+					printDebug("[BP.interpret(fail)] Error: side is "+token[1]+"!");
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
+			case RESULTANIM: {
+				if(token.length < 4) return;
+				/* |resultanim|(ally/opp)|(good/bad/neutral/color)|Message */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(resultanim)] Error: side is "+token[1]);
+					return;
+				}
+				Color color = null;
+				ResultType resType = token[2].equals("good") ? ResultType.GOOD :
+							token[2].equals("bad") ? ResultType.BAD :
+							token[2].equals("neutral") ? ResultType.NEUTRAL :
+							null;
+				if(resType == null) {
+					try {
+						color = new Color(Integer.parseInt(token[2]));
+					} catch(IllegalArgumentException e) {
+						printDebug("[BP.interpret(resultanim)] Error parsing token[2]: using ResultType.NEUTRAL");
+						color = null;
+						resType = ResultType.NEUTRAL;
 					}
 				}
-			});
-
-		} else if(token[0].equals("boost") && token.length > 3) {
-			/* |boost|(ally/opp)|stat|amount[|Phrase] */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(boost)] Error: side is "+token[1]);
-				return;
+				if(color == null) 
+					resultAnim(token[1].equals("ally") ? allyLocation() : oppLocation(),token[3],resType);
+				else
+					resultAnim(token[1].equals("ally") ? allyLocation() : oppLocation(),token[3],color);
+				break;
 			}
-			try {
-				applyBoost(token[1].equals("ally"), Pony.Stat.forName(token[2]),
-						Integer.parseInt(token[3]), token.length > 4 ? token[4] : null);
-
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(IllegalArgumentException e) {
-				printDebug("[BattlePanel.interpret(boost)]: illegal argument "+e);
-				return;
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("recoil") && token.length > 2) {
-			/* |recoil|(ally/opp)|recoilDamage */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(transform)] Error: side is "+token[1]);
-				return;
-			}
-			try {
-				applyRecoilDamage(token[1].equals("ally"), Integer.parseInt(token[2]));
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(IllegalArgumentException e) {
-				printDebug("[BattlePanel.interpret(recoil): illegal argument "+e);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("transform") && token.length > 2) {
-			/* |transform|(ally/opp)|Pony Name */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(transform)] Error: side is "+token[1]);
-				return;
-			}
-			transformPony(token[1].equals("ally"), token[2]);
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore){}
-
-		} else if(token[0].equals("substitute") && token.length > 1) {
-			/* |substitute|(ally/opp) */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(substitute)] Error: side is "+token[1]);
-				return;
-			}
-			setSubstitute(token[1].equals("ally"));
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore){}
-
-		} else if(token[0].equals("rmsubstitute") && token.length > 1) {
-			/* |rmsubstitute|(ally/opp)[|noanim] */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(rmsubstitute)] Error: side is "+token[1]);
-				return;
-			}
-			removeSubstitute(token[1].equals("ally"), token.length > 2 && token[2].equals("noanim"));
-	
-		} else if(token[0].equals("persistent") && token.length > 2) {
-			/* |persistent|(ally/opp)|Name */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(persistent)] Error: side is "+token[1]);
-				return;
-			}
-			setPersistentEffect(token[1].equals("ally"), token[2]);
-		
-		} else if(token[0].equals("rmpersistent") && token.length > 2) {
-			/* |rmpersistent|(ally/opp)|Name */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(rmpersistent)] Error: side is "+token[1]);
-				return;
-			}
-			removePersistentEffect(token[1].equals("ally"), token[2]);
-
-		} else if(token[0].equals("fail") && token.length > 1) {
-			/* |fail|(ally/opp) */
-			appendEvent(EventType.BATTLE, "But it failed...");
-			if(token[1].equals("ally")) 
-				resultAnim(allyLocation(), "Failed");
-			else if(token[1].equals("opp"))
-				resultAnim(oppLocation(), "Failed");
-			else
-				printDebug("[BP.interpret(fail)] Error: side is "+token[1]+"!");
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("resultanim") && token.length > 3) {
-			/* |resultanim|(ally/opp)|(good/bad/neutral/color)|Message */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(resultanim)] Error: side is "+token[1]);
-				return;
-			}
-			Color color = null;
-			ResultType resType = token[2].equals("good") ? ResultType.GOOD :
-						token[2].equals("bad") ? ResultType.BAD :
-						token[2].equals("neutral") ? ResultType.NEUTRAL :
-						null;
-			if(resType == null) {
+			case WIN:
+				if(token.length < 2) return;
+				/* |win|(ally/opp) */
+				runWinEvent(token[1]);
+				break;
+			case FLINCH:
+				if(token.length < 2) return;
+				/* |flinch|(ally/opp) */
+				if(token[1].equals("ally")) {
+					appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " flinched and couldn't move!");
+					resultAnim(allyLocation(),"Flinched!");
+				} else if(token[1].equals("opp")) {
+					appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " flinched and couldn't move!");
+					resultAnim(oppLocation(),"Flinched!");
+				}
 				try {
-					color = new Color(Integer.parseInt(token[2]));
-				} catch(IllegalArgumentException e) {
-					printDebug("[BP.interpret(resultanim)] Error parsing token[2]: using ResultType.NEUTRAL");
-					color = null;
-					resType = ResultType.NEUTRAL;
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
+			case EFFECT: {
+				if(token.length < 3) return;
+				/* |effect|(ally/opp)|status */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(effect)] Error: side is "+token[1]);
+					return;
 				}
-			}
-			if(color == null) 
-				resultAnim(token[1].equals("ally") ? allyLocation() : oppLocation(),token[3],resType);
-			else
-				resultAnim(token[1].equals("ally") ? allyLocation() : oppLocation(),token[3],color);
-		
-		} else if(token[0].equals("win") && token.length > 1) {
-			/* |win|(ally/opp) */
-			runWinEvent(token[1]);
-
-		} else if(token[0].equals("flinch") && token.length > 1) {
-			/* |flinch|(ally/opp) */
-			if(token[1].equals("ally")) {
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " flinched and couldn't move!");
-				resultAnim(allyLocation(),"Flinched!");
-			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " flinched and couldn't move!");
-				resultAnim(oppLocation(),"Flinched!");
-			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if (token[0].equals("effect") && token.length > 2) {
-			/* |effect|(ally/opp)|status */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(effect)] Error: side is "+token[1]);
-				return;
-			}
-			Status status = Status.forName(token[2]);
-			if(status == null) {
-				printDebug("[BP.interpret(effect)] Unknown status: "+token[2]);
-				return;
-			}
-			statusEffectAnim(token[1].equals("ally"), status);
-
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("brn") && token.length > 1) {
-			/* |brn|(ally/opp) */
-			if(token[1].equals("ally")) {
-				synchronized(allyPony) {
-					allyPony.damagePerc(Battle.BURN_DAMAGE*100f);
+				Status status = Status.forName(token[2]);
+				if(status == null) {
+					printDebug("[BP.interpret(effect)] Unknown status: "+token[2]);
+					return;
 				}
-				if(allyHPBar != null)
-					allyHPBar.update();
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is hurt by its burn!");
-				resultAnim(allyLocation(),"-"+(int)(Battle.BURN_DAMAGE*100)+"%!",ResultType.BAD);
-			} else if(token[1].equals("opp")) {
-				synchronized(oppPony) {
-					oppPony.damagePerc(Battle.BURN_DAMAGE*100f);
-				}
-				if(oppHPBar != null)
-					oppHPBar.update();
-				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is hurt by its burn!");
-				resultAnim(oppLocation(),"-"+(int)(Battle.BURN_DAMAGE*100)+"%!",ResultType.BAD);
-			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
+				statusEffectAnim(token[1].equals("ally"), status);
 
-		} else if(token[0].equals("psn") && token.length > 1) {
-			/* |psn|(ally/opp) */
-			if(token[1].equals("ally")) {
-				synchronized(allyPony) {
-					allyPony.damagePerc(Battle.POISON_DAMAGE*100f);
-				}
-				if(allyHPBar != null)
-					allyHPBar.update();
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is hurt by poison!");
-				resultAnim(allyLocation(),"-"+(int)(Battle.POISON_DAMAGE*100)+"%!",ResultType.BAD);
-			} else if(token[1].equals("opp")) {
-				synchronized(oppPony) {
-					oppPony.damagePerc(Battle.POISON_DAMAGE*100f);
-				}
-				if(oppHPBar != null)
-					oppHPBar.update();
-				appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is hurt by poison!");
-				resultAnim(oppLocation(),"-"+(int)(Battle.POISON_DAMAGE*100)+"%!",ResultType.BAD);
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
 			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("tox") && token.length > 2) {
-			/* |tox|(ally/opp)|counter */
-			try {
+			case BRN:
+				if(token.length < 2) return;
+				/* |brn|(ally/opp) */
 				if(token[1].equals("ally")) {
 					synchronized(allyPony) {
-						allyPony.damagePerc(Battle.BAD_POISON_DAMAGE*100f*Integer.parseInt(token[2]));
+						allyPony.damagePerc(Battle.BURN_DAMAGE*100f);
+					}
+					if(allyHPBar != null)
+						allyHPBar.update();
+					appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is hurt by its burn!");
+					resultAnim(allyLocation(),"-"+(int)(Battle.BURN_DAMAGE*100)+"%!",ResultType.BAD);
+				} else if(token[1].equals("opp")) {
+					synchronized(oppPony) {
+						oppPony.damagePerc(Battle.BURN_DAMAGE*100f);
+					}
+					if(oppHPBar != null)
+						oppHPBar.update();
+					appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is hurt by its burn!");
+					resultAnim(oppLocation(),"-"+(int)(Battle.BURN_DAMAGE*100)+"%!",ResultType.BAD);
+				}
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
+			case PSN:
+				if(token.length < 2) return;
+				/* |psn|(ally/opp) */
+				if(token[1].equals("ally")) {
+					synchronized(allyPony) {
+						allyPony.damagePerc(Battle.POISON_DAMAGE*100f);
 					}
 					if(allyHPBar != null)
 						allyHPBar.update();
 					appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is hurt by poison!");
-					resultAnim(allyLocation(),"-"+(int)(Battle.BAD_POISON_DAMAGE*100*Integer.parseInt(token[2]))+"%!",ResultType.BAD);
+					resultAnim(allyLocation(),"-"+(int)(Battle.POISON_DAMAGE*100)+"%!",ResultType.BAD);
 				} else if(token[1].equals("opp")) {
 					synchronized(oppPony) {
-						oppPony.damagePerc(Battle.BAD_POISON_DAMAGE*100f*Integer.parseInt(token[2]));
+						oppPony.damagePerc(Battle.POISON_DAMAGE*100f);
 					}
 					if(oppHPBar != null)
 						oppHPBar.update();
 					appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is hurt by poison!");
-					resultAnim(oppLocation(),"-"+(int)(Battle.BAD_POISON_DAMAGE*100*Integer.parseInt(token[2]))+"%!",ResultType.BAD);
+					resultAnim(oppLocation(),"-"+(int)(Battle.POISON_DAMAGE*100)+"%!",ResultType.BAD);
 				}
 				try {
 					Thread.sleep(INTERPRET_DELAY);
 				} catch(InterruptedException ignore) {}
-
-			} catch(IllegalArgumentException e) {
-				printDebug("[BattlePanel.interpret()]: illegal argument: "+e);
-			}
-
-		} else if(token[0].equals("addstatus") && token.length > 2) {
-			/* |addstatus|(ally/opp)|status[|phrase] */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(addstatus)] Error: side is "+token[1]);
-				return;
-			}			
-			Status status = Status.forName(token[2]);
-			if(status == null) {
-				printDebug("[BP.interpret(addstatus)] Unknown status: "+token[2]);
-				return;
-			}
-
-			addStatus(token[1].equals("ally"), status, token.length > 3 ? token[3] : null);
-
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("rmstatus") && token.length > 1) {
-			/* |rmstatus|(ally/opp)[|status|phrase] */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(rmstatus)] Error: side is "+token[1]);
-				return;
-			}			
-			Status status = null;
-
-			if(token.length > 2) 
-				status = Status.forName(token[2]);
-
-			removeStatus(token[1].equals("ally"), status, token.length > 3 ? token[3] : null);
-
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("healteam") && token.length > 1) {
-			/* |healteam|(ally/opp) */
-			if(token[1].equals("ally")) {
-				p1.getTeam().healTeamStatus();
-				if(allyHPBar != null) {
-					allyHPBar.clearStatuses();
-					allyHPBar.clearPseudoStatus("Confused");
-				}
-				appendEvent(EventType.EMPHASIZED, "Team cured!");
-				resultAnim(allyLocation(),"Team cured!",ResultType.GOOD);
-			} else if(token[1].equals("opp")) {
-				p2.getTeam().healTeamStatus();
-				if(oppHPBar != null) {
-					oppHPBar.clearStatuses();
-					oppHPBar.clearPseudoStatus("Confused");
-				}
-				appendEvent(EventType.EMPHASIZED, "Team cured!");
-				resultAnim(oppLocation(),"Team cured!",ResultType.GOOD);
-			} else {
-				printDebug("[BP.interpret(healteam)] error: side is "+token[1]+"!");
-			}
-
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("addpseudo") && token.length > 3) {
-			/* |addpseudo|(ally/opp)|(good/bad)|pseudostatus */
-			boolean good = false;
-			if(token[2].equals("good")) {
-				good = true;
-			} else if(!token[2].equals("bad")) {
-				printDebug("[BP.interpret()] Error: expected good or bad but found "+token[2]);
-				return;
-			}
-			if(token[1].equals("ally")) { 
-				allyHPBar.addPseudoStatus(token[3],good);
-				resultAnim(allyLocation(),token[3],good ? ResultType.GOOD : ResultType.BAD);
-				allyHPBar.update();
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						validate();
-						repaint();
+				break;
+			case TOX:
+				if(token.length < 3) return;
+				/* |tox|(ally/opp)|counter */
+				try {
+					if(token[1].equals("ally")) {
+						synchronized(allyPony) {
+							allyPony.damagePerc(Battle.BAD_POISON_DAMAGE*100f*Integer.parseInt(token[2]));
+						}
+						if(allyHPBar != null)
+							allyHPBar.update();
+						appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " is hurt by poison!");
+						resultAnim(allyLocation(),"-"+(int)(Battle.BAD_POISON_DAMAGE*100*
+									Integer.parseInt(token[2]))+"%!",ResultType.BAD);
+					} else if(token[1].equals("opp")) {
+						synchronized(oppPony) {
+							oppPony.damagePerc(Battle.BAD_POISON_DAMAGE*100f*Integer.parseInt(token[2]));
+						}
+						if(oppHPBar != null)
+							oppHPBar.update();
+						appendEvent(EventType.EMPHASIZED,"Enemy " + oppPony.getNickname() + " is hurt by poison!");
+						resultAnim(oppLocation(),"-"+(int)(Battle.BAD_POISON_DAMAGE*100*
+									Integer.parseInt(token[2]))+"%!",ResultType.BAD);
 					}
-				});
-			} else if(token[1].equals("opp")) {
-				oppHPBar.addPseudoStatus(token[3],good);
-				resultAnim(oppLocation(),token[3],good ? ResultType.GOOD : ResultType.BAD);
-				oppHPBar.update();
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						validate();
-						repaint();
-					}
-				});
-			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("rmpseudo") && token.length > 2) {
-			/* |rmpseudo|(ally/opp)|pseudostatus[|result phrase] */
-			if(token[1].equals("ally")) {
-				allyHPBar.clearPseudoStatus(token[2]);
-				if(token.length > 3)
-					resultAnim(allyLocation(),token[3]);
-				allyHPBar.update();
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						validate();
-						repaint();
-					}
-				});
-			} else if(token[1].equals("opp")) {
-				oppHPBar.clearPseudoStatus(token[2]);
-				if(token.length > 3)
-					resultAnim(oppLocation(),token[3]);
-				oppHPBar.update();
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						validate();
-						repaint();
-					}
-				});
-			}
-			try {
-				Thread.sleep(INTERPRET_DELAY);
-			} catch(InterruptedException ignore) {}
-
-		} else if(token[0].equals("taunt") && token.length > 1) {
-			/* |taunt|(ally/opp) */
-			if(token[1].equals("ally")) {
-				int cnt = Pony.MOVES_PER_PONY;
-				for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
-					if(moveB[i].getMove() != null && moveB[i].getMove().getMoveType() == Move.MoveType.STATUS) {
-						moveB[i].setEnabled(false);
-						--cnt;
-					}
-				}	
-				if(cnt == 0) {
 					try {
-						moveB[0].setMove(MoveCreator.create("Struggle"));
-						for(int i = 1; i < Pony.MOVES_PER_PONY; ++i)
-							moveB[i].setMove(null);
-					} catch(ReflectiveOperationException e) {
-						printDebug("[BP.interpret(taunt)] Couldn't create move struggle:");
-						e.printStackTrace();
-					}
+						Thread.sleep(INTERPRET_DELAY);
+					} catch(InterruptedException ignore) {}
+
+				} catch(IllegalArgumentException e) {
+					printDebug("[BattlePanel.interpret()]: illegal argument: "+e);
 				}
-				allyHPBar.addPseudoStatus("Taunt", false);
-				resultAnim(allyLocation(),"Taunted!");
-				allyHPBar.update();
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						validate();
-						repaint();
-					}
-				});
-				appendEvent(EventType.BATTLE,allyPony.getNickname()+" fell for the taunt!");
-				allyPony.setTaunted(true);
-
-			} else if(token[1].equals("opp")) {
-				oppHPBar.addPseudoStatus("Taunt", false);
-				resultAnim(oppLocation(),"Taunted!");
-				oppHPBar.update();
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						validate();
-						repaint();
-					}
-				});
-				appendEvent(EventType.BATTLE,"The enemy "+oppPony.getNickname()+" fell for the taunt!");
-			}
-
-		} else if(token[0].equals("rmtaunt") && token.length > 1) {
-			/* |rmtaunt|(ally/opp) */
-			if(token[1].equals("ally")) {
-				if(allyPony == null) return;
-				if(!allyPony.isTaunted()) {
-					printDebug("[BP.interpret(taunt)] allyPony is not taunted!");
+				break;
+			case ADDSTATUS: {
+				if(token.length < 3) return;
+				/* |addstatus|(ally/opp)|status[|phrase] */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(addstatus)] Error: side is "+token[1]);
+					return;
+				}			
+				Status status = Status.forName(token[2]);
+				if(status == null) {
+					printDebug("[BP.interpret(addstatus)] Unknown status: "+token[2]);
 					return;
 				}
-				allyPony.setTaunted(false);
-				for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
-					moveB[i].setMove(allyPony.getMove(i));
-					moveB[i].setEnabled(true);
+
+				addStatus(token[1].equals("ally"), status, token.length > 3 ? token[3] : null);
+
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
+			}
+			case RMSTATUS: {
+				if(token.length < 2) return;
+				/* |rmstatus|(ally/opp)[|status|phrase] */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(rmstatus)] Error: side is "+token[1]);
+					return;
+				}			
+				Status status = null;
+
+				if(token.length > 2) 
+					status = Status.forName(token[2]);
+
+				removeStatus(token[1].equals("ally"), status, token.length > 3 ? token[3] : null);
+
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
+			}
+			case HEALTEAM:
+				if(token.length < 2) return;
+				/* |healteam|(ally/opp) */
+				if(token[1].equals("ally")) {
+					p1.getTeam().healTeamStatus();
+					if(allyHPBar != null) {
+						allyHPBar.clearStatuses();
+						allyHPBar.clearPseudoStatus("Confused");
+					}
+					appendEvent(EventType.EMPHASIZED, "Team cured!");
+					resultAnim(allyLocation(),"Team cured!",ResultType.GOOD);
+				} else if(token[1].equals("opp")) {
+					p2.getTeam().healTeamStatus();
+					if(oppHPBar != null) {
+						oppHPBar.clearStatuses();
+						oppHPBar.clearPseudoStatus("Confused");
+					}
+					appendEvent(EventType.EMPHASIZED, "Team cured!");
+					resultAnim(oppLocation(),"Team cured!",ResultType.GOOD);
+				} else {
+					printDebug("[BP.interpret(healteam)] error: side is "+token[1]+"!");
 				}
-				if(allyHPBar != null) {
-					allyHPBar.clearPseudoStatus("Taunt");
+
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
+			case ADDPSEUDO: {
+				if(token.length < 4) return;
+				/* |addpseudo|(ally/opp)|(good/bad)|pseudostatus */
+				boolean good = false;
+				if(token[2].equals("good")) {
+					good = true;
+				} else if(!token[2].equals("bad")) {
+					printDebug("[BP.interpret()] Error: expected good or bad but found "+token[2]);
+					return;
+				}
+				if(token[1].equals("ally")) { 
+					allyHPBar.addPseudoStatus(token[3],good);
+					resultAnim(allyLocation(),token[3],good ? ResultType.GOOD : ResultType.BAD);
 					allyHPBar.update();
-				}
-				resultAnim(allyLocation(),"Taunt ended!", ResultType.GOOD);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						validate();
-						repaint();
-					}
-				});
-				appendEvent(EventType.BATTLE,allyPony.getNickname()+"'s taunt ended!");
-
-			} else if(token[1].equals("opp")) {
-				if(oppPony == null) return;
-				if(oppHPBar != null) {
-					oppHPBar.clearPseudoStatus("Taunt");
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							validate();
+							repaint();
+						}
+					});
+				} else if(token[1].equals("opp")) {
+					oppHPBar.addPseudoStatus(token[3],good);
+					resultAnim(oppLocation(),token[3],good ? ResultType.GOOD : ResultType.BAD);
 					oppHPBar.update();
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							validate();
+							repaint();
+						}
+					});
 				}
-				resultAnim(oppLocation(),"Taunt ended!", ResultType.GOOD);
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
+			}
+			case RMPSEUDO:
+				if(token.length < 3) return;
+				/* |rmpseudo|(ally/opp)|pseudostatus[|result phrase] */
+				if(token[1].equals("ally")) {
+					allyHPBar.clearPseudoStatus(token[2]);
+					if(token.length > 3)
+						resultAnim(allyLocation(),token[3]);
+					allyHPBar.update();
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							validate();
+							repaint();
+						}
+					});
+				} else if(token[1].equals("opp")) {
+					oppHPBar.clearPseudoStatus(token[2]);
+					if(token.length > 3)
+						resultAnim(oppLocation(),token[3]);
+					oppHPBar.update();
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							validate();
+							repaint();
+						}
+					});
+				}
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
+				break;
+			case TAUNT:
+				if(token.length < 2) return;
+				/* |taunt|(ally/opp) */
+				if(token[1].equals("ally")) {
+					int cnt = Pony.MOVES_PER_PONY;
+					for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
+						if(moveB[i].getMove() != null && moveB[i].getMove().getMoveType() == Move.MoveType.STATUS) {
+							moveB[i].setEnabled(false);
+							--cnt;
+						}
+					}	
+					if(cnt == 0) {
+						try {
+							moveB[0].setMove(MoveCreator.create("Struggle"));
+							for(int i = 1; i < Pony.MOVES_PER_PONY; ++i)
+								moveB[i].setMove(null);
+						} catch(ReflectiveOperationException e) {
+							printDebug("[BP.interpret(taunt)] Couldn't create move struggle:");
+							e.printStackTrace();
+						}
+					}
+					allyHPBar.addPseudoStatus("Taunt", false);
+					resultAnim(allyLocation(),"Taunted!");
+					allyHPBar.update();
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							validate();
+							repaint();
+						}
+					});
+					appendEvent(EventType.BATTLE,allyPony.getNickname()+" fell for the taunt!");
+					allyPony.setTaunted(true);
+
+				} else if(token[1].equals("opp")) {
+					oppHPBar.addPseudoStatus("Taunt", false);
+					resultAnim(oppLocation(),"Taunted!");
+					oppHPBar.update();
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							validate();
+							repaint();
+						}
+					});
+					appendEvent(EventType.BATTLE,"The enemy "+oppPony.getNickname()+" fell for the taunt!");
+				}
+				break;
+			case RMTAUNT:
+				if(token.length < 2) return;
+				/* |rmtaunt|(ally/opp) */
+				if(token[1].equals("ally")) {
+					if(allyPony == null) return;
+					if(!allyPony.isTaunted()) {
+						printDebug("[BP.interpret(taunt)] allyPony is not taunted!");
+						return;
+					}
+					allyPony.setTaunted(false);
+					for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
+						moveB[i].setMove(allyPony.getMove(i));
+						moveB[i].setEnabled(true);
+					}
+					if(allyHPBar != null) {
+						allyHPBar.clearPseudoStatus("Taunt");
+						allyHPBar.update();
+					}
+					resultAnim(allyLocation(),"Taunt ended!", ResultType.GOOD);
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							validate();
+							repaint();
+						}
+					});
+					appendEvent(EventType.BATTLE,allyPony.getNickname()+"'s taunt ended!");
+
+				} else if(token[1].equals("opp")) {
+					if(oppPony == null) return;
+					if(oppHPBar != null) {
+						oppHPBar.clearPseudoStatus("Taunt");
+						oppHPBar.update();
+					}
+					resultAnim(oppLocation(),"Taunt ended!", ResultType.GOOD);
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							validate();
+							repaint();
+						}
+					});
+					appendEvent(EventType.BATTLE,oppPony.getNickname()+"'s taunt ended!");
+				}
+				break;
+			case FAINTED:
+				if(token.length < 2) return;
+				/* |fainted|(ally/opp) */
+				if(token[1].equals("ally")) {
+					faintAnim(allySprite);
+					appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" fainted!");
+					final int ponyIndex = findIndexOf(1,allyPony.getNickname());
+					teamMenu1.setFainted(ponyIndex,true);
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							teamP.getToken(ponyIndex).setEnabled(false);
+							if(allyHPBar != null) {
+								synchronized(allyHPBar) {
+									allyHPBar.setVisible(false);
+									fieldP.remove(allyHPBar);
+								}
+								allyHPBar = null;
+							}
+							if(allySprite != null) {
+								allySprite.setVisible(false);
+								allySprite = null;
+							}
+							if(allyPony != null) 
+								synchronized(allyPony) {
+									allyPony.setFainted();
+								}
+							moveP.setVisible(false);
+							for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
+								moveB[i].setMove(null);
+						}
+					});
+				} else if(token[1].equals("opp")) {
+					faintAnim(oppSprite);
+					appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" fainted!");
+					final int ponyIndex = findIndexOf(2,oppPony.getNickname());
+					teamMenu2.setFainted(ponyIndex,true);
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							if(oppHPBar != null) {
+								synchronized(oppHPBar) {
+									oppHPBar.setVisible(false);
+									fieldP.remove(oppHPBar);
+								}
+								oppHPBar = null;
+							}
+							if(oppSprite != null) {
+								oppSprite.setVisible(false);
+								oppSprite = null;
+							}
+							if(oppPony != null) 
+								synchronized(oppPony) {
+									oppPony.setFainted();
+								}
+						}
+					});
+				}
+				break;
+			case EFFECTIVE:
+				if(token.length < 3) return;
+				/* |effective|ally/opp|multiplier */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(effective)] Error: side is "+token[1]);
+					return;
+				}			
+				try {
+					double multiplier = Double.parseDouble(token[2]);
+					if(Debug.on) printDebug("[BP.interpret(effective)]: multiplier is "+multiplier);
+					if(multiplier > 2.) {
+						appendEvent(EventType.BATTLE,"It's super-duper-effective!");
+						resultAnim((token[1].equals("ally") ? allyLocation() : oppLocation()),"Super-effective",ResultType.BAD);
+					} else if(multiplier > 1.) {
+						appendEvent(EventType.BATTLE,"It's supereffective!");
+						resultAnim((token[1].equals("ally") ? allyLocation() : oppLocation()),"Super-effective",ResultType.BAD);
+					} else if(multiplier < 1.) {
+						appendEvent(EventType.BATTLE,"It's not very effective...");
+						resultAnim((token[1].equals("ally") ? allyLocation() : oppLocation()),"Resisted");
+					}
+				} catch(IllegalArgumentException e) {
+					printDebug("[BP.interpret(effective)]: error while parsing multiplier: "+e);
+				}
+				break;
+			case IMMUNE:
+				if(token.length < 2) return;
+				/* |immune|(ally/opp) */
+				if(token[1].equals("ally")) {
+					appendEvent(EventType.BATTLE,"It doesn't affect "+allyPony.getNickname());
+					resultAnim(allyLocation(),"Immune!");
+				} else if(token[1].equals("opp")) {
+					appendEvent(EventType.BATTLE,"It doesn't affect enemy "+oppPony.getNickname());
+					resultAnim(oppLocation(),"Immune!");
+				}
+				break;
+			case WAIT:
+				/* |wait */
+				try {
+					if(Debug.on) printDebug("Invoking wait...");
+					SwingUtilities.invokeAndWait(new Runnable() {
+						public void run() {
+							moveP.setVisible(false);
+							showBottomAlert("Waiting for the opponent...");
+							teamP.setVisible(false);
+							validate();
+							repaint();
+							if(Debug.on) printDebug("wait: setVisible(false) completed.");
+						}
+					});
+					appendEvent(EventType.BATTLE,"Waiting for the opponent...");
+				} catch(InterruptedException e) {
+					printDebug("[BP.interpret(wait)]: interrupted.");
+					return;
+				} catch(InvocationTargetException e) {
+					printDebug("[BP.interpret(wait)]: "+e);
+					printDebug("Caused by: "+e.getCause());
+					return;
+				}
+				break;
+			case ENDWAIT:
+				/* |endwait */
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
+						showBottomMoves();
+						moveP.setVisible(true);
+						teamP.setVisible(true);
 						validate();
 						repaint();
 					}
 				});
-				appendEvent(EventType.BATTLE,oppPony.getNickname()+"'s taunt ended!");
-			}
-
-		} else if(token[0].equals("fainted") && token.length > 1) {
-			/* |fainted|(ally/opp) */
-			if(token[1].equals("ally")) {
-				faintAnim(allySprite);
-				appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" fainted!");
-				final int ponyIndex = findIndexOf(1,allyPony.getNickname());
-				teamMenu1.setFainted(ponyIndex,true);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						teamP.getToken(ponyIndex).setEnabled(false);
-						if(allyHPBar != null) {
-							synchronized(allyHPBar) {
-								allyHPBar.setVisible(false);
-								fieldP.remove(allyHPBar);
-							}
-							allyHPBar = null;
-						}
-						if(allySprite != null) {
-							allySprite.setVisible(false);
-							allySprite = null;
-						}
-						if(allyPony != null) 
-							synchronized(allyPony) {
-								allyPony.setFainted();
-							}
-						moveP.setVisible(false);
-						for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
-							moveB[i].setMove(null);
+				break;
+			case DEDUCTPP:
+				if(token.length < 1) return;
+				/* |deductpp|Move Name */
+				if(allyPony == null)
+					return;
+				for(MoveButton mb : moveB) 
+					if(mb.getMove() != null && mb.getMove().getName().equals(token[1])) {
+						mb.deductPP();
+						if(Debug.on) printDebug("Deducted 1 PP from "+mb.getMove());
 					}
-				});
-			} else if(token[1].equals("opp")) {
-				faintAnim(oppSprite);
-				appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" fainted!");
-				final int ponyIndex = findIndexOf(2,oppPony.getNickname());
-				teamMenu2.setFainted(ponyIndex,true);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						if(oppHPBar != null) {
-							synchronized(oppHPBar) {
-								oppHPBar.setVisible(false);
-								fieldP.remove(oppHPBar);
-							}
-							oppHPBar = null;
-						}
-						if(oppSprite != null) {
-							oppSprite.setVisible(false);
-							oppSprite = null;
-						}
-						if(oppPony != null) 
-							synchronized(oppPony) {
-								oppPony.setFainted();
-							}
-					}
-				});
-			}
-		} else if(token[0].equals("effective") && token.length > 2) {
-			/* |effective|ally/opp|multiplier */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(effective)] Error: side is "+token[1]);
-				return;
-			}			
-			try {
-				double multiplier = Double.parseDouble(token[2]);
-				if(Debug.on) printDebug("[BP.interpret(effective)]: multiplier is "+multiplier);
-				if(multiplier > 2.) {
-					appendEvent(EventType.BATTLE,"It's super-duper-effective!");
-					resultAnim((token[1].equals("ally") ? allyLocation() : oppLocation()),"Super-effective",ResultType.BAD);
-				} else if(multiplier > 1.) {
-					appendEvent(EventType.BATTLE,"It's supereffective!");
-					resultAnim((token[1].equals("ally") ? allyLocation() : oppLocation()),"Super-effective",ResultType.BAD);
-				} else if(multiplier < 1.) {
-					appendEvent(EventType.BATTLE,"It's not very effective...");
-					resultAnim((token[1].equals("ally") ? allyLocation() : oppLocation()),"Resisted");
+				break;
+			case ADDHAZARD:
+				if(token.length < 3) return;
+				/* |addhazard|(ally/opp)|Hazard ClassName */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(addhazard)]: Error - side is "+token[1]);
+					return;
 				}
-			} catch(IllegalArgumentException e) {
-				printDebug("[BP.interpret(effective)]: error while parsing multiplier: "+e);
-			}
-
-		} else if(token[0].equals("immune") && token.length > 1) {
-			/* |immune|(ally/opp) */
-			if(token[1].equals("ally")) {
-				appendEvent(EventType.BATTLE,"It doesn't affect "+allyPony.getNickname());
-				resultAnim(allyLocation(),"Immune!");
-			} else if(token[1].equals("opp")) {
-				appendEvent(EventType.BATTLE,"It doesn't affect enemy "+oppPony.getNickname());
-				resultAnim(oppLocation(),"Immune!");
-			}
-
-		} else if(token[0].equals("wait")) {
-			/* |wait */
-			try {
-				if(Debug.on) printDebug("Invoking wait...");
-				SwingUtilities.invokeAndWait(new Runnable() {
-					public void run() {
-						moveP.setVisible(false);
-						showBottomAlert("Waiting for the opponent...");
-						teamP.setVisible(false);
-						validate();
-						repaint();
-						if(Debug.on) printDebug("wait: setVisible(false) completed.");
-					}
-				});
-				appendEvent(EventType.BATTLE,"Waiting for the opponent...");
-			} catch(InterruptedException e) {
-				printDebug("[BP.interpret(wait)]: interrupted.");
-				return;
-			} catch(InvocationTargetException e) {
-				printDebug("[BP.interpret(wait)]: "+e);
-				printDebug("Caused by: "+e.getCause());
-				return;
-			}
-
-		} else if(token[0].equals("endwait")) {
-			/* |endwait */
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					showBottomMoves();
-					moveP.setVisible(true);
-					teamP.setVisible(true);
-					validate();
-					repaint();
+				addHazard(token[1].equals("ally"), token[2]);
+				break;
+			case RMHAZARD:
+				if(token.length < 2) return;
+				/* |rmhazard|(ally/opp)[|Hazard's Move Name|quiet] */
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(rmhazard)]: Error - side is "+token[1]);
+					return;
 				}
-			});
-
-		} else if(token[0].equals("deductpp") && token.length > 1) {
-			/* |deductpp|Move Name */
-			if(allyPony == null)
-				return;
-			for(MoveButton mb : moveB) 
-				if(mb.getMove() != null && mb.getMove().getName().equals(token[1])) {
-					mb.deductPP();
-					if(Debug.on) printDebug("Deducted 1 PP from "+mb.getMove());
-				}
-
-		} else if(token[0].equals("addhazard") && token.length > 2) {
-			/* |addhazard|(ally/opp)|Hazard ClassName */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(addhazard)]: Error - side is "+token[1]);
-				return;
-			}
-			addHazard(token[1].equals("ally"), token[2]);
-	
-		} else if(token[0].equals("rmhazard") && token.length > 1) {
-			/* |rmhazard|(ally/opp)[|Hazard's Move Name|quiet] */
-			if(!(token[1].equals("ally") || token[1].equals("opp"))) {
-				printDebug("[BP.interpret(rmhazard)]: Error - side is "+token[1]);
-				return;
-			}
-			removeHazard(token[1].equals("ally"), token.length > 2 ? token[2] : null, token.length > 3 && token[3].equals("quiet"));
-		
-		} else if(token[0].equals("disconnect")) {
-			/* |disconnect[|message] */
-			if(token.length > 1)
-				appendEvent(EventType.CRITICAL,token[1]);
-			else
-				appendEvent(EventType.CRITICAL,"Server disconnected: battle aborted.");
-			terminate();
-		} else {
-			printDebug("[BattlePanel]: Unknown command: "+line);
+				removeHazard(token[1].equals("ally"), 
+						token.length > 2 ? token[2] : null,
+						token.length > 3 && token[3].equals("quiet"));
+				break;
+			case DISCONNECT:
+				/* |disconnect[|message] */
+				if(token.length > 1)
+					appendEvent(EventType.CRITICAL,token[1]);
+				else
+					appendEvent(EventType.CRITICAL,"Server disconnected: battle aborted.");
+				terminate();
+				break;
+			default:
+				printDebug("[BattlePanel]: Unknown command: "+line);
 		}
 	}
 

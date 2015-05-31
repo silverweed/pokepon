@@ -1515,10 +1515,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				if(token.length < 2) return;
 				/* |immune|(ally/opp) */
 				if(token[1].equals("ally")) {
-					appendEvent(EventType.BATTLE,"It doesn't affect "+allyPony.getNickname());
+					appendEvent(EventType.BATTLE,"It doesn't affect "+allyPony.getNickname(+"..."));
 					resultAnim(allyLocation(),"Immune!");
 				} else if(token[1].equals("opp")) {
-					appendEvent(EventType.BATTLE,"It doesn't affect enemy "+oppPony.getNickname());
+					appendEvent(EventType.BATTLE,"It doesn't affect enemy "+oppPony.getNickname()+"...");
 					resultAnim(oppLocation(),"Immune!");
 				}
 				break;

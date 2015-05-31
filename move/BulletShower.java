@@ -4,6 +4,7 @@ package pokepon.move;
 
 import pokepon.enums.*;
 import pokepon.pony.Pony;
+import pokepon.gui.animation.AnimPresets;
 import static java.util.Arrays.asList;
 
 /**
@@ -28,9 +29,8 @@ public class BulletShower extends Move {
 		description = "Shot several bullets to your enemy. Hits 2-5 times with a higher chance for critical hits.";
 		briefDesc = "Hits 2 to 5 times in a row.<br>High critical ratio.";
 		
-		animation.put("name","Direct");
+		animation = new java.util.HashMap<>(AnimPresets.get("gatling"));
 		animation.put("sprite","fireball.png");
-		animation.put("bounceBack",false);
 
 		hits = 5;
 		/** Probability of doing 1,2,3,4 or 5 hits */

@@ -53,6 +53,13 @@ public class AnimPresets {
 		presets.put("whirl-ballistic", new HashMap<>(tmp));
 		tmp.clear();
 
+		// Talk Out
+		tmp.put("name","Compound");
+		tmp.put("anims",Arrays.asList("Whirl","Shake"));
+		tmp.put("persistent",true);
+		presets.put("whirl-shake", new HashMap<>(tmp));
+		tmp.clear();
+
 		// Sky Dive
 		tmp.put("name","Compound");
 		tmp.put("anims", Arrays.asList("Fade","Fade"));

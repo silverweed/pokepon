@@ -28,6 +28,10 @@ public class PartyCannon extends Move {
 		briefDesc = "30% to confuse the target.";
 		
 		targetConfusion = 0.3f;	//30% to confuse
+
+		animation.put("name","Ballistic");
+		animation.put("sprite","loveball.png");
+		animation.put("bounceBack",false);
 	}
 
 	public PartyCannon(Pony p) {

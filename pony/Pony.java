@@ -828,27 +828,38 @@ public abstract class Pony implements Comparable<Pony> {
 
 	public int maxhp() {
 		if(manualMaxHp) return maxHp;
+		if(baseHp == 1) return 1; // baseHp = 1 is a special case for shedinja-like ponies.
 		return ((hpIV+2*baseHp+hpEV/4)*level/100)+10+level;
 	}
 
 	public int atk() {
-		return (int)(((atkIV+2*baseAtk+atkEV/4)*level/100+5)*natureModifier(Stat.ATK)*getStatMod(volatiles.modifiers.atk));
+		return (int)(((atkIV+2*baseAtk+atkEV/4)*level/100+5)*
+				natureModifier(Stat.ATK)*
+				getStatMod(volatiles.modifiers.atk));
 	}
 
 	public int spatk() {
-		return (int)(((spatkIV+2*baseSpatk+spatkEV/4)*level/100+5)*natureModifier(Stat.SPATK)*getStatMod(volatiles.modifiers.spatk));
+		return (int)(((spatkIV+2*baseSpatk+spatkEV/4)*level/100+5)*
+				natureModifier(Stat.SPATK)*
+				getStatMod(volatiles.modifiers.spatk));
 	}
 
 	public int def() {
-		return (int)(((defIV+2*baseDef+defEV/4)*level/100+5)*natureModifier(Stat.DEF)*getStatMod(volatiles.modifiers.def));
+		return (int)(((defIV+2*baseDef+defEV/4)*level/100+5)*
+				natureModifier(Stat.DEF)*
+				getStatMod(volatiles.modifiers.def));
 	}
 
 	public int spdef() {
-		return (int)(((spdefIV+2*baseSpdef+spdefEV/4)*level/100+5)*natureModifier(Stat.SPDEF)*getStatMod(volatiles.modifiers.spdef));
+		return (int)(((spdefIV+2*baseSpdef+spdefEV/4)*level/100+5)*
+				natureModifier(Stat.SPDEF)*
+				getStatMod(volatiles.modifiers.spdef));
 	}
 
 	public int speed() {
-		return (int)(((speedIV+2*baseSpeed+speedEV/4)*level/100+5)*natureModifier(Stat.SPEED)*getStatMod(volatiles.modifiers.speed));
+		return (int)(((speedIV+2*baseSpeed+speedEV/4)*level/100+5)*
+				natureModifier(Stat.SPEED)*
+				getStatMod(volatiles.modifiers.speed));
 	}
 
 	public int getBaseHp() {

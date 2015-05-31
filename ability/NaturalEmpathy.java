@@ -27,7 +27,7 @@ public class NaturalEmpathy extends Ability {
 	public void afterMoveHit(final BattleEngine be) {
 		if(pony == null) throw new NullPointerException("Pony is null for Natural Empathy!");
 		Status status = pony.getStatus();
-		if(status != null && status != Status.ASLEEP) {
+		if(status != null && status != Status.ASLEEP && status != Status.KO) {
 			pony.setStatus(status, false);
 			Pony opp = be.getOpponent(pony);
 			if(opp.hasNegativeCondition()) return;

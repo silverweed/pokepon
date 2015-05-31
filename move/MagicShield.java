@@ -25,7 +25,7 @@ public class MagicShield extends Move {
 		priority = 0;
 		description = "A magic shield increases your defenses.";
 		briefDesc = "Raises Def and SpD by 1,<br>but lowers Spe by 1.";
-		
+	
 		userDef = addEntry(1,1f);
 		userSpdef = addEntry(1,1f);
 		userSpeed = addEntry(-1,1f);

@@ -567,6 +567,10 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		if(token.length < 1) throw new RuntimeException("[BattlePanel.interpret()]: token length < 1!");
 
 		BPCommand cmd = bpCommands.get(token[0]);
+		if(cmd == null) {
+			printDebug("[BattlePanel]: Unknown command: "+line);
+			return;
+		}
 		switch(cmd) {
 			case JOIN:
 				/* |join|[ally:(p1/p2)/opp]|Name of Player */
@@ -593,18 +597,18 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} // else guest: no setup required.
 				break;
 			case LEAVE:
-				if(token.length < 2) return;
 				/* |leave|Name Of Player */
+				if(token.length < 2) return;
 				appendEvent(EventType.LEAVE,token[1]);
 				break;
 			case FORFEIT:
-				if(token.length < 2) return;	
 				/* |forfeit|Name Of Player */
+				if(token.length < 2) return;	
 				appendEvent(EventType.LEAVE,token[1],"forfeited");
 				break;
 			case PONY:
-				if(token.length < 4) return;
 				/* |pony|(ally/opp)|Name Of Pony|Level|[|Nickname|Ability|Item] */
+				if(token.length < 4) return;
 				try {
 					Pony newpony = PonyCreator.create(token[2]);
 					try {
@@ -649,13 +653,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case RULE:
-				if(token.length < 2) return;
 				/* |rule|Rule Name: and description */
+				if(token.length < 2) return;
 				appendEvent(EventType.RULE, merge(token,1));
 				break;
 			case INFO:
-				if(token.length < 2) return;
 				/* |info|Message */
+				if(token.length < 2) return;
 				appendEvent(EventType.INFO, merge(token,1));
 				break;
 			case TEAMPREVIEW:
@@ -690,8 +694,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				});
 				break;
 			case SWITCH: {
-				if(token.length < 4) return;
 				/* |switch|(ally/opp)|Number of Pony in team|hp[|maxhp] */
+				if(token.length < 4) return;
 				if(!token[1].equals("opp") && !token[1].equals("ally")) {
 					printDebug("[BP.interpret(switch)] Error: side is "+token[1]+"!");
 					return;
@@ -711,8 +715,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				break;
 			}
 			case STATS: {
-				if(token.length < 6) return;
 				/* |stats|atk|def|spatk|spdef|speed */
+				if(token.length < 6) return;
 				String[] stats = "Atk Def Spa SpD Spe".split(" ");
 				for(int i = 1; i < 6; ++i) {
 					try {
@@ -730,8 +734,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				break;
 			}
 			case SETMV:
-				if(token.length < 4) return;
 				/* |setmv|ponynum|movenum|(Move Name/none)[|pp] */
+				if(token.length < 4) return;
 				try {
 					final int ponynum = Integer.parseInt(token[1]);
 					final int movenum = Integer.parseInt(token[2]);
@@ -777,8 +781,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case SETMVTYPE:
-				if(token.length < 4) return;
 				/* |setmvtype|ponynum|movenum|Type */
+				if(token.length < 4) return;
 				try {
 					final int ponynum = Integer.parseInt(token[1]);
 					final int movenum = Integer.parseInt(token[2]);
@@ -820,8 +824,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case MOVE:
-				if(token.length < 3) return;
 				/* |move|(ally/opp)|Move Name[|avoid] */
+				if(token.length < 3) return;
 				if(!token[1].equals("opp") && !token[1].equals("ally")) {
 					printDebug("[BP.interpret(move)] Error: side is "+token[1]+"!");
 					return;
@@ -829,8 +833,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				moveAnimation(token[1].equals("ally"), token[2], token.length > 3 && token[3].equals("avoid"));
 				break;
 			case AVOID:
-				if(token.length < 2) return;
 				/* |avoid|ally/opp */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					appendEvent(EventType.BATTLE,allyPony.getName() + " avoids the attack!");
 					resultAnim(allyLocation(),"Avoided!");
@@ -843,8 +847,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case ANIM:
-				if(token.length < 3) return;
 				/* |anim|(opp/ally)|key1=value1|key2=value2|... */
+				if(token.length < 3) return;
 				if(!token[1].equals("opp") && !token[1].equals("ally")) {
 					printDebug("[BP.interpret(anim)] Error: side is "+token[1]+"!");
 					return;
@@ -856,8 +860,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case LOCKON:
-				if(token.length < 2) return;
 				/* |lockon|Move Name */
+				if(token.length < 2) return;
 				for(Move m : allyPony.getMoves()) 
 					if(m.getName().equals(token[1])) {
 						moveB[0].setMove(m);
@@ -887,8 +891,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				allyPony.setLockedOnMove(false);
 				break;
 			case PROTECTED:
-				if(token.length < 2) return;
 				/* |protected|ally/opp */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					appendEvent(EventType.BATTLE,allyPony.getName() + " is protected!");
 					resultAnim(allyLocation(),"Protected!");
@@ -898,30 +902,30 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case CHAT:
-				if(token.length < 3) return;
 				/* |chat|Name|msg */
+				if(token.length < 3) return;
 				appendEvent(EventType.CHAT,token[1],merge(token,2));
 				break;
 			case HTML:
-				if(token.length < 2) return;
 				/* |html|Message */
+				if(token.length < 2) return;
 				appendEvent(EventType.HTML,token[1]);
 				break;
 			case HTMLCONV: {
-				if(token.length < 2) return;
 				/* |htmlconv|Message with tags to convert */
+				if(token.length < 2) return;
 				String replaced = Meta.toLocalURL(merge(token,1));
 				appendEvent(EventType.HTML,replaced);
 				break;
 			}
 			case ERROR:
-				if(token.length < 2) return;
 				/* |error|Message */
+				if(token.length < 2) return;
 				appendEvent(EventType.ERROR,token[1]);
 				break;
 			case DAMAGE:
-				if(token.length < 3) return;
 				/* |damage|(ally/opp)|amount[|phrase] */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(damage)] Error: side is "+token[1]);
 					return;
@@ -939,8 +943,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				appendEvent(EventType.RULE,"Rated battle");
 				break;
 			case BATTLE:
-				if(token.length < 2) return;
 				/* |battle|message[|(emph/html/move)] */
+				if(token.length < 2) return;
 				if(token.length > 2) {
 					if(token[2].equals("emph"))
 						appendEvent(EventType.EMPHASIZED,token[1]);
@@ -953,8 +957,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case TURN:
-				if(token.length < 1) return;
 				/* |turn|turnCount */
+				if(token.length < 1) return;
 				if(Debug.on) printDebug("--- TURN "+token[1]+" ---");
 				appendEvent(EventType.TURN,token[1]);
 				// reset move selections
@@ -970,8 +974,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				});
 				break;
 			case BOOST:
-				if(token.length < 4) return;
 				/* |boost|(ally/opp)|stat|amount[|Phrase] */
+				if(token.length < 4) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(boost)] Error: side is "+token[1]);
 					return;
@@ -987,8 +991,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case RECOIL:
-				if(token.length < 3) return;
 				/* |recoil|(ally/opp)|recoilDamage */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(transform)] Error: side is "+token[1]);
 					return;
@@ -1001,8 +1005,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case TRANSFORM:
-				if(token.length < 3) return;
 				/* |transform|(ally/opp)|Pony Name */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(transform)] Error: side is "+token[1]);
 					return;
@@ -1013,8 +1017,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore){}
 				break;
 			case SUBSTITUTE:
-				if(token.length < 2) return;
 				/* |substitute|(ally/opp) */
+				if(token.length < 2) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(substitute)] Error: side is "+token[1]);
 					return;
@@ -1025,8 +1029,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore){}
 				break;
 			case RMSUBSTITUTE:
-				if(token.length < 2) return;
 				/* |rmsubstitute|(ally/opp)[|noanim] */
+				if(token.length < 2) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(rmsubstitute)] Error: side is "+token[1]);
 					return;
@@ -1034,8 +1038,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				removeSubstitute(token[1].equals("ally"), token.length > 2 && token[2].equals("noanim"));
 				break;
 			case PERSISTENT:
-				if(token.length < 3) return;
 				/* |persistent|(ally/opp)|Name */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(persistent)] Error: side is "+token[1]);
 					return;
@@ -1043,8 +1047,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				setPersistentEffect(token[1].equals("ally"), token[2]);
 				break;
 			case RMPERSISTENT:
-				if(token.length < 3) return;
 				/* |rmpersistent|(ally/opp)|Name */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(rmpersistent)] Error: side is "+token[1]);
 					return;
@@ -1052,8 +1056,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				removePersistentEffect(token[1].equals("ally"), token[2]);
 				break;
 			case FAIL:
-				if(token.length < 2) return;
 				/* |fail|(ally/opp) */
+				if(token.length < 2) return;
 				appendEvent(EventType.BATTLE, "But it failed...");
 				if(token[1].equals("ally")) 
 					resultAnim(allyLocation(), "Failed");
@@ -1066,8 +1070,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case RESULTANIM: {
-				if(token.length < 4) return;
 				/* |resultanim|(ally/opp)|(good/bad/neutral/color)|Message */
+				if(token.length < 4) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(resultanim)] Error: side is "+token[1]);
 					return;
@@ -1093,13 +1097,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				break;
 			}
 			case WIN:
-				if(token.length < 2) return;
 				/* |win|(ally/opp) */
+				if(token.length < 2) return;
 				runWinEvent(token[1]);
 				break;
 			case FLINCH:
-				if(token.length < 2) return;
 				/* |flinch|(ally/opp) */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					appendEvent(EventType.EMPHASIZED,allyPony.getNickname() + " flinched and couldn't move!");
 					resultAnim(allyLocation(),"Flinched!");
@@ -1112,8 +1116,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case EFFECT: {
-				if(token.length < 3) return;
 				/* |effect|(ally/opp)|status */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(effect)] Error: side is "+token[1]);
 					return;
@@ -1131,8 +1135,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				break;
 			}
 			case BRN:
-				if(token.length < 2) return;
 				/* |brn|(ally/opp) */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					synchronized(allyPony) {
 						allyPony.damagePerc(Battle.BURN_DAMAGE*100f);
@@ -1155,8 +1159,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case PSN:
-				if(token.length < 2) return;
 				/* |psn|(ally/opp) */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					synchronized(allyPony) {
 						allyPony.damagePerc(Battle.POISON_DAMAGE*100f);
@@ -1179,8 +1183,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case TOX:
-				if(token.length < 3) return;
 				/* |tox|(ally/opp)|counter */
+				if(token.length < 3) return;
 				try {
 					if(token[1].equals("ally")) {
 						synchronized(allyPony) {
@@ -1210,8 +1214,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case ADDSTATUS: {
-				if(token.length < 3) return;
 				/* |addstatus|(ally/opp)|status[|phrase] */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(addstatus)] Error: side is "+token[1]);
 					return;
@@ -1230,8 +1234,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				break;
 			}
 			case RMSTATUS: {
-				if(token.length < 2) return;
 				/* |rmstatus|(ally/opp)[|status|phrase] */
+				if(token.length < 2) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(rmstatus)] Error: side is "+token[1]);
 					return;
@@ -1249,8 +1253,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				break;
 			}
 			case HEALTEAM:
-				if(token.length < 2) return;
 				/* |healteam|(ally/opp) */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					p1.getTeam().healTeamStatus();
 					if(allyHPBar != null) {
@@ -1276,8 +1280,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case ADDPSEUDO: {
-				if(token.length < 4) return;
 				/* |addpseudo|(ally/opp)|(good/bad)|pseudostatus */
+				if(token.length < 4) return;
 				boolean good = false;
 				if(token[2].equals("good")) {
 					good = true;
@@ -1312,8 +1316,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				break;
 			}
 			case RMPSEUDO:
-				if(token.length < 3) return;
 				/* |rmpseudo|(ally/opp)|pseudostatus[|result phrase] */
+				if(token.length < 3) return;
 				if(token[1].equals("ally")) {
 					allyHPBar.clearPseudoStatus(token[2]);
 					if(token.length > 3)
@@ -1342,8 +1346,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				} catch(InterruptedException ignore) {}
 				break;
 			case TAUNT:
-				if(token.length < 2) return;
 				/* |taunt|(ally/opp) */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					int cnt = Pony.MOVES_PER_PONY;
 					for(int i = 0; i < Pony.MOVES_PER_PONY; ++i) {
@@ -1388,8 +1392,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case RMTAUNT:
-				if(token.length < 2) return;
 				/* |rmtaunt|(ally/opp) */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					if(allyPony == null) return;
 					if(!allyPony.isTaunted()) {
@@ -1431,65 +1435,17 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case FAINTED:
-				if(token.length < 2) return;
 				/* |fainted|(ally/opp) */
-				if(token[1].equals("ally")) {
-					faintAnim(allySprite);
-					appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" fainted!");
-					final int ponyIndex = findIndexOf(1,allyPony.getNickname());
-					teamMenu1.setFainted(ponyIndex,true);
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							teamP.getToken(ponyIndex).setEnabled(false);
-							if(allyHPBar != null) {
-								synchronized(allyHPBar) {
-									allyHPBar.setVisible(false);
-									fieldP.remove(allyHPBar);
-								}
-								allyHPBar = null;
-							}
-							if(allySprite != null) {
-								allySprite.setVisible(false);
-								allySprite = null;
-							}
-							if(allyPony != null) 
-								synchronized(allyPony) {
-									allyPony.setFainted();
-								}
-							moveP.setVisible(false);
-							for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
-								moveB[i].setMove(null);
-						}
-					});
-				} else if(token[1].equals("opp")) {
-					faintAnim(oppSprite);
-					appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" fainted!");
-					final int ponyIndex = findIndexOf(2,oppPony.getNickname());
-					teamMenu2.setFainted(ponyIndex,true);
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							if(oppHPBar != null) {
-								synchronized(oppHPBar) {
-									oppHPBar.setVisible(false);
-									fieldP.remove(oppHPBar);
-								}
-								oppHPBar = null;
-							}
-							if(oppSprite != null) {
-								oppSprite.setVisible(false);
-								oppSprite = null;
-							}
-							if(oppPony != null) 
-								synchronized(oppPony) {
-									oppPony.setFainted();
-								}
-						}
-					});
-				}
+				if(token.length < 2) return;
+				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
+					printDebug("[BP.interpret(fainted)] Error: side is "+token[1]);
+					return;
+				}			
+				runFaintAnim(token[1].equals("ally"));
 				break;
 			case EFFECTIVE:
-				if(token.length < 3) return;
 				/* |effective|ally/opp|multiplier */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(effective)] Error: side is "+token[1]);
 					return;
@@ -1512,8 +1468,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				}
 				break;
 			case IMMUNE:
-				if(token.length < 2) return;
 				/* |immune|(ally/opp) */
+				if(token.length < 2) return;
 				if(token[1].equals("ally")) {
 					appendEvent(EventType.BATTLE,"It doesn't affect "+allyPony.getNickname()+"...");
 					resultAnim(allyLocation(),"Immune!");
@@ -1559,8 +1515,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				});
 				break;
 			case DEDUCTPP:
-				if(token.length < 1) return;
 				/* |deductpp|Move Name */
+				if(token.length < 1) return;
 				if(allyPony == null)
 					return;
 				for(MoveButton mb : moveB) 
@@ -1570,8 +1526,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					}
 				break;
 			case ADDHAZARD:
-				if(token.length < 3) return;
 				/* |addhazard|(ally/opp)|Hazard ClassName */
+				if(token.length < 3) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(addhazard)]: Error - side is "+token[1]);
 					return;
@@ -1579,8 +1535,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				addHazard(token[1].equals("ally"), token[2]);
 				break;
 			case RMHAZARD:
-				if(token.length < 2) return;
 				/* |rmhazard|(ally/opp)[|Hazard's Move Name|quiet] */
+				if(token.length < 2) return;
 				if(!(token[1].equals("ally") || token[1].equals("opp"))) {
 					printDebug("[BP.interpret(rmhazard)]: Error - side is "+token[1]);
 					return;
@@ -1597,8 +1553,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					appendEvent(EventType.CRITICAL,"Server disconnected: battle aborted.");
 				terminate();
 				break;
-			default:
-				printDebug("[BattlePanel]: Unknown command: "+line);
 		}
 	}
 
@@ -2577,6 +2531,62 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			}
 		});
 		return true;
+	}
+
+	private void runFaintAnim(final boolean isAlly) { 
+		if(isAlly) {
+			faintAnim(allySprite);
+			appendEvent(EventType.EMPHASIZED,allyPony.getNickname()+" fainted!");
+			final int ponyIndex = findIndexOf(1,allyPony.getNickname());
+			teamMenu1.setFainted(ponyIndex,true);
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					teamP.getToken(ponyIndex).setEnabled(false);
+					if(allyHPBar != null) {
+						synchronized(allyHPBar) {
+							allyHPBar.setVisible(false);
+							fieldP.remove(allyHPBar);
+						}
+						allyHPBar = null;
+					}
+					if(allySprite != null) {
+						allySprite.setVisible(false);
+						allySprite = null;
+					}
+					if(allyPony != null) 
+						synchronized(allyPony) {
+							allyPony.setFainted();
+						}
+					moveP.setVisible(false);
+					for(int i = 0; i < Pony.MOVES_PER_PONY; ++i)
+						moveB[i].setMove(null);
+				}
+			});
+		} else {
+			faintAnim(oppSprite);
+			appendEvent(EventType.EMPHASIZED,"Enemy "+oppPony.getNickname()+" fainted!");
+			final int ponyIndex = findIndexOf(2,oppPony.getNickname());
+			teamMenu2.setFainted(ponyIndex,true);
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					if(oppHPBar != null) {
+						synchronized(oppHPBar) {
+							oppHPBar.setVisible(false);
+							fieldP.remove(oppHPBar);
+						}
+						oppHPBar = null;
+					}
+					if(oppSprite != null) {
+						oppSprite.setVisible(false);
+						oppSprite = null;
+					}
+					if(oppPony != null) 
+						synchronized(oppPony) {
+							oppPony.setFainted();
+						}
+				}
+			});
+		}
 	}
 
 	private void teampreview() {

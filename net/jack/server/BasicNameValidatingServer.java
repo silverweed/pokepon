@@ -31,7 +31,7 @@ public class BasicNameValidatingServer extends BasicServer implements NameValida
 		if(opts.serverName == null && !alreadySetName)
 			serverName = getClass().getSimpleName();
 		if(verbosity >= 0)
-			printDebug("["+serverName+"] Constructed with maxNickLen = "+maxNickLen+" and "+forbiddenNames.size()+" forbidden name rules.");
+			printDebug("[BasicNameValidatingServer] Constructed with maxNickLen = "+maxNickLen+" and "+forbiddenNames.size()+" forbidden name rules.");
 	}
 
 	@Override

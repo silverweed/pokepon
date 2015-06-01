@@ -43,7 +43,7 @@ public class DatabaseServer extends MultiThreadedServer {
 		if(opts.serverName == null && !alreadySetName)
 			serverName = getClass().getSimpleName();
 		if(verbosity >= 0)
-			printDebug("["+serverName+"] Constructed with database: "+dbURL+" (path: "+dbName+")");
+			printDebug("[DatabaseServer] Constructed with database: "+dbURL+" (path: "+dbName+")");
 	}
 
 	@Override
@@ -81,25 +81,19 @@ public class DatabaseServer extends MultiThreadedServer {
 						Charset.forName("UTF-8")
 					);
 					if(verbosity >= 1) printDebug("[DatabaseServer] Created database file.");
-					dbURL = tmpdbURL;
-					dbName = tmpdbName;
-					loadDBEntries();
-					if(chat != null)
-						chat.reload();
-					return true;
 				} catch(IOException e) {
 					printDebug("[ ERROR ] Caught IOException while creating database: "+e);
 					return false;
 				}
 			} else {
 				if(verbosity >= 1) printDebug("[DatabaseServer] Database file already exists.");
-				dbURL = tmpdbURL;
-				dbName = tmpdbName;
-				loadDBEntries();
-				if(chat != null)
-					chat.reload();
-				return true;
 			}
+			dbURL = tmpdbURL;
+			dbName = tmpdbName;
+			loadDBEntries();
+			if(chat != null)
+				chat.reload();
+			return true;
 		} catch(FileNotFoundException ee) {
 			printDebug("[DatabaseServer.setDatabaseLocation] Error reloading DB entries after changing DB path!?" +
 					"\n\t\tServer is in a stale state: restarting it is desirable.");
@@ -198,12 +192,8 @@ public class DatabaseServer extends MultiThreadedServer {
 	@Override
 	public void initialize() throws IOException {
 		super.initialize();
-		if(loadDBEntries()) {
-			if(advancedChat)
-				chat = new ChatSystem(this);
-		} else {
-			printDebug("["+serverName+"] ERROR: couldn't load database!");
-		}
+		if(advancedChat)
+			chat = new ChatSystem(this);
 	}
 
 	/** Reads entries from dbUrl and loads them into memory.
@@ -231,7 +221,7 @@ public class DatabaseServer extends MultiThreadedServer {
 					dbEntries.put(tokens[0], Arrays.copyOfRange(tokens, 1, tokens.length));
 					++lineno;
 				}
-				printDebug("["+serverName+"] loaded DB entries with no errors.");
+				printDebug("["+serverName+"] loaded " + dbEntries.size() + " DB entries with no errors.");
 				return true;
 
 			} catch(Exception e) {

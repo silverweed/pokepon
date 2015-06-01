@@ -52,8 +52,7 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 	public PokeponServer(ServerOptions opts) throws IOException {
 		super(opts);
 		loadOptions(opts);
-		if(verbosity >= 2)
-			printDebug("["+serverName+"] Constructed.");
+		if(verbosity >= 1) printDebug("["+serverName+"] Constructed.");
 	}
 
 	@Override
@@ -81,15 +80,12 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		printMsg("************************");
 		DataDealer.init();
 
-		// Start server broadcaster
-		Thread broadcaster = new Thread(new Broadcaster());
+		// Rename server broadcaster (initialized by MultiThreadedServer)
 		broadcaster.setName("Pokepon Server Broadcaster");
-		broadcaster.setDaemon(true);
-		broadcaster.start();
 
-		// Start connection killer
-		Timer killerTimer = new Timer("Connection Killer", true);
-		killerTimer.scheduleAtFixedRate(new PokeponConnectionKiller(), 5 * 60 * 1000, 5 * 60 * 1000);
+		// Replace connection killer with pokepon-specific one
+		connectionKiller = new Timer("Connection Killer", true);
+		connectionKiller.scheduleAtFixedRate(new PokeponConnectionKiller(), 5 * 60 * 1000, 5 * 60 * 1000);
 
 		// Start server console
 		if(enableConsole) {

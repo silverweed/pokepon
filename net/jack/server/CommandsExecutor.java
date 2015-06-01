@@ -92,8 +92,13 @@ class CommandsExecutor extends ServerConnectionExecutor {
 			}
 			Set<String> nicks = ((DatabaseServer)server).getNicks();
 			StringBuilder sb = new StringBuilder("Registered users:\n");
+			int i = 0;
 			for(String s : nicks) {
 				sb.append(s+"\n");
+				if(++i == 100) {
+					sb.append((nicks.size()-i)+" more...");
+					break;
+				}
 			}
 			connection.sendMsg(sb.toString());
 			return 1;

@@ -78,6 +78,9 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 	int cmdBanLimit = 40;
 	/** The queue of messages to broadcast */
 	BlockingQueue<Map.Entry<Socket,String>> broadcastMsgQueue = new LinkedBlockingQueue<Map.Entry<Socket,String>>();
+	/** Server daemon threads */
+	protected Thread broadcaster;
+	protected Timer connectionKiller;
 	
 	public MultiThreadedServer() throws IOException {
 		this(ServerOptions.construct());
@@ -118,7 +121,7 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		if(opts.serverName == null && !alreadySetName)
 			serverName = getClass().getSimpleName();
 		if(verbosity >= 0)
-			printDebug("["+serverName+"] Constructed with maxClients = "+maxClients+" and connectPolicy = "+connectPolicy);
+			printDebug("[MultiThreadedServer] Constructed with maxClients = "+maxClients+" and connectPolicy = "+connectPolicy);
 	}
 
 	@Override
@@ -215,14 +218,15 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 			}
 		}
 		// Start server broadcaster
-		Thread broadcaster = new Thread(new Broadcaster());
+		broadcaster = new Thread(new Broadcaster());
 		broadcaster.setName("Broadcaster");
 		broadcaster.setDaemon(true);
 		broadcaster.start();
+
 		// Start ConnectionKiller
 		if(connGCRate > 0) {
-			Timer killerTimer = new Timer("Connection Killer", true);
-			killerTimer.scheduleAtFixedRate(new ConnectionKiller(), connGCRate * 60 * 1000, connGCRate * 60 * 1000);
+			connectionKiller = new Timer("Connection Killer", true);
+			connectionKiller.scheduleAtFixedRate(new ConnectionKiller(), connGCRate * 60 * 1000, connGCRate * 60 * 1000);
 		}
 	}
 
@@ -425,8 +429,6 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 
 	@Override
 	public void printConfiguration() {
-		printConfiguration(System.out);
-
 		super.printConfiguration();
 		printMsg("- maxClients: "+maxClients);
 		printMsg("- connectPolicy: "+connectPolicy);

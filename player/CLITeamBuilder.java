@@ -38,7 +38,7 @@ public class CLITeamBuilder extends TeamBuilder {
 					listPonies();	
 					consoleMsg("");
 					break;
-				case SELECT:
+				case SELECT: {
 					if(team.members() == Team.MAX_TEAM_SIZE) {
 						consoleMsg("Cannot add more ponies to your team.");
 						break;
@@ -66,6 +66,7 @@ public class CLITeamBuilder extends TeamBuilder {
 						}
 					}
 					break;
+				}
 				case EDIT: {
 					boolean found = false;
 					String input = null;

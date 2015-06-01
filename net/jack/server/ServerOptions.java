@@ -137,7 +137,7 @@ public class ServerOptions {
 		if(cmdBanLimit != null) sb.append("cmdBanLimit: "+cmdBanLimit+", ");
 		if(blacklistFile != null) sb.append("blacklistFile: "+blacklistFile+", ");
 		if(connGCRate != null) sb.append("connGCRate: "+connGCRate+", ");
-		sb.append("enableConsole: "+enableConsole+", ");
+		if(enableConsole != null) sb.append("enableConsole: "+enableConsole+", ");
 		sb.delete(sb.length()-1, sb.length());
 		sb.append(" }");
 

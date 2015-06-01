@@ -49,14 +49,14 @@ public class BasicServer implements Server {
 		if(opts.serverName == null && !alreadySetName)
 			serverName = getClass().getSimpleName();
 		if(verbosity >= 0)
-			printDebug("["+serverName+"] Constructed with address = "+myAddress+":"+port+", verbosity "+verbosity+" and conf-file "+confFile);
+			printDebug("[BasicServer] Constructed with address = "+myAddress+":"+port+", verbosity "+verbosity+" and conf-file "+confFile);
 	}
 
 	/** Given a ServerOptions object, applies all non-null options on this server
 	 * and quietly rejects unknown ones.
 	 */
 	public BasicServer loadOptions(ServerOptions opts) {
-		if(Debug.on) printDebug("[BasicServer] Called loadOptions("+opts+")");
+		if(verbosity >= 2) printDebug("[BasicServer] Called loadOptions("+opts+")");
 		try {
 			if(opts.address != null)
 				myAddress = InetAddress.getByName(opts.address);
@@ -197,7 +197,9 @@ public class BasicServer implements Server {
 	// SERVER CONFIGURATION FUNCTIONS
 	
 	public void printConfiguration(final PrintStream s) {
-		consoleHeader("Server configuration", '*', s, 0);	
+		s.println("************************");
+		s.println("* Server configuration *");
+		s.println("************************");
 		s.println("- address: "+myAddress);
 		s.println("- port: "+port);
 		s.println("- serverName: "+serverName);

@@ -30,6 +30,7 @@ ability/Optimism.java
 ability/PestResilience.java
 ability/SelfConfidence.java
 ability/SenseOfDanger.java
+ability/Shapeless.java
 ability/SheepsEyes.java
 ability/ShiningCoat.java
 ability/Simplicity.java
@@ -367,6 +368,7 @@ pony/Screwball.java
 pony/SeaBreeze.java
 pony/ShiningArmor.java
 pony/SilverSpoon.java
+pony/Smooze.java
 pony/Snails.java
 pony/Soarin.java
 pony/Spike.java

@@ -65,6 +65,8 @@ public class DatabaseServer extends MultiThreadedServer {
 	 */
 	public synchronized boolean setDatabaseLocation(String db) {
 		if(verbosity >= 1) printDebug("[DatabaseServer] Setting database location to "+db);
+		URL origdbURL = dbURL;
+		String origdbName = dbName;
 		try {
 			URL tmpdbURL = new URL(db);
 			String tmpdbName = tmpdbURL.getPath();
@@ -90,18 +92,21 @@ public class DatabaseServer extends MultiThreadedServer {
 			}
 			dbURL = tmpdbURL;
 			dbName = tmpdbName;
-			loadDBEntries();
-			if(chat != null)
-				chat.reload();
-			return true;
+			if(loadDBEntries()) {
+				if(chat != null)
+					chat.reload();
+				return true;
+			}
 		} catch(FileNotFoundException ee) {
 			printDebug("[DatabaseServer.setDatabaseLocation] Error reloading DB entries after changing DB path!?" +
 					"\n\t\tServer is in a stale state: restarting it is desirable.");
-			return false;
 		} catch(MalformedURLException ee) {
 			printDebug("[DatabaseServer.setDatabaseLocation] Malformed URL: "+ee);
-			return false;
 		}
+		// Something went wrong: leave the database untouched
+		dbURL = origdbURL;
+		dbName = origdbName;
+		return false;
 	}
 
 	/** Reads the database and checks if given nick already exists or not

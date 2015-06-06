@@ -50,7 +50,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		ERROR, DAMAGE, RATED, BATTLE, TURN, BOOST, RECOIL, TRANSFORM, SUBSTITUTE, RMSUBSTITUTE, 
 		PERSISTENT, RMPERSISTENT, FAIL, RESULTANIM, WIN, FLINCH, EFFECT, BRN, PSN, TOX, ADDSTATUS,
 		RMSTATUS, HEALTEAM, ADDPSEUDO, RMPSEUDO, TAUNT, RMTAUNT, FAINTED, EFFECTIVE, IMMUNE, WAIT,
-		ENDWAIT, DEDUCTPP, ADDHAZARD, RMHAZARD, DISCONNECT 
+		ENDWAIT, DEDUCTPP, ADDHAZARD, RMHAZARD, TIMER, DISCONNECT
 	}
 
 	private static Map<String,BPCommand> bpCommands = new HashMap<>();
@@ -112,6 +112,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		bpCommands.put("deductpp", BPCommand.DEDUCTPP);
 		bpCommands.put("addhazard", BPCommand.ADDHAZARD);
 		bpCommands.put("rmhazard", BPCommand.RMHAZARD);
+		bpCommands.put("timer", BPCommand.TIMER);
 		bpCommands.put("disconnect", BPCommand.DISCONNECT);
 	}
 	public static URL EMPTY_TOKEN_URL = BattlePanel.class.getResource(Meta.complete2(Meta.TOKEN_DIR)+"/empty_token_icon_left_small.png");
@@ -222,6 +223,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private JPanel utilsP = new JPanel(new FlowLayout());
 	/** Start/stop timer button */
 	private JButton timerB = new JButton("Start timer");
+	/** Whether the battle timer is on or not */
+	private boolean timerOn;
 	/** Side chat/events panel */
 	private ChatPanel eventP = new ChatPanel();
 	private JLabel bgImage = new JLabel();
@@ -420,17 +423,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 		// SETUP UTIL BUTTONS PANEL //
 		// timer start/stop
 		timerB.addActionListener(new ActionListener() {
-			private boolean timerOn = false;
 			public void actionPerformed(ActionEvent e) {
-				appendEvent(EventType.INFO, "Not implemented yet.");
-				/*if(timerOn) {
-					timerB.setText("Start timer");
-					sendB("|timer|"+(playerID == 0 ? p1.getName() : playerID)+"|on");
-				} else {
-					timerB.setText("Stop timer");
+				if(timerOn) {
 					sendB("|timer|"+(playerID == 0 ? p1.getName() : playerID)+"|off");
+				} else {
+					sendB("|timer|"+(playerID == 0 ? p1.getName() : playerID)+"|on");
 				}
-				timerOn = !timerOn;*/
 			}
 		});
 		utilsP.add(timerB);
@@ -480,11 +478,6 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 
 		// Start the BGM
 		if(GUIGlobals.soundOn) {
-			// TODO
-			//volumeBar = new VolumeBar(looper);
-			//volumeBar.setBounds(inputF.getBounds().x + inputF.getBounds().width - 30, inputF.getBounds().y + inputF.getBounds().height - 100, 30, 100);
-			//volumeBar.setVisible(true);
-			//add(volumeBar);
 			if(looper != null) 
 				new Thread(looper).start();
 		}
@@ -575,7 +568,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			case JOIN:
 				/* |join|[ally:(p1/p2)/opp]|Name of Player */
 				if(token.length < 3) return;
-				appendEvent(EventType.JOIN,merge(token,2));
+				appendEvent(EventType.JOIN, merge(token,2));
 				if(token[1].startsWith("ally")) {
 					String[] tk = token[1].split(":");
 					if(tk.length > 1) {
@@ -1545,6 +1538,45 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						token.length > 2 ? token[2] : null,
 						token.length > 3 && token[3].equals("quiet"));
 				break;
+			case TIMER:
+				/* |timer|on|timeleft|Requested By */
+				/* |timer|off */
+				if(token.length < 2) return;
+				if(token[1].equals("on") && token.length > 3) {
+					timerOn = true;
+					appendEvent(EventType.HTML, "<font color=red>Timer is on. Players will lose after " + token[2]
+						 + " seconds of inactivity (requested by " + token[3] + ").</font>");
+					if(token[3].equals(connection.getName())) {
+						// activated by us
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								timerB.setEnabled(true);
+								timerB.setText("Stop timer");
+							}
+						});
+					} else {
+						// activated by opponent
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								timerB.setEnabled(false);
+								timerB.setText("Start timer");
+							}
+						});
+					}
+				} else if(token[1].equals("off")) {
+					timerOn = false;
+					appendEvent(EventType.INFO, "The timer was canceled.");
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							timerB.setEnabled(true);
+							timerB.setText("Start timer");
+						}
+					});
+				} else {
+					printDebug("[BP.interpret(timer)] Expected 'on' or 'off' but got " + token[1]);
+				}
+				break;
+
 			case DISCONNECT:
 				/* |disconnect[|message] */
 				if(token.length > 1)
@@ -1926,8 +1958,11 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			moveP.setVisible(false);
 		if(teamP != null)
 			teamP.setVisible(false);
+		if(bottomP != null)
+			bottomP.setVisible(false);
 		moveP = null;
 		teamP = null;
+		bottomP = null;
 		printMsg("Battle #"+battleID+" terminated.");
 	}
 

@@ -65,8 +65,8 @@ public class DatabaseServer extends MultiThreadedServer {
 	 */
 	public synchronized boolean setDatabaseLocation(String db) {
 		if(verbosity >= 1) printDebug("[DatabaseServer] Setting database location to "+db);
-		URL origdbURL = dbURL;
-		String origdbName = dbName;
+		final URL origdbURL = dbURL;
+		final String origdbName = dbName;
 		try {
 			URL tmpdbURL = new URL(db);
 			String tmpdbName = tmpdbURL.getPath();

@@ -9,3 +9,4 @@ BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352);
 BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986);
 BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708);
 BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469);
+shntbattleboss: 7.72 ~ 76.85

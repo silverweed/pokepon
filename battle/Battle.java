@@ -39,6 +39,8 @@ public abstract class Battle {
 	public static final float POISON_DAMAGE = 0.125f;
 	/** Amount of first bad poison damage (in %/100) */
 	public static final float BAD_POISON_DAMAGE = 0.0625f;
+	/** Timeout of the battle when timer is on (in seconds) */
+	public static final int TIMER_TIMEOUT = 20;
 
 	/////////////// PUBLIC METHODS / FIELDS ////////////////
 

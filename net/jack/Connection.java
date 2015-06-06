@@ -77,7 +77,7 @@ public abstract class Connection implements Runnable {
 	}
 	
 	public void sendMsg(String msg) {
-		if(verbosity >= 2) printDebug("[Connection ("+name+")] sending msg: "+msg);
+		if(verbosity >= 3) printDebug("[Connection ("+name+")] sending msg: "+msg);
 		synchronized(output) {
 			output.println(msg);
 		}

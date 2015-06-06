@@ -84,8 +84,12 @@ public class PokeponServer extends DatabaseServer implements TestingClass {
 		broadcaster.setName("Pokepon Server Broadcaster");
 
 		// Replace connection killer with pokepon-specific one
-		connectionKiller = new Timer("Connection Killer", true);
-		connectionKiller.scheduleAtFixedRate(new PokeponConnectionKiller(), 5 * 60 * 1000, 5 * 60 * 1000);
+		if(connGCRate > 0) {
+			if(connectionKiller != null)
+				connectionKiller.cancel();
+			connectionKiller = new Timer("Pokepon Connection Killer", true);
+			connectionKiller.scheduleAtFixedRate(new PokeponConnectionKiller(), connGCRate * 60 * 1000, connGCRate * 60 * 1000);
+		}
 
 		// Start server console
 		if(enableConsole) {

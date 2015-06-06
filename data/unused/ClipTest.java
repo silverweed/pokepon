@@ -10,7 +10,7 @@ public class ClipTest implements Runnable {
 	private Clip clip;
 
 	public ClipTest() throws Exception {
-		File soundFile = new File("../resources/audio/xy-rival.wav");
+		File soundFile = new File("../resources/audio/bossbattle.wav");
 		sound = AudioSystem.getAudioInputStream(soundFile);
 	}
 
@@ -20,8 +20,8 @@ public class ClipTest implements Runnable {
 			DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
 			clip = (Clip) AudioSystem.getLine(info);
 			clip.open(sound);
-			int start = timeToSamples(7.802, sound.getFormat());
-			int end = timeToSamples(58.634, sound.getFormat());
+			int start = timeToSamples(7, sound.getFormat());
+			int end = timeToSamples(77, sound.getFormat());
 			clip.setLoopPoints(start, end);
 			clip.loop(Clip.LOOP_CONTINUOUSLY);
 			while(!shouldStop) {

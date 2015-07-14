@@ -391,7 +391,6 @@ pony/VinylScratch.java
 pony/Wildfire.java
 pony/Xenith.java
 pony/Zecora.java
-sound/ClipTest.java
 sound/Looper.java
 sound/PresetBGM.java
 sound/VolumeBar.java

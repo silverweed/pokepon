@@ -9,7 +9,7 @@ import static pokepon.util.MessageManager.*;
 import java.util.*;
 
 /** This class contains relations among Types and static methods to
- * get weaknesses / resistances / etc; 
+ * get weaknesses / resistances / etc;
  *
  * @author silverweed
  */
@@ -27,19 +27,22 @@ public class TypeDealer implements TestingClass {
 	// GET METHODS //
 	/** @return Set containing Types against whom the given type is weak. */
 	public static Set<Type> getWeaknesses(Type type) {
-		if(type == null || weaknesses.get(type).length == 0) return (Set<Type>)EnumSet.noneOf(Type.class);
+		if(type == null || weaknesses.get(type).length == 0)
+			return (Set<Type>)EnumSet.noneOf(Type.class);
 		return (Set<Type>)EnumSet.copyOf(Arrays.asList(weaknesses.get(type)));
 	}
 	
 	/** @return List containing Types against whom the given type resists. */
 	public static Set<Type> getResistances(Type type) {
-		if(type == null || resistances.get(type).length == 0) return (Set<Type>)EnumSet.noneOf(Type.class);
+		if(type == null || resistances.get(type).length == 0)
+			return (Set<Type>)EnumSet.noneOf(Type.class);
 		return (Set<Type>)EnumSet.copyOf(Arrays.asList(resistances.get(type)));
 	}
 
 	/** @return List containing Types against whom the given type is immune. */
 	public static Set<Type> getImmunities(Type type) {
-		if(type == null || immunities.get(type).length == 0) return (Set<Type>)EnumSet.noneOf(Type.class);
+		if(type == null || immunities.get(type).length == 0)
+			return (Set<Type>)EnumSet.noneOf(Type.class);
 		return (Set<Type>)EnumSet.copyOf(Arrays.asList(immunities.get(type)));
 	}
 
@@ -110,7 +113,7 @@ public class TypeDealer implements TestingClass {
 	
 	/** @return Set containing immunities of 'type' */
 	public static Set<Type> getImmunities(Type[] type) {
-		Set<Type> set = (Set<Type>)EnumSet.noneOf(Type.class); 
+		Set<Type> set = (Set<Type>)EnumSet.noneOf(Type.class);
 		
 		for(Type t : type) {
 			for(Type t2 : getImmunities(t)) {
@@ -191,7 +194,7 @@ public class TypeDealer implements TestingClass {
 		else if(Arrays.asList(resistances.get(type_def)).contains(type_atk)) return 0.5f;
 		else if(Arrays.asList(immunities.get(type_def)).contains(type_atk)) return 0f;
 		else return 1f;
-	} 
+	}
 
 	public static float getEffectiveness(Type type_atk, Type[] type_def) {
 		return getEffectiveness(type_atk, Arrays.asList(type_def));
@@ -331,7 +334,7 @@ public class TypeDealer implements TestingClass {
 		resistances.put(Type.GENEROSITY, new Type[] { Type.HONESTY, Type.MUSIC, Type.SPIRIT });
 		resistances.put(Type.CHAOS,      new Type[] { Type.HONESTY, Type.GENEROSITY, Type.CHAOS, Type.SHADOW, Type.LOVE, Type.LIGHT });
 		resistances.put(Type.NIGHT,      new Type[] { Type.KINDNESS, Type.CHAOS, Type.NIGHT, Type.SHADOW, Type.PASSION, Type.MUSIC });
-		resistances.put(Type.SHADOW,     new Type[] { Type.LOYALTY, Type.HONESTY, Type.LAUGHTER, Type.KINDNESS, 
+		resistances.put(Type.SHADOW,     new Type[] { Type.LOYALTY, Type.HONESTY, Type.LAUGHTER, Type.KINDNESS,
 								Type.GENEROSITY, Type.CHAOS, Type.LIGHT });
 		resistances.put(Type.SPIRIT,     new Type[] { Type.MAGIC, Type.LAUGHTER, Type.CHAOS });
 		resistances.put(Type.LOVE,       new Type[] { Type.CHAOS, Type.SPIRIT, Type.LOVE });

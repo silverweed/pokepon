@@ -80,7 +80,7 @@ class CommandsExecutor extends ServerConnectionExecutor {
 
 		switch(cmd) {
 			case "help":
-				connection.sendMsg(CMN_PREFIX+"html <b>===== Commands: =====</b>\n"+sanitize(help.toString()));
+				connection.sendMsg(CMN_PREFIX+"html <b>===== Commands: =====</b><br>"+sanitize(help.toString()));
 				return 1;
 			case "list": {
 				if(!(server instanceof DatabaseServer)) {
@@ -92,10 +92,10 @@ class CommandsExecutor extends ServerConnectionExecutor {
 					return 1;
 				}
 				Set<String> nicks = ((DatabaseServer)server).getNicks();
-				StringBuilder sb = new StringBuilder("Registered users:\n");
+				StringBuilder sb = new StringBuilder(CMN_PREFIX + "html Registered users:<br>");
 				int i = 0;
 				for(String s : nicks) {
-					sb.append(s+"\n");
+					sb.append(s+"<br>");
 					if(++i == 100) {
 						sb.append((nicks.size()-i)+" more...");
 						break;
@@ -111,31 +111,32 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				}
 				for(Connection conn : server.getClients()) {
 					if(conn.getName().equals(token[1])) {
-						StringBuilder sb = new StringBuilder("Info about: "+token[1]+"\n");
+						StringBuilder sb = new StringBuilder(CMN_PREFIX + "html <b>---------</b><br>Info about: "+token[1]+"<br>");
 						sb.append("  IP Address:        " + (chatUser != null && chatUser
 							.hasPermission(CAN_LOOKUP_IP) 
 								? conn.getSocket().getInetAddress().getHostAddress()
 								: "(not allowed)"
-							) + "\n"
+							) + "<br>"
 						);
 						sb.append("  Hostname:          " + (chatUser != null && chatUser 
 							.hasPermission(CAN_LOOKUP_IP) 
 								? conn.getSocket().getInetAddress().getHostAddress()
 								: "(not allowed)"
-							) + "\n"
+							) + "<br>"
 						);
-						sb.append("  Connected since:   "+conn.getConnectionTime()+"\n");
+						sb.append("  Connected since:   "+conn.getConnectionTime()+"<br>");
 						sb.append("  Connection time:   "+
 								secondsToDate(-conn.getConnectionTime().getTime()/1000+
-							(new Date()).getTime()/1000)+"\n");
-						sb.append("  Operating System:  "+conn.getOS()+"\n");
+							(new Date()).getTime()/1000)+"<br>");
+						sb.append("  Operating System:  "+conn.getOS()+"<br>");
 						if(server instanceof DatabaseServer) {
 							sb.append("  Nick registered:   " +
 									(((DatabaseServer)server).nickExists(token[1]) 
 									 	? "yes" 
 										: "no"
-									) + "\n");
+									) + "<br>");
 						}
+						sb.append("<b>-----------</b>");
 						connection.sendMsg(sb.toString());
 						return 1;
 					}
@@ -143,12 +144,12 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				connection.sendMsg("Can't find user "+token[1]);
 				return 1;
 			case "whoami": {
-				StringBuilder sb = new StringBuilder("Info about: "+connection.getName()+"\n");
-				sb.append("  IP Address:        "+connection.getSocket().getInetAddress().getHostAddress()+"\n");
-				sb.append("  Hostname:          "+connection.getSocket().getInetAddress().getHostName()+"\n");
-				sb.append("  Connected since:   "+connection.getConnectionTime()+"\n");
+				StringBuilder sb = new StringBuilder(CMN_PREFIX + "html <b>-----------</b><br>Info about: "+connection.getName()+"<br>");
+				sb.append("  IP Address:        "+connection.getSocket().getInetAddress().getHostAddress()+"<br>");
+				sb.append("  Hostname:          "+connection.getSocket().getInetAddress().getHostName()+"<br>");
+				sb.append("  Connected since:   "+connection.getConnectionTime()+"<br>");
 				sb.append("  Connection time:   "+secondsToDate(-connection.getConnectionTime().getTime()/1000+
-					(new Date()).getTime()/1000)+"\n");
+					(new Date()).getTime()/1000)+"<br>");
 				connection.sendMsg(CMN_PREFIX+"youros");
 				String os = "Unknown";
 				try {
@@ -179,14 +180,15 @@ class CommandsExecutor extends ServerConnectionExecutor {
 						return 1;
 					}
 				}
-				sb.append("  Operating System:  "+os+"\n");
+				sb.append("  Operating System:  "+os+"<br>");
 				if(server instanceof DatabaseServer) {
 					sb.append("  Nick registered:   " +
 							(((DatabaseServer)server).nickExists(connection.getName())
 							 	? "yes"
 								: "no"
-							) + "\n");
+							) + "<br>");
 				}
+				sb.append("<b>-----------</b>");
 				connection.sendMsg(sb.toString());
 				return 1;
 			}
@@ -202,12 +204,12 @@ class CommandsExecutor extends ServerConnectionExecutor {
 				return 1;
 			case "users": {
 				int n = 0;
-				StringBuilder sb = new StringBuilder("-- Connected users:\n");
+				StringBuilder sb = new StringBuilder(CMN_PREFIX + "html -- Connected users:<br>");
 				for(Connection conn : server.getClients()) {
-					sb.append(conn.getName()+"\n");
+					sb.append(conn.getName()+"<br>");
 					++n;
 				}
-				sb.append("Number of connected users: "+n+"\n");
+				sb.append("Number of connected users: "+n);
 				connection.sendMsg(sb.toString());
 				return 1;
 			}

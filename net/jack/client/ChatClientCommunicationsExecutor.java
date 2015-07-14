@@ -35,78 +35,78 @@ class ChatClientCommunicationsExecutor extends ClientCommunicationsExecutor {
 		
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token));
 
-		if(cmd.equals("useradd")) {
-			/* !useradd name role [name role ...] */
-			if(token.length < 2) return 1;
-			int i = 1;
-			do {
-				String username = token[i++].trim();
-				if(i == token.length)
-					break;
-				String role = token[i++].trim();
-				// By convention, if server sent a "role" with length > 1, it's a placeholder for "no role" (i.e. user)
-				if(role.length() > 1)
-					chatClient.getChat().userAdd(username);
-				else
-					chatClient.getChat().userAdd(username, ChatUser.Role.forSymbol(role.charAt(0)));
-			} while (i < token.length);
-			
-			return 1;
-
-		} else if(cmd.equals("userrm")) {
-			/* !userrm username */
-			if(token.length < 2) return 1;
-			chatClient.getChat().userRemove(token[1].trim());
-			return 1;
-
-		} else if(cmd.equals("userrnm")) {
-			/* !userrnm old new [role] */
-			if(token.length < 3) return 1;
-			printDebug("userrnm: tokens = "+Arrays.asList(token)); 
-			if(token.length > 3)
-				chatClient.getChat().userRename(token[1].trim(), token[2].trim(), ChatUser.Role.forSymbol(token[3].charAt(0)));
-			else
-				chatClient.getChat().userRename(token[1].trim(),token[2].trim());
-			return 1;
-
-		} else if(cmd.startsWith("popup")) {
-			/* !popup[-err|-warn] [Title] Actual message<br>with br tags instead<br>of newlines. */
-			if(token.length < 2) return 1;
-			int type = -1;
-			if(cmd.equals("popup"))
-				type = JOptionPane.PLAIN_MESSAGE;
-			else if(cmd.equals("popup-warn"))
-				type = JOptionPane.WARNING_MESSAGE;
-			else if(cmd.equals("popup-err"))
-				type = JOptionPane.ERROR_MESSAGE;
-			else return 1;
-			String title = "Message from the server";
-			String mesg = "";
-			Matcher matcher = Pattern.compile("^(?<title>\\[.*\\])\\s*(?<msg>.*)$").matcher(ConcatenateArrays.merge(token,1));
-			if(matcher.matches()) {
-				if(Debug.pedantic)
-					printDebug("[CHATCMNEXEC] matcher matches.\ntitle="+matcher.group("title")+"\nmsg="+matcher.group("msg"));
-				if(matcher.group("title") != null)
-					title = matcher.group("title");
-				if(matcher.group("msg") != null)
-					mesg = matcher.group("msg");
-			} else if(Debug.on) {
-				printDebug("[CHATCMNEXEC] matcher not matched.");
+		switch(cmd) {
+			case "useradd": {
+				/* !useradd name role [name role ...] */
+				if(token.length < 2) return 1;
+				int i = 1;
+				do {
+					String username = token[i++].trim();
+					if(i == token.length)
+						break;
+					String role = token[i++].trim();
+					// By convention, if server sent a "role" with length > 1, it's a placeholder for "no role" (i.e. user)
+					if(role.length() > 1)
+						chatClient.getChat().userAdd(username);
+					else
+						chatClient.getChat().userAdd(username, ChatUser.Role.forSymbol(role.charAt(0)));
+				} while (i < token.length);
+				
+				return 1;
 			}
+			case "userrm":
+				/* !userrm username */
+				if(token.length < 2) return 1;
+				chatClient.getChat().userRemove(token[1].trim());
+				return 1;
+			case "userrnm":
+				/* !userrnm old new [role] */
+				if(token.length < 3) return 1;
+				printDebug("userrnm: tokens = "+Arrays.asList(token)); 
+				if(token.length > 3)
+					chatClient.getChat().userRename(token[1].trim(), token[2].trim(), ChatUser.Role.forSymbol(token[3].charAt(0)));
+				else
+					chatClient.getChat().userRename(token[1].trim(),token[2].trim());
+				return 1;
+			case "popup": {
+				/* !popup[-err|-warn] [Title] Actual message<br>with br tags instead<br>of newlines. */
+				if(token.length < 2) return 1;
+				int type = -1;
+				if(cmd.equals("popup"))
+					type = JOptionPane.PLAIN_MESSAGE;
+				else if(cmd.equals("popup-warn"))
+					type = JOptionPane.WARNING_MESSAGE;
+				else if(cmd.equals("popup-err"))
+					type = JOptionPane.ERROR_MESSAGE;
+				else return 1;
+				String title = "Message from the server";
+				String mesg = "";
+				Matcher matcher = Pattern.compile("^(?<title>\\[.*\\])\\s*(?<msg>.*)$").matcher(ConcatenateArrays.merge(token,1));
+				if(matcher.matches()) {
+					if(Debug.pedantic)
+						printDebug("[CHATCMNEXEC] matcher matches.\ntitle="+matcher.group("title")+"\nmsg="+matcher.group("msg"));
+					if(matcher.group("title") != null)
+						title = matcher.group("title");
+					if(matcher.group("msg") != null)
+						mesg = matcher.group("msg");
+				} else if(Debug.on) {
+					printDebug("[CHATCMNEXEC] matcher not matched.");
+				}
 
-			JOptionPane.showMessageDialog((JPanel)chatClient,
-							mesg.replaceAll("<br>","\n"),
-							title,
-							type);
-			return 1;
-
-		} else if(cmd.equals("drop")) {
-			if(token.length > 1)
-				chatClient.append(ConcatenateArrays.merge(token,1));
-			else
-				chatClient.append("Server dropped connection.");
-			return -1;
+				JOptionPane.showMessageDialog((JPanel)chatClient,
+								mesg.replaceAll("<br>","\n"),
+								title,
+								type);
+				return 1;
+			}
+			case "drop":
+				if(token.length > 1)
+					chatClient.append(ConcatenateArrays.merge(token,1));
+				else
+					chatClient.append("Server dropped connection.");
+				return -1;
+			default:
+				return super.execute(msg);
 		}
-		else return super.execute(msg);
 	}
 }

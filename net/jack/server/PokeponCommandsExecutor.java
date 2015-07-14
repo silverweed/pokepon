@@ -190,7 +190,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 					connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"battles.");
 					return 1;
 				}
-				StringBuilder sb = new StringBuilder("-- Battle schedule:\n");
+				StringBuilder sb = new StringBuilder(CMN_PREFIX + "html -- Battle schedule:<br>");
 				PokeponServer.BattleSchedule bs = pServer.getBattleSchedule();
 				if(connection.getVerbosity() >= 3) printDebug("bs: "+bs);
 				int ongoing = 0, requested = 0;
@@ -201,7 +201,7 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 							continue;
 						for(Map.Entry<String,Format> lEntry: entry.getValue()) {
 							sb.append(entry.getKey()+" -> "+lEntry.getKey()+
-									" (Format: "+lEntry.getValue()+")\n");
+									" (Format: "+lEntry.getValue()+")<br>");
 							++requested;
 						}
 					
@@ -214,17 +214,17 @@ class PokeponCommandsExecutor extends CommandsExecutor {
 						sb.append("[battle#"+entry.getKey()+"] "+
 							entry.getValue().getConnection(1).getName()+" <=> "+
 							entry.getValue().getConnection(2).getName()+
-							" (format: "+entry.getValue().getFormat()+")\n");
+							" (format: "+entry.getValue().getFormat()+")<br>");
 							++ongoing;
 					}
 				}
 
 				if(requested == 0 && ongoing == 0) {
-					sb.append("<no battle scheduled>.\n");
+					sb.append("&lt;no battle scheduled&gt;.<br>");
 				} else {
-					sb.append("-------------------------\n"+
-						ongoing+" battles active\n"+
-						requested+" battle requests pending\n");
+					sb.append("-------------------------<br>"+
+						ongoing+" battles active<br>"+
+						requested+" battle requests pending<br>");
 				}
 				connection.sendMsg(sb.toString());
 				break;

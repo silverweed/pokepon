@@ -213,12 +213,12 @@ public class ChatSystem {
 
 	/** Returns a string describing the currently registered roles. */
 	public String getRolesTable() {
-		StringBuilder sb = new StringBuilder("Chat Roles: {\n");
+		StringBuilder sb = new StringBuilder(CMN_PREFIX + "html Chat Roles: {<br>");
 		Map<String,ChatUser.Role> sorted = new TreeMap<>(registered);
 		for(Map.Entry<String,ChatUser.Role> entry : sorted.entrySet())
 			if(entry.getValue() != ChatUser.Role.USER)
-				sb.append("  - "+entry.getKey()+": "+entry.getValue()+"\n");
-		sb.append("}\n");
+				sb.append("  - "+entry.getKey()+": "+entry.getValue()+"<br>");
+		sb.append("}");
 		return sb.toString();
 	}
 

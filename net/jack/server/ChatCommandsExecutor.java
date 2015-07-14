@@ -81,380 +81,381 @@ class ChatCommandsExecutor extends ServerConnectionExecutor {
 	
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token).toString());
 
-		
-		if(cmd.equals("help")) {
-			connection.sendMsg(CMN_PREFIX+"html <b>===== Advanced chat commands: =====</b>\n" + sanitize(help.toString()));
-			return 0; // if there are other CommandsExecutors, send their help msg too.
-		} else if(cmd.equals("role")) {
-			if(token.length > 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"role [user]");
-				return 1;
-			}
-			if(token.length < 2) {
-				String roleStr = getRoleString(chatUser);
-				connection.sendMsg(CMN_PREFIX+"html Your role is "+roleStr);
-				return 1;
-			} else {
-				ChatUser cu = server.chat.getUser(token[1]);
-				if(cu != null) {
-					String roleStr = getRoleString(cu);
-					connection.sendMsg(CMN_PREFIX+"html " + cu.getName()+"'s role is "+roleStr);
+		switch(cmd) {
+			case "help":
+				connection.sendMsg(CMN_PREFIX+"html <b>===== Advanced chat commands: =====</b><br>" + sanitize(help.toString()));
+				return 0; // if there are other CommandsExecutors, send their help msg too.
+			case "role":
+				if(token.length > 2) {
+					connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"role [user]");
 					return 1;
 				}
-				connection.sendMsg("User "+token[1]+" not found.");
-			}
-			return 1;
-		} else if(cmd.equals("kick")) {
-			if(token.length < 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"kick <user>");
-				return 1;
-			}
-			if(!chatUser.hasPermission(CAN_KICK_USERS)) {
-				connection.sendMsg("You cannot kick other users.");
-				return 1;
-			}
-			ChatUser cu = server.chat.getUser(token[1]);
-			if(connection.getVerbosity() >= 2)
-				printDebug("[CHATCMDEXEC] Kick requested by "+connection.getName()+" versus "+token[1]);
-			if(cu == null) {
-				connection.sendMsg("User "+token[1]+" not found.");
-				return 1;
-			} else {
-				switch(cu.getRole()) {
-					case ADMIN:
-						if(chatUser.hasPermission(CAN_KICK_ADMINS)) {
-							server.kickUser(cu.getName(), chatUser.toString());
-						} else {
-							connection.sendMsg("You cannot kick admins out of this server.");
-						}
-						return 1;
-					case MODERATOR:
-						if(chatUser.hasPermission(CAN_KICK_MODERATORS)) {
-							server.kickUser(cu.getName(), chatUser.toString());
-						} else {
-							connection.sendMsg("You cannot kick moderators out of this server.");
-						}
-						return 1;
-					default:
-						// already checked CAN_KICK_USERS
-						server.kickUser(cu.getName(), chatUser.toString());
-						return 1;
-				}
-			}
-		} else if(cmd.equals("mute")) {
-			if(token.length > 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"mute [user|group]\n"+
-					"  where group =\n  '"+ChatUser.Role.USER.getSymbol()+"': users\n"+
-					"  '"+ChatUser.Role.MODERATOR.getSymbol()+"': users and mods");
-				return 1;
-			}
-			if(!chatUser.hasPermission(CAN_MUTE_UNMUTE_USERS)) {
-				connection.sendMsg("You cannot mute/unmute users.");
-				return 1;
-			}
-			if(token.length == 1) {
-				// mute all users
-				server.chat.addGlobalPermission(ChatUser.Role.USER, CAN_TALK, false);
-				server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" muted all USERS.</em>");
-				return 1;
-			} else {
-				if(token[1].length() == 1) {
-					for(ChatUser.Role r : ChatUser.Role.values()) {
-						if(r.getSymbol() == token[1].charAt(0)) {
-							// mute group
-							if(!canMuteUnmute(chatUser, r)) {
-								return 1;
-							}
-							for(ChatUser.Role rr : ChatUser.Role.values()) {
-								if(rr.compareTo(r) <= 0)
-									server.chat.addGlobalPermission(rr, CAN_TALK, false);
-							}
-							server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" muted all up to "+r+"S</em>");
-							return 1;
-						}
-					}
-				}
-				// mute user
-				if(server.chat.getUser(token[1]) != null) {
-					if(!canMuteUnmute(chatUser, server.chat.getUser(token[1]).getRole())) {
-						return 1;
-					}
-					server.chat.getUser(token[1]).removePermission(CAN_TALK);
-					server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" muted "+server.chat.getUser(token[1])+"</em>");
+				if(token.length < 2) {
+					String roleStr = getRoleString(chatUser);
+					connection.sendMsg(CMN_PREFIX+"html Your role is "+roleStr);
 					return 1;
 				} else {
-					connection.sendMsg("No group nor user "+token[1]+" was found.");
-					return 1;
-				}
-			}
-		} else if(cmd.equals("unmute")) {
-			if(token.length > 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"unmute [user|group]\n"+
-					"  where group =\n  '"+ChatUser.Role.USER.getSymbol()+"': users\n"+
-					"  '"+ChatUser.Role.MODERATOR.getSymbol()+"': users and mods");
-				return 1;
-			}
-			if(!chatUser.hasPermission(CAN_MUTE_UNMUTE_USERS)) {
-				connection.sendMsg("You cannot mute/unmute users.");
-				return 1;
-			}
-			if(token.length == 1) {
-				// unmute all 
-				for(ChatUser.Role r : ChatUser.Role.values())
-					server.chat.removeGlobalPermission(r, CAN_TALK);
-				server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" unmuted all USERS.</em>");
-				return 1;
-			} else {
-				if(token[1].length() == 1) {
-					for(ChatUser.Role r : ChatUser.Role.values()) {
-						if(r.getSymbol() == token[1].charAt(0)) {
-							// unmute group
-							if(!canMuteUnmute(chatUser, r)) {
-								return 1;
-							}
-							for(ChatUser.Role rr : ChatUser.Role.values()) {
-								if(rr.compareTo(r) >= 0)
-									server.chat.removeGlobalPermission(rr, CAN_TALK);
-							}
-							server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" unmuted all down to "+r+"S</em>");
-							return 1;
-						}
-					}
-				}
-				// unmute user
-				if(server.chat.getUser(token[1]) != null) {
-					if(!canMuteUnmute(chatUser, server.chat.getUser(token[1]).getRole())) {
+					ChatUser cu = server.chat.getUser(token[1]);
+					if(cu != null) {
+						String roleStr = getRoleString(cu);
+						connection.sendMsg(CMN_PREFIX+"html " + cu.getName()+"'s role is "+roleStr);
 						return 1;
 					}
-					server.chat.getUser(token[1]).addPermission(CAN_TALK);
-					server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" unmuted "+server.chat.getUser(token[1])+"</em>");
+					connection.sendMsg("User "+token[1]+" not found.");
+				}
+				return 1;
+			case "kick": {
+				if(token.length < 2) {
+					connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"kick <user>");
 					return 1;
-				} else {
-					connection.sendMsg("No group nor user "+token[1]+" was found.");
-					return 1;
 				}
-			}
-		} else if(cmd.equals("ban")) {
-			if(token.length < 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"ban <ip> [ip...]\n" +
-				" IP may be of the form: aaa.bbb.ccc.ddd, aaa.bbb.*, aaa.{bbb-ccc}, aaa.bbb.ccc.ddd/mask");
-				return 1;
-			}
-			if(!chatUser.hasPermission(CAN_BAN_IP)) {
-				connection.sendMsg("You are not allowed to ban IPs from this server.");
-				return 1;
-			}
-			StringBuilder sb = new StringBuilder("");
-			for(int i = 1; i < token.length; ++i) {
-				try {
-					server.banIP(new IPClass(token[i]));
-					sb.append("Banned IP "+token[i]+"\n");
-				} catch(IllegalArgumentException e) {
-					connection.sendMsg(e.getMessage()+"\n");
-				}
-			}
-			connection.sendMsg(sb.toString());
-			return 1;
-		} else if(cmd.equals("unban")) {
-			if(token.length < 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"unban <ip> [ip...]\n" +
-				" IP may be of the form: aaa.bbb.ccc.ddd, aaa.bbb.*, aaa.{bbb-ccc}, aaa.bbb.ccc.ddd/mask");
-				return 1;
-			}
-			if(!chatUser.hasPermission(CAN_BAN_IP)) {
-				connection.sendMsg("You are not allowed to unban IPs from this server.");
-				return 1;
-			}
-			StringBuilder sb = new StringBuilder("");
-			for(int i = 1; i < token.length; ++i) {
-				try {
-					server.unbanIP(new IPClass(token[i]));
-					sb.append("Unbanned IP "+token[i]+"\n");
-				} catch(IllegalArgumentException e) {
-					connection.sendMsg(e.getMessage()+"\n");
-				}
-			}
-			connection.sendMsg(sb.toString());
-			return 1;
-		} else if(cmd.equals("banned")) {
-			if(!chatUser.hasPermission(CAN_LOOKUP_BANNED_IP)) {
-				connection.sendMsg("You are not allowed to list banned IPs for this server.");
-				return 1;
-			}
-			if(token.length > 1) {
-				StringBuilder sb = new StringBuilder("");
-				for(int i = 1; i < token.length; ++i) {
-					if(server.isBanned(token[i]))
-						sb.append(token[i] + " is BANNED\n");
-					else
-						sb.append(token[i] + " is NOT banned.\n");
-				}
-				connection.sendMsg(sb.toString());
-				return 1;
-			}
-			StringBuilder sb = new StringBuilder("-- Ban rules:\n");
-			for(Map.Entry<IPClass,Boolean> entry : server.getBanRules().entrySet())
-				sb.append(entry.getKey()+": " + (entry.getValue() ? "BANNED" : "ALLOWED") + "\n");
-			connection.sendMsg(sb.toString());
-			return 1;
-		} else if(cmd.equals("database")) {
-			if(!chatUser.hasPermission(CAN_MANIPULATE_DB)) {
-				connection.sendMsg("You are not allowed to manipulate the server's DB location.");
-				return 1;
-			}
-			if(!(server instanceof DatabaseServer)) {
-				connection.sendMsg("This server doesn't support a database.");
-				return 1;
-			}
-			if(token.length > 1) {
-				if(((DatabaseServer)server).setDatabaseLocation(token[1])) 
-					connection.sendMsg("[ OK ] Database switched correctly to "+((DatabaseServer)server).getDatabaseURL());
-				else
-					connection.sendMsg("Errors switching database: see server logs for details.");
-			} else {
-				connection.sendMsg("Server DB: "+((DatabaseServer)server).getDatabaseURL());
-			}
-			return 1;
-		} else if(cmd.equals("reload")) {
-			if(!chatUser.hasPermission(CAN_MANIPULATE_DB)) {
-				connection.sendMsg("You are not allowed to manipulate chat roles.");
-				return 1;
-			}
-			if(!(server instanceof DatabaseServer)) {
-				connection.sendMsg("Cannot reload roles from DB: this server doesn't support a database.");
-				return 1;
-			}
-			try {
-				if(((DatabaseServer)server).loadDBEntries() && server.chat.reload()) {
-					connection.sendMsg("[ OK ] chat roles reloaded successfully. New roles:");
-					connection.sendMsg(server.chat.getRolesTable());
-				} else {
-					connection.sendMsg("Errors reloading chat roles: see server logs for details.");
-				}
-			} catch(FileNotFoundException e) {
-				connection.sendMsg("Error: database not found.");
-			}
-			return 1;
-		} else if(cmd.equals("roles")) {
-			if(!chatUser.hasPermission(CAN_LIST_ROLES)) {
-				connection.sendMsg("You are not allowed to list server registered roles.");
-				return 1;
-			}
-			connection.sendMsg(server.chat.getRolesTable());
-			return 1;
-		} else if(cmd.equals("setrole")) {
-			if(token.length != 3) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"setrole <user> <role>\n"+
-					"  where role = user|moderator|admin");
-				return 1;
-			}
-			ChatUser usr = server.chat.getUser(token[1]);
-			if(usr == null) {
-				connection.sendMsg("User "+token[1]+" not found.");
-				return 1;
-			}
-			ChatUser.Role role = ChatUser.Role.forName(token[2]);
-			if(role == null) {
-				connection.sendMsg("Role does not exist: "+token[2]);
-				return 1;
-			}
-			if(role == usr.getRole()) {
-				connection.sendMsg(usr+" already has role "+role+".");
-				return 1;
-			}
-			switch(usr.getRole()) {
-				case ADMIN:
-					if(!chatUser.hasPermission(CAN_DEMOTE_ADMINS)) {
-						connection.sendMsg("You cannot demote an ADMIN.");
-						return 1;
-					}
-					switch(role) {
-						case MODERATOR:	// admin -> mod
-							usr.copyRoleFrom(new ChatModerator("template"));
-							break;
-						case USER:	// admin -> user
-							usr.copyRoleFrom(new ChatUser("template"));
-					}
-					server.broadcast(null, chatUser + " changed " + usr.getName() + "'s role to " + role);
-					server.broadcast(null, CMN_PREFIX+"userrnm "+usr.getName()+" "+usr.getName()+" "+role.getSymbol());
-					break;
-				case MODERATOR:
-					switch(role) {
-						case ADMIN:	// mod -> admin
-							if(!chatUser.hasPermission(CAN_PROMOTE_TO_ADMIN)) {
-								connection.sendMsg("You cannot promote users to ADMIN.");
-								return 1;
-							}
-							usr.copyRoleFrom(new ChatAdmin("template"));
-							break;
-						case USER:	// mod -> user
-							if(!chatUser.hasPermission(CAN_DEMOTE_MODERATORS, CAN_DEMOTE_ADMINS)) {
-								connection.sendMsg("You cannot demote a MODERATOR.");
-								return 1;
-							}
-							usr.copyRoleFrom(new ChatUser("template"));
-					}
-					server.broadcast(null, chatUser + " changed " + usr.getName() + "'s role to " + role);
-					server.broadcast(null, CMN_PREFIX+"userrnm "+usr.getName()+" "+usr.getName()+" "+role.getSymbol());
-					break;
-				default:
-					switch(role) {
-						case ADMIN:	// user -> admin
-							if(!chatUser.hasPermission(CAN_PROMOTE_TO_ADMIN)) {
-								connection.sendMsg("You cannot promote users to ADMIN.");
-								return 1;
-							}
-							usr.copyRoleFrom(new ChatAdmin("template"));
-							break;
-						case MODERATOR:	// user -> mod
-							if(!chatUser.hasPermission(CAN_PROMOTE_TO_MODERATOR, CAN_PROMOTE_TO_ADMIN)) {
-								connection.sendMsg("You cannot promote users to MODERATOR.");
-								return 1;
-							}
-							usr.copyRoleFrom(new ChatModerator("template"));
-					}
-					server.broadcast(null, chatUser + " changed " + usr.getName() + "'s role to " + role);
-					server.broadcast(null, CMN_PREFIX+"userrnm "+usr.getName()+" "+usr.getName()+" "+role.getSymbol());
-			}
-			return 1;
-		} else if(cmd.equals("perm")) {
-			if(token.length > 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"perm [user]");
-				return 1;
-			}
-			if(token.length < 2) {
-				StringBuilder sb = new StringBuilder("Your permissions are:\n");
-				for(ChatUser.Permission perm : chatUser.getPermissions()) {
-					sb.append("  - "+perm+"\n");
-				}
-				connection.sendMsg(sb.toString());
-				return 1;
-			} else {
-				if(!chatUser.hasPermission(CAN_LOOKUP_PERMISSIONS)) {
-					connection.sendMsg("You cannot list other users' permissions.");
+				if(!chatUser.hasPermission(CAN_KICK_USERS)) {
+					connection.sendMsg("You cannot kick other users.");
 					return 1;
 				}
 				ChatUser cu = server.chat.getUser(token[1]);
+				if(connection.getVerbosity() >= 2)
+					printDebug("[CHATCMDEXEC] Kick requested by "+connection.getName()+" versus "+token[1]);
 				if(cu == null) {
+					connection.sendMsg("User "+token[1]+" not found.");
+				} else {
+					switch(cu.getRole()) {
+						case ADMIN:
+							if(chatUser.hasPermission(CAN_KICK_ADMINS)) {
+								server.kickUser(cu.getName(), chatUser.toString());
+							} else {
+								connection.sendMsg("You cannot kick admins out of this server.");
+							}
+							break;
+						case MODERATOR:
+							if(chatUser.hasPermission(CAN_KICK_MODERATORS)) {
+								server.kickUser(cu.getName(), chatUser.toString());
+							} else {
+								connection.sendMsg("You cannot kick moderators out of this server.");
+							}
+							break;
+						default:
+							// already checked CAN_KICK_USERS
+							server.kickUser(cu.getName(), chatUser.toString());
+					}
+				}
+				return 1;
+			}
+			case "mute":
+				if(token.length > 2) {
+					connection.sendMsg(CMN_PREFIX + "html Syntax error. Correct syntax is "+CMD_PREFIX+"mute [user|group]<br>"+
+						"  where group =<br>  '"+ChatUser.Role.USER.getSymbol()+"': users<br>"+
+						"  '"+ChatUser.Role.MODERATOR.getSymbol()+"': users and mods");
+					return 1;
+				}
+				if(!chatUser.hasPermission(CAN_MUTE_UNMUTE_USERS)) {
+					connection.sendMsg("You cannot mute/unmute users.");
+					return 1;
+				}
+				if(token.length == 1) {
+					// mute all users
+					server.chat.addGlobalPermission(ChatUser.Role.USER, CAN_TALK, false);
+					server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" muted all USERS.</em>");
+				} else {
+					if(token[1].length() == 1) {
+						for(ChatUser.Role r : ChatUser.Role.values()) {
+							if(r.getSymbol() == token[1].charAt(0)) {
+								// mute group
+								if(!canMuteUnmute(chatUser, r)) {
+									return 1;
+								}
+								for(ChatUser.Role rr : ChatUser.Role.values()) {
+									if(rr.compareTo(r) <= 0)
+										server.chat.addGlobalPermission(rr, CAN_TALK, false);
+								}
+								server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" muted all up to "+r+"S</em>");
+								return 1;
+							}
+						}
+					}
+					// mute user
+					if(server.chat.getUser(token[1]) != null) {
+						if(!canMuteUnmute(chatUser, server.chat.getUser(token[1]).getRole())) {
+							return 1;
+						}
+						server.chat.getUser(token[1]).removePermission(CAN_TALK);
+						server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" muted "+server.chat.getUser(token[1])+"</em>");
+					} else {
+						connection.sendMsg("No group nor user "+token[1]+" was found.");
+					}
+				}
+				return 1;
+			case "unmute":
+				if(token.length > 2) {
+					connection.sendMsg(CMN_PREFIX + "html Syntax error. Correct syntax is "+CMD_PREFIX+"unmute [user|group]<br>"+
+						"  where group =<br>  '"+ChatUser.Role.USER.getSymbol()+"': users<br>"+
+						"  '"+ChatUser.Role.MODERATOR.getSymbol()+"': users and mods");
+					return 1;
+				}
+				if(!chatUser.hasPermission(CAN_MUTE_UNMUTE_USERS)) {
+					connection.sendMsg("You cannot mute/unmute users.");
+					return 1;
+				}
+				if(token.length == 1) {
+					// unmute all 
+					for(ChatUser.Role r : ChatUser.Role.values())
+						server.chat.removeGlobalPermission(r, CAN_TALK);
+					server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" unmuted all USERS.</em>");
+				} else {
+					if(token[1].length() == 1) {
+						for(ChatUser.Role r : ChatUser.Role.values()) {
+							if(r.getSymbol() == token[1].charAt(0)) {
+								// unmute group
+								if(!canMuteUnmute(chatUser, r)) {
+									return 1;
+								}
+								for(ChatUser.Role rr : ChatUser.Role.values()) {
+									if(rr.compareTo(r) >= 0)
+										server.chat.removeGlobalPermission(rr, CAN_TALK);
+								}
+								server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" unmuted all down to "+r+"S</em>");
+								return 1;
+							}
+						}
+					}
+					// unmute user
+					if(server.chat.getUser(token[1]) != null) {
+						if(!canMuteUnmute(chatUser, server.chat.getUser(token[1]).getRole())) {
+							return 1;
+						}
+						server.chat.getUser(token[1]).addPermission(CAN_TALK);
+						server.broadcast(null, CMN_PREFIX+"html <em>"+chatUser+" unmuted "+server.chat.getUser(token[1])+"</em>");
+					} else {
+						connection.sendMsg("No group nor user "+token[1]+" was found.");
+					}
+				}
+				return 1;
+			case "ban": {
+				if(token.length < 2) {
+					connection.sendMsg(CMN_PREFIX + "html Syntax error. Correct syntax is "+CMD_PREFIX+"ban &lt;ip&gt; [ip...]<br>" +
+					" IP may be of the form: aaa.bbb.ccc.ddd, aaa.bbb.*, aaa.{bbb-ccc}, aaa.bbb.ccc.ddd/mask");
+					return 1;
+				}
+				if(!chatUser.hasPermission(CAN_BAN_IP)) {
+					connection.sendMsg("You are not allowed to ban IPs from this server.");
+					return 1;
+				}
+				StringBuilder sb = new StringBuilder(CMN_PREFIX + "html ");
+				for(int i = 1; i < token.length; ++i) {
+					try {
+						server.banIP(new IPClass(token[i]));
+						sb.append("Banned IP "+token[i]+"<br>");
+					} catch(IllegalArgumentException e) {
+						connection.sendMsg(e.getMessage()+"<br>");
+					}
+				}
+				connection.sendMsg(sb.toString());
+				return 1;
+			}
+			case "unban": {
+				if(token.length < 2) {
+					connection.sendMsg(CMN_PREFIX + "html Syntax error. Correct syntax is "+CMD_PREFIX+"unban &lt;ip&gt; [ip...]<br>" +
+					" IP may be of the form: aaa.bbb.ccc.ddd, aaa.bbb.*, aaa.{bbb-ccc}, aaa.bbb.ccc.ddd/mask");
+					return 1;
+				}
+				if(!chatUser.hasPermission(CAN_BAN_IP)) {
+					connection.sendMsg("You are not allowed to unban IPs from this server.");
+					return 1;
+				}
+				StringBuilder sb = new StringBuilder(CMN_PREFIX + "html ");
+				for(int i = 1; i < token.length; ++i) {
+					try {
+						server.unbanIP(new IPClass(token[i]));
+						sb.append("Unbanned IP "+token[i]+"<br>");
+					} catch(IllegalArgumentException e) {
+						connection.sendMsg(e.getMessage()+"<br>");
+					}
+				}
+				connection.sendMsg(sb.toString());
+				return 1;
+			}
+			case "banned": {
+				if(!chatUser.hasPermission(CAN_LOOKUP_BANNED_IP)) {
+					connection.sendMsg("You are not allowed to list banned IPs for this server.");
+					return 1;
+				}
+				if(token.length > 1) {
+					StringBuilder sb = new StringBuilder(CMN_PREFIX + "html ");
+					for(int i = 1; i < token.length; ++i) {
+						if(server.isBanned(token[i]))
+							sb.append(token[i] + " is BANNED<br>");
+						else
+							sb.append(token[i] + " is NOT banned.<br>");
+					}
+					connection.sendMsg(sb.toString());
+					return 1;
+				}
+				StringBuilder sb = new StringBuilder(CMN_PREFIX + "html -- Ban rules:<br>");
+				for(Map.Entry<IPClass,Boolean> entry : server.getBanRules().entrySet())
+					sb.append(entry.getKey()+": " + (entry.getValue() ? "BANNED" : "ALLOWED") + "<br>");
+				connection.sendMsg(sb.toString());
+				return 1;
+			}
+			case "database":
+				if(!chatUser.hasPermission(CAN_MANIPULATE_DB)) {
+					connection.sendMsg("You are not allowed to manipulate the server's DB location.");
+					return 1;
+				}
+				if(!(server instanceof DatabaseServer)) {
+					connection.sendMsg("This server doesn't support a database.");
+					return 1;
+				}
+				if(token.length > 1) {
+					if(((DatabaseServer)server).setDatabaseLocation(token[1])) 
+						connection.sendMsg("[ OK ] Database switched correctly to "+((DatabaseServer)server).getDatabaseURL());
+					else
+						connection.sendMsg("Errors switching database: see server logs for details.");
+				} else {
+					connection.sendMsg("Server DB: "+((DatabaseServer)server).getDatabaseURL());
+				}
+				return 1;
+			case "reload":
+				if(!chatUser.hasPermission(CAN_MANIPULATE_DB)) {
+					connection.sendMsg("You are not allowed to manipulate chat roles.");
+					return 1;
+				}
+				if(!(server instanceof DatabaseServer)) {
+					connection.sendMsg("Cannot reload roles from DB: this server doesn't support a database.");
+					return 1;
+				}
+				try {
+					if(((DatabaseServer)server).loadDBEntries() && server.chat.reload()) {
+						connection.sendMsg("[ OK ] chat roles reloaded successfully. New roles:");
+						connection.sendMsg(server.chat.getRolesTable());
+					} else {
+						connection.sendMsg("Errors reloading chat roles: see server logs for details.");
+					}
+				} catch(FileNotFoundException e) {
+					connection.sendMsg("Error: database not found.");
+				}
+				return 1;
+			case "roles":
+				if(!chatUser.hasPermission(CAN_LIST_ROLES)) {
+					connection.sendMsg("You are not allowed to list server registered roles.");
+					return 1;
+				}
+				connection.sendMsg(server.chat.getRolesTable());
+				return 1;
+			case "setrole": {
+				if(token.length != 3) {
+					connection.sendMsg(CMN_PREFIX + "html Syntax error. Correct syntax is "+CMD_PREFIX+"setrole &lt;user&gt; &lt;role&gt;<br>"+
+						"  where role = user|moderator|admin");
+					return 1;
+				}
+				ChatUser usr = server.chat.getUser(token[1]);
+				if(usr == null) {
 					connection.sendMsg("User "+token[1]+" not found.");
 					return 1;
 				}
-				StringBuilder sb = new StringBuilder(cu+"'s permissions are:\n");
-				for(ChatUser.Permission perm : cu.getPermissions()) {
-					sb.append("  - "+perm+"\n");
+				ChatUser.Role role = ChatUser.Role.forName(token[2]);
+				if(role == null) {
+					connection.sendMsg("Role does not exist: "+token[2]);
+					return 1;
 				}
-				connection.sendMsg(sb.toString());
-			}
-		} else if(cmd.equals("perms")) {
-			if(token.length > 1) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"perms");
+				if(role == usr.getRole()) {
+					connection.sendMsg(usr+" already has role "+role+".");
+					return 1;
+				}
+				switch(usr.getRole()) {
+					case ADMIN:
+						if(!chatUser.hasPermission(CAN_DEMOTE_ADMINS)) {
+							connection.sendMsg("You cannot demote an ADMIN.");
+							return 1;
+						}
+						switch(role) {
+							case MODERATOR:	// admin -> mod
+								usr.copyRoleFrom(new ChatModerator("template"));
+								break;
+							case USER:	// admin -> user
+								usr.copyRoleFrom(new ChatUser("template"));
+						}
+						server.broadcast(null, chatUser + " changed " + usr.getName() + "'s role to " + role);
+						server.broadcast(null, CMN_PREFIX+"userrnm "+usr.getName()+" "+usr.getName()+" "+role.getSymbol());
+						break;
+					case MODERATOR:
+						switch(role) {
+							case ADMIN:	// mod -> admin
+								if(!chatUser.hasPermission(CAN_PROMOTE_TO_ADMIN)) {
+									connection.sendMsg("You cannot promote users to ADMIN.");
+									return 1;
+								}
+								usr.copyRoleFrom(new ChatAdmin("template"));
+								break;
+							case USER:	// mod -> user
+								if(!chatUser.hasPermission(CAN_DEMOTE_MODERATORS, CAN_DEMOTE_ADMINS)) {
+									connection.sendMsg("You cannot demote a MODERATOR.");
+									return 1;
+								}
+								usr.copyRoleFrom(new ChatUser("template"));
+						}
+						server.broadcast(null, chatUser + " changed " + usr.getName() + "'s role to " + role);
+						server.broadcast(null, CMN_PREFIX+"userrnm "+usr.getName()+" "+usr.getName()+" "+role.getSymbol());
+						break;
+					default:
+						switch(role) {
+							case ADMIN:	// user -> admin
+								if(!chatUser.hasPermission(CAN_PROMOTE_TO_ADMIN)) {
+									connection.sendMsg("You cannot promote users to ADMIN.");
+									return 1;
+								}
+								usr.copyRoleFrom(new ChatAdmin("template"));
+								break;
+							case MODERATOR:	// user -> mod
+								if(!chatUser.hasPermission(CAN_PROMOTE_TO_MODERATOR, CAN_PROMOTE_TO_ADMIN)) {
+									connection.sendMsg("You cannot promote users to MODERATOR.");
+									return 1;
+								}
+								usr.copyRoleFrom(new ChatModerator("template"));
+						}
+						server.broadcast(null, chatUser + " changed " + usr.getName() + "'s role to " + role);
+						server.broadcast(null, CMN_PREFIX+"userrnm "+usr.getName()+" "+usr.getName()+" "+role.getSymbol());
+				}
 				return 1;
 			}
-			StringBuilder sb = new StringBuilder("-- All permissions:\n");
-			for(ChatUser.Permission perm : ChatUser.Permission.values())
-				sb.append("  - "+perm+"\n");
-			connection.sendMsg(sb.toString());
-			return 1;
+			case "perm":
+				if(token.length > 2) {
+					connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"perm [user]");
+					return 1;
+				}
+				if(token.length < 2) {
+					StringBuilder sb = new StringBuilder(CMN_PREFIX + "html Your permissions are:<br>");
+					for(ChatUser.Permission perm : chatUser.getPermissions()) {
+						sb.append("  - "+perm+"<br>");
+					}
+					connection.sendMsg(sb.toString());
+				} else {
+					if(!chatUser.hasPermission(CAN_LOOKUP_PERMISSIONS)) {
+						connection.sendMsg("You cannot list other users' permissions.");
+						return 1;
+					}
+					ChatUser cu = server.chat.getUser(token[1]);
+					if(cu == null) {
+						connection.sendMsg("User "+token[1]+" not found.");
+						return 1;
+					}
+					StringBuilder sb = new StringBuilder(CMN_PREFIX + "html " + cu + "'s permissions are:<br>");
+					for(ChatUser.Permission perm : cu.getPermissions()) {
+						sb.append("  - "+perm+"<br>");
+					}
+					connection.sendMsg(sb.toString());
+				}
+				return 1;
+			case "perms": {
+				if(token.length > 1) {
+					connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"perms");
+					return 1;
+				}
+				StringBuilder sb = new StringBuilder(CMN_PREFIX + "html -- All permissions:<br>");
+				for(ChatUser.Permission perm : ChatUser.Permission.values())
+					sb.append("  - "+perm+"<br>");
+				connection.sendMsg(sb.toString());
+				return 1;
+			}
 		}
 		// let someone else process this command
 		return 0;

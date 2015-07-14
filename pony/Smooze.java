@@ -24,8 +24,8 @@ public class Smooze extends Pony {
 
 		baseHp = 1;
 		baseAtk = 40;
-		baseSpatk = 99;
 		baseDef = 30;
+		baseSpatk = 99;
 		baseSpdef = 45;
 		baseSpeed = 75;
 		

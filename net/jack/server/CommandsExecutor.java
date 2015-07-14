@@ -78,159 +78,179 @@ class CommandsExecutor extends ServerConnectionExecutor {
 	
 		if(connection.getVerbosity() >= 3) printDebug("cmd="+cmd+",token="+Arrays.asList(token).toString());
 
-		if(cmd.equals("help")) {
-			connection.sendMsg(CMN_PREFIX+"html <b>===== Commands: =====</b>\n"+sanitize(help.toString()));
-			return 1;
-		} else if(cmd.equals("list")) {
-			if(!(server instanceof DatabaseServer)) {
-				connection.sendMsg("This command is not supported by this server implementation.");
+		switch(cmd) {
+			case "help":
+				connection.sendMsg(CMN_PREFIX+"html <b>===== Commands: =====</b>\n"+sanitize(help.toString()));
 				return 1;
-			}
-			if(server.chat != null && !chatUser.hasPermission(CAN_LIST_REGISTERED_USERS)) {
-				connection.sendMsg("You are not allowed to list registered users.");
-				return 1;
-			}
-			Set<String> nicks = ((DatabaseServer)server).getNicks();
-			StringBuilder sb = new StringBuilder("Registered users:\n");
-			int i = 0;
-			for(String s : nicks) {
-				sb.append(s+"\n");
-				if(++i == 100) {
-					sb.append((nicks.size()-i)+" more...");
-					break;
+			case "list": {
+				if(!(server instanceof DatabaseServer)) {
+					connection.sendMsg("This command is not supported by this server implementation.");
+					return 1;
 				}
-			}
-			connection.sendMsg(sb.toString());
-			return 1;
-		} else if(cmd.equals("whois")) {
-			if(token.length < 2) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"whois <nick>");
-				return 1;
-			}
-			for(Connection conn : server.getClients()) {
-				if(conn.getName().equals(token[1])) {
-					StringBuilder sb = new StringBuilder("Info about: "+token[1]+"\n");
-					sb.append("  IP Address:        " + (chatUser != null && chatUser
-						.hasPermission(CAN_LOOKUP_IP) 
-							? conn.getSocket().getInetAddress().getHostAddress()
-							: "(not allowed)"
-						) + "\n"
-					);
-					sb.append("  Hostname:          " + (chatUser != null && chatUser 
-						.hasPermission(CAN_LOOKUP_IP) 
-							? conn.getSocket().getInetAddress().getHostAddress()
-							: "(not allowed)"
-						) + "\n"
-					);
-					sb.append("  Connected since:   "+conn.getConnectionTime()+"\n");
-					sb.append("  Connection time:   "+secondsToDate(-conn.getConnectionTime().getTime()/1000+
-						(new Date()).getTime()/1000)+"\n");
-					sb.append("  Operating System:  "+conn.getOS()+"\n");
-					if(server instanceof DatabaseServer) {
-						sb.append("  Nick registered:   "+(((DatabaseServer)server).nickExists(token[1]) ? "yes" : "no")+"\n");
+				if(server.chat != null && !chatUser.hasPermission(CAN_LIST_REGISTERED_USERS)) {
+					connection.sendMsg("You are not allowed to list registered users.");
+					return 1;
+				}
+				Set<String> nicks = ((DatabaseServer)server).getNicks();
+				StringBuilder sb = new StringBuilder("Registered users:\n");
+				int i = 0;
+				for(String s : nicks) {
+					sb.append(s+"\n");
+					if(++i == 100) {
+						sb.append((nicks.size()-i)+" more...");
+						break;
 					}
-					connection.sendMsg(sb.toString());
+				}
+				connection.sendMsg(sb.toString());
+				return 1;
+			}
+			case "whois":
+				if(token.length < 2) {
+					connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"whois <nick>");
 					return 1;
 				}
-			}
-			connection.sendMsg("Can't find user "+token[1]);
-			return 1;
-		} else if(cmd.equals("whoami")) {
-			StringBuilder sb = new StringBuilder("Info about: "+connection.getName()+"\n");
-			sb.append("  IP Address:        "+connection.getSocket().getInetAddress().getHostAddress()+"\n");
-			sb.append("  Hostname:          "+connection.getSocket().getInetAddress().getHostName()+"\n");
-			sb.append("  Connected since:   "+connection.getConnectionTime()+"\n");
-			sb.append("  Connection time:   "+secondsToDate(-connection.getConnectionTime().getTime()/1000+
-				(new Date()).getTime()/1000)+"\n");
-			connection.sendMsg(CMN_PREFIX+"youros");
-			String os = "Unknown";
-			try {
-				connection.getSocket().setSoTimeout(4000);
-				os = connection.getInput().readLine();
-				if(connection.getVerbosity() >= 2) printDebug("CommandsExecutor.execute(whoami#os): read line "+os);
-				if(os.split(" ").length >= 2 && os.split(" ")[0].equals(CMN_PREFIX+"myos")) {
-					os = os.replaceFirst(CMN_PREFIX+"myos ","");
-					if(connection.getVerbosity() >= 3) printDebug("os is now: "+os);
-				} else {
-					if(connection.getVerbosity() >= 1) 
-						printDebug("Received unexpected string: "+os+" from "+connection.getSocket());
-					os = "Unknown";
+				for(Connection conn : server.getClients()) {
+					if(conn.getName().equals(token[1])) {
+						StringBuilder sb = new StringBuilder("Info about: "+token[1]+"\n");
+						sb.append("  IP Address:        " + (chatUser != null && chatUser
+							.hasPermission(CAN_LOOKUP_IP) 
+								? conn.getSocket().getInetAddress().getHostAddress()
+								: "(not allowed)"
+							) + "\n"
+						);
+						sb.append("  Hostname:          " + (chatUser != null && chatUser 
+							.hasPermission(CAN_LOOKUP_IP) 
+								? conn.getSocket().getInetAddress().getHostAddress()
+								: "(not allowed)"
+							) + "\n"
+						);
+						sb.append("  Connected since:   "+conn.getConnectionTime()+"\n");
+						sb.append("  Connection time:   "+
+								secondsToDate(-conn.getConnectionTime().getTime()/1000+
+							(new Date()).getTime()/1000)+"\n");
+						sb.append("  Operating System:  "+conn.getOS()+"\n");
+						if(server instanceof DatabaseServer) {
+							sb.append("  Nick registered:   " +
+									(((DatabaseServer)server).nickExists(token[1]) 
+									 	? "yes" 
+										: "no"
+									) + "\n");
+						}
+						connection.sendMsg(sb.toString());
+						return 1;
+					}
 				}
-			} catch(java.net.SocketTimeoutException e) {
-				printDebug(connection.getName()+": Socket timeout. Setting OS to 'Unknown'.");
-				os = "Unknown";
-			} catch(IOException e) {
-				printDebug("Caught exception while reading line from socket "+connection.getSocket());
-				os = "Unknown";
-			} finally {
+				connection.sendMsg("Can't find user "+token[1]);
+				return 1;
+			case "whoami": {
+				StringBuilder sb = new StringBuilder("Info about: "+connection.getName()+"\n");
+				sb.append("  IP Address:        "+connection.getSocket().getInetAddress().getHostAddress()+"\n");
+				sb.append("  Hostname:          "+connection.getSocket().getInetAddress().getHostName()+"\n");
+				sb.append("  Connected since:   "+connection.getConnectionTime()+"\n");
+				sb.append("  Connection time:   "+secondsToDate(-connection.getConnectionTime().getTime()/1000+
+					(new Date()).getTime()/1000)+"\n");
+				connection.sendMsg(CMN_PREFIX+"youros");
+				String os = "Unknown";
 				try {
-					connection.getSocket().setSoTimeout(0);
-				} catch(Exception e) {
-					e.printStackTrace();
+					connection.getSocket().setSoTimeout(4000);
+					os = connection.getInput().readLine();
+					if(connection.getVerbosity() >= 2)
+						printDebug("CommandsExecutor.execute(whoami#os): read line "+os);
+					if(os.split(" ").length >= 2 && os.split(" ")[0].equals(CMN_PREFIX+"myos")) {
+						os = os.replaceFirst(CMN_PREFIX+"myos ","");
+						if(connection.getVerbosity() >= 3) printDebug("os is now: "+os);
+					} else {
+						if(connection.getVerbosity() >= 1) 
+							printDebug("Received unexpected string: "+os+
+									" from "+connection.getSocket());
+						os = "Unknown";
+					}
+				} catch(java.net.SocketTimeoutException e) {
+					printDebug(connection.getName()+": Socket timeout. Setting OS to 'Unknown'.");
+					os = "Unknown";
+				} catch(IOException e) {
+					printDebug("Caught exception while reading line from socket "+connection.getSocket());
+					os = "Unknown";
+				} finally {
+					try {
+						connection.getSocket().setSoTimeout(0);
+					} catch(Exception e) {
+						e.printStackTrace();
+						return 1;
+					}
+				}
+				sb.append("  Operating System:  "+os+"\n");
+				if(server instanceof DatabaseServer) {
+					sb.append("  Nick registered:   " +
+							(((DatabaseServer)server).nickExists(connection.getName())
+							 	? "yes"
+								: "no"
+							) + "\n");
+				}
+				connection.sendMsg(sb.toString());
+				return 1;
+			}
+			case "serverinfo":
+			case "info":
+				if(!(server instanceof BasicServer) || 
+						(chatUser != null && !chatUser.hasPermission(CAN_VIEW_SERVER_INFO))
+				) {
+					connection.sendMsg("Sorry, this server provides no info about itself.");
 					return 1;
 				}
-			}
-			sb.append("  Operating System:  "+os+"\n");
-			if(server instanceof DatabaseServer) {
-				sb.append("  Nick registered:   "+(((DatabaseServer)server).nickExists(connection.getName()) ? "yes" : "no")+"\n");
-			}
-			connection.sendMsg(sb.toString());
-			return 1;
-		} else if(cmd.equals("serverinfo") || cmd.equals("info")) {
-			if(!(server instanceof BasicServer) || (chatUser != null && !chatUser.hasPermission(CAN_VIEW_SERVER_INFO))) {
-				connection.sendMsg("Sorry, this server provides no info about itself.");
+				connection.sendMsg(server.printInfo());
+				return 1;
+			case "users": {
+				int n = 0;
+				StringBuilder sb = new StringBuilder("-- Connected users:\n");
+				for(Connection conn : server.getClients()) {
+					sb.append(conn.getName()+"\n");
+					++n;
+				}
+				sb.append("Number of connected users: "+n+"\n");
+				connection.sendMsg(sb.toString());
 				return 1;
 			}
-			connection.sendMsg(server.printInfo());
-			return 1;
-		} else if(cmd.equals("users")) {
-			int n = 0;
-			StringBuilder sb = new StringBuilder("-- Connected users:\n");
-			for(Connection conn : server.getClients()) {
-				sb.append(conn.getName()+"\n");
-				++n;
-			}
-			sb.append("Number of connected users: "+n+"\n");
-			connection.sendMsg(sb.toString());
-			return 1;
-		} else if(cmd.equals("register")) {
-			if(chatUser != null && !chatUser.hasPermission(CAN_REGISTER)) {
-				connection.sendMsg("Sorry, you are not allowed to register on this server.");
+			case "register":
+				if(chatUser != null && !chatUser.hasPermission(CAN_REGISTER)) {
+					connection.sendMsg("Sorry, you are not allowed to register on this server.");
+					return 1;
+				}
+				return registerNick(token);
+			case "nick":
+				if(chatUser != null && !chatUser.hasPermission(CAN_CHANGE_NICK)) {
+					connection.sendMsg("Sorry, you are not allowed to change nickname on this server.");
+					return 1;
+				}
+				return assignNick(token);
+			case "disconnect":
+				connection.sendMsg(CMN_PREFIX+"disconnect");
 				return 1;
-			}
-			return registerNick(token);
-		} else if(cmd.equals("nick")) {
-			if(chatUser != null && !chatUser.hasPermission(CAN_CHANGE_NICK)) {
-				connection.sendMsg("Sorry, you are not allowed to change nickname on this server.");
-				return 1;
-			}
-			return assignNick(token);
-		} else if(cmd.equals("disconnect")) {
-			connection.sendMsg(CMN_PREFIX+"disconnect");
-			return 1;
-		} else if(cmd.equals("pm") || cmd.equals("whisper")) {
-			if(chatUser != null && !chatUser.hasPermission(CAN_WHISPER)) {
-				connection.sendMsg("Sorry, you are not allowed to whisper on this server.");
-				return 1;
-			}
-			if(token.length < 3) {
-				connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"pm <user> <msg>.");
-				return 1;
-			}
-			String mesg = ConcatenateArrays.merge(token,2);
+			case "pm":
+			case "whisper": {
+				if(chatUser != null && !chatUser.hasPermission(CAN_WHISPER)) {
+					connection.sendMsg("Sorry, you are not allowed to whisper on this server.");
+					return 1;
+				}
+				if(token.length < 3) {
+					connection.sendMsg("Syntax error. Correct syntax is "+CMD_PREFIX+"pm <user> <msg>.");
+					return 1;
+				}
+				String mesg = ConcatenateArrays.merge(token,2);
 
-			for(Connection conn : server.getClients()) {
-				if(conn.getName().equals(token[1])) {
-					conn.sendMsg("["+now("HH:mm:ss")+"] "+connection.getName()+" whispered: "+mesg);
-					connection.sendMsg("["+now("HH:mm:ss")+"] You whispered to "+token[1]+": "+mesg);
-					return 1;
+				for(Connection conn : server.getClients()) {
+					if(conn.getName().equals(token[1])) {
+						conn.sendMsg("["+now("HH:mm:ss")+"] "+connection.getName()+" whispered: "+mesg);
+						connection.sendMsg("["+now("HH:mm:ss")+"] You whispered to "+token[1]+": "+mesg);
+						return 1;
+					}
 				}
+				connection.sendMsg("User "+token[1]+" not found.");
+				return 1;
 			}
-			connection.sendMsg("User "+token[1]+" not found.");
-			return 1;
-		} else {
-			connection.sendMsg("Unknown command.");
-			return 1;
+			default:
+				connection.sendMsg("Unknown command.");
+				return 1;
 		}
 	}
 

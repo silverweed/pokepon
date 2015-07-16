@@ -115,7 +115,8 @@ public class EffectDealer implements Comparable<EffectDealer> {
 	public boolean ignoreProtection() { return ignoreProtection; }
 	/** Probability to prevent negative condition */
 	public float preventNegativeCondition() { return preventNegativeCondition(null); }
-	public float preventNegativeCondition(final String which) { return 0f; }
+	public float preventNegativeCondition(final String which) { return preventNegativeCondition(which, null); }
+	public float preventNegativeCondition(final String which, final BattleEngine be) { return 0f; }
 
 	// additional effects
 	public float getRecoil() { return recoil; }

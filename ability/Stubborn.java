@@ -8,7 +8,7 @@ import pokepon.move.*;
 import static pokepon.util.MessageManager.*;
 
 /** Stubborn
- * Spike's ability; halves the damage coming from all special attacks.
+ * Prevents to be KO-ed in one hit.
  *
  * @author silverweed
  */

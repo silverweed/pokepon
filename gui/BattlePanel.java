@@ -1470,6 +1470,9 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					appendEvent(EventType.BATTLE,"It doesn't affect enemy "+oppPony.getNickname()+"...");
 					resultAnim(oppLocation(),"Immune!");
 				}
+				try {
+					Thread.sleep(INTERPRET_DELAY);
+				} catch(InterruptedException ignore) {}
 				break;
 			case WAIT:
 				/* |wait */

@@ -27,7 +27,7 @@ moves[${#moves[@]}]="$move"
 shift
 
 for file in $@; do
-	if [[ $(basename $file) == "Pony.java" ]]; then continue; fi
+	[[ $(basename $file) == "Pony.java" ]] && continue
 	for ((i=0; i<${#moves[@]}; ++i)); do
 		move="${moves[i]}"
 		if [[ -n $(grep learnableMoves $file | grep "$move") ]]; then

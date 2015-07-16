@@ -39,7 +39,7 @@ class DamageCalculator {
 	}
 	
 	/** Overloaded method used to default the value of selfHit */
-	int calculateBattleDamage(Move move,final BattleEngine be) {
+	int calculateBattleDamage(Move move, final BattleEngine be) {
 		return calculateBattleDamage(move,be,false);
 	}
 
@@ -49,7 +49,7 @@ class DamageCalculator {
 	 * @param selfHit Whether the attack is a self-hit or not (default: false)
 	 * @return Damage inflicted
 	 */
-	public int calculateBattleDamage(Move move,final BattleEngine be,boolean selfHit) {
+	public int calculateBattleDamage(Move move, final BattleEngine be, boolean selfHit) {
 		if(move == null) printDebug("[DC]: MOVE IS NULL!");
 		
 		//uses the same formula as Pokemon
@@ -57,12 +57,13 @@ class DamageCalculator {
 		/* First: calculate Modifier */
 
 		Pony attacker = be.getAttacker();
-		Pony defender = (selfHit ? be.getAttacker() : be.getDefender());
+		Pony defender = selfHit ? be.getAttacker() : be.getDefender();
 		WeatherHolder weather = be.getWeather();
 		BattleTask bt = be.getBattleTask();
 		
 		if(Debug.on) {
-			printDebug("[DC] "+attacker.getName()+" => "+defender.getName()+" with "+move.getName()+" {weather="+weather+"}");
+			printDebug("[DC] "+attacker.getName()+" => "+defender.getName()+
+					" with "+move.getName()+" {weather="+weather+"}");
 		}
 		if(Debug.pedantic) {
 			printDebug("[DC] Attacker: boosts="+attacker.getBoosts()+",status="+attacker.getStatus());

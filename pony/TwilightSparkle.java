@@ -52,5 +52,6 @@ public class TwilightSparkle extends Pony {
 
 		/* possibleAbilities */
 		possibleAbilities[0] = "Leadership";
+		possibleAbilities[1] = "Bookworm";
 	}
 }

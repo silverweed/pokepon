@@ -6,3 +6,6 @@
 *server.db
 *.log
 files.txt
+cov-int
+pokepon.tgz
+cov-token

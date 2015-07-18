@@ -67,5 +67,6 @@ public class Starswirl extends Pony {
 
 		/* possibleAbilities */
 		possibleAbilities[0] = "Self Confidence";
+		possibleAbilities[1] = "Bookworm";
 	}
 }

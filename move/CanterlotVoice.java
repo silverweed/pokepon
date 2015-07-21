@@ -24,7 +24,7 @@ public class CanterlotVoice extends Move {
 		accuracy = 95;
 		priority = 0;
 		description = "INFLICTS DAMAGE TO YOUR ENEMIES WITH A CHANCE TO PARALYZE THEM!!!";
-		description = "30% TO PARALYZE THE ENEMY!";
+		briefDesc = "30% TO PARALYZE THE ENEMY!";
 
 		animation = new java.util.HashMap<>(AnimPresets.get("gatling"));
 		animation.put("sprite", "note.png");

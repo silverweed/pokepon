@@ -192,35 +192,33 @@ class HPBar extends JPanel {
 	public void clearPseudoStatuses() {
 		if(Debug.on) printDebug("[HPBar] Called clearPseudoStatuses(); pseudoStatuses.size = "+pseudoStatuses.size());
 			if(Debug.pedantic) printDebug("run(): pseudoStatuses.size = "+pseudoStatuses.size());
-			synchronized(pseudoStatuses) {
-				Iterator<PseudoStatusLabel> it = pseudoStatuses.iterator();
-				while(it.hasNext()) {
-					PseudoStatusLabel psl = it.next();
-					if(Debug.pedantic) printDebug("removing:"+psl.getText());
-					synchronized(labelPanel) {
+			synchronized(labelPanel) {
+				synchronized(pseudoStatuses) {
+					Iterator<PseudoStatusLabel> it = pseudoStatuses.iterator();
+					while(it.hasNext()) {
+						PseudoStatusLabel psl = it.next();
+						if(Debug.pedantic) printDebug("removing:"+psl.getText());
 						labelPanel.remove(psl);
+						synchronized(allStatuses) {
+							allStatuses.remove(psl);
+						}
 					}
-					synchronized(allStatuses) {
-						allStatuses.remove(psl);
-					}
+					pseudoStatuses.clear();
 				}
-				pseudoStatuses.clear();
-			}
-			synchronized(statuses) {
-				Iterator<StatusLabel> it = statuses.iterator();
-				while(it.hasNext()) {
-					StatusLabel sl = it.next();
-					if(Debug.pedantic) printDebug("removing:"+sl);
-					synchronized(labelPanel) {
+				synchronized(statuses) {
+					Iterator<StatusLabel> it = statuses.iterator();
+					while(it.hasNext()) {
+						StatusLabel sl = it.next();
+						if(Debug.pedantic) printDebug("removing:"+sl);
 						labelPanel.remove(sl);
 					}
-				}
-				c.gridx = 0;
-				it = statuses.iterator();
-				while(it.hasNext()) {
-					StatusLabel sl = it.next();
-					if(Debug.pedantic) printDebug("adding: "+sl);
-					addStatus(sl.getStatus());
+					c.gridx = 0;
+					it = statuses.iterator();
+					while(it.hasNext()) {
+						StatusLabel sl = it.next();
+						if(Debug.pedantic) printDebug("adding: "+sl);
+						addStatus(sl.getStatus());
+					}
 				}
 			}
 

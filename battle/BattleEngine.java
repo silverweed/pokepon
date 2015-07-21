@@ -896,7 +896,7 @@ public class BattleEngine {
 				return;
 			else if(value > -2)
 				printMsg("Hey, "+name+"'s "+stat+" fell!");
-			else if(value > -1)
+			else if(value > -3)
 				printMsg("Hey, "+name+"'s "+stat+" harshly fell!");
 			else
 				printMsg("Hey, "+name+"'s "+stat+" fell drastically!");
@@ -1279,7 +1279,7 @@ public class BattleEngine {
 				}
 				attacker.setConfused(true);
 				attacker.getVolatiles().confusionCounter = 1 + rng.nextInt(Battle.MAX_CONFUSION_DURATION);
-				if(Debug.on) printDebug("Confusion count = "+defender.getVolatiles().confusionCounter);
+				if(Debug.on) printDebug("Confusion count = "+attacker.getVolatiles().confusionCounter);
 			}
 			if(rng.nextFloat() < dealer.getUserFlinch()) {
 				attacker.setFlinched(true);

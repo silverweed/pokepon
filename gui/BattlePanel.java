@@ -2113,8 +2113,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("persistent",true);
 			Animation anim = new Fade(fieldP,opts);
 			if(Debug.on) printDebug("Starting switch-in animation");
-			anim.start();
 			synchronized(anim) {
+				anim.start();
 				try {
 					anim.wait();
 				} catch(InterruptedException e) {
@@ -2132,8 +2132,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("fadeOut",true);
 			Animation anim = new Fade(fieldP,opts);
 			if(Debug.on) printDebug("Starting switch-out animation");
-			anim.start();
 			synchronized(anim) {
+				anim.start();
 				try {
 					anim.wait();
 				} catch(InterruptedException e) {
@@ -2151,8 +2151,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("fadeOut",true);
 			Animation anim = new Fade(fieldP,opts);
 			if(Debug.on) printDebug("Starting faint animation");
-			anim.start();
 			synchronized(anim) {
+				anim.start();
 				try {
 					anim.wait();
 				} catch(InterruptedException e) {
@@ -2244,12 +2244,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalOpacity",0.4f);
 			opts.put("persistent",true);
 			Animation anim = new Fade(fieldP,opts);
-			anim.start();
-			try {
-				synchronized(anim) {
-					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+			synchronized(anim) {
+				anim.start();
+				try {
+						anim.wait();
+				} catch(InterruptedException ignore) {}
+			}
 			// Fade in the substitute sprite
 			try {
 				JLabel animSprite = new JLabel(new ImageIcon(ImageIO.read(
@@ -2286,12 +2286,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalPoint",fPt);
 			opts.put("persistent",true);
 			anim = new Fade(fieldP,opts);
-			anim.start();
-			try {
-				synchronized(anim) {
+			synchronized(anim) {
+				anim.start();
+				try {
 					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+				} catch(InterruptedException ignore) {}
+			}
 			allyPony.setSubstitute(true);
 		} else {
 			if(oppPony.hasSubstitute()) {
@@ -2309,12 +2309,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalOpacity",0.4f);
 			opts.put("persistent",true);
 			Animation anim = new Fade(fieldP,opts);
-			anim.start();
-			try {
-				synchronized(anim) {
+			synchronized(anim) {
+				anim.start();
+				try {
 					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+				} catch(InterruptedException ignore) {}
+			}
 			// Fade in the substitute sprite
 			try {
 				JLabel animSprite = new JLabel(new ImageIcon(ImageIO.read(
@@ -2351,12 +2351,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalPoint",fPt);
 			opts.put("persistent",true);
 			anim = new Fade(fieldP,opts);
-			anim.start();
-			try {
-				synchronized(anim) {
+			synchronized(anim) {
+				anim.start();
+				try {
 					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+				} catch(InterruptedException ignore) {}
+			}
 			oppPony.setSubstitute(true);
 		}
 	}
@@ -2393,13 +2393,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalPoint","ally");
 			opts.put("fadeOut",true);
 			Animation anim = new Fade(fieldP,opts);
-			anim.start();
 			resultAnim(allyLocation(),"Faded!");
-			try {
-				synchronized(anim) {
+			synchronized(anim) {
+				anim.start();
+				try {
 					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+				} catch(InterruptedException ignore) {}
+			}
 			// Fade in ally sprite
 			opts.remove("fadeOut");
 			opts.put("sprite",allySprite);
@@ -2408,12 +2408,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalOpacity",1f);
 			opts.put("persistent",true);
 			anim = new Fade(fieldP,opts);
-			anim.start();
-			try {
-				synchronized(anim) {
+			synchronized(anim) {
+				anim.start();
+				try {
 					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+				} catch(InterruptedException ignore) {}
+			}
 			allyPony.setSubstitute(false);
 			allySubstitute = null;
 		} else {
@@ -2442,13 +2442,13 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalPoint","opp");
 			opts.put("fadeOut",true);
 			Animation anim = new Fade(fieldP,opts);
-			anim.start();
 			resultAnim(oppLocation(),"Faded!");
-			try {
-				synchronized(anim) {
+			synchronized(anim) {
+				anim.start();
+				try {
 					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+				} catch(InterruptedException ignore) {}
+			}
 			// Fade in ally sprite
 			opts.remove("fadeOut");
 			opts.put("sprite",oppSprite);
@@ -2457,12 +2457,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			opts.put("finalOpacity",1f);
 			opts.put("persistent",true);
 			anim = new Fade(fieldP,opts);
-			anim.start();
-			try {
-				synchronized(anim) {
+			synchronized(anim) {
+				anim.start();
+				try {
 					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+				} catch(InterruptedException ignore) {}
+			}
 			oppPony.setSubstitute(false);
 			oppSubstitute = null;
 		}
@@ -2545,12 +2545,12 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			persEffectsSprite.get(ally ? 0 : 1).put(persName,sprite);
 			opts.put("sprite",sprite);
 			Animation anim = new Fade(fieldP,opts);
-			anim.start();
-			try {
-				synchronized(anim) {
+			synchronized(anim) {
+				anim.start();
+				try {
 					anim.wait();
-				}
-			} catch(InterruptedException ignore) {}
+				} catch(InterruptedException ignore) {}
+			}
 		} catch(IOException e) {
 			printDebug("[setPersistentEffect] failed to create sprite:" +e);
 		}
@@ -2581,7 +2581,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 				public void run() {
 					teamP.getToken(ponyIndex).setEnabled(false);
 					if(allyHPBar != null) {
-						synchronized(allyHPBar) {
+						synchronized(this) {
 							allyHPBar.setVisible(false);
 							fieldP.remove(allyHPBar);
 						}
@@ -2608,7 +2608,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					if(oppHPBar != null) {
-						synchronized(oppHPBar) {
+						synchronized(this) {
 							oppHPBar.setVisible(false);
 							fieldP.remove(oppHPBar);
 						}
@@ -2754,7 +2754,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						if(Debug.on) printDebug("Ally pony set to "+allyPony);
 						// create new HP bar
 						if(allyHPBar != null) {
-							synchronized(allyHPBar) {
+							synchronized(this) {
 								allyHPBar.setVisible(false);
 							}
 							fieldP.remove(allyHPBar);
@@ -2820,7 +2820,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						if(Debug.on) printDebug("Opponent pony set to "+oppPony);
 						// create new HP bar
 						if(oppHPBar != null) {
-							synchronized(oppHPBar) {
+							synchronized(this) {
 								oppHPBar.setVisible(false);
 							}
 							fieldP.remove(oppHPBar);
@@ -2904,8 +2904,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 					printDebug("[BP.interpret(move)] no animation found for move "+moveName);
 					return;
 				}
-				anim.start();
 				synchronized(anim) {
+					anim.start();
 					try {
 						anim.wait();
 					} catch(InterruptedException e) {
@@ -3004,8 +3004,8 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			printDebug("[BP.interpret(anim)] Error: resulting animation is null!");
 			return false;
 		}
-		anim.start();
 		synchronized(anim) {
+			anim.start();
 			try {
 				anim.wait();
 			} catch(InterruptedException e) {
@@ -3072,7 +3072,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 			else if(value > 1) sb.append(" sharply rose!");
 			else if (value > 0) sb.append(" rose!");
 			else if(value > -2) sb.append(" fell!");
-			else if(value > -1) sb.append(" harshly fell!");
+			else if(value > -3) sb.append(" harshly fell!");
 			else sb.append(" fell drastically!");
 		}
 		

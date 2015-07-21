@@ -63,8 +63,8 @@ public class Looper implements Runnable {
 			if(end != 0)
 				clip.setLoopPoints(start, end);
 			clip.loop(Clip.LOOP_CONTINUOUSLY);
-			while(!shouldStop) {
-				synchronized(clip) {
+			synchronized(clip) {
+				while(!shouldStop) {
 					clip.wait();
 				}
 			}

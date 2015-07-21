@@ -150,10 +150,11 @@ class DamageCalculator {
 				}
 			}
 			if(typeModifier > 1) {
-				if(typeModifier > 2) 
+				if(typeModifier > 2) {
 					if(be.echoBattle) printMsg("It's super-duper effective!");
-				else 
+				} else {
 					if(be.echoBattle) printMsg("It's super effective!");
+				}
 			} else {
 				if(be.echoBattle) printMsg("It's not very effective...");
 			}

@@ -389,6 +389,7 @@ class GUILauncher extends JFrame {
 				JPanel msgPanel = new JPanel(new GridBagLayout());
 				GridBagConstraints c = new GridBagConstraints();
 				JCheckBox msgbox = new JCheckBox("Open debug window");
+				msgbox.setSelected(true);
 				final JTextField srvIp = new JTextField(20), srvPort = new JTextField(6);
 				// ip
 				c.gridwidth = 1;

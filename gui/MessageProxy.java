@@ -7,8 +7,9 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import java.io.*;
 import java.awt.*;
-import pokepon.util.StrAppendable;
-import pokepon.util.MessageManager;
+import java.awt.event.*;
+import pokepon.util.*;
+import static pokepon.util.MessageManager.*;
 
 /** Provides two StrAppendables to use as altOut and altErr for MessageManager,
  * allowing to redirect stdout and stderr to a JTextPane rather than the console.
@@ -72,6 +73,67 @@ public class MessageProxy {
 	public void startGUI(final String title) {
 		final JFrame f = new JFrame();
 		f.add(scrollbar);
+		pane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int sel = JOptionPane.showConfirmDialog(
+						f,
+						"Save debug log to file?",
+						"Save to file",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
+
+				switch(sel) {
+					case JOptionPane.YES_OPTION:
+						JFileChooser fileChooser = new JFileChooser() {
+							@Override
+							public void approveSelection() {
+								File f = getSelectedFile();
+								if(f.exists() && getDialogType() == SAVE_DIALOG) {
+									int result = JOptionPane.showConfirmDialog(
+											this,
+											"The file exists, overwrite?",
+											"Existing file",
+											JOptionPane.YES_NO_CANCEL_OPTION);
+									switch(result) {
+										case JOptionPane.YES_OPTION:
+											super.approveSelection();
+											return;
+										case JOptionPane.NO_OPTION:
+											return;
+										case JOptionPane.CLOSED_OPTION:
+											return;
+										case JOptionPane.CANCEL_OPTION:
+											cancelSelection();
+											return;
+									}
+								}
+								super.approveSelection();
+							}
+						};
+						fileChooser.setSelectedFile(new File(System.getProperty("user.home")
+									+ Meta.DIRSEP + "pkpdebug.log"));
+						switch(fileChooser.showSaveDialog(f)) {
+							case JFileChooser.CANCEL_OPTION:
+								return;
+							case JFileChooser.ERROR_OPTION:
+								printDebug("An error occurred while saving team.");
+								return;
+							case JFileChooser.APPROVE_OPTION:
+								printDebug("Selected file: "+fileChooser.getSelectedFile().getName());
+								break;
+						}
+						try (BufferedWriter fileOut = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile()))) {
+							    pane.write(fileOut);
+						} catch(IOException ex) {
+							printDebug("Exception while writing to file: " + ex);
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		});
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				f.setDefaultCloseOperation(_defaultCloseOperation);

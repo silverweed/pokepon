@@ -2,6 +2,9 @@ Poképon
 ====================================================
 Poképon is a multiplayer Pokémon-like battle simulator with ponies.
 
+[Click here](https://pokepon.center/playing.html) for a TL;DR quick start:
+following are more detailed and technical information on the project.
+
 The game consists mainly of a Server, a Client and a Teambuilder (plus several
 minor utilities); in order to play, a player must host a Poképon Server,
 to which several players can connect with their Clients and battle each other.

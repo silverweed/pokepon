@@ -17,6 +17,12 @@ import java.lang.reflect.*;
  */
 public class QuickLauncher implements TestingClass {
 
+	static {
+		// enable anti-aliased text
+		System.setProperty("awt.useSystemAAFontSettings","on");
+		System.setProperty("swing.aatext", "true");
+	}
+
 	public static void main(String[] args) {
 		/* Apple's default L&F doesn't work well with some features, like GradientButtons,
 		 * so ensure to set the classic Metal L&F for Swing.

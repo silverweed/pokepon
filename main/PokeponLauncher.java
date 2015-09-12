@@ -24,6 +24,12 @@ import java.lang.reflect.*;
  */
 public class PokeponLauncher {
 	
+	static {
+		// enable anti-aliased text
+		System.setProperty("awt.useSystemAAFontSettings","on");
+		System.setProperty("swing.aatext", "true");
+	}
+
 	public static void main(String[] args) throws IOException {
 		printMsg("[info] PokeponLauncher starting...");
 		if(Debug.on) printDebug("[debug] Memory: "+Runtime.getRuntime().freeMemory()/1024+" / "+Runtime.getRuntime().totalMemory()/1024+" MB (free / tot)");

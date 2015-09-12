@@ -4,6 +4,7 @@ ability/Ataraxy.java
 ability/Aversion.java
 ability/BadLuck.java
 ability/Boasting.java
+ability/Bookworm.java
 ability/BruteForce.java
 ability/ChaosMagic.java
 ability/Charity.java
@@ -332,6 +333,7 @@ pony/FlufflePuff.java
 pony/Fluttershy.java
 pony/Gilda.java
 pony/GrannySmith.java
+pony/Greta.java
 pony/GustaveLeGrand.java
 pony/Homage.java
 pony/IronWill.java
@@ -345,6 +347,7 @@ pony/Lyra.java
 pony/MarblePie.java
 pony/MaudPie.java
 pony/MilkyWay.java
+pony/Moondancer.java
 pony/MsHarshwhinny.java
 pony/NeonLights.java
 pony/NightGlider.java

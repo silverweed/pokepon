@@ -10,7 +10,7 @@ while [[ $# > 0 ]]; do
 	esac
 done
 
-find $DIR -type f -name \*$EXT -exec egrep -cv '(^\s*$|^\s*//|^\s*\*|^\s*/\*.*(?!\*/)$)' {} + | \
-	tee >(awk -v FS=':' '{printf "%-5d %s\n", $2, $1}' | sort -g >&2) | \
-	cut -f2 -d: | \
+find $DIR -type f -name \*$EXT -exec egrep -cv '(^\s*$|^\s*//|^\s*\*|^\s*/\*.*(?!\*/)$)' {} + |
+	tee >(awk -v FS=':' '{printf "%-5d %s\n", $2, $1}' | sort -g >&2) |
+	cut -f2 -d: |
 	awk '{ n += $1 } END { print n }'

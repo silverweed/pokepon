@@ -10,7 +10,7 @@ import static pokepon.util.MessageManager.*;
  *   <li>127.0.0.1 (single IP)</li>
  *   <li>127.0.* (all IPs starting with 127.0.)</li>
  *   <li>127.0.0.[1-255] (IP ranging from 127.0.0.1 to 127.0.0.255); in this case,
- *     a `*` is implied after the range if it's not in the last group (i.e 127.{1-3} is valid)</li>
+ *     a `*` is implied after the range if it's not in the last group (i.e 127.[1-3] is valid)</li>
  *   <li>* (all IPs)</li>
  *   <li>127.0.0.1/24 (subnet with base IP 127.0.0.1 and netmask 24)</li>
  * </ul>
@@ -287,7 +287,7 @@ class IPClass {
 					if(itsOctets[i] < startOctets[i] || itsOctets[i] > endOctets[i])
 						return false;
 				return true;
-			case NETMASK:
+			case NETMASK: {
 				int addr = 0;
 				for(byte i = 0; i < 4; ++i)
 					addr |= itsOctets[i] << (8 * (3 - i));
@@ -296,6 +296,7 @@ class IPClass {
 					mask |= 1 << (31 - i);
 				int subnet = ipInt & mask;
 				return ((ipInt ^ addr) & mask) == 0;
+			}
 		}				
 		return false;
 	}

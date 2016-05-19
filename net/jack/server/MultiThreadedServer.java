@@ -138,19 +138,19 @@ public class MultiThreadedServer extends BasicNameValidatingServer implements Au
 		}
 		if(opts.defaultNick != null) {
 			defaultNick = opts.defaultNick;
-			if(verbosity >= 2) printDebug("[MultiTheadedServer] defaultNick set to "+defaultNick);
+			if(verbosity >= 2) printDebug("[MultiThreadedServer] defaultNick set to "+defaultNick);
 		}
 		if(opts.welcomeMessage != null) {
 			welcomeMessage = opts.welcomeMessage;
-			if(verbosity >= 2) printDebug("[MultiTheadedServer] welcomeMessage set to "+welcomeMessage);
+			if(verbosity >= 2) printDebug("[MultiThreadedServer] welcomeMessage set to "+welcomeMessage);
 		}
 		if(opts.advancedChat != null) {
 			advancedChat = opts.advancedChat;
-			if(verbosity >= 2) printDebug("[MultiTheadedServer] advancedChat set to "+advancedChat);
+			if(verbosity >= 2) printDebug("[MultiThreadedServer] advancedChat set to "+advancedChat);
 		}
 		if(opts.cmdBanLimit != null) {
 			cmdBanLimit = opts.cmdBanLimit;
-			if(verbosity >= 2) printDebug("[MultiTheadedServer] cmdBanLimit set to "+cmdBanLimit);
+			if(verbosity >= 2) printDebug("[MultiThreadedServer] cmdBanLimit set to "+cmdBanLimit);
 		}
 		if(opts.blacklistFile != null) {
 			blacklistFile = opts.blacklistFile;

@@ -130,13 +130,13 @@ public class DataDealer {
 			String[] tmp = token[0].trim().split("\\s*,\\s*");
 			Type t1 = Type.forName(Saner.sane(tmp[0].trim(),knownTypeNames));
 			if(t1 == null) {
-				return "|error|Type "+tmp[0]+" not found.";
+				return null;
 			}
 			Type t2 = null;
 			if(tmp.length > 1) {
 				t2 = Type.forName(Saner.sane(tmp[1].trim(),knownTypeNames));
 				if(t2 == null) {
-					return "|error|Type "+tmp[1]+" not found.";
+					return null;
 				}
 			}
 			return getEffectiveness(new Type[] { t1, t2 });
@@ -146,18 +146,18 @@ public class DataDealer {
 			// prints effectiveness of attacking type1 vs defending typing 2[,3].
 			Type t1 = Type.forName(Saner.sane(token[0].trim(),knownTypeNames));
 			if(t1 == null) {
-				return "|error|Type "+token[0]+" not found.";
+				return null;
 			}
 			String[] tmp = token[1].trim().split("\\s*,\\s*");
 			Type t3 = Type.forName(Saner.sane(tmp[0].trim(),knownTypeNames));
 			if(t3 == null) {
-				return "|error|Type "+tmp[0]+" not found.";
+				return null;
 			}
 			Type t4 = null;
 			if(tmp.length > 1) {
 				t4 = Type.forName(Saner.sane(tmp[1].trim(),knownTypeNames));
 				if(t4 == null) {
-					return "|error|Type "+tmp[1]+" not found.";
+					return null;
 				}
 			}
 			return getEffectiveness(t1, new Type[] { t3, t4 });

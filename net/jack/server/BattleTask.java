@@ -1227,7 +1227,10 @@ public class BattleTask implements Runnable {
 			}
 			String response = dataDealer.getEffectiveness(ConcatenateArrays.merge(token,1));
 			if(response == null) {
-				sendB(conn,"|error|"+ConcatenateArrays.merge(token,1)+": no data found.", false);
+				if(broadcast)
+					sendB("|error|"+ConcatenateArrays.merge(token,1)+": no data found.");
+				else
+					sendB(conn,"|error|"+ConcatenateArrays.merge(token,1)+": no data found.", false);
 			} else if(response.startsWith("|")) {
 				if(broadcast)
 					sendB(response);

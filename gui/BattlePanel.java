@@ -278,6 +278,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 	private String format;
 	/** Whether we're guests in this battle or not */
 	private boolean guest;
+	private DataDealer dataDealer = new DataDealer();
 
 	/** This gets called by all the constructors to initialize some objects which cannot be constructed inline */
 	private void constructStuff() {
@@ -3443,6 +3444,7 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 						switch(inputF.getText().charAt(0)) {
 							case CMD_PREFIX: {
 								String txt = inputF.getText().trim().substring(1);
+								String[] toks = txt.split("\\s+");
 								if(txt.equals("export") || txt.equals("save")) {
 									if(battleLogger != null) {
 										// TODO: add capability to select save location
@@ -3451,6 +3453,33 @@ public class BattlePanel extends JPanel implements pokepon.main.TestingClass {
 											appendEvent(EventType.INFO,battleLogger.getFeedbackMsg());
 									} else {
 										appendEvent(EventType.INFO,"You haven't enabled logging for this battle.");
+									}
+								} else if(toks[0].equals("data")) {
+									if (toks.length < 2) {
+										appendEvent(EventType.ERROR, "Syntax error: expected pony, move, item or ability name after 'data' command.");
+										break;
+									} 
+									String response = dataDealer.getData(txt.substring(5));
+									if(response != null) {
+										response = Meta.toLocalURL(response);	
+										appendEvent(EventType.HTML, response);
+									} else {
+										appendEvent(EventType.ERROR, txt.substring(5) + ": no data found.");
+									}
+								} else if(toks[0].equals("eff")) {
+									if(toks.length < 2) {
+										appendEvent(EventType.ERROR, 
+											"Syntax error: correct syntax is :<br>&nbsp;" +
+											CMD_PREFIX + "eff type1[,type2]<br>&nbsp;"+
+											CMD_PREFIX + "eff type1 -&gt; type2[,type3]");
+										break;
+									} 
+									String response = dataDealer.getEffectiveness(txt.substring(4));
+									if (response != null) {
+										response = Meta.toLocalURL(response);
+										appendEvent(EventType.HTML, response);
+									} else {
+										appendEvent(EventType.ERROR, txt.substring(4) + ": no data found.");
 									}
 								} else {
 									sendB("|cmd|"+(playerID == 0 ? p1.getName() : playerID)+"|"+inputF.getText().substring(1));

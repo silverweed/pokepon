@@ -44,6 +44,7 @@ public class CommunicationsExecutor extends ServerConnectionExecutor {
 						System.getProperty("os.version"));
 				return 1;
 			case "myos": {
+				if (token.length < 2) return 1;
 				//receives and sets this connection's OS
 				String os = ConcatenateArrays.merge(token, 1);
 				connection.setOS(os);

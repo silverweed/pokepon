@@ -1,6 +1,6 @@
 #!/bin/bash
 # count lines of code, excluding comments and empty lines.
-# by silverweed
+# (c) silverweed - released under Public Domain
 
 DIR='.'
 while [[ $# > 0 ]]; do

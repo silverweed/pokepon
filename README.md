@@ -30,26 +30,7 @@ To connect to a running server, click "Client" and insert the server IP
 decided otherwise).
 
 Here is a list of public Poképon Servers to which anyone can connect:
-<table>
-  <tr>
-    <th colspan=2>List of public Poképon Servers</th>
-  </tr>
-  <tr>
-    <th>Server IP</th>
-    <th>Mantainer</th>
-  </tr>
-  <tr>
-    <td>pokepon.center</td>
-    <td>silverweed</td>
-  <tr>
-    <td>lyrawearspants.com</td>
-    <td>RedEnchilada</td>
-  </tr>
-  <tr>
-    <td colspan=2><em><small>Want to host a server? Feel free <br>
-    to <a href='mailto:silverweed1991@gmail.com'>contact me</a>!</small></em></td>
-  </tr>
-</table>
+*none: they all ded, lol*
 
 Building
 -----------------------------------------------------

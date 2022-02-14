@@ -301,10 +301,7 @@ good security measure. For the latter, a Dockerfile for a PokeponServer is avail
 
 Reporting bugs
 -----------------------------------------------------------------
-Since this is a pre-alpha release, I expect many bugs (some of which are already known,
-see TODO); if you find a new one, you're encouraged to report it in [the 
-issues section on GitHub](https://github.com/silverweed/Pokepon/issues). If you don't
-want to get a GitHub account, please mail me at silverweed1991@gmail.com.
+Poképon is no longer actively maintained. You are free to submit PRs and/or fork the repository if you're interested in bugfixes.
 
 Chat System
 -----------------------------------------------------------------
@@ -317,15 +314,6 @@ Poképon is free software distributed under the GNU General Public License
 (see COPYING for details).
 The rights upon the artwork under the resources/ directory belong to their
 respective owners.
-
-Contributing
------------------------------------------------------------------
-Any contribution to the game, either in the form of art (sprites, music),
-server hosting, source code or simply ideas/suggestions is very much
-appreciated. 
-As regards the source code, the preferred way to propose a change is via
-a pull request or an issue; else, contact me 
-[via email](mailto:silverweed1991@gmail.com).
 
 Credits
 -----------------------------------------------------------------
@@ -344,6 +332,4 @@ the owner of said artwork).
 
 Author & Mantainers
 -----------------------------------------------------------------
-* Author: silverweed [[silverweed](https://github.com/silverweed)]
-* Public server hosting: RedEnchilada
-* Official site hosting: [Hamcha](https://github.com/hamcha)
+* Author: [silverweed](https://github.com/silverweed)
